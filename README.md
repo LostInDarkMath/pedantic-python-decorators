@@ -1,4 +1,4 @@
-# PythonHelpers
+# PythonHelpers [![Build Status](https://travis-ci.com/LostInDarkMath/PythonHelpers.svg?branch=master)](https://travis-ci.com/LostInDarkMath/PythonHelpers)
 Some useful decorators which I use in almost every python project.
 
 ## The powerful decorators
