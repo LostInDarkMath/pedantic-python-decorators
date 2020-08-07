@@ -160,9 +160,9 @@ Run `pip install git+https://github.com/LostInDarkMath/PythonHelpers.git@v123`
 
 # Dependencys
 Outside the Python standard library, the followings dependencies are used:
-- [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2)
+- [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2, requires Python 3.6)
 
-Created with Python 3.8.5.
+Created with Python 3.8.5. Should work with Python 3.6 or newer.
 
 # License
 
