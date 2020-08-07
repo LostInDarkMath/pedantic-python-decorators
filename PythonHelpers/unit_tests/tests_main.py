@@ -1,4 +1,7 @@
 import unittest
+import sys
+import os
+sys.path.append(os.getcwd())
 
 # local file imports
 from PythonHelpers.unit_tests.tests_require_docstrings_google_format import TestRequireDocstringGoogleFormat
