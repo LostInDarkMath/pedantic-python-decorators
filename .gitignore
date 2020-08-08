@@ -1,7 +1,13 @@
+# Pycharm
 .idea
+*.pyc
 
-
+# Virtuel environments
 venv
 venv3.7
 
-*.pyc
+# Coverage
+htmlcov
+.coverage
+.coveragerc
+
