@@ -2,9 +2,12 @@
 
 import inspect
 import typing
+import sys
+
+"""Dynamically accessing the standard library based on Python version"""
+typing_protocol = typing._Protocol if sys.version_info[:2] <= (3, 7) else typing.Protocol
 
 __all__ = ['is_instance', 'is_subtype', 'python_type', 'is_generic', 'is_base_generic', 'is_qualified_generic']
-
 
 if hasattr(typing, '_GenericAlias'):
     # python 3.7
@@ -20,7 +23,7 @@ if hasattr(typing, '_GenericAlias'):
 
     def _is_base_generic(cls):
         if isinstance(cls, typing._GenericAlias):
-            if cls.__origin__ in {typing.Generic, typing.Protocol}:
+            if cls.__origin__ in {typing.Generic, typing_protocol}:
                 return False
 
             if isinstance(cls, typing._VariadicGenericAlias):

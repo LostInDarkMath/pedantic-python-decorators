@@ -1,3 +1,7 @@
 .idea
 
+
+venv
+venv3.7
+
 *.pyc

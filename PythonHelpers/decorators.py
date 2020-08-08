@@ -94,9 +94,13 @@ def __require_docstring_google_format(func: Callable, docstring: Docstring, anno
         f'The documented return type "{docstring.returns}" does not match the annotated return type.'
 
     for annotation in annotations:
-        expected_type: str = annotations[annotation].__name__ \
-            if hasattr(annotations[annotation], '__name__') \
-            else str(annotations[annotation]).replace('typing.', '')
+        expected_type_raw = annotations[annotation]
+        if 'typing.' in str(expected_type_raw):
+            expected_type = str(annotations[annotation]).replace('typing.', '')
+        elif hasattr(expected_type_raw, '__name__'):
+            expected_type = expected_type_raw.__name__
+        else:
+            expected_type = None
 
         if annotation == 'return' and annotations[annotation] is not None:
             assert docstring.returns is not None, \

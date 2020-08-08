@@ -1,5 +1,6 @@
 # PythonHelpers [![Build Status](https://travis-ci.com/LostInDarkMath/PythonHelpers.svg?branch=master)](https://travis-ci.com/LostInDarkMath/PythonHelpers)
 Some useful decorators which I use in almost every python project.
+These decorators will make you write cleaner and well-documented Python code.
 
 ## The powerful decorators
 ### @pedantic
@@ -54,7 +55,7 @@ def some_calculation(a, b, c):
     return a + b + c
 
 some_calculation(30, 40, 50)  # this leads to an error
-some_calculation(43, 40, 50)  # this is okay
+some_calculation(43, 45, 50)  # this is okay
 ```
 There are some shortcuts included for often used validations:
 - `@require_not_none` ensures that each argument is not `None`
@@ -150,7 +151,7 @@ def some_calculation():
 ### @trace
 Prints the passed arguments and keyword arguments and return values on each function call.
 ```python
-@count_calls
+@trace
 def some_calculation(a, b):
     return a + b
 ```
@@ -158,11 +159,17 @@ def some_calculation(a, b):
 # Quickstart guide
 Run `pip install git+https://github.com/LostInDarkMath/PythonHelpers.git@v123`
 
-# Dependencys
+# Dependencies
 Outside the Python standard library, the followings dependencies are used:
 - [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2, requires Python 3.6)
 
-Created with Python 3.8.5. Should work with Python 3.6 or newer.
+Created with Python 3.8.5. [It works with Python 3.6 or newer.](https://travis-ci.com/github/LostInDarkMath/PythonHelpers)
+
+# Risks and Side Effects
+The usage of decorators may affect the performance of your application. For this reason, it would highly recommend you to disable the decorators during deployment. Best practice would be to integrate this in a automated depoly chain:
+```
+[CI runs tests] => [Remove decorators] => [deploy cleaned code]
+```
 
 # License
 
