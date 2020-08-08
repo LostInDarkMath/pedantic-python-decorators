@@ -7,17 +7,22 @@ import sys
 """Dynamically accessing the standard library based on Python version"""
 typing_protocol = typing._Protocol if sys.version_info[:2] <= (3, 7) else typing.Protocol
 
+
+class RefactoringError(Exception):
+    pass
+
+
 __all__ = ['is_instance', 'is_subtype', 'python_type', 'is_generic', 'is_base_generic', 'is_qualified_generic']
 
 if hasattr(typing, '_GenericAlias'):
     # python 3.7
     def _is_generic(cls):
+
         if isinstance(cls, typing._GenericAlias):
             return True
 
         if isinstance(cls, typing._SpecialForm):
             return cls not in {typing.Any}
-
         return False
 
 
@@ -26,7 +31,13 @@ if hasattr(typing, '_GenericAlias'):
             if cls.__origin__ in {typing.Generic, typing_protocol}:
                 return False
 
-            if isinstance(cls, typing._VariadicGenericAlias):
+            # inserted by Willi to make is compatible with Python versions 3.9 or later
+            is_variadic_generic_alias = str(cls) in ['typing.Tuple', 'typing.Callable']
+            if hasattr(typing, "_VariadicGenericAlias") and not \
+                    (isinstance(cls, typing._VariadicGenericAlias) == is_variadic_generic_alias):
+                raise RefactoringError(f'Assumption made during refactoring failed: {is_variadic_generic_alias}')
+
+            if is_variadic_generic_alias:
                 return True
 
             return len(cls.__parameters__) > 0
@@ -77,7 +88,8 @@ else:
     else:
         # python 3.5
         def _is_generic(cls):
-            if isinstance(cls, (typing.GenericMeta, typing.UnionMeta, typing.OptionalMeta, typing.CallableMeta, typing.TupleMeta)):
+            if isinstance(cls, (
+            typing.GenericMeta, typing.UnionMeta, typing.OptionalMeta, typing.CallableMeta, typing.TupleMeta)):
                 return True
 
             return False
@@ -147,7 +159,6 @@ else:
         except AttributeError:
             return type(cls).__name__[1:]
 
-
 if hasattr(typing.List, '__args__'):
     # python 3.6+
     def _get_subtypes(cls):
@@ -192,7 +203,10 @@ def is_base_generic(cls):
     """
     Detects generic base classes, for example `List` (but not `List[int]`)
     """
-    return _is_base_generic(cls)
+    res = _is_base_generic(cls)
+    assert not res, f'The type annotation "{cls}" misses some type arguments, for example ' \
+                    f'"typing.Tuple[Any, ...]" or "typing.Callable[[int, float], str]".'
+    return res
 
 
 def is_qualified_generic(cls):
@@ -233,7 +247,14 @@ def _instancecheck_itemsview(itemsview, type_args):
     return all(is_instance(key, key_type) and is_instance(val, value_type) for key, val in itemsview)
 
 
-def _instancecheck_tuple(tup, type_args):
+def _instancecheck_tuple(tup, type_args) -> bool:
+    """Examples:
+    >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(typing.Any, Ellipsis))  # = Tuple[Any, ...]
+    >>> True
+    """
+    if Ellipsis in type_args:
+        return all(is_instance(val, type_args[0]) for val in tup)
+
     if len(tup) != len(type_args):
         return False
 
@@ -242,35 +263,35 @@ def _instancecheck_tuple(tup, type_args):
 
 _ORIGIN_TYPE_CHECKERS = {}
 for class_path, check_func in {
-                        # iterables
-                        'typing.Container': _instancecheck_iterable,
-                        'typing.Collection': _instancecheck_iterable,
-                        'typing.AbstractSet': _instancecheck_iterable,
-                        'typing.MutableSet': _instancecheck_iterable,
-                        'typing.Sequence': _instancecheck_iterable,
-                        'typing.MutableSequence': _instancecheck_iterable,
-                        'typing.ByteString': _instancecheck_iterable,
-                        'typing.Deque': _instancecheck_iterable,
-                        'typing.List': _instancecheck_iterable,
-                        'typing.Set': _instancecheck_iterable,
-                        'typing.FrozenSet': _instancecheck_iterable,
-                        'typing.KeysView': _instancecheck_iterable,
-                        'typing.ValuesView': _instancecheck_iterable,
-                        'typing.AsyncIterable': _instancecheck_iterable,
+    # iterables
+    'typing.Container': _instancecheck_iterable,
+    'typing.Collection': _instancecheck_iterable,
+    'typing.AbstractSet': _instancecheck_iterable,
+    'typing.MutableSet': _instancecheck_iterable,
+    'typing.Sequence': _instancecheck_iterable,
+    'typing.MutableSequence': _instancecheck_iterable,
+    'typing.ByteString': _instancecheck_iterable,
+    'typing.Deque': _instancecheck_iterable,
+    'typing.List': _instancecheck_iterable,
+    'typing.Set': _instancecheck_iterable,
+    'typing.FrozenSet': _instancecheck_iterable,
+    'typing.KeysView': _instancecheck_iterable,
+    'typing.ValuesView': _instancecheck_iterable,
+    'typing.AsyncIterable': _instancecheck_iterable,
 
-                        # mappings
-                        'typing.Mapping': _instancecheck_mapping,
-                        'typing.MutableMapping': _instancecheck_mapping,
-                        'typing.MappingView': _instancecheck_mapping,
-                        'typing.ItemsView': _instancecheck_itemsview,
-                        'typing.Dict': _instancecheck_mapping,
-                        'typing.DefaultDict': _instancecheck_mapping,
-                        'typing.Counter': _instancecheck_mapping,
-                        'typing.ChainMap': _instancecheck_mapping,
+    # mappings
+    'typing.Mapping': _instancecheck_mapping,
+    'typing.MutableMapping': _instancecheck_mapping,
+    'typing.MappingView': _instancecheck_mapping,
+    'typing.ItemsView': _instancecheck_itemsview,
+    'typing.Dict': _instancecheck_mapping,
+    'typing.DefaultDict': _instancecheck_mapping,
+    'typing.Counter': _instancecheck_mapping,
+    'typing.ChainMap': _instancecheck_mapping,
 
-                        # other
-                        'typing.Tuple': _instancecheck_tuple,
-                    }.items():
+    # other
+    'typing.Tuple': _instancecheck_tuple,
+}.items():
     try:
         cls = eval(class_path)
     except AttributeError:
@@ -387,7 +408,8 @@ def is_instance(obj, type_):
 def is_subtype(sub_type, super_type):
     if not is_generic(sub_type):
         python_super = python_type(super_type)
-        return issubclass(sub_type, python_super)
+        python_sub = python_type(sub_type)
+        return issubclass(python_sub, python_super)
 
     # at this point we know `sub_type` is a generic
     python_sub = python_type(sub_type)
@@ -425,19 +447,21 @@ def python_type(annotation):
         <class 'list'>
         >>> python_type(int)
         <class 'int'>
+        >>> python_type(typing.Any)
+        <class 'object'>
     """
-    try:
+    if hasattr(annotation, 'mro'):
         mro = annotation.mro()
-    except AttributeError:
-        # if it doesn't have an mro method, it must be a weird typing object
-        return _get_python_type(annotation)
-
-    if typing.Type in mro:
-        return annotation.python_type
-    elif annotation.__module__ == 'typing':
-        return _get_python_type(annotation)
+        if typing.Type in mro:
+            return annotation.python_type
+        elif annotation.__module__ == 'typing':
+            return _get_python_type(annotation)
+        else:
+            return annotation
+    elif annotation == typing.Any or annotation == Ellipsis:
+        return object
     else:
-        return annotation
+        return _get_python_type(annotation)
 
 
 if __name__ == '__main__':

@@ -47,6 +47,25 @@ The `@pedantic` decorator does the following things:
 ### @pedantic_require_docstring
 It's like `@pedantic`, but it additionally forces developers to create docstrings. It raises an `AssertionError`, if there is no docstring.
 
+### @pedantic_class
+The `pedantic` decorator is only for methods. But the `@pedantic_class` decorator is it's counterpart for classes. That means by only changing one line of code you can make your class pedantic:
+```python
+@pedantic_class
+class MyClass:
+    def __init__(self, a: int) -> None:
+        self.a = a
+
+    def calc(self, b: int) -> int:
+        return self.a - b
+
+    def print(self, s: str) -> None:
+        print(f'{self.a} and {s}')
+
+m = MyClass(a=5)
+m.calc(b=42)
+m.print(s='Hi')
+```
+
 ### @validate_args
 With the `@validate_args` decorator you can do contract checking *outside* of functions. Just pass a validator in, for example:
 ```python
@@ -64,7 +83,7 @@ There are some shortcuts included for often used validations:
 ## The small decorators:
 ### @overrides
 ```python
-from PythonHelpers.decorators import overrides
+from PythonHelpers.method_decorators import overrides
 
 
 class Parent:
@@ -81,7 +100,7 @@ Together with the [Abstract Base Class](https://docs.python.org/3/library/abc.ht
 
 ```python
 from abc import ABC, abstractmethod
-from PythonHelpers.decorators import overrides
+from PythonHelpers.method_decorators import overrides
 
 
 class Parent(ABC):
