@@ -134,11 +134,22 @@ def new_operation():
 ```
 
 ### @needs_refactoring
-A decorator for marking messy code and prevents it from execution.
+Of course, you refactor immediately if you see something ugly.
+However, if you don't have the time for a big refactoring use this decorator at least.
+A warning is raised everytime the decorated function is called.
 ```python
 @needs_refactoring
-def new_operation():
+def almost_messy_operation():
     pass
+```
+
+### @dirty
+A decorator for preventing from execution and therefore from causing damage.
+If the function gets called, a `TooDirtyException` is raised.
+```python
+@dirty
+def messy_operation():
+    # messy code goes here
 ```
 
 ### @require_kwargs

@@ -1,12 +1,12 @@
 import functools
 import inspect
-from typing import Callable, Any, Tuple, Dict
+from typing import Callable, Any, Tuple, Dict, Type
 from datetime import datetime
 from docstring_parser import parse, Docstring
 import warnings
 
 # local file imports
-from PythonHelpers.custom_exceptions import NotImplementedException, NeedsRefactoringException
+from PythonHelpers.custom_exceptions import NotImplementedException, TooDirtyException
 from PythonHelpers.type_hint_parser import is_instance
 
 
@@ -127,6 +127,12 @@ def __require_docstring_google_format(func: Callable, docstring: Docstring, anno
                 f'but type "{docstring_param.type_name}" is documented instead!'
 
 
+def __raise_warning(msg: str, category: Type[Warning]):
+    warnings.simplefilter('always', category)  # turn off filter
+    warnings.warn(msg, category=category, stacklevel=2)
+    warnings.simplefilter('default', category)  # reset filter
+
+
 # DECORATORS ###
 def overrides(interface_class: Any) -> Callable:
     """
@@ -205,13 +211,22 @@ def deprecated(func: Callable) -> Callable:
     when the function is used."""
     @functools.wraps(func)
     def new_func(*args, **kwargs):
-        warnings.simplefilter('always', DeprecationWarning)  # turn off filter
-        warnings.warn("Call to deprecated function {}.".format(func.__name__),
-                      category=DeprecationWarning,
-                      stacklevel=2)
-        warnings.simplefilter('default', DeprecationWarning)  # reset filter
+        __raise_warning(msg="Call to deprecated function {}.".format(func.__name__), category=DeprecationWarning)
         return func(*args, **kwargs)
     return new_func
+
+
+def needs_refactoring(func: Callable) -> Callable:
+    """
+        Of course, you refactor immediately if you see something ugly.
+        However, if you don't have the time for a big refactoring use this decorator at least.
+        A warning is printed everytime the decorated function is called.
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs) -> Any:
+        __raise_warning(msg=f'Function "{func.__name__}" looks terrible and needs a refactoring!', category=UserWarning)
+        return func(*args, **kwargs)
+    return wrapper
 
 
 def unimplemented(func: Callable) -> Callable:
@@ -221,7 +236,7 @@ def unimplemented(func: Callable) -> Callable:
         >>> @unimplemented
         >>> def some_calculation(a, b, c):
         >>>     pass
-        >>> some_calculation(5, 4, 3)       # this will lead to an ValueError
+        >>> some_calculation(5, 4, 3)       # this will lead to an NotImplementedException
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
@@ -229,18 +244,18 @@ def unimplemented(func: Callable) -> Callable:
     return wrapper
 
 
-def needs_refactoring(func: Callable) -> Callable:
+def dirty(func: Callable) -> Callable:
     """
-        For documentation purposes. Don't life with broken windows.
+        Prevents dirty code from beeing executed.
         Example:
-        >>> @needs_refactoring
+        >>> @dirty
         >>> def some_calculation(a, b, c):
-        >>>     return a + a + a + b + c
-        >>> some_calculation(5, 4, 3)       # this will lead to an ValueError
+        >>>     return a + a + a + a + a
+        >>> some_calculation(5, 4, 3)       # this will lead to an TooDirtyException
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
-        raise NeedsRefactoringException(f'Function "{func.__name__}" looks terrible and needs a refactoring!')
+        raise TooDirtyException(f'Function "{func.__name__}" is too dirty to be executed!')
     return wrapper
 
 
