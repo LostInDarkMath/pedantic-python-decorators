@@ -72,7 +72,10 @@ def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     >>> (Ellipses, <class 'str'>)
     """
     if hasattr(typing, 'get_args'):
-        return typing.get_args(cls)
+        try:
+            return typing.get_args(cls)
+        except IndexError:
+            return ()
     elif hasattr(cls, '__args__'):
         # return cls.__args__  # DOESNT WORK. So below is the implementation of typing.get_args()
 
@@ -111,9 +114,7 @@ def has_required_type_arguments(cls: typing.Any) -> bool:
         'typing.Union': 2,
     }
     base: str = get_base_class_as_str(cls=cls)
-    print(cls)
-    print(base)
-    print(num_type_args)
+
     if base in requirements_exact:
         return requirements_exact[base] == num_type_args
     elif base in requirements_min:
@@ -569,7 +570,3 @@ def python_type(annotation):
         return object
     else:
         return _get_python_type(annotation)
-
-
-if __name__ == '__main__':
-    print(has_required_type_arguments(typing.Callable[[int, float], typing.Tuple[float, str]]))
