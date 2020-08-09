@@ -179,7 +179,7 @@ def some_calculation():
 ```
 
 ### @trace
-Prints the passed arguments and keyword arguments and return values on each function call.
+Prints the passed arguments and the return value on each function call.
 ```python
 @trace
 def some_calculation(a, b):
@@ -187,6 +187,7 @@ def some_calculation(a, b):
 ```
 
 # Quickstart guide
+0. Install [Git](https://git-scm.com/downloads) if you don't have it already.
 1. Run `pip install git+https://github.com/LostInDarkMath/PythonHelpers.git@master`
 2. In your Python file write `from PythonHelpers import pedantic, pedantic_class` or whatever decorator you want to use.
 3. Use it like mentioned above. Happy coding!
