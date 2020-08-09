@@ -189,7 +189,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_all_ok_3(self):
         @pedantic
         def calc(n: int, m: int, i: int) -> None:
-            print(str(n + m + i))
+            str(n + m + i)
 
         calc(n=42, m=40, i=38)
 
@@ -330,7 +330,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_wrong_type_hint_corrected(self):
         @pedantic
         def calc(n: int, m: int, i: int) -> None:
-            print(n + m + i)
+            n + m + i
 
         calc(n=42, m=40, i=38)
 
@@ -338,7 +338,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         """Problem here: None != int"""
         @pedantic
         def calc(n: int, m: int, i: int) -> int:
-            print(n + m + i)
+            n + m + i
 
         with self.assertRaises(expected_exception=AssertionError):
             calc(n=42, m=40, i=38)
@@ -632,3 +632,44 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return [i]
 
         calc(i=[42.0, 43, 'hi'])
+
+    def test_ellipsis_in_callable_1(self):
+        @pedantic
+        def calc(i: Callable[..., int]) -> int:
+            return i()
+
+        @pedantic
+        def call() -> int:
+            return 42
+
+        calc(i=call)
+
+    def test_ellipsis_in_callable_2(self):
+        @pedantic
+        def calc(i: Callable[..., int]) -> int:
+            return i(x=3.14, y=5)
+
+        @pedantic
+        def call(x: float, y: int) -> int:
+            return 42
+
+        calc(i=call)
+
+    def test_ellipsis_in_callable_3(self):
+        """Problem here: call to "call" misses one argument"""
+        @pedantic
+        def calc(i: Callable[..., int]) -> int:
+            return i(x=3.14)
+
+        @pedantic
+        def call(x: float, y: int) -> int:
+            return 42
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=call)
+
+
+if __name__ == '__main__':
+    # run a specific unit test
+    test = TestDecoratorRequireKwargsAndTypeCheck()
+    test.test_callable_without_args()
