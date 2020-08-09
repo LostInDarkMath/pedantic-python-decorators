@@ -672,4 +672,4 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 if __name__ == '__main__':
     # run a specific unit test
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_none_3()
+    test.test_callable_without_args()
