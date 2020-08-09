@@ -8,10 +8,6 @@ import collections
 typing_protocol = typing.Protocol if hasattr(typing, 'Protocol') else typing._Protocol
 
 
-class AssumptionFailedError(Exception):
-    pass
-
-
 def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
     """The main function of this module."""
 
@@ -131,9 +127,6 @@ def get_base_class_as_str(cls: typing.Any) -> str:
 
 
 if hasattr(typing, '_GenericAlias'):
-    if not sys.version_info >= (3, 7):
-        raise AssumptionFailedError(f'Python version >= 3.7 was stated. You run it with {sys.version_info}.')
-
     def _is_generic(cls):
 
         if isinstance(cls, typing._GenericAlias):
@@ -155,7 +148,7 @@ if hasattr(typing, '_GenericAlias'):
             is_variadic_generic_alias = str(cls) in ['typing.Tuple', 'typing.Callable']
             if hasattr(typing, "_VariadicGenericAlias") and not \
                     (isinstance(cls, typing._VariadicGenericAlias) == is_variadic_generic_alias):
-                raise AssumptionFailedError(f'Assumption made during refactoring failed: {is_variadic_generic_alias}')
+                raise ValueError(f'Assumption made during refactoring failed: {is_variadic_generic_alias}')
 
             if is_variadic_generic_alias:
                 return True
@@ -187,13 +180,7 @@ if hasattr(typing, '_GenericAlias'):
     def _get_name(cls):
         return cls._name
 else:
-    if not sys.version_info < (3, 7):
-        raise AssumptionFailedError(f'Python version < 3.7 was stated. You run it with {sys.version_info}.')
-
     if hasattr(typing, '_Union'):
-        if not sys.version_info[:2] == (3, 6):
-            raise AssumptionFailedError(f'Python version 3.6 was stated. You run it with {sys.version_info}.')
-
         def _is_generic(cls):
             if isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
                 return True
@@ -210,9 +197,6 @@ else:
 
             return False
     else:
-        if not sys.version_info <= (3, 5):
-            raise AssumptionFailedError(f'Python version <= 3.5 was stated. You run it with {sys.version_info}.')
-
         def _is_generic(cls):
             if isinstance(cls, (
             typing.GenericMeta, typing.UnionMeta, typing.OptionalMeta, typing.CallableMeta, typing.TupleMeta)):
@@ -286,9 +270,6 @@ else:
             return type(cls).__name__[1:]
 
 if hasattr(typing.List[typing.List[int]], '__args__'):
-    if not sys.version_info >= (3, 6):
-        raise AssumptionFailedError(f'Python version >= 3.6 was stated. You run it with {sys.version_info}.')
-
     def _get_subtypes(cls):
         assert hasattr(cls, '__args__'), f'"{cls}" has no type attributes.'
         subtypes = cls.__args__
@@ -299,9 +280,6 @@ if hasattr(typing.List[typing.List[int]], '__args__'):
 
         return subtypes
 else:
-    if not sys.version_info <= (3, 5):
-        raise AssumptionFailedError(f'Python version <= 3.5 was stated. You run it with {sys.version_info}.')
-
     def _get_subtypes(cls):
         if isinstance(cls, typing.CallableMeta):
             if cls.__args__ is None:
