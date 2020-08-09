@@ -1,6 +1,6 @@
 import functools
 import inspect
-from typing import Callable, Any, Tuple, Dict, Type
+from typing import Callable, Any, Tuple, Dict, Type, Optional
 from datetime import datetime
 from docstring_parser import parse, Docstring
 import warnings
@@ -28,19 +28,7 @@ def __require_kwargs(func: Callable, args: Tuple[Any, ...]) -> None:
 def __is_value_matching_type_hint(value: Any, type_hint: Any) -> bool:
     if type_hint is None:
         return value == type_hint
-    try:
-        res = is_instance(value, type_hint)
-    except ValueError as ex:
-        print(ex)
-        assert False, f'Parsing of type annotations failed. Maybe you are about to return a lambda expression. ' \
-                      f'Try returning an inner function instead.'
-    except NotImplementedError as ex:
-        print(ex)
-        assert False, f"The parser doesnt provide the functionality you try to use."
-    except TypeError as ex:
-        print(ex)
-        assert False, ex
-    return res
+    return is_instance(value, type_hint)
 
 
 def __get_parsed_docstring(func: Callable) -> Docstring:
@@ -62,7 +50,7 @@ def __require_kwargs_and_type_checking(func: Callable,
 
     __require_kwargs(func=func, args=args)
     assert len(kwargs) + 1 == len(annotations), \
-        f'Function "{func.__name__}" misses some type hints: {kwargs}, {annotations}'
+        f'Function "{func.__name__}" misses some type hints or arguments: {kwargs}, {annotations}'
 
     for kwarg in kwargs:
         expected_type = annotations[kwarg]
@@ -72,9 +60,12 @@ def __require_kwargs_and_type_checking(func: Callable,
     result = func(*args, **kwargs)
     expected_result_type = annotations['return']
 
-    assert __is_value_matching_type_hint(value=result, type_hint=expected_result_type), \
-        f'Return type of function "{func.__name__}" is wrong: ' \
-        f'Expected {expected_result_type}, but got {type(result)}.'
+    if isinstance(expected_result_type, str):
+        assert result.__class__.__name__ == expected_result_type, f'Do not use strings as type hints!'
+    else:
+        assert __is_value_matching_type_hint(value=result, type_hint=expected_result_type), \
+            f'Return type of function "{func.__name__}" is wrong: ' \
+            f'Expected {expected_result_type}, but got {type(result)}.'
     return result
 
 
@@ -99,6 +90,8 @@ def __require_docstring_google_format(func: Callable, docstring: Docstring, anno
             expected_type = str(annotations[annotation]).replace('typing.', '')
         elif hasattr(expected_type_raw, '__name__'):
             expected_type = expected_type_raw.__name__
+        elif isinstance(expected_type_raw, str):
+            expected_type = expected_type_raw
         else:
             expected_type = None
 
@@ -145,10 +138,11 @@ def overrides(interface_class: Any) -> Callable:
         >>>     def instance_method(self):
         >>>         print('hi')
     """
-    def overrider(method: Callable) -> Callable:
-        assert (method.__name__ in dir(interface_class)), \
-            f"Parent class {interface_class.__name__} does not have such a method '{method.__name__}'."
-        return method
+    def overrider(func: Callable) -> Callable:
+        assert __is_instance_method(func), f'Function "{func.__name__}" is not an instance method!'
+        assert (func.__name__ in dir(interface_class)), \
+            f"Parent class {interface_class.__name__} does not have such a method '{func.__name__}'."
+        return func
     return overrider
 
 

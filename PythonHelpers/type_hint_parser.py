@@ -39,10 +39,7 @@ def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
             return False
 
         base = get_base_generic(type_)
-        try:
-            validator = _ORIGIN_TYPE_CHECKERS[base]
-        except KeyError:
-            raise NotImplementedError("Cannot perform isinstance check for type {}".format(type_))
+        validator = _ORIGIN_TYPE_CHECKERS[base]
 
         type_args = get_subtypes(type_)
         return validator(obj, type_args)
@@ -72,13 +69,14 @@ def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     >>> (Ellipses, <class 'str'>)
     """
     if hasattr(typing, 'get_args'):
+        # Python 3.8.0 throws index error here, for argument cls = typing.Callable (without type arguments)
         try:
             res = typing.get_args(cls)
         except IndexError:
             return ()
         return () if str(res) == '(~T,)' else res
     elif hasattr(cls, '__args__'):
-        # return cls.__args__  # DOESNT WORK. So below is the implementation of typing.get_args()
+        # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
 
         res = cls.__args__
         if res == () or str(res) == '(~T,)':
@@ -482,9 +480,9 @@ def _instancecheck_callable(value, type_):
         if not is_subtype(sig.return_annotation, ret_type):
             return False
 
-    if missing_annotations:
-        raise ValueError("Missing annotations: {}".format(missing_annotations))
-
+    assert not missing_annotations,\
+        f'Parsing of type annotations failed. Maybe you are about to return a lambda expression. ' \
+        f'Try returning an inner function instead. {missing_annotations}'
     return True
 
 

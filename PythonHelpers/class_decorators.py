@@ -1,7 +1,7 @@
 from typing import Callable, Any
 
 # local file imports
-from PythonHelpers.method_decorators import pedantic
+from PythonHelpers.method_decorators import pedantic, pedantic_require_docstring, trace
 
 
 def for_all_methods(decorator: Callable) -> Callable:
@@ -24,3 +24,13 @@ def for_all_methods(decorator: Callable) -> Callable:
 def pedantic_class(cls: Any) -> Callable:
     """Shortcut for @for_all_methods(pedantic) """
     return for_all_methods(decorator=pedantic)(cls=cls)
+
+
+def pedantic_class_require_docstring(cls: Any) -> Callable:
+    """Shortcut for @for_all_methods(pedantic_require_docstring) """
+    return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
+
+
+def trace_class(cls: Any) -> Callable:
+    """Shortcut for @for_all_methods(trace) """
+    return for_all_methods(decorator=trace)(cls=cls)
