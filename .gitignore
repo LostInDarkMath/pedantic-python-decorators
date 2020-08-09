@@ -5,6 +5,7 @@
 # Virtuel environments
 venv
 venv3.7
+venv38
 
 # Coverage
 htmlcov

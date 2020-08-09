@@ -73,9 +73,10 @@ def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     """
     if hasattr(typing, 'get_args'):
         try:
-            return typing.get_args(cls)
+            res = typing.get_args(cls)
         except IndexError:
             return ()
+        return () if str(res) == '(~T,)' else res
     elif hasattr(cls, '__args__'):
         # return cls.__args__  # DOESNT WORK. So below is the implementation of typing.get_args()
 
@@ -107,7 +108,7 @@ def has_required_type_arguments(cls: typing.Any) -> bool:
         'typing.Set': 1,
         'typing.Iterable': 1,
         'typing.Dict': 2,
-        'typing.Optional': 1,
+        'typing.Optional': 2,  # because typing.get_args(typing.Optional[int]) returns (int, None)
     }
     requirements_min = {
         'typing.Tuple': 1,

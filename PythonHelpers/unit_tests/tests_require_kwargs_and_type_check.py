@@ -632,3 +632,9 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return [i]
 
         calc(i=[42.0, 43, 'hi'])
+
+
+if __name__ == '__main__':
+    # run a specific unit test
+    test = TestDecoratorRequireKwargsAndTypeCheck()
+    test.test_none_3()
