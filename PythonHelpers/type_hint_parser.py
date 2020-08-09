@@ -2,23 +2,112 @@
 
 import inspect
 import typing
+import sys
 
 # local file imports
-from PythonHelpers.helper_functions import get_python_version
 
 """Dynamically accessing the standard library based on Python version"""
-typing_protocol = typing._Protocol if get_python_version() <= (3, 7) else typing.Protocol
+typing_protocol = typing._Protocol if sys.version_info <= (3, 7) else typing.Protocol
 
 
 class AssumptionFailedError(Exception):
     pass
 
 
-__all__ = ['is_instance', 'is_subtype', 'python_type', 'is_generic', 'is_base_generic', 'is_qualified_generic']
+def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
+    """The main function of this module."""
+
+    if type_.__module__ == 'typing':
+        if is_qualified_generic(type_):
+            base_generic = get_base_generic(type_)
+        else:
+            base_generic = type_
+        name = _get_name(base_generic)
+
+        try:
+            validator = _SPECIAL_INSTANCE_CHECKERS[name]
+        except KeyError:
+            pass
+        else:
+            return validator(obj, type_)
+
+    if is_base_generic(type_):
+        python_type = _get_python_type(type_)
+        return isinstance(obj, python_type)
+
+    if is_qualified_generic(type_):
+        python_type = _get_python_type(type_)
+        if not isinstance(obj, python_type):
+            return False
+
+        base = get_base_generic(type_)
+        try:
+            validator = _ORIGIN_TYPE_CHECKERS[base]
+        except KeyError:
+            raise NotImplementedError("Cannot perform isinstance check for type {}".format(type_))
+
+        type_args = get_subtypes(type_)
+        return validator(obj, type_args)
+
+    return isinstance(obj, type_)
+
+
+def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
+    """Examples:
+    >>> get_type_arguments(int)
+    >>> ()
+    >>> get_type_arguments(typing.List)
+    >>> ()
+    >>> get_type_arguments(typing.List[int])
+    >>> (<class 'int'>,)
+    >>> get_type_arguments(typing.Callable[[int, float], str])
+    >>> ([<class 'int'>, <class 'float'>], <class 'str'>)
+    >>> get_type_arguments(typing.Callable[..., str])
+    >>> (Ellipses, <class 'str'>)
+    """
+    return typing.get_args(cls)
+
+
+def has_required_type_arguments(cls: typing.Any) -> bool:
+    """Examples:
+    >>> has_required_type_arguments(typing.List)
+    >>> False
+    >>> has_required_type_arguments(typing.List[int])
+    >>> True
+    """
+    num_type_args = len(get_type_arguments(cls))
+    requirements_exact = {
+        'typing.Callable': 2,
+        'typing.List': 1,
+        'typing.Set': 1,
+        'typing.Iterable': 1,
+        'typing.Dict': 2,
+        'typing.Optional': 1,
+    }
+    requirements_min = {
+        'typing.Tuple': 1,
+        'typing.Union': 2,
+    }
+    base: str = get_base_class_as_str(cls=cls)
+    if base in requirements_exact:
+        return requirements_exact[base] == num_type_args
+    elif base in requirements_min:
+        return requirements_min[base] <= num_type_args
+    else:
+        return True
+
+
+def get_base_class_as_str(cls: typing.Any) -> str:
+    """Example:
+    >>> get_base_class_as_str(typing.List[int])
+    >>> 'typing.List'
+    """
+    return str(cls).split('[')[0]
+
 
 if hasattr(typing, '_GenericAlias'):
-    if not get_python_version() >= (3, 7):
-        raise AssumptionFailedError(f'Python version >= 3.7 was stated. You run it with {get_python_version()}.')
+    if not sys.version_info >= (3, 7):
+        raise AssumptionFailedError(f'Python version >= 3.7 was stated. You run it with {sys.version_info}.')
 
     def _is_generic(cls):
 
@@ -30,7 +119,9 @@ if hasattr(typing, '_GenericAlias'):
         return False
 
 
-    def _is_base_generic(cls):
+    def _is_base_generic(cls) -> bool:
+        # return len(typing.get_args(cls)) == 0
+
         if isinstance(cls, typing._GenericAlias):
             if cls.__origin__ in {typing.Generic, typing_protocol}:
                 return False
@@ -71,12 +162,12 @@ if hasattr(typing, '_GenericAlias'):
     def _get_name(cls):
         return cls._name
 else:
-    if not get_python_version() < (3, 7):
-        raise AssumptionFailedError(f'Python version < 3.7 was stated. You run it with {get_python_version()}.')
+    if not sys.version_info < (3, 7):
+        raise AssumptionFailedError(f'Python version < 3.7 was stated. You run it with {sys.version_info}.')
 
     if hasattr(typing, '_Union'):
-        if not get_python_version() == (3, 6):
-            raise AssumptionFailedError(f'Python version 3.6 was stated. You run it with {get_python_version()}.')
+        if not sys.version_info == (3, 6):
+            raise AssumptionFailedError(f'Python version 3.6 was stated. You run it with {sys.version_info}.')
 
         def _is_generic(cls):
             if isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
@@ -94,8 +185,8 @@ else:
 
             return False
     else:
-        if not get_python_version() == (3, 5):
-            raise AssumptionFailedError(f'Python version == 3.5 was stated. You run it with {get_python_version()}.')
+        if not sys.version_info <= (3, 5):
+            raise AssumptionFailedError(f'Python version <= 3.5 was stated. You run it with {sys.version_info}.')
 
         def _is_generic(cls):
             if isinstance(cls, (
@@ -169,11 +260,12 @@ else:
         except AttributeError:
             return type(cls).__name__[1:]
 
-if hasattr(typing.List, '__args__'):
-    if not get_python_version() >= (3, 6):
-        raise AssumptionFailedError(f'Python version >= 3.6 was stated. You run it with {get_python_version()}.')
+if hasattr(typing.List[typing.List[int]], '__args__'):
+    if not sys.version_info >= (3, 6):
+        raise AssumptionFailedError(f'Python version >= 3.6 was stated. You run it with {sys.version_info}.')
 
     def _get_subtypes(cls):
+        assert hasattr(cls, '__args__'), f'"{cls}" has no type attributes.'
         subtypes = cls.__args__
 
         if get_base_generic(cls) is typing.Callable:
@@ -182,8 +274,8 @@ if hasattr(typing.List, '__args__'):
 
         return subtypes
 else:
-    if not get_python_version() <= (3, 5):
-        raise AssumptionFailedError(f'Python version <= 3.5 was stated. You run it with {get_python_version()}.')
+    if not sys.version_info <= (3, 5):
+        raise AssumptionFailedError(f'Python version <= 3.5 was stated. You run it with {sys.version_info}.')
 
     def _get_subtypes(cls):
         if isinstance(cls, typing.CallableMeta):
@@ -213,14 +305,28 @@ def is_generic(cls):
     return _is_generic(cls)
 
 
-def is_base_generic(cls):
+def is_base_generic(cls: typing.Any) -> bool:
     """
-    Detects generic base classes, for example `List` (but not `List[int]`)
+    Detects generic base classes.
+
+    Examples:
+    >>> is_base_generic(int)  # int, float, str, bool
+    >>> False
+    >>> is_base_generic(typing.List)
+    >>> True
+    >>> is_base_generic(typing.Callable)
+    >>> True
+    >>> is_base_generic(typing.List[int])
+    >>> False
+    >>> is_base_generic(typing.Callable[[int], str])
+    >>> False
+    >>> is_base_generic(typing.List[typing.List[int]])
+    >>> False
     """
-    res = _is_base_generic(cls)
-    assert not res, f'The type annotation "{cls}" misses some type arguments, for example ' \
-                    f'"typing.Tuple[Any, ...]" or "typing.Callable[[int, float], str]".'
-    return res
+    assert has_required_type_arguments(cls), \
+        f'The type annotation "{cls}" misses some type arguments, for example ' \
+        f'"typing.Tuple[Any, ...]" or "typing.Callable[[int, float], str]".'
+    return _is_base_generic(cls)
 
 
 def is_qualified_generic(cls):
@@ -383,42 +489,6 @@ _SPECIAL_INSTANCE_CHECKERS = {
 }
 
 
-def is_instance(obj, type_):
-    if type_.__module__ == 'typing':
-        if is_qualified_generic(type_):
-            base_generic = get_base_generic(type_)
-        else:
-            base_generic = type_
-        name = _get_name(base_generic)
-
-        try:
-            validator = _SPECIAL_INSTANCE_CHECKERS[name]
-        except KeyError:
-            pass
-        else:
-            return validator(obj, type_)
-
-    if is_base_generic(type_):
-        python_type = _get_python_type(type_)
-        return isinstance(obj, python_type)
-
-    if is_qualified_generic(type_):
-        python_type = _get_python_type(type_)
-        if not isinstance(obj, python_type):
-            return False
-
-        base = get_base_generic(type_)
-        try:
-            validator = _ORIGIN_TYPE_CHECKERS[base]
-        except KeyError:
-            raise NotImplementedError("Cannot perform isinstance check for type {}".format(type_))
-
-        type_args = get_subtypes(type_)
-        return validator(obj, type_args)
-
-    return isinstance(obj, type_)
-
-
 def is_subtype(sub_type, super_type):
     if not is_generic(sub_type):
         python_super = python_type(super_type)
@@ -476,8 +546,3 @@ def python_type(annotation):
         return object
     else:
         return _get_python_type(annotation)
-
-
-if __name__ == '__main__':
-    print(is_instance([{'x': 3}], typing.List[typing.Dict[str, int]]))  # True
-    print(is_instance([{'x': 3}, {'y': 7.5}], typing.List[typing.Dict[str, int]]))  # False
