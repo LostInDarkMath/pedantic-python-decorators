@@ -166,7 +166,7 @@ else:
         raise AssumptionFailedError(f'Python version < 3.7 was stated. You run it with {sys.version_info}.')
 
     if hasattr(typing, '_Union'):
-        if not sys.version_info == (3, 6):
+        if not sys.version_info[:2] == (3, 6):
             raise AssumptionFailedError(f'Python version 3.6 was stated. You run it with {sys.version_info}.')
 
         def _is_generic(cls):
