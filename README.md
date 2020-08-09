@@ -187,7 +187,9 @@ def some_calculation(a, b):
 ```
 
 # Quickstart guide
-Run `pip install git+https://github.com/LostInDarkMath/PythonHelpers.git@v123`
+1. Run `pip install git+https://github.com/LostInDarkMath/PythonHelpers.git@master`
+2. In your Python file write `from PythonHelpers import pedantic, pedantic_class` or whatever decorator you want to use.
+3. Use it like mentioned above. Happy coding!
 
 # Dependencies
 Outside the Python standard library, the followings dependencies are used:
