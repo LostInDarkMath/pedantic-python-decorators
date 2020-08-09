@@ -3,11 +3,9 @@
 import inspect
 import typing
 import sys
+import collections
 
-# local file imports
-
-"""Dynamically accessing the standard library based on Python version"""
-typing_protocol = typing._Protocol if sys.version_info <= (3, 7) else typing.Protocol
+typing_protocol = typing.Protocol if hasattr(typing, 'Protocol') else typing._Protocol
 
 
 class AssumptionFailedError(Exception):
@@ -52,6 +50,14 @@ def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
     return isinstance(obj, type_)
 
 
+def get_origin(cls: typing.Any) -> typing.Any:
+    """Examples:
+    >>> get_origin(typing.List[float])
+    >>> <class 'list'>
+    """
+    return typing.get_origin(cls) if hasattr(typing, 'get_origin') else cls.__origin__
+
+
 def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     """Examples:
     >>> get_type_arguments(int)
@@ -65,7 +71,21 @@ def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     >>> get_type_arguments(typing.Callable[..., str])
     >>> (Ellipses, <class 'str'>)
     """
-    return typing.get_args(cls)
+    if hasattr(typing, 'get_args'):
+        return typing.get_args(cls)
+    elif hasattr(cls, '__args__'):
+        # return cls.__args__  # DOESNT WORK. So below is the implementation of typing.get_args()
+
+        res = cls.__args__
+        if res == () or str(res) == '(~T,)':
+            return ()
+
+        origin = get_origin(cls)
+        if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
+            res = (list(res[:-1]), res[-1])
+        return res
+    else:
+        return ()
 
 
 def has_required_type_arguments(cls: typing.Any) -> bool:
@@ -73,6 +93,8 @@ def has_required_type_arguments(cls: typing.Any) -> bool:
     >>> has_required_type_arguments(typing.List)
     >>> False
     >>> has_required_type_arguments(typing.List[int])
+    >>> True
+    >>> has_required_type_arguments(typing.Callable[[int, float], typing.Tuple[float, str]])
     >>> True
     """
     num_type_args = len(get_type_arguments(cls))
@@ -89,6 +111,9 @@ def has_required_type_arguments(cls: typing.Any) -> bool:
         'typing.Union': 2,
     }
     base: str = get_base_class_as_str(cls=cls)
+    print(cls)
+    print(base)
+    print(num_type_args)
     if base in requirements_exact:
         return requirements_exact[base] == num_type_args
     elif base in requirements_min:
@@ -325,7 +350,7 @@ def is_base_generic(cls: typing.Any) -> bool:
     """
     assert has_required_type_arguments(cls), \
         f'The type annotation "{cls}" misses some type arguments, for example ' \
-        f'"typing.Tuple[Any, ...]" or "typing.Callable[[int, float], str]".'
+        f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
     return _is_base_generic(cls)
 
 
@@ -523,8 +548,6 @@ def python_type(annotation):
     Given a type annotation or a class as input, returns the corresponding python class.
 
     Examples:
-
-    ::
         >>> python_type(typing.Dict)
         <class 'dict'>
         >>> python_type(typing.List[int])
@@ -546,3 +569,7 @@ def python_type(annotation):
         return object
     else:
         return _get_python_type(annotation)
+
+
+if __name__ == '__main__':
+    print(has_required_type_arguments(typing.Callable[[int, float], typing.Tuple[float, str]]))
