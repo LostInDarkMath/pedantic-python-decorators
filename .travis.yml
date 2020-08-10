@@ -27,7 +27,8 @@ deploy:
   provider: releases
   api_key:
     secure: bVfTJ7eG9SUKWZkgAzIPsE4Gcwe+UvOK0u6QR3ig61dUdqvxmbDuxjRgZWjTHe4YyofnKY3CfCIImCP+t5/JbNdqghEevDxif9j/YFdycPkDjTk8yvQ4OSZc//3/zShjpLx6gAS5dsiRxK6E0bQuEfkPay6/8eIe7DXLaRdg1SVipBlNLgT8sDH5TrdjTUDZ8nsNK+DGrUuxYEidByyzW7VmpgKa3WIOeQVsC2tJISWV+mvC07P4Ip9otCAz7i2s+ed+Q4YlZ0XpZYK0qaqGxuPmZv62oheqxY0peq20iUB5xGp9i4lCjVpnDoD1rQjgzXcVgymYs7iueROuWnrq1iRWTXkKsHmb/kpwUAA2e+pIvDHa3U2jKsRO70+sshsd64lyyKSHkL57Hc4SrKJy167+h5ZKMXnUL55lCJ0Nr8EZ9ChK8I/sI5YvSlNNqgi4nbd0k9waKsHrH8tPecsM8x4pXcfC/nnwzNnhGmLBg9QfH3qc5ieLlT4MUOY+qOzNFj/lsPWHOuJFO/QX8z0g1Scc/rTjc9f04KmbzmDceRrUDODWlwU6hpuwsVDJOBZ7UyeqFK7KHKQlp9hF3RMYThwbiX/3Vmlly8KQHWI0YqdCtPx7PG+wq61LIPeVdMLId4TczDA4tplnU9KH6sFY4U3t1RCe9s/XlskxinCtn6M=
-  file: dist/*.whl
+  file: dist/PythonHelpers-1.0.0-py3-none-any.whl
   skip_cleanup: true
+  overwrite: true
   # on:
     # tags: true
