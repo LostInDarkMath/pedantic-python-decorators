@@ -12,3 +12,8 @@ htmlcov
 .coverage
 .coveragerc
 
+# wheel package
+build
+dist
+PythonHelpers.egg-info
+
