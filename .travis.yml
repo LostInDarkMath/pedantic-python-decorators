@@ -36,9 +36,9 @@ before_deploy:
 
 deploy:
   provider: releases  # use Github pages instead: pages 
-  github_token: $GITHUB_TOKEN
+  token: $GITHUB_TOKEN
   file: dist/PythonHelpers-1.0.0-py3-none-any.whl
-  skip_cleanup: true
+  cleanup: false
   overwrite: true
   # on:
     # tags: true
