@@ -17,6 +17,11 @@ script:
 
 before_deploy:
   - python setup.py bdist_wheel
+  # Set up git user name and tag this commit
+  - git config --local user.name "LostInDarkMath"
+  - git config --local user.email "builds@travis-ci.com"
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 
 deploy:
   provider: releases
