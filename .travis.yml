@@ -34,7 +34,13 @@ before_deploy:
   - git config --local user.name "LostInDarkMath"
   - git config --local user.email "32729196+LostInDarkMath@users.noreply.github.com"
   - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-  - git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+  - if [ $(git tag -l "$version") ]; then
+      echo yes
+    else
+      git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+      echo no
+    fi
+  #- git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 
 deploy:
   - provider: releases  # use Github pages instead: pages 
