@@ -41,7 +41,8 @@ deploy:
   cleanup: false
   overwrite: true
   on:
+    python: 3.8
     branch: master
-    tags: false
+    # tags: false
 
 # after_deploy:
