@@ -2,8 +2,8 @@ import unittest
 import warnings
 
 # local file imports
-from PythonHelpers.custom_exceptions import TooDirtyException, NotImplementedException
-from PythonHelpers.method_decorators import overrides, deprecated, needs_refactoring, dirty, timer, count_calls, \
+from pedantic.custom_exceptions import TooDirtyException, NotImplementedException
+from pedantic.method_decorators import overrides, deprecated, needs_refactoring, dirty, timer, count_calls, \
     unimplemented, validate_args, require_not_none, require_not_empty_strings
 
 

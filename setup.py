@@ -5,7 +5,7 @@ url = "https://github.com/LostInDarkMath/PythonHelpers"
 
 setup(
     # important things
-    name="PythonHelpers",
+    name="pedantic",
     version="1.0.0",
     packages=find_packages(),
     # scripts = ["say_hello.py"]
@@ -20,13 +20,13 @@ setup(
     # metadata to display on PyPI
     author="Willi Sontopski",
     # author_email="me@example.com",
-    license="CC BY-NC-SA 4.0",
+    license="Apache-2.0 License",
     maintainer="Will Sontopski",
-    description="Some useful Python tools like decorators for better software development",
+    description="Some useful Python decorators for cleaner software development.",
     keywords="decorators tools helpers type-checking pedantic type annotations",
     url=url,
     project_urls={
-        "Bug Tracker": url,
+        "Bug Tracker": f'{url}/issues',
         "Documentation": url,
         "Source Code": url,
     },

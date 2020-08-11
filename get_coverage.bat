@@ -1,10 +1,10 @@
 @(
 echo [run]
-echo omit = *PythonHelpers/unit_tests*
+echo omit = *pedantic/unit_tests*
 ) > .coveragerc
 
 pip install coverage
-coverage run -m unittest PythonHelpers/unit_tests/tests_main.py
+coverage run -m unittest pedantic/unit_tests/tests_main.py
 rem coverage report -m
 coverage html 
 cd htmlcov

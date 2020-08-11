@@ -1,7 +1,7 @@
 from typing import Callable, Any
 
 # local file imports
-from PythonHelpers.method_decorators import pedantic, pedantic_require_docstring, trace, timer
+from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
 def for_all_methods(decorator: Callable) -> Callable:

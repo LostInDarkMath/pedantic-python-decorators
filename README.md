@@ -1,4 +1,4 @@
-# PythonHelpers [![Build Status](https://travis-ci.com/LostInDarkMath/PythonHelpers.svg?branch=master)](https://travis-ci.com/LostInDarkMath/PythonHelpers)
+# pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/PythonHelpers.svg?branch=master)](https://travis-ci.com/LostInDarkMath/PythonHelpers)
 Some useful decorators which I use in almost every python project.
 These decorators will make you write cleaner and well-documented Python code.
 
@@ -83,7 +83,7 @@ There are some shortcuts included for often used validations:
 ## The small decorators:
 ### @overrides
 ```python
-from PythonHelpers.method_decorators import overrides
+from pedantic.method_decorators import overrides
 
 
 class Parent:
@@ -100,7 +100,7 @@ Together with the [Abstract Base Class](https://docs.python.org/3/library/abc.ht
 
 ```python
 from abc import ABC, abstractmethod
-from PythonHelpers.method_decorators import overrides
+from pedantic.method_decorators import overrides
 
 
 class Parent(ABC):
@@ -188,17 +188,17 @@ def some_calculation(a, b):
 
 # Installation guide
 ## Option 1: installing with pip from [Pypi](https://pypi.org/)
-Run `pip install python_helpers_test`.
+Run `pip install pedantic`.
 
 ## Option 2: Installing with pip and git
 0. Install [Git](https://git-scm.com/downloads) if you don't have it already.
-1. Run `pip install git+https://github.com/LostInDarkMath/PythonHelpers.git@master`
-2. In your Python file write `from PythonHelpers import pedantic, pedantic_class` or whatever decorator you want to use.
+1. Run `pip install git+https://github.com/LostInDarkMath/pedantic-python-decorators.git@master`
+2. In your Python file write `from pedantic import pedantic, pedantic_class` or whatever decorator you want to use.
 3. Use it like mentioned above. Happy coding!
 
 ## Option 3:Offline installation using wheel
-1. Download the [latest release here](https://github.com/LostInDarkMath/PythonHelpers/releases/latest) by clicking on `PythonHelpers-x.y.z-py-none-any.whl`.
-2. Execute `pip install PythonHelpers-x.y.z-py3-none-any.whl` where `x.y.z` needs to be the correct version.
+1. Download the [latest release here](https://github.com/LostInDarkMath/PythonHelpers/releases/latest) by clicking on `pedantic-python-decorators-x.y.z-py-none-any.whl`.
+2. Execute `pip install pedantic-python-decorators-x.y.z-py3-none-any.whl` where `x.y.z` needs to be the correct version.
 
 # Dependencies
 Outside the Python standard library, the followings dependencies are used:

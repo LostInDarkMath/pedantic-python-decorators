@@ -1,7 +1,7 @@
 import unittest
 
 # local file imports
-from PythonHelpers.class_decorators import pedantic_class, pedantic_class_require_docstring, trace_class
+from pedantic.class_decorators import pedantic_class, pedantic_class_require_docstring, trace_class, timer_class
 
 
 class TestClassDecorators(unittest.TestCase):
@@ -183,7 +183,7 @@ class TestClassDecorators(unittest.TestCase):
         m = MyClass.generator()
         m.double(b=42)
 
-    def test_pedanti_class_require_docstring_1(self):
+    def test_pedantic_class_require_docstring_1(self):
         """Problem here: Typo in type annotation string"""
         @pedantic_class_require_docstring
         class MyClass:
@@ -220,7 +220,7 @@ class TestClassDecorators(unittest.TestCase):
             m = MyClass.generator()
             m.double(b=42)
 
-    def test_pedanti_class_require_docstring_2(self):
+    def test_pedantic_class_require_docstring_2(self):
         """Problem here: Typo in docstring corresponding to type annotation string"""
         @pedantic_class_require_docstring
         class MyClass:
@@ -257,7 +257,7 @@ class TestClassDecorators(unittest.TestCase):
             m = MyClass.generator()
             m.double(b=42)
 
-    def test_pedanti_class_require_docstring_3(self):
+    def test_pedantic_class_require_docstring_3(self):
         """Problem here: One docstring is wrong"""
         @pedantic_class_require_docstring
         class MyClass:
@@ -296,6 +296,22 @@ class TestClassDecorators(unittest.TestCase):
 
     def test_trace_class(self):
         @trace_class
+        class MyClass:
+            def __init__(self, s: str) -> None:
+                self.s = s
+
+            def double(self, b: int) -> str:
+                return self.s + str(b)
+
+            @staticmethod
+            def generator() -> 'MyClass':
+                return MyClass(s='generated')
+
+        m = MyClass.generator()
+        m.double(b=42)
+
+    def test_timer_class(self):
+        @timer_class
         class MyClass:
             def __init__(self, s: str) -> None:
                 self.s = s

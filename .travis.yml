@@ -20,7 +20,7 @@ install:
 
 # command to run tests
 script:
-  - python PythonHelpers/unit_tests/tests_main.py  # run unit tests
+  - python pedantic/unit_tests/tests_main.py  # run unit tests
   - python setup.py bdist_wheel                    # creating wheel needs to be done during install
 
 # after_success:
@@ -54,15 +54,15 @@ deploy:
       # tags: false
 
     # deploy to pypi
-  - provider: pypi
-    server: https://test.pypi.org/legacy/  # Deployment to test instance of pypi. Remove before deployment to official PyPi repo.
-    username: "__token__"
-    password: $PYPI_TOKEN  # Note: There are different token needed for pypi and pypi test.
-    file: dist/*.whl
-    skip_cleanup: true
-    overwrite: true
-    on:
-      python: 3.8
-      branch: master
+  # - provider: pypi
+  #   # server: https://test.pypi.org/legacy/  # Deployment to test instance of pypi. Remove before deployment to official PyPi repo.
+  #   username: "__token__"
+  #   password: $PYPI_TOKEN  # Note: There are different token needed for pypi and pypi test.
+  #   file: dist/*.whl
+  #   skip_cleanup: true
+  #   overwrite: true
+  #   on:
+  #     python: 3.8
+  #     branch: master
 
 # after_deploy:

@@ -15,5 +15,5 @@ htmlcov
 # wheel package
 build
 dist
-PythonHelpers.egg-info
+pedantic.egg-info
 

@@ -2,7 +2,7 @@ import unittest
 from typing import List
 
 # local file imports
-from PythonHelpers.method_decorators import pedantic_require_docstring
+from pedantic.method_decorators import pedantic_require_docstring
 
 
 class TestRequireDocstringGoogleFormat(unittest.TestCase):

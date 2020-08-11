@@ -1,7 +1,7 @@
 import unittest
 
 # local file imoorts
-from PythonHelpers.method_decorators import require_kwargs
+from pedantic.method_decorators import require_kwargs
 
 
 class TestRequireKwargs(unittest.TestCase):

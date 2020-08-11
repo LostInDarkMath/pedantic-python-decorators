@@ -6,8 +6,8 @@ from docstring_parser import parse, Docstring
 import warnings
 
 # local file imports
-from PythonHelpers.custom_exceptions import NotImplementedException, TooDirtyException
-from PythonHelpers.type_hint_parser import is_instance
+from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
+from pedantic.type_hint_parser import is_instance
 
 
 # HELPER FUNCTIONS ###

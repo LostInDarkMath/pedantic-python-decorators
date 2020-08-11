@@ -2,7 +2,7 @@ import unittest
 from typing import List, Tuple, Callable, Any, Optional, Union
 
 # local file imports
-from PythonHelpers.method_decorators import pedantic
+from pedantic.method_decorators import pedantic
 
 
 class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
