@@ -12,7 +12,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setup(
     # important things
     name="pedantic",
-    version="1.0.1",
+    version="1.0.2",
     packages=find_packages(),
     # scripts = ["say_hello.py"]
     install_requires=['docstring_parser'],
