@@ -20,7 +20,6 @@ install:
 
 # before_script:
 
-# command to run tests
 script:
   - coverage run -m unittest pedantic/unit_tests/tests_main.py # run tests with coverage
   #- python pedantic/unit_tests/tests_main.py  
