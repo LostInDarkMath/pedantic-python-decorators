@@ -38,7 +38,8 @@ deploy:
   provider: releases  # use Github pages instead: pages 
   token: $GITHUB_TOKEN
   file: dist/*.whl
-  cleanup: false
+  # cleanup: false
+  skip_cleanup: true
   overwrite: true
   on:
     python: 3.8
