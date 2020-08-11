@@ -40,7 +40,6 @@ before_deploy:
     else
       git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
     fi
-  #- git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 
 deploy:
   - provider: releases  # use Github pages instead: pages 
@@ -50,14 +49,15 @@ deploy:
     skip_cleanup: true
     overwrite: true
     on:
-      python: 3.8  # specify the job that should build an release. If not specified, all job would create releases.
+      python: 3.8  # specify the job that should build an release. If not specified, all jobs would create releases.
       branch: master
       # tags: false
 
     # deploy to pypi
-  - provider: https://test.pypi.org/legacy/ # pypi
+  - provider: pypi
+    server: https://test.pypi.org/legacy/  # Deployment to test instance of pypi. Remove before deployment to official PyPi repo.
     username: "__token__"
-    password: $PYPI_TOKEN
+    password: $PYPI_TOKEN  # Note: There are different token needed for pypi and pypi test.
     file: dist/*.whl
     skip_cleanup: true
     overwrite: true
