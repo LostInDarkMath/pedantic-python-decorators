@@ -41,7 +41,6 @@ deploy:
     token: $GITHUB_TOKEN
     file_glob: true # enable wild cards '*'
     file: dist/*.whl
-    # cleanup: false
     skip_cleanup: true
     overwrite: true
     on:
@@ -50,8 +49,14 @@ deploy:
       # tags: false
 
     # deploy to pypi
-  - provider: pypi
+  - provider: https://test.pypi.org/legacy/ # pypi
     username: "__token__"
     password: $PYPI_TOKEN
+    file: dist/*.whl
+    skip_cleanup: true
+    overwrite: true
+    on:
+      python: 3.8
+      branch: master
 
 # after_deploy:
