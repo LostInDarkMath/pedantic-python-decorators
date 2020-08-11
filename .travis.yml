@@ -34,11 +34,10 @@ before_deploy:
   - git config --local user.name "LostInDarkMath"
   - git config --local user.email "32729196+LostInDarkMath@users.noreply.github.com"
   - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-  - if [ $(git tag -l "$TRAVIS_TAG") ]; then
-      echo yes
+  - if [ $(git tag -l "$TRAVIS_TAG") ] then
+      echo tag_already_exists
     else
       git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-      echo no
     fi
   #- git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 
