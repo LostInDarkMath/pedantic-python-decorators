@@ -18,6 +18,7 @@ install:
 # command to run tests
 script:
   - python PythonHelpers/unit_tests/tests_main.py
+  - python setup.py bdist_wheel
 
 # after_success:
 
@@ -26,7 +27,6 @@ script:
 # after_script:
 
 before_deploy:
-  - python setup.py bdist_wheel
   # Set up git user name and tag this commit
   - git config --local user.name "LostInDarkMath"
   - git config --local user.email "32729196+LostInDarkMath@users.noreply.github.com"
