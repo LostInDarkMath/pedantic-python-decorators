@@ -186,11 +186,19 @@ def some_calculation(a, b):
     return a + b
 ```
 
-# Quickstart guide
+# Installation guide
+## Option 1: installing with pip from [Pypi](https://pypi.org/)
+Run `pip install python_helpers_test`.
+
+## Option 2: Installing with pip and git
 0. Install [Git](https://git-scm.com/downloads) if you don't have it already.
 1. Run `pip install git+https://github.com/LostInDarkMath/PythonHelpers.git@master`
 2. In your Python file write `from PythonHelpers import pedantic, pedantic_class` or whatever decorator you want to use.
 3. Use it like mentioned above. Happy coding!
+
+## Option 3:Offline installation using wheel
+1. Download the [latest release here](https://github.com/LostInDarkMath/PythonHelpers/releases/latest) by clicking on `PythonHelpers-x.y.z-py-none-any.whl`.
+2. Execute `pip install PythonHelpers-x.y.z-py3-none-any.whl` where `x.y.z` needs to be the correct version.
 
 # Dependencies
 Outside the Python standard library, the followings dependencies are used:
@@ -203,10 +211,3 @@ The usage of decorators may affect the performance of your application. For this
 ```
 [CI runs tests] => [Remove decorators] => [deploy cleaned code]
 ```
-
-# License
-
-![Creative Commons License](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)
-
-This work is licensed under a
-[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).

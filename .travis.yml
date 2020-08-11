@@ -12,17 +12,16 @@ branches:
 
 # before_install:
 
-# command to install dependencies
 install:
-  - pip install -r requirements.txt
-  - pip install wheel     # creating wheel needs to be done during install
+  - pip install -r requirements.txt  # install dependencies
+  - pip install wheel                # install wheel for building a wheel to deploy 
 
 # before_script:
 
 # command to run tests
 script:
-  - python PythonHelpers/unit_tests/tests_main.py
-  - python setup.py bdist_wheel
+  - python PythonHelpers/unit_tests/tests_main.py  # run unit tests
+  - python setup.py bdist_wheel                    # creating wheel needs to be done during install
 
 # after_success:
 
@@ -34,21 +33,25 @@ before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "LostInDarkMath"
   - git config --local user.email "32729196+LostInDarkMath@users.noreply.github.com"
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%m/%d/%Y %H:%M:%S')-commit=$(git log --format=%h -1)}
   - git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
-  - echo $GITHUB_TOKEN
 
 deploy:
-  provider: releases  # use Github pages instead: pages 
-  token: $GITHUB_TOKEN
-  file_glob: true # enable wild cards '*'
-  file: dist/*.whl
-  # cleanup: false
-  skip_cleanup: true
-  overwrite: true
-  on:
-    python: 3.8  # specify the job that should build an release. If not specified, all job would create releases.
-    branch: master
-    # tags: false
+  - provider: releases  # use Github pages instead: pages 
+    token: $GITHUB_TOKEN
+    file_glob: true # enable wild cards '*'
+    file: dist/*.whl
+    # cleanup: false
+    skip_cleanup: true
+    overwrite: true
+    on:
+      python: 3.8  # specify the job that should build an release. If not specified, all job would create releases.
+      branch: master
+      # tags: false
+
+    # deploy to pypi
+  - provider: pypi
+    username: "__token__"
+    password: $PYPI_TOKEN
 
 # after_deploy:
