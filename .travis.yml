@@ -37,6 +37,7 @@ before_deploy:
 deploy:
   provider: releases  # use Github pages instead: pages 
   token: $GITHUB_TOKEN
+  file_glob: true
   file: dist/*.whl
   # cleanup: false
   skip_cleanup: true
