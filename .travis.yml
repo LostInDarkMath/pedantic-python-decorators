@@ -21,7 +21,7 @@ install:
 
 # command to run tests
 script:
-  - coverage pedantic/unit_tests/tests_main.py  # run unit tests, normally "python pedantic/..."
+  - coveralls pedantic/unit_tests/tests_main.py  # run unit tests, normally "python pedantic/..."
   - python setup.py bdist_wheel                    # creating wheel needs to be done during install
 
 after_success:
