@@ -15,15 +15,17 @@ branches:
 install:
   - pip install -r requirements.txt  # install dependencies
   - pip install wheel                # install wheel for building a wheel to deploy 
+  - pip install coveralls            # code coverage
 
 # before_script:
 
 # command to run tests
 script:
-  - python pedantic/unit_tests/tests_main.py  # run unit tests
+  - coverage pedantic/unit_tests/tests_main.py  # run unit tests, normally "python pedantic/..."
   - python setup.py bdist_wheel                    # creating wheel needs to be done during install
 
-# after_success:
+after_success:
+  - coveralls
 
 # after_failure:
 
