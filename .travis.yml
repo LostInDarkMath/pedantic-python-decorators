@@ -33,7 +33,8 @@ before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "LostInDarkMath"
   - git config --local user.email "32729196+LostInDarkMath@users.noreply.github.com"
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%m/%d/%Y %H:%M:%S')-"commit=${(git log --format=%h -1)}"}
+  # - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%m/%d/%Y %H:%M:%S')-"commit="-$(git log --format=%h -1)}
   - git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 
 deploy:
