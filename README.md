@@ -1,4 +1,4 @@
-# pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/PythonHelpers.svg?branch=master)](https://travis-ci.com/LostInDarkMath/PythonHelpers)
+# pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/PythonHelpers.svg?branch=master)](https://travis-ci.com/LostInDarkMath/PythonHelpers) [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master)
 Some useful decorators which I use in almost every python project.
 These decorators will make you write cleaner and well-documented Python code.
 
