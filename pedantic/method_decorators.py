@@ -69,12 +69,14 @@ def __require_kwargs_and_type_checking(func: Callable,
     i = 1 if __is_instance_method(func=func) else 0
     for key in params:
         param = params[key]
+        expected_type = param.annotation
 
         if param.name == 'self':
             continue
 
-        assert param.annotation is not inspect.Signature.empty, \
+        assert expected_type is not inspect.Signature.empty, \
             f'Function "{func.__name__}" should have a type hint for parameter "{param.name}".'
+
         if param.default is inspect.Signature.empty:
             if __is_special_func(func=func):
                 actual_value = args[i]
@@ -85,9 +87,13 @@ def __require_kwargs_and_type_checking(func: Callable,
         else:
             actual_value = kwargs[key] if key in kwargs else param.default
 
-        expected_type = param.annotation
-        assert __is_value_matching_type_hint(value=actual_value, type_hint=expected_type), \
-            f'Argument {key}={actual_value} has not type {expected_type}.'
+        if isinstance(expected_type, str):
+            class_name = actual_value.__class__.__name__
+            assert class_name == expected_type, \
+                f'Error in type hint: Expected type "{expected_type}" but got "{class_name}".'
+        else:
+            assert __is_value_matching_type_hint(value=actual_value, type_hint=expected_type), \
+                f'Argument {key}={actual_value} has not type {expected_type}.'
 
     result = func(*args, **kwargs)
     if 'return' not in annotations:
