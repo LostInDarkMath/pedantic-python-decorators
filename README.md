@@ -47,25 +47,6 @@ The `@pedantic` decorator does the following things:
 ### @pedantic_require_docstring
 It's like `@pedantic`, but it additionally forces developers to create docstrings. It raises an `AssertionError`, if there is no docstring.
 
-### @pedantic_class
-The `pedantic` decorator is only for methods. But the `@pedantic_class` decorator is it's counterpart for classes. That means by only changing one line of code you can make your class pedantic:
-```python
-@pedantic_class
-class MyClass:
-    def __init__(self, a: int) -> None:
-        self.a = a
-
-    def calc(self, b: int) -> int:
-        return self.a - b
-
-    def print(self, s: str) -> None:
-        print(f'{self.a} and {s}')
-
-m = MyClass(a=5)
-m.calc(b=42)
-m.print(s='Hi')
-```
-
 ### @validate_args
 With the `@validate_args` decorator you can do contract checking *outside* of functions. Just pass a validator in, for example:
 ```python
@@ -75,6 +56,11 @@ def some_calculation(a, b, c):
 
 some_calculation(30, 40, 50)  # this leads to an error
 some_calculation(43, 45, 50)  # this is okay
+```
+The error message is optional. So you could also write:
+```python
+@validate_args(lambda x: x > 42)
+def some_calculation(a, b, c):
 ```
 There are some shortcuts included for often used validations:
 - `@require_not_none` ensures that each argument is not `None`
@@ -186,27 +172,80 @@ def some_calculation(a, b):
     return a + b
 ```
 
-# Installation guide
+## Decorators for classes
+With the `@for_all_methods` you can use any decorator for classes instead of methods. It is shorthand for putting the same decorator on every method of the class. Example:
+```python
+@forall_methods(pedantic)
+class MyClass():
+    # lots of methods
+```
+
+There are a few aliases defined:
+- `pedantic_class` is an alias for `forall_methods(pedantic)`
+- `pedantic_class_require_docstring` is an alias for `forall_methods(pedantic_require_docstring)`
+- `timer_class` is an alias for `forall_methods(timer)`
+- `trace_class` is an alias for `forall_methods(trace)` 
+
+That means by only changing one line of code you can make your class pedantic:
+```python
+@pedantic_class
+class MyClass:
+    def __init__(self, a: int) -> None:
+        self.a = a
+
+    def calc(self, b: int) -> int:
+        return self.a - b
+
+    def print(self, s: str) -> None:
+        print(f'{self.a} and {s}')
+
+m = MyClass(a=5)
+m.calc(b=42)
+m.print(s='Hi')
+```
+
+## Using multiple decorators
+Sometimes you may want to use multiple decorators on the same method or class. But the normal way of doing this can cause probleme sometimes:
+```python
+# this can cause trouble
+@pedantic
+@validate_args(lambda x: x > 0)
+def some_calculation(self, x: int) -> int:
+    return x
+```
+Instead, you can use the `combine` decorator, which takes a list of decorators as an argument. The order of the list doesn't matter:
+```python
+@combine([pedantic, validate_args(lambda x: x > 0)])
+def some_calculation(self, x: int) -> int:
+    return x
+```
+This also works for class decorators as well.
+
+
+# How to start
+## Installation
 ## Option 1: installing with pip from [Pypi](https://pypi.org/)
 Run `pip install pedantic`.
 
 ## Option 2: Installing with pip and git
-0. Install [Git](https://git-scm.com/downloads) if you don't have it already.
-1. Run `pip install git+https://github.com/LostInDarkMath/pedantic-python-decorators.git@master`
-2. In your Python file write `from pedantic import pedantic, pedantic_class` or whatever decorator you want to use.
-3. Use it like mentioned above. Happy coding!
+1. Install [Git](https://git-scm.com/downloads) if you don't have it already.
+2. Run `pip install git+https://github.com/LostInDarkMath/pedantic-python-decorators.git@master`
 
-## Option 3:Offline installation using wheel
+## Option 3: Offline installation using wheel
 1. Download the [latest release here](https://github.com/LostInDarkMath/PythonHelpers/releases/latest) by clicking on `pedantic-python-decorators-x.y.z-py-none-any.whl`.
 2. Execute `pip install pedantic-python-decorators-x.y.z-py3-none-any.whl` where `x.y.z` needs to be the correct version.
 
-# Dependencies
+## Usage
+In your Python file write `from pedantic import pedantic, pedantic_class` or whatever decorator you want to use.
+Use it like mentioned above. Happy coding!
+
+## Dependencies
 Outside the Python standard library, the followings dependencies are used:
-- [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2, requires Python 3.6)
+- [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2, requires Python 3.6 or later)
 
 Created with Python 3.8.5. [It works with Python 3.6 or newer.](https://travis-ci.com/github/LostInDarkMath/PythonHelpers)
 
-# Risks and Side Effects
+## Risks and Side Effects
 The usage of decorators may affect the performance of your application. For this reason, it would highly recommend you to disable the decorators during deployment. Best practice would be to integrate this in a automated depoly chain:
 ```
 [CI runs tests] => [Remove decorators] => [deploy cleaned code]
