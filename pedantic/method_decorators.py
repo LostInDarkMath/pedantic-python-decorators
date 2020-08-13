@@ -1,12 +1,12 @@
 import functools
 import inspect
-from typing import Callable, Any, Tuple, Dict, Type
+from typing import Callable, Any, Tuple, Dict, Type, Union
 from datetime import datetime
 from docstring_parser import parse, Docstring
 import warnings
 
 # local file imports
-from pedantic.custom_exceptions import NotImplementedException, TooDirtyException, AssumptionError
+from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 from pedantic.type_hint_parser import is_instance
 
 
@@ -96,8 +96,6 @@ def __require_kwargs_and_type_checking(func: Callable,
                 f'Argument {key}={actual_value} has not type {expected_type}.'
 
     result = func(*args, **kwargs)
-    if 'return' not in annotations:
-        raise AssumptionError(f'"return" is not in annotations: {annotations}')
     expected_result_type = annotations['return']
 
     if isinstance(expected_result_type, str):
@@ -309,7 +307,7 @@ def require_kwargs(func: Callable) -> Callable:
     return wrapper
 
 
-def validate_args(validator: Callable[[Any], Tuple[bool, str]]) -> Callable:
+def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> Callable:
     """
       Validates each passed argument with the given validator.
       Example:
@@ -320,17 +318,21 @@ def validate_args(validator: Callable[[Any], Tuple[bool, str]]) -> Callable:
       >>> some_calculation(43, 40, 50)  # this is okay
    """
     def outer(func: Callable) -> Callable:
+        def validate(obj: Any) -> None:
+            res = validator(obj)
+            res, msg = res if type(res) is not bool else (res, 'Invalid arguments.')
+            assert res, msg
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
             args_without_self = __get_args_without_self(func=func, args=args)
 
             for arg in args_without_self:
-                res, msg = validator(arg)
-                assert res, msg
+                validate(arg)
 
             for kwarg in kwargs:
-                res, msg = validator(kwargs[kwarg])
-                assert res, msg
+                validate(kwargs[kwarg])
+
             return func(*args, **kwargs)
         return wrapper
     return outer
@@ -387,10 +389,11 @@ def pedantic(func: Callable) -> Callable:
     annotations = __get_annotations(func=func)
     docstring = __get_parsed_docstring(func=func)
 
+    if len(__get_parsed_docstring(func=func).params) > 0:
+        __require_docstring_google_format(func=func, annotations=annotations, docstring=docstring)
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
-        if len(__get_parsed_docstring(func=func).params) > 0:
-            __require_docstring_google_format(func=func, annotations=annotations, docstring=docstring)
         return __require_kwargs_and_type_checking(func=func,
                                                   args=args,
                                                   kwargs=kwargs,

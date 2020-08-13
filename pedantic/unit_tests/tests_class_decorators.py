@@ -71,7 +71,7 @@ class TestClassDecorators(unittest.TestCase):
                 return self.a - b
 
             def print(self, s: str):
-                res = f'{self.a} and {s}'
+                print(f'{self.a} and {s}')
 
         with self.assertRaises(expected_exception=AssertionError):
             m = MyClass(a=5)

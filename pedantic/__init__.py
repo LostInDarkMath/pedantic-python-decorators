@@ -6,3 +6,5 @@ from pedantic.method_decorators import pedantic, pedantic_require_docstring, tra
     require_kwargs
 
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
+
+from pedantic.combine_decorators import combine
