@@ -136,7 +136,7 @@ def __require_docstring_google_format(func: Callable, docstring: Docstring, anno
             assert docstring.returns is not None, \
                 f'Function "{func.__name__}" returns type "{annotations[annotation]}", ' \
                 f'but there is no return value documented.'
-            assert docstring.returns.args[0] == 'returns', f"That's weird."
+            assert docstring.returns.args[0] == 'returns', f'"{docstring.returns.args[0]}" should bet "returns".'
             assert len(docstring.returns.args) == 2, \
                 f'Parse Error: Only docstrings in the Google format are supported.'
 

@@ -179,63 +179,22 @@ if hasattr(typing, '_GenericAlias'):
     def _get_name(cls):
         return cls._name
 else:
-    if hasattr(typing, '_Union'):
-        def _is_generic(cls):
-            if isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
-                return True
-
-            return False
+    def _is_generic(cls):
+        if isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
+            return True
+        return False
 
 
-        def _is_base_generic(cls):
-            if isinstance(cls, (typing.GenericMeta, typing._Union)):
-                return cls.__args__ in {None, ()}
+    def _is_base_generic(cls):
+        if isinstance(cls, (typing.GenericMeta, typing._Union)):
+            return cls.__args__ in {None, ()}
 
-            if isinstance(cls, typing._Optional):
-                return True
-
-            return False
-    else:
-        def _is_generic(cls):
-            if isinstance(cls, (
-            typing.GenericMeta, typing.UnionMeta, typing.OptionalMeta, typing.CallableMeta, typing.TupleMeta)):
-                return True
-
-            return False
-
-
-        def _is_base_generic(cls):
-            if isinstance(cls, typing.GenericMeta):
-                return all(isinstance(arg, typing.TypeVar) for arg in cls.__parameters__)
-
-            if isinstance(cls, typing.UnionMeta):
-                return cls.__union_params__ is None
-
-            if isinstance(cls, typing.TupleMeta):
-                return cls.__tuple_params__ is None
-
-            if isinstance(cls, typing.CallableMeta):
-                return cls.__args__ is None
-
-            if isinstance(cls, typing.OptionalMeta):
-                return True
-
-            return False
-
+        if isinstance(cls, typing._Optional):
+            return True
+        return False
 
     def _get_base_generic(cls):
-        try:
-            return cls.__origin__
-        except AttributeError:
-            pass
-
-        name = type(cls).__name__
-        if not name.endswith('Meta'):
-            raise NotImplementedError("Cannot determine base of {}".format(cls))
-
-        name = name[:-4]
-        return getattr(typing, name)
-
+        return cls.__origin__
 
     def _get_python_type(cls):
         """
@@ -248,55 +207,21 @@ else:
             if typ.__module__ == 'builtins' and typ is not object:
                 return typ
 
-        try:
-            return cls.__extra__
-        except AttributeError:
-            pass
-
-        if is_qualified_generic(cls):
-            cls = get_base_generic(cls)
-
-        if cls is typing.Tuple:
-            return tuple
-
-        raise NotImplementedError("Cannot determine python type of {}".format(cls))
-
-
     def _get_name(cls):
         try:
             return cls.__name__
         except AttributeError:
             return type(cls).__name__[1:]
 
-if hasattr(typing.List[typing.List[int]], '__args__'):
-    def _get_subtypes(cls):
-        assert hasattr(cls, '__args__'), f'"{cls}" has no type attributes.'
-        subtypes = cls.__args__
+def _get_subtypes(cls):
+    assert hasattr(cls, '__args__'), f'"{cls}" has no type attributes.'
+    subtypes = cls.__args__
 
-        if get_base_generic(cls) is typing.Callable:
-            if len(subtypes) != 2 or subtypes[0] is not ...:
-                subtypes = (subtypes[:-1], subtypes[-1])
+    if get_base_generic(cls) is typing.Callable:
+        if len(subtypes) != 2 or subtypes[0] is not ...:
+            subtypes = (subtypes[:-1], subtypes[-1])
 
-        return subtypes
-else:
-    def _get_subtypes(cls):
-        if isinstance(cls, typing.CallableMeta):
-            if cls.__args__ is None:
-                return ()
-
-            return cls.__args__, cls.__result__
-
-        for name in ['__parameters__', '__union_params__', '__tuple_params__']:
-            try:
-                subtypes = getattr(cls, name)
-                break
-            except AttributeError:
-                pass
-        else:
-            raise NotImplementedError("Cannot extract subtypes from {}".format(cls))
-
-        subtypes = [typ for typ in subtypes if not isinstance(typ, typing.TypeVar)]
-        return subtypes
+    return subtypes
 
 
 def is_generic(cls):
@@ -339,9 +264,6 @@ def is_qualified_generic(cls):
 
 
 def get_base_generic(cls):
-    if not is_qualified_generic(cls):
-        raise TypeError('{} is not a qualified Generic and thus has no base'.format(cls))
-
     return _get_base_generic(cls)
 
 
@@ -350,9 +272,6 @@ def get_subtypes(cls):
 
 
 def _instancecheck_iterable(iterable, type_args):
-    if len(type_args) != 1:
-        raise TypeError("Generic iterables must have exactly 1 type argument; found {}".format(type_args))
-
     type_ = type_args[0]
     return all(is_instance(val, type_) for val in iterable)
 
@@ -362,9 +281,6 @@ def _instancecheck_mapping(mapping, type_args):
 
 
 def _instancecheck_itemsview(itemsview, type_args):
-    if len(type_args) != 2:
-        raise TypeError("Generic mappings must have exactly 2 type arguments; found {}".format(type_args))
-
     key_type, value_type = type_args
     return all(is_instance(key, key_type) and is_instance(val, value_type) for key, val in itemsview)
 
@@ -437,8 +353,6 @@ def _instancecheck_callable(value, type_):
     if param_types is not ...:
         if len(param_types) != len(sig.parameters):
             return False
-
-        # FIXME: add support for TypeVars
 
         # if any of the existing annotations don't match the type, we'll return False.
         # Then, if any annotations are missing, we'll throw an exception.

@@ -121,7 +121,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             calc(n=42)
 
-    def test_nested_type_hints_corrected(self):
+    def test_nested_type_hints_5_corrected(self):
         @pedantic
         def calc(n: int) -> Callable[[int, float], Tuple[float, float]]:
             @pedantic
@@ -210,9 +210,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_all_ok_6(self):
         @pedantic
         def calc(n: int) -> Callable[[int, float], Tuple[float, str]]:
+            @pedantic
             def f(x: int, y: float) -> Tuple[float, str]:
                 return n * float(x), str(y)
             return f
+
+        calc(n=42)(x=72, y=3.14)
 
     def test_all_ok_7(self):
         @pedantic
@@ -479,7 +482,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             a.calc(42)
 
-    def test_instance_method_4(self):
+    def test_instance_method_5(self):
         """Problem here: instance methods is not called with kwargs"""
         class A:
             @pedantic
@@ -540,7 +543,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             calc(i=42.0)(x=10)
 
-    def test_lambda_4_almost_corrected(self):
+    def test_lambda_4_almost_corrected_2(self):
         @pedantic
         def calc(i: float) -> Callable[[int], str]:
             @pedantic

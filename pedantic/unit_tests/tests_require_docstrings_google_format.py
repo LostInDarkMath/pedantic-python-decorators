@@ -2,7 +2,7 @@ import unittest
 from typing import List
 
 # local file imports
-from pedantic.method_decorators import pedantic_require_docstring
+from pedantic.method_decorators import pedantic_require_docstring, pedantic
 
 
 class TestRequireDocstringGoogleFormat(unittest.TestCase):
@@ -371,3 +371,61 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
 
         with self.assertRaises(expected_exception=AssertionError):
             calc(file_loc='Hi', print_cols=False)
+
+    def test_wrong_format_1(self):
+        """Problem here: CUrrently, only Google docstrings are supported"""
+        class MyText:
+            text = 'hi'
+
+            @pedantic_require_docstring
+            def __contains__(self, substring: str) -> bool:
+                """
+                Checks if contains substring.
+                Overridiing __contains__ build in functions allows to use the 'in' operator blah readability
+
+                Example:
+                my_text = MyText('abc')
+                if 'ab' in my_text -> true
+                :param: substring: substring
+                :return: True if substring is stored, False otherwise.
+                """
+                return substring in self.text
+
+        my_text = MyText()
+        with self.assertRaises(expected_exception=AssertionError):
+            assert 'ab' not in my_text
+            assert 'i' in my_text
+
+    def test_pedantic_1(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic
+            def calc(a: int, b: float, c: str) -> str:
+                """Returns some cool string
+
+                Args:
+                    a (int): dfnoghbn
+                    b (float): fubsuibgi
+
+                Returns:
+                    str: fshgimhj
+                """
+                return str(a) + str(b) + c
+
+            calc(a=42, b=3.14, c='hi')
+
+    def test_pedantic_1_corrected(self):
+        @pedantic
+        def calc(a: int, b: float, c: str) -> str:
+            """Returns some cool string
+
+            Args:
+                a (int): dfnoghbn
+                b (float): fubsuibgi
+                c (str): dfgnhoif
+
+            Returns:
+                str: fshgimhj
+            """
+            return str(a) + str(b) + c
+
+        calc(a=42, b=3.14, c='hi')
