@@ -1,0 +1,1 @@
+"venv3.7/scripts/pip.exe" freeze > requirements.txt

@@ -7,7 +7,7 @@ from pedantic.class_decorators import pedantic_class, pedantic_class_require_doc
 class TestClassDecorators(unittest.TestCase):
 
     def test_pedantic_class_1(self):
-        """Problem here: Argument 'a" in constructor doen't have a type hint"""
+        """Problem here: Argument 'a" in constructor doesn't have a type hint"""
         @pedantic_class
         class MyClass:
             def __init__(self, a) -> None:
@@ -71,7 +71,7 @@ class TestClassDecorators(unittest.TestCase):
                 return self.a - b
 
             def print(self, s: str):
-                res = f'{self.a} and {s}'
+                print(f'{self.a} and {s}')
 
         with self.assertRaises(expected_exception=AssertionError):
             m = MyClass(a=5)
@@ -148,7 +148,7 @@ class TestClassDecorators(unittest.TestCase):
         m = MyClass.generator()
         m.double(b=42)
 
-    def test_pedanti_class_require_docstring(self):
+    def test_pedantic_class_require_docstring(self):
         @pedantic_class_require_docstring
         class MyClass:
             def __init__(self, s: str) -> None:
@@ -325,3 +325,58 @@ class TestClassDecorators(unittest.TestCase):
 
         m = MyClass.generator()
         m.double(b=42)
+
+    def test_pedantic_overloading_1(self):
+        """Problem here: missing type hint for item"""
+        @pedantic_class
+        class MyClass(list):
+            def __contains__(self, item) -> bool:
+                return True
+
+        m = MyClass()
+        with self.assertRaises(expected_exception=AssertionError):
+            print('something' in m)
+
+    def test_pedantic_overloading_1_corrected(self):
+        @pedantic_class
+        class MyClass(list):
+            def __contains__(self, item: str) -> bool:
+                return True
+
+        m = MyClass()
+        print('something' in m)
+
+    def test_pedantic_overloading_2(self):
+        @pedantic_class
+        class MyClass(list):
+            def contains(self, item: str) -> bool:
+                return True
+
+        m = MyClass()
+        print('something' in m)
+
+    def test_type_annotation_string_1(self):
+        """Problem here: typo in string type annotation"""
+        @pedantic_class
+        class MyClass:
+            def compare(self, other: 'MyClas') -> bool:
+                return False
+
+        m = MyClass()
+        with self.assertRaises(expected_exception=AssertionError):
+            m.compare(other=m)
+
+    def test_type_annotation_string_1_corrected(self):
+        @pedantic_class
+        class MyClass:
+            def compare(self, other: 'MyClass') -> bool:
+                return False
+
+        m = MyClass()
+        m.compare(other=m)
+
+
+if __name__ == '__main__':
+    # run single test
+    test = TestClassDecorators()
+    test.test_type_annotation_string_1_corrected()

@@ -144,6 +144,20 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             some_calculation(c=30, a=40, b=50)
 
+    def test_validate_args_instance_method(self):
+        class MyClass:
+            @validate_args(lambda x: (x > 0, f'Argument should be greater then 0, but it was {x}.'))
+            def some_calculation(self, x: int) -> int:
+                return x
+
+        m = MyClass()
+        m.some_calculation(1)
+        m.some_calculation(42)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.some_calculation(0)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.some_calculation(-42)
+
     def test_require_not_none(self):
         @require_not_none
         def some_calculation(a, b, c):
@@ -165,4 +179,3 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             some_calculation('Hello', 4, 'World')
         with self.assertRaises(expected_exception=AssertionError):
             some_calculation('Hello', '4', None)
-

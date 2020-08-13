@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 from os import path
 
-url = "https://github.com/LostInDarkMath/PythonHelpers"
+url = "https://github.com/LostInDarkMath/pedantic-python-decorators"
 author = "Willi Sontopski"
 
 # read the contents of the README file
@@ -12,7 +12,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setup(
     # important things
     name="pedantic",
-    version="1.0.2",
+    version="1.0.3",
     packages=find_packages(),
     # scripts = ["say_hello.py"]
     install_requires=['docstring_parser'],

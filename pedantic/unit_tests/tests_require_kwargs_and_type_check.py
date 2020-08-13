@@ -1,5 +1,5 @@
 import unittest
-from typing import List, Tuple, Callable, Any, Optional, Union
+from typing import List, Tuple, Callable, Any, Optional, Union, Dict
 
 # local file imports
 from pedantic.method_decorators import pedantic
@@ -121,7 +121,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             calc(n=42)
 
-    def test_nested_type_hints_corrected(self):
+    def test_nested_type_hints_5_corrected(self):
         @pedantic
         def calc(n: int) -> Callable[[int, float], Tuple[float, float]]:
             @pedantic
@@ -210,9 +210,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_all_ok_6(self):
         @pedantic
         def calc(n: int) -> Callable[[int, float], Tuple[float, str]]:
+            @pedantic
             def f(x: int, y: float) -> Tuple[float, str]:
                 return n * float(x), str(y)
             return f
+
+        calc(n=42)(x=72, y=3.14)
 
     def test_all_ok_7(self):
         @pedantic
@@ -479,7 +482,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             a.calc(42)
 
-    def test_instance_method_4(self):
+    def test_instance_method_5(self):
         """Problem here: instance methods is not called with kwargs"""
         class A:
             @pedantic
@@ -540,7 +543,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             calc(i=42.0)(x=10)
 
-    def test_lambda_4_almost_corrected(self):
+    def test_lambda_4_almost_corrected_2(self):
         @pedantic
         def calc(i: float) -> Callable[[int], str]:
             @pedantic
@@ -668,8 +671,78 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             calc(i=call)
 
+    def test_optional_args_1(self):
+        @pedantic
+        def calc(a: int, b: int = 42) -> int:
+            return a + b
+
+        calc(a=2)
+
+    def test_optional_args_2(self):
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5.0) -> float:
+            return a + b + c
+
+        calc()
+        calc(a=1)
+        calc(b=1)
+        calc(c=1.0)
+        calc(a=1, b=1)
+        calc(a=1, c=1.0)
+        calc(b=1, c=1.0)
+        calc(a=1, b=1, c=1.0)
+
+    def test_optional_args_3(self):
+        """Problem here: optional argument c: 5 is not a float"""
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5) -> float:
+            return a + b + c
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc()
+
+    def test_optional_args_3_corrected(self):
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5.0) -> float:
+            return a + b + c
+
+        calc()
+
+    def test_optional_args_4(self):
+        class MyClass:
+            @pedantic
+            def foo(self, a: int, b: Optional[int] = 1) -> int:
+                return a + b
+
+        myclass = MyClass()
+        myclass.foo(a=10)
+
+    def test_optional_args_5(self):
+        @pedantic
+        def calc(d: Optional[Dict[int, int]] = None) -> Optional[int]:
+            if d is None:
+                return None
+            return sum(d.keys())
+
+        calc(d=None)
+        calc()
+        calc(d={42: 3})
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(d={42: 3.14})
+
+    def test_optional_args_6(self):
+        """"Problem here: str != int"""
+        @pedantic
+        def calc(d: int = 42) -> int:
+            return int(d)
+
+        calc(d=99999)
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(d='999999')
+
 
 if __name__ == '__main__':
     # run a specific unit test
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_callable_without_args()
+    test.test_optional_args_6()

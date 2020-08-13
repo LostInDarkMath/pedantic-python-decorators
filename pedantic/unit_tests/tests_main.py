@@ -9,6 +9,7 @@ from pedantic.unit_tests.tests_require_kwargs import TestRequireKwargs
 from pedantic.unit_tests.tests_class_decorators import TestClassDecorators
 from pedantic.unit_tests.tests_require_kwargs_and_type_check import TestDecoratorRequireKwargsAndTypeCheck
 from pedantic.unit_tests.tests_small_method_decorators import TestSmallDecoratorMethods
+from pedantic.unit_tests.tests_combination_of_decorators import TestCombinationOfDecorators
 
 if __name__ == '__main__':
     unittest.main()

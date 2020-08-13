@@ -10,7 +10,6 @@ venv38
 # Coverage
 htmlcov
 .coverage
-.coveragerc
 
 # wheel package
 build
