@@ -5,3 +5,7 @@ class NotImplementedException(Exception):
 
 class TooDirtyException(Exception):
     pass
+
+
+class AssumptionError(Exception):
+    pass

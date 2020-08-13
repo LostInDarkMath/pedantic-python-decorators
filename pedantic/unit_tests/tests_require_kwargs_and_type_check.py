@@ -668,8 +668,45 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             calc(i=call)
 
+    def test_optional_args_1(self):
+        @pedantic
+        def calc(a: int, b: int = 42) -> int:
+            return a + b
+
+        calc(a=2)
+
+    def test_optional_args_2(self):
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5.0) -> float:
+            return a + b + c
+
+        calc()
+        calc(a=1)
+        calc(b=1)
+        calc(c=1.0)
+        calc(a=1, b=1)
+        calc(a=1, c=1.0)
+        calc(b=1, c=1.0)
+        calc(a=1, b=1, c=1.0)
+
+    def test_optional_args_3(self):
+        """Problem here: optional argument c: 5 is not a float"""
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5) -> float:
+            return a + b + c
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc()
+
+    def test_optional_args_3_corrected(self):
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5.0) -> float:
+            return a + b + c
+
+        calc()
+
 
 if __name__ == '__main__':
     # run a specific unit test
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_callable_without_args()
+    test.test_ellipsis_in_callable_3()

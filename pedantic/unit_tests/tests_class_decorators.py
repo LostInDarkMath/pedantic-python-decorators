@@ -325,3 +325,10 @@ class TestClassDecorators(unittest.TestCase):
 
         m = MyClass.generator()
         m.double(b=42)
+
+
+if __name__ == '__main__':
+    # run single test
+    test = TestClassDecorators()
+    test.test_generator_1_corrected()
+

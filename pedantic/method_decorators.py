@@ -1,12 +1,12 @@
 import functools
 import inspect
-from typing import Callable, Any, Tuple, Dict, Type, Optional
+from typing import Callable, Any, Tuple, Dict, Type
 from datetime import datetime
 from docstring_parser import parse, Docstring
 import warnings
 
 # local file imports
-from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
+from pedantic.custom_exceptions import NotImplementedException, TooDirtyException, AssumptionError
 from pedantic.type_hint_parser import is_instance
 
 
@@ -43,21 +43,39 @@ def __get_annotations(func: Callable) -> Dict[str, Any]:
 def __require_kwargs_and_type_checking(func: Callable,
                                        args: Tuple[Any, ...],
                                        kwargs: Dict[str, Any],
-                                       annotations: Dict[str, Any]) -> Any:
-    """ Passing annotations here has the advantage, that it only needs be calculated once
+                                       annotations: Dict[str, Any],
+                                       signature: inspect.Signature) -> Any:
+    """ Passing annotations and signature here has the advantage, that it only needs be calculated once
     and not during every function call.
     """
-
     __require_kwargs(func=func, args=args)
-    assert len(kwargs) + 1 == len(annotations), \
-        f'Function "{func.__name__}" misses some type hints or arguments: {kwargs}, {annotations}'
 
-    for kwarg in kwargs:
-        expected_type = annotations[kwarg]
-        assert __is_value_matching_type_hint(value=kwargs[kwarg], type_hint=expected_type), \
-            f'Argument {kwarg}={kwargs[kwarg]} has not type {expected_type}.'
+    params = signature.parameters
+
+    assert signature.return_annotation is not inspect.Signature.empty, \
+        f'Function "{func.__name__}" should have a type hint for the return type (e.g. None there is nothing returned).'
+
+    for key in params:
+        param = params[key]
+
+        if param.name == 'self':
+            continue
+
+        assert param.annotation is not inspect.Signature.empty, \
+            f'Function "{func.__name__}" should have a type hint for parameter "{param.name}".'
+        if param.default is inspect.Signature.empty:
+            assert key in kwargs, f'Parameter "{key}" of function {func.__name__} is unfilled.'
+            actual_value = kwargs[key]
+        else:
+            actual_value = param.default
+
+        expected_type = param.annotation
+        assert __is_value_matching_type_hint(value=actual_value, type_hint=expected_type), \
+            f'Argument {key}={actual_value} has not type {expected_type}.'
 
     result = func(*args, **kwargs)
+    if 'return' not in annotations:
+        raise AssumptionError(f'"return" is not in annotations: {annotations}')
     expected_result_type = annotations['return']
 
     if isinstance(expected_result_type, str):
@@ -74,7 +92,6 @@ def __require_docstring_google_format(func: Callable, docstring: Docstring, anno
         Of course, the params docstring and annotations are absolute here, but passing saves performance here,
         because they are only calculated once. If we would calculate them here, it would be very expensive.
     """
-
     num_documented_args = len(docstring.params)
     num_taken_args = len([a for a in annotations if a != 'return'])
     assert num_documented_args == num_taken_args, \
@@ -352,7 +369,11 @@ def pedantic(func: Callable) -> Callable:
     def wrapper(*args, **kwargs) -> Any:
         if len(__get_parsed_docstring(func=func).params) > 0:
             __require_docstring_google_format(func=func, annotations=annotations, docstring=docstring)
-        return __require_kwargs_and_type_checking(func=func, args=args, kwargs=kwargs, annotations=annotations)
+        return __require_kwargs_and_type_checking(func=func,
+                                                  args=args,
+                                                  kwargs=kwargs,
+                                                  annotations=annotations,
+                                                  signature=inspect.signature(func))
     return wrapper
 
 
@@ -364,6 +385,10 @@ def pedantic_require_docstring(func: Callable) -> Callable:
 
     def wrapper(*args, **kwargs) -> Any:
         __require_docstring_google_format(func=func, annotations=annotations, docstring=docstring)
-        res = __require_kwargs_and_type_checking(func=func, args=args, kwargs=kwargs, annotations=annotations)
+        res = __require_kwargs_and_type_checking(func=func,
+                                                 args=args,
+                                                 kwargs=kwargs,
+                                                 annotations=annotations,
+                                                 signature=inspect.signature(func))
         return res
     return wrapper
