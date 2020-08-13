@@ -1,6 +1,7 @@
 import unittest
 
 # local file imports
+from pedantic import overrides
 from pedantic.class_decorators import pedantic_class, pedantic_class_require_docstring, trace_class, timer_class
 
 
@@ -326,9 +327,38 @@ class TestClassDecorators(unittest.TestCase):
         m = MyClass.generator()
         m.double(b=42)
 
+    def test_pedantic_overloading_1(self):
+        """Problem here: missing type hint for item"""
+        @pedantic_class
+        class MyClass(list):
+            def __contains__(self, item) -> bool:
+                return True
+
+        m = MyClass()
+        with self.assertRaises(expected_exception=AssertionError):
+            print('something' in m)
+
+    def test_pedantic_overloading_1_corrected(self):
+        @pedantic_class
+        class MyClass(list):
+            def __contains__(self, item: str) -> bool:
+                return True
+
+        m = MyClass()
+        print('something' in m)
+
+    def test_pedantic_overloading_2(self):
+        @pedantic_class
+        class MyClass(list):
+            def contains(self, item: str) -> bool:
+                return True
+
+        m = MyClass()
+        print('something' in m)
+
 
 if __name__ == '__main__':
     # run single test
     test = TestClassDecorators()
-    test.test_generator_1_corrected()
+    test.test_pedantic_overloading_1()
 

@@ -2,7 +2,6 @@
 
 import inspect
 import typing
-import sys
 import collections
 
 typing_protocol = typing.Protocol if hasattr(typing, 'Protocol') else typing._Protocol

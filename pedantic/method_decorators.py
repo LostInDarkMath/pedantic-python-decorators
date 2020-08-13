@@ -22,7 +22,19 @@ def __get_args_without_self(func: Callable, args: Tuple[Any, ...]) -> Tuple[Any,
 
 def __require_kwargs(func: Callable, args: Tuple[Any, ...]) -> None:
     args_without_self = __get_args_without_self(func=func, args=args)
+
+    if __is_special_func(func=func):
+        return
+
     assert args_without_self == (), f'Use kwargs when you call {func.__name__}! {args_without_self}'
+
+
+def __is_special_func(func: Callable[..., Any]) -> bool:
+    name = func.__name__
+    if not name.startswith('__') or not name.endswith('__'):
+        return False
+    return name not in [f'__{s}__' for s in ['new', 'init', 'str', 'del', 'int', 'float', 'complex', 'oct', 'hex',
+                                             'index', 'trunc', 'repr', 'unicode', 'hash', 'nonzero', 'dir', 'sizeof']]
 
 
 def __is_value_matching_type_hint(value: Any, type_hint: Any) -> bool:
@@ -49,12 +61,12 @@ def __require_kwargs_and_type_checking(func: Callable,
     and not during every function call.
     """
     __require_kwargs(func=func, args=args)
-
     params = signature.parameters
 
     assert signature.return_annotation is not inspect.Signature.empty, \
         f'Function "{func.__name__}" should have a type hint for the return type (e.g. None there is nothing returned).'
 
+    i = 1 if __is_instance_method(func=func) else 0
     for key in params:
         param = params[key]
 
@@ -64,10 +76,14 @@ def __require_kwargs_and_type_checking(func: Callable,
         assert param.annotation is not inspect.Signature.empty, \
             f'Function "{func.__name__}" should have a type hint for parameter "{param.name}".'
         if param.default is inspect.Signature.empty:
-            assert key in kwargs, f'Parameter "{key}" of function {func.__name__} is unfilled.'
-            actual_value = kwargs[key]
+            if __is_special_func(func=func):
+                actual_value = args[i]
+                i += 1
+            else:
+                assert key in kwargs, f'Parameter "{key}" of function {func.__name__} is unfilled.'
+                actual_value = kwargs[key]
         else:
-            actual_value = param.default
+            actual_value = kwargs[key] if key in kwargs else param.default
 
         expected_type = param.annotation
         assert __is_value_matching_type_hint(value=actual_value, type_hint=expected_type), \

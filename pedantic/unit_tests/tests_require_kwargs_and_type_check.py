@@ -1,5 +1,5 @@
 import unittest
-from typing import List, Tuple, Callable, Any, Optional, Union
+from typing import List, Tuple, Callable, Any, Optional, Union, Dict
 
 # local file imports
 from pedantic.method_decorators import pedantic
@@ -705,8 +705,41 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         calc()
 
+    def test_optional_args_4(self):
+        class MyClass:
+            @pedantic
+            def foo(self, a: int, b: Optional[int] = 1) -> int:
+                return a + b
+
+        myclass = MyClass()
+        myclass.foo(a=10)
+
+    def test_optional_args_5(self):
+        @pedantic
+        def calc(d: Optional[Dict[int, int]] = None) -> Optional[int]:
+            if d is None:
+                return None
+            return sum(d.keys())
+
+        calc(d=None)
+        calc()
+        calc(d={42: 3})
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(d={42: 3.14})
+
+    def test_optional_args_6(self):
+        """"Problem here: str != int"""
+        @pedantic
+        def calc(d: int = 42) -> int:
+            return int(d)
+
+        calc(d=99999)
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(d='999999')
+
 
 if __name__ == '__main__':
     # run a specific unit test
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_ellipsis_in_callable_3()
+    test.test_optional_args_6()
