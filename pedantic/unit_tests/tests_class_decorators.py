@@ -460,6 +460,36 @@ class TestClassDecorators(unittest.TestCase):
         f.func(b='Hi')
         f.bunk()
 
+    def test_pedantic_class_overrides_1_abstractmethod(self):
+        from abc import ABC, abstractmethod
+
+        @pedantic_class
+        class Abstract(ABC):
+            @abstractmethod
+            def func(self, b: str) -> str:
+                pass
+
+            @abstractmethod
+            def bunk(self) -> int:
+                pass
+
+        @pedantic_class
+        class Foo(Abstract):
+            def __init__(self, a: int) -> None:
+                self.a = a
+
+            @overrides(Abstract)
+            def func(self, b: str) -> str:
+                return b
+
+            @overrides(Abstract)
+            def bunk(self) -> int:
+                return 42
+
+        f = Foo(a=42)
+        f.func(b='Hi')
+        f.bunk()
+
     def test_pedantic_class_overrides_2(self):
         """Problem here: func != funcy"""
         @pedantic_class

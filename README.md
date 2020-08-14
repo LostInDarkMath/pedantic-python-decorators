@@ -219,8 +219,38 @@ Instead, you can use the `combine` decorator, which takes a list of decorators a
 def some_calculation(self, x: int) -> int:
     return x
 ```
-This also works for class decorators as well.
+This also works for class decorators as well. However, a very common scenario is to combine `@pedantic_class` with `@overrides` which both works well together even without using `@combine`. So you can write things like this:
+```python
+from abc import ABC, abstractmethod
+from pedantic import pedantic_class, overrides
 
+@pedantic_class
+class Abstract(ABC):
+    @abstractmethod
+    def func(self, b: str) -> str:
+        pass
+
+    @abstractmethod
+    def bunk(self) -> int:
+        pass
+
+@pedantic_class
+class Foo(Abstract):
+    def __init__(self, a: int) -> None:
+        self.a = a
+
+    @overrides(Abstract)
+    def func(self, b: str) -> str:
+        return b
+
+    @overrides(Abstract)
+    def operation(self) -> int:
+        return self.a
+
+f = Foo(a=42)
+f.func(b='Hi')
+f.operation()
+```
 
 # How to start
 ## Installation
@@ -240,7 +270,7 @@ In your Python file write `from pedantic import pedantic, pedantic_class` or wha
 Use it like mentioned above. Happy coding!
 
 ## Dependencies
-Outside the Python standard library, the followings dependencies are used:
+Outside the Python standard library, the following dependencies are used:
 - [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2, requires Python 3.6 or later)
 
 Created with Python 3.8.5. [It works with Python 3.6 or newer.](https://travis-ci.com/github/LostInDarkMath/PythonHelpers)
