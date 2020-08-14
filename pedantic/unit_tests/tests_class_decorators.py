@@ -375,8 +375,67 @@ class TestClassDecorators(unittest.TestCase):
         m = MyClass()
         m.compare(other=m)
 
+    def test_pedantic_class_docstring_1(self):
+        """Problem here: syntax error in docstring"""
+
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic_class
+            class Foo:
+                def __init__(self, a: int) -> None:
+                    self.a = int
+
+                def func(self, b: str) -> str:
+                    """
+                    Function with docstring syntax error below.
+                    Args:
+                        b (str):
+                        simple string
+                    Returns:
+                        str: simple string
+                    """
+                    return b
+
+                def bunk(self) -> int:
+                    '''
+                    Function with correct docstring.
+                    Returns:
+                        int: 42
+                    '''
+                    return 42
+
+
+            foo = Foo(a=10)
+            foo.func(b='bar')
+
+    def test_pedantic_class_docstring_1_corrected(self):
+        @pedantic_class
+        class Foo:
+            def __init__(self, a: int) -> None:
+                self.a = int
+
+            def func(self, b: str) -> str:
+                """
+                Function with docstring syntax error below.
+                Args:
+                    b (str): simple string
+                Returns:
+                    str: simple string
+                """
+                return b
+
+            def bunk(self) -> int:
+                '''
+                Function with correct docstring.
+                Returns:
+                    int: 42
+                '''
+                return 42
+
+        foo = Foo(a=10)
+        foo.func(b='bar')
+
 
 if __name__ == '__main__':
     # run single test
     test = TestClassDecorators()
-    test.test_type_annotation_string_1_corrected()
+    test.test_generator_1()
