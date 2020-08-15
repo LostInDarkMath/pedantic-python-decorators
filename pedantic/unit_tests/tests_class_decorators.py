@@ -1,6 +1,7 @@
 import unittest
 
 # local file imports
+from pedantic import overrides
 from pedantic.class_decorators import pedantic_class, pedantic_class_require_docstring, trace_class, timer_class
 
 
@@ -375,8 +376,218 @@ class TestClassDecorators(unittest.TestCase):
         m = MyClass()
         m.compare(other=m)
 
+    def test_pedantic_class_docstring_1(self):
+        """Problem here: syntax error in docstring"""
+
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic_class
+            class Foo:
+                def __init__(self, a: int) -> None:
+                    self.a = int
+
+                def func(self, b: str) -> str:
+                    """
+                    Function with docstring syntax error below.
+                    Args:
+                        b (str):
+                        simple string
+                    Returns:
+                        str: simple string
+                    """
+                    return b
+
+                def bunk(self) -> int:
+                    '''
+                    Function with correct docstring.
+                    Returns:
+                        int: 42
+                    '''
+                    return 42
+
+            foo = Foo(a=10)
+            foo.func(b='bar')
+
+    def test_pedantic_class_docstring_1_corrected(self):
+        @pedantic_class
+        class Foo:
+            def __init__(self, a: int) -> None:
+                self.a = int
+
+            def func(self, b: str) -> str:
+                """
+                Function with docstring syntax error below.
+                Args:
+                    b (str): simple string
+                Returns:
+                    str: simple string
+                """
+                return b
+
+            def bunk(self) -> int:
+                '''
+                Function with correct docstring.
+                Returns:
+                    int: 42
+                '''
+                return 42
+
+        foo = Foo(a=10)
+        foo.func(b='bar')
+
+    def test_pedantic_class_overrides_1(self):
+        @pedantic_class
+        class Abstract:
+            def func(self, b: str) -> str:
+                pass
+
+            def bunk(self) -> int:
+                pass
+
+        @pedantic_class
+        class Foo(Abstract):
+            def __init__(self, a: int) -> None:
+                self.a = a
+
+            @overrides(Abstract)
+            def func(self, b: str) -> str:
+                return b
+
+            @overrides(Abstract)
+            def bunk(self) -> int:
+                return 42
+
+        f = Foo(a=42)
+        f.func(b='Hi')
+        f.bunk()
+
+    def test_pedantic_class_overrides_1_abstractmethod(self):
+        from abc import ABC, abstractmethod
+
+        @pedantic_class
+        class Abstract(ABC):
+            @abstractmethod
+            def func(self, b: str) -> str:
+                pass
+
+            @abstractmethod
+            def bunk(self) -> int:
+                pass
+
+        @pedantic_class
+        class Foo(Abstract):
+            def __init__(self, a: int) -> None:
+                self.a = a
+
+            @overrides(Abstract)
+            def func(self, b: str) -> str:
+                return b
+
+            @overrides(Abstract)
+            def bunk(self) -> int:
+                return 42
+
+        f = Foo(a=42)
+        f.func(b='Hi')
+        f.bunk()
+
+    def test_pedantic_class_overrides_2(self):
+        """Problem here: func != funcy"""
+        @pedantic_class
+        class Parent:
+            def func(self, b: str) -> str:
+                return b + b + b
+
+            def bunk(self) -> int:
+                return 42
+
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic_class
+            class Foo(Parent):
+                def __init__(self, a: int) -> None:
+                    self.a = a
+
+                @overrides(Parent)
+                def funcy(self, b: str) -> str:
+                    return b
+
+                @overrides(Parent)
+                def bunk(self) -> int:
+                    return self.a
+
+            f = Foo(a=40002)
+            f.func(b='Hi')
+            f.bunk()
+
+        p = Parent()
+        p.func(b='Hi')
+        p.bunk()
+
+    def test_pedantic_class_overrides_3(self):
+        """Problem here: type errors and call by args"""
+        @pedantic_class
+        class Abstract:
+            def func(self, b: str) -> str:
+                pass
+
+            def bunk(self) -> int:
+                pass
+
+        @pedantic_class
+        class Foo(Abstract):
+            def __init__(self, a: int) -> None:
+                self.a = a
+
+            @overrides(Abstract)
+            def func(self, b: str) -> str:
+                return b
+
+            @overrides(Abstract)
+            def bunk(self) -> int:
+                return self.a
+
+        f = Foo(a=42)
+        f.func(b='Hi')
+        f.bunk()
+        with self.assertRaises(expected_exception=AssertionError):
+            f.func('Hi')
+        with self.assertRaises(expected_exception=AssertionError):
+            f2 = Foo(3.1415)
+        f.a = 3.145
+        with self.assertRaises(expected_exception=AssertionError):
+            f.bunk()
+
+    def test_pedantic_class_overrides_2_corrected(self):
+        @pedantic_class
+        class Parent:
+            def func(self, b: str) -> str:
+                return b + b + b
+
+            def bunk(self) -> int:
+                return 42
+
+        @pedantic_class
+        class Foo(Parent):
+            def __init__(self, a: int) -> None:
+                self.a = a
+
+            @overrides(Parent)
+            def func(self, b: str) -> str:
+                return b
+
+            @overrides(Parent)
+            def bunk(self) -> int:
+                return self.a
+
+        f = Foo(a=40002)
+        f.func(b='Hi')
+        f.bunk()
+
+        p = Parent()
+        p.func(b='Hi')
+        p.bunk()
+
 
 if __name__ == '__main__':
     # run single test
     test = TestClassDecorators()
-    test.test_type_annotation_string_1_corrected()
+    test.test_generator_1()

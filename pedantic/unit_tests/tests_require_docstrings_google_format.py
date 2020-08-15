@@ -100,7 +100,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
         calc(file_loc='Hi', print_cols=False)
 
     def test_google_docstring_4(self):
-        """Problem here: Argument 'ammount' is NOT a parameter of the function."""
+        """Problem here: Argument 'amount' is NOT a parameter of the function."""
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool) -> list:
             """Gets and prints the spreadsheet's header columns
@@ -109,7 +109,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
                 file_loc (str): The file location of the spreadsheet
                 print_cols (bool): A flag used to print the columns to the console
                     (default is False)
-                ammount (int): THIS ARGUMENT IS NOT TAKEN BY THE FUNCTION
+                amount (int): THIS ARGUMENT IS NOT TAKEN BY THE FUNCTION
 
             Returns:
                 list: a list of strings representing the header columns
@@ -122,22 +122,22 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
 
     def test_google_docstring_corrected(self):
         @pedantic_require_docstring
-        def calc(file_loc: str, print_cols: bool, ammount: int) -> list:
+        def calc(file_loc: str, print_cols: bool, amount: int) -> list:
             """Gets and prints the spreadsheet's header columns
 
             Args:
                 file_loc (str): The file location of the spreadsheet
                 print_cols (bool): A flag used to print the columns to the console
                     (default is False)
-                ammount (int): now it is
+                amount (int): now it is
 
             Returns:
                 list: a list of strings representing the header columns
             """
 
-            return [file_loc, str(print_cols), ammount]
+            return [file_loc, str(print_cols), amount]
 
-        calc(file_loc='Hi', print_cols=False, ammount=42)
+        calc(file_loc='Hi', print_cols=False, amount=42)
 
     def test_google_no_args_keyword(self):
         """Problem here: Docstring misses the keyword 'Args:' before the arguments listed."""
@@ -373,7 +373,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
             calc(file_loc='Hi', print_cols=False)
 
     def test_wrong_format_1(self):
-        """Problem here: CUrrently, only Google docstrings are supported"""
+        """Problem here: Currently, only Google docstrings are supported"""
         class MyText:
             text = 'hi'
 
@@ -381,7 +381,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
             def __contains__(self, substring: str) -> bool:
                 """
                 Checks if contains substring.
-                Overridiing __contains__ build in functions allows to use the 'in' operator blah readability
+                Overriding __contains__ build in functions allows to use the 'in' operator blah readability
 
                 Example:
                 my_text = MyText('abc')

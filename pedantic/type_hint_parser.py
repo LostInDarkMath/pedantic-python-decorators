@@ -170,9 +170,7 @@ if hasattr(typing, '_GenericAlias'):
 
 
     def _get_python_type(cls):
-        """
-        Like `python_type`, but only works with `typing` classes.
-        """
+        """Like `python_type`, but only works with `typing` classes."""
         return cls.__origin__
 
 
@@ -197,9 +195,7 @@ else:
         return cls.__origin__
 
     def _get_python_type(cls):
-        """
-        Like `python_type`, but only works with `typing` classes.
-        """
+        """Like `python_type`, but only works with `typing` classes."""
         # Many classes actually reference their corresponding abstract base class from the abc module
         # instead of their builtin variant (i.e. typing.List references MutableSequence instead of list).
         # We're interested in the builtin class (if any), so we'll traverse the MRO and look for it there.
@@ -213,14 +209,13 @@ else:
         except AttributeError:
             return type(cls).__name__[1:]
 
+
 def _get_subtypes(cls):
-    assert hasattr(cls, '__args__'), f'"{cls}" has no type attributes.'
     subtypes = cls.__args__
 
     if get_base_generic(cls) is typing.Callable:
         if len(subtypes) != 2 or subtypes[0] is not ...:
             subtypes = (subtypes[:-1], subtypes[-1])
-
     return subtypes
 
 
@@ -251,7 +246,7 @@ def is_base_generic(cls: typing.Any) -> bool:
     >>> False
     """
     assert has_required_type_arguments(cls), \
-        f'The type annotation "{cls}" misses some type arguments, for example ' \
+        f'The type annotation "{cls}" misses some type arguments e.g. ' \
         f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
     return _is_base_generic(cls)
 

@@ -1,6 +1,6 @@
 import unittest
 
-# local file imoorts
+# local file imports
 from pedantic.method_decorators import require_kwargs
 
 
