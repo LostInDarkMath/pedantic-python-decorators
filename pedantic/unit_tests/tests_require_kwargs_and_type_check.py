@@ -236,59 +236,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         calc(n=42)(x=3, y=3.14)
 
-    def test_sloppy_type_hints_1(self):
-        @pedantic
-        def calc(ls: list) -> int:
-            return len(ls)
-
-        calc(ls=[1, 2, 3])
-        calc(ls=[1.11, 2.0, 3.0])
-        calc(ls=['1', '2', '3'])
-        calc(ls=[10.5, '2', (3, 4, 5)])
-
-    def test_sloppy_type_hints_2(self):
-        """Problem here: tuple != list"""
-        @pedantic
-        def calc(ls: list) -> int:
-            return len(ls)
-
-        with self.assertRaises(expected_exception=AssertionError):
-            calc(ls=(1, 2, 3))
-
-    def test_sloppy_type_hints_2_corrected(self):
-        """Problem here: tuple != list"""
-        @pedantic
-        def calc(ls: tuple) -> int:
-            return len(ls)
-
-        calc(ls=(1, 2, 3))
-
-    def test_sloppy_type_hints_3(self):
-        """Problem here: str != int"""
-        @pedantic
-        def calc(ls: list) -> int:
-            return str(len(ls))
-
-        with self.assertRaises(expected_exception=AssertionError):
-            calc(ls=[1, 2, 3])
-
-    def test_sloppy_type_hints_3_corrected(self):
-        @pedantic
-        def calc(ls: list) -> str:
-            return str(len(ls))
-
-        calc(ls=[1, 2, 3])
-
-    def test_sloppy_type_hints_4(self):
-        @pedantic
-        def calc(ls: list) -> dict:
-            return {i: ls[i] for i in range(0, len(ls))}
-
-        calc(ls=[1, 2, 3])
-        calc(ls=[1.11, 2.0, 3.0])
-        calc(ls=['1', '2', '3'])
-        calc(ls=[10.5, '2', (3, 4, 5)])
-
     def test_wrong_type_hint_1(self):
         """Problem here: str != int"""
         @pedantic
@@ -741,8 +688,86 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             calc(d='999999')
 
+    def test_sloppy_types_1(self):
+        """Problem here: use typing.Dict instead of dict"""
+        @pedantic
+        def operation(d: dict) -> int:
+            return len(d.keys())
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1: 1, 2: 2})
+
+    def test_sloppy_types_1_almost_corrected(self):
+        """Problem here: typing.Dict misses type arguments"""
+        @pedantic
+        def operation(d: Dict) -> int:
+            return len(d.keys())
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1: 1, 2: 2})
+
+    def test_sloppy_types_1_corrected(self):
+        @pedantic
+        def operation(d: Dict[int, int]) -> int:
+            return len(d.keys())
+
+        operation(d={1: 1, 2: 2})
+
+    # def test_sloppy_type_hints_1(self):
+    #     @pedantic
+    #     def calc(ls: list) -> int:
+    #         return len(ls)
+    #
+    #     calc(ls=[1, 2, 3])
+    #     calc(ls=[1.11, 2.0, 3.0])
+    #     calc(ls=['1', '2', '3'])
+    #     calc(ls=[10.5, '2', (3, 4, 5)])
+    #
+    # def test_sloppy_type_hints_2(self):
+    #     """Problem here: tuple != list"""
+    #     @pedantic
+    #     def calc(ls: list) -> int:
+    #         return len(ls)
+    #
+    #     with self.assertRaises(expected_exception=AssertionError):
+    #         calc(ls=(1, 2, 3))
+    #
+    # def test_sloppy_type_hints_2_corrected(self):
+    #     """Problem here: tuple != list"""
+    #     @pedantic
+    #     def calc(ls: tuple) -> int:
+    #         return len(ls)
+    #
+    #     calc(ls=(1, 2, 3))
+    #
+    # def test_sloppy_type_hints_3(self):
+    #     """Problem here: str != int"""
+    #     @pedantic
+    #     def calc(ls: list) -> int:
+    #         return str(len(ls))
+    #
+    #     with self.assertRaises(expected_exception=AssertionError):
+    #         calc(ls=[1, 2, 3])
+    #
+    # def test_sloppy_type_hints_3_corrected(self):
+    #     @pedantic
+    #     def calc(ls: list) -> str:
+    #         return str(len(ls))
+    #
+    #     calc(ls=[1, 2, 3])
+    #
+    # def test_sloppy_type_hints_4(self):
+    #     @pedantic
+    #     def calc(ls: list) -> dict:
+    #         return {i: ls[i] for i in range(0, len(ls))}
+    #
+    #     calc(ls=[1, 2, 3])
+    #     calc(ls=[1.11, 2.0, 3.0])
+    #     calc(ls=['1', '2', '3'])
+    #     calc(ls=[10.5, '2', (3, 4, 5)])
+
 
 if __name__ == '__main__':
     # run a specific unit test
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_optional_args_6()
+    test.test_sloppy_types_1_almost_corrected()
