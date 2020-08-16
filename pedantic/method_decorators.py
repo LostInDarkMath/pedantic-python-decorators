@@ -42,7 +42,7 @@ def __is_value_matching_type_hint(value: Any, type_hint: Any, func: Callable[...
         return value == type_hint
     try:
         return is_instance(value, type_hint)
-    except AssertionError as ex:
+    except (AssertionError, AttributeError, Exception) as ex:
         raise AssertionError(f'In function "{func.__name__}": {ex}')
 
 
