@@ -586,8 +586,25 @@ class TestClassDecorators(unittest.TestCase):
         p.func(b='Hi')
         p.bunk()
 
+    def test_static_method_1(self):
+        """Problem here: Return type of "static_bar" should be Tuple[int, int]"""
+        @pedantic_class
+        class MyStaticClass:
+
+            @staticmethod
+            def double_func(a: int) -> int:
+                x, y = MyStaticClass.static_bar()
+                return x
+
+            @staticmethod
+            def static_bar() -> (int, int):  # this is wrong. Correct would be Tuple[int, int]
+                return 0, 1
+
+        with self.assertRaises(expected_exception=AssertionError):
+            print(MyStaticClass.double_func(a=0))
+
 
 if __name__ == '__main__':
     # run single test
     test = TestClassDecorators()
-    test.test_generator_1()
+    test.test_static_method_1()

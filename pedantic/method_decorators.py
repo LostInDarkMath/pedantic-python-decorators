@@ -38,12 +38,16 @@ def __is_special_func(func: Callable[..., Any]) -> bool:
 
 
 def __is_value_matching_type_hint(value: Any, type_hint: Any, func: Callable[..., Any]) -> bool:
+    """Wrapper for file "type_hint_parser.py"."""
+    f_name = func.__name__
+
     if type_hint is None:
         return value == type_hint
+    assert type(type_hint) is not tuple, f'Use "Tuple[]" instead of "{type_hint}" as type hint in function "{f_name}".'
     try:
         return is_instance(value, type_hint)
     except (AssertionError, AttributeError, Exception) as ex:
-        raise AssertionError(f'In function "{func.__name__}": {ex}')
+        raise AssertionError(f'In function "{f_name}": {ex}')
 
 
 def __get_parsed_docstring(func: Callable) -> Docstring:
