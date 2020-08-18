@@ -72,6 +72,22 @@ class TestCombinationOfDecorators(unittest.TestCase):
             m.some_calculation(x=1.0)
 
     def test_pedantic_validate_args_4(self):
+        @pedantic_class
+        class MyClass:
+            @validate_args(lambda x: x > 0)
+            def some_calculation(self, x: int) -> int:
+                return x
+
+        m = MyClass()
+        m.some_calculation(x=42)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.some_calculation(x=0)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.some_calculation(x=-42)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.some_calculation(x=1.0)
+
+    def test_pedantic_validate_args_5(self):
         @pedantic
         @validate_args(lambda x: x > 0)
         def some_calculation(x: int) -> int:
@@ -126,4 +142,4 @@ class TestCombinationOfDecorators(unittest.TestCase):
 
 if __name__ == '__main__':
     t = TestCombinationOfDecorators()
-    t.test_pedantic_validate_args_3()
+    t.test_pedantic_class_static_method_1()

@@ -23,18 +23,18 @@ def __is_static_method(func: Callable[..., Any]) -> bool:
     return '@staticmethod' in inspect.getsource(func)
 
 
-def __uses_multiple_decorators(func: Callable[..., Any]) -> bool:
-    return len(re.findall('@', inspect.getsource(func).split('def')[0])) > 1
+def __uses_multiple_decorators(func: Callable[..., Any], max_allowed: int = 1) -> bool:
+    return len(re.findall('@', inspect.getsource(func).split('def')[0])) > max_allowed
 
 
-def __get_args_without_self(func: Callable, args: Tuple[Any, ...]) -> Tuple[Any, ...]:
-    if __is_instance_method(func) or __is_static_method(func) or __uses_multiple_decorators(func):
+def __get_args_without_self(func: Callable, args: Tuple[Any, ...], max_allowed) -> Tuple[Any, ...]:
+    if __is_instance_method(func) or __is_static_method(func) or __uses_multiple_decorators(func, max_allowed):
         return args[1:]  # self is always the first argument if present
     return args
 
 
-def __require_kwargs(func: Callable, args: Tuple[Any, ...]) -> None:
-    args_without_self = __get_args_without_self(func=func, args=args)
+def __require_kwargs(func: Callable, args: Tuple[Any, ...], max_allowed: int) -> None:
+    args_without_self = __get_args_without_self(func=func, args=args, max_allowed=max_allowed)
 
     if __is_special_func(func=func):
         return
@@ -97,11 +97,12 @@ def __require_kwargs_and_type_checking(func: Callable,
                                        args: Tuple[Any, ...],
                                        kwargs: Dict[str, Any],
                                        annotations: Dict[str, Any],
-                                       signature: inspect.Signature) -> Any:
+                                       signature: inspect.Signature,
+                                       max_allowed: int) -> Any:
     """ Passing annotations and signature here has the advantage, that it only needs be calculated once
     and not during every function call.
     """
-    __require_kwargs(func=func, args=args)
+    __require_kwargs(func=func, args=args, max_allowed=max_allowed)
     params = signature.parameters
 
     assert signature.return_annotation is not inspect.Signature.empty, \
@@ -197,7 +198,7 @@ def __require_docstring_google_format(func: Callable, docstring: Docstring, anno
                     docstring_param = param
             assert docstring_param is not None, f'{__qual_name(func=func)} Parameter {annotation} is not documented.'
             assert expected_type == docstring_param.type_name, \
-                f'{__qual_name(func=func)} Documented type of paramter {annotation} is incorrect. ' \
+                f'{__qual_name(func=func)} Documented type of parameter {annotation} is incorrect. ' \
                 f'Expected {expected_type} but documented is {docstring_param.type_name}.'
 
 
@@ -335,7 +336,7 @@ def dirty(func: Callable) -> Callable:
     return wrapper
 
 
-def require_kwargs(func: Callable) -> Callable:
+def require_kwargs(func: Callable, is_class_decorator: bool = False) -> Callable:
     """
         Checks that each passed argument is a keyword argument.
         Example:
@@ -347,12 +348,13 @@ def require_kwargs(func: Callable) -> Callable:
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
-        __require_kwargs(func=func, args=args)
+        __require_kwargs(func=func, args=args, max_allowed=0 if is_class_decorator else 1)
         return func(*args, **kwargs)
     return wrapper
 
 
-def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> Callable:
+def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]],
+                  is_class_decorator: bool = False) -> Callable:
     """
       Validates each passed argument with the given validator.
       Example:
@@ -370,7 +372,9 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> 
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
-            args_without_self = __get_args_without_self(func=func, args=args)
+            args_without_self = __get_args_without_self(func=func,
+                                                        args=args,
+                                                        max_allowed=0 if is_class_decorator else 1)
 
             for arg in args_without_self:
                 validate(arg)
@@ -383,7 +387,7 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> 
     return outer
 
 
-def require_not_none(func: Callable) -> Callable:
+def require_not_none(func: Callable, is_class_decorator: bool = False) -> Callable:
     """
       Checks that each passed argument is not None and raises AssertionError if there is some.
       Example:
@@ -393,10 +397,10 @@ def require_not_none(func: Callable) -> Callable:
    """
     def validator(arg: Any) -> Tuple[bool, str]:
         return arg is not None, f'Argument of function "{func.__name__}" should not be None!'
-    return validate_args(validator)(func)
+    return validate_args(validator=validator, is_class_decorator=is_class_decorator)(func)
 
 
-def require_not_empty_strings(func: Callable) -> Callable:
+def require_not_empty_strings(func: Callable, is_class_decorator: bool = False) -> Callable:
     """
        Throw a ValueError if the arguments are None, not strings, or empty strings or contains only whitespaces.
        Example:
@@ -410,10 +414,10 @@ def require_not_empty_strings(func: Callable) -> Callable:
     def validator(arg: Any) -> Tuple[bool, str]:
         return arg is not None and type(arg) is str and len(arg.strip()) > 0, \
             f'Arguments of function "{func.__name__}" should be a not empty string! Got: {arg}'
-    return validate_args(validator)(func)
+    return validate_args(validator=validator, is_class_decorator=is_class_decorator)(func)
 
 
-def pedantic(func: Callable) -> Callable:
+def pedantic(func: Callable, is_class_decorator: bool = False) -> Callable:
     """
        Checks the types and throw an AssertionError if a type is incorrect.
        This decorator reads the type hints and use them as contracts that will be checked.
@@ -443,11 +447,13 @@ def pedantic(func: Callable) -> Callable:
                                                   args=args,
                                                   kwargs=kwargs,
                                                   annotations=annotations,
-                                                  signature=inspect.signature(func))
+                                                  signature=inspect.signature(func),
+                                                  max_allowed=0 if is_class_decorator else 1
+                                                  )
     return wrapper
 
 
-def pedantic_require_docstring(func: Callable) -> Callable:
+def pedantic_require_docstring(func: Callable, is_class_decorator: bool = False) -> Callable:
     """It's like pedantic, but now it forces you to write docstrings (Google format)."""
 
     annotations = __get_annotations(func=func)
@@ -459,6 +465,7 @@ def pedantic_require_docstring(func: Callable) -> Callable:
                                                  args=args,
                                                  kwargs=kwargs,
                                                  annotations=annotations,
-                                                 signature=inspect.signature(func))
+                                                 signature=inspect.signature(func),
+                                                 max_allowed=0 if is_class_decorator else 1)
         return res
     return wrapper

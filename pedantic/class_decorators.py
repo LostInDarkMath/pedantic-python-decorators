@@ -16,7 +16,11 @@ def for_all_methods(decorator: Callable) -> Callable:
     def decorate(cls: Any) -> Any:
         for attr in cls.__dict__:
             if callable(getattr(cls, attr)):
-                setattr(cls, attr, decorator(getattr(cls, attr)))
+                # if 'is_class_decorator' in inspect.getfullargspec(decorator).annotations: DOESNT WORK HERE
+                try:
+                    setattr(cls, attr, decorator(getattr(cls, attr), is_class_decorator=True))
+                except TypeError:
+                    setattr(cls, attr, decorator(getattr(cls, attr)))
         return cls
     return decorate
 
