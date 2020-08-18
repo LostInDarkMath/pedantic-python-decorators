@@ -104,6 +104,7 @@ def has_required_type_arguments(cls: typing.Any) -> bool:
         'typing.Callable': 2,
         'typing.List': 1,
         'typing.Set': 1,
+        'typing.FrozenSet': 1,
         'typing.Iterable': 1,
         'typing.Dict': 2,
         'typing.Optional': 2,  # because typing.get_args(typing.Optional[int]) returns (int, None)

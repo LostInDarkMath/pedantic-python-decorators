@@ -49,15 +49,19 @@ def __is_value_matching_type_hint(value: Any, type_hint: Any, func: Callable[...
     if type_hint is None:
         return value == type_hint
     assert type(type_hint) is not tuple, f'Use "Tuple[]" instead of "{type_hint}" as type hint in function "{f_name}".'
-    assert type_hint is not tuple, f'Use "Tuple[]" instead of "tuple" as type hint in function "{f_name}".'
-    assert type_hint is not list, f'Use "List[]" instead of "list" as type hint in function "{f_name}".'
-    assert type_hint is not dict, f'Use "Dict[]" instead of "dict" as type hint in function "{f_name}".'
-    assert type_hint is not set, f'Use "Set[]" instead of "set" as type hint in function "{f_name}".'
-    assert type_hint is not frozenset, f'Use "Frozenset[]" instead of "frozenset" as type hint in function "{f_name}".'
+
+    assert type_hint is not tuple, f'{__qual_name(func=func)} Use "Tuple[]" instead of "tuple" as type hint.'
+    assert type_hint is not list, f'{__qual_name(func=func)} Use "List[]" instead of "list" as type hint.'
+    assert type_hint is not dict, f'{__qual_name(func=func)} Use "Dict[]" instead of "dict" as type hint.'
+    assert type_hint is not set, f'{__qual_name(func=func)} Use "Set[]" instead of "set" as type hint.'
+    assert type_hint is not frozenset, \
+        f'{__qual_name(func=func)} Use "FrozenSet[]" instead of "frozenset" as type hint.'
 
     try:
         return is_instance(value, type_hint)
-    except (AssertionError, AttributeError, Exception) as ex:
+    except AssertionError as ex:
+        raise AssertionError(f'{__qual_name(func=func)} {ex}')
+    except (AttributeError, Exception) as ex:
         raise AssertionError(f'{__qual_name(func=func)} An error occurred during type hint checking. '
                              f'Value: {value} Annotation: {type_hint} '
                              f'Mostly this is caused by an incorrect type annotation. '
