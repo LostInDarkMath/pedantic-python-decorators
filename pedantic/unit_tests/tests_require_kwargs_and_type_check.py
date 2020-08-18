@@ -688,6 +688,41 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             calc(d='999999')
 
+    def test_enum_1(self):
+        """Problem here: Type hint for a should be MyEnum instead of MyEnum.SEQUENCEFLOW"""
+        from enum import Enum
+
+        class MyEnum(Enum):
+            STARTEVENT = 'startEvent'
+            ACTIVITY = 'task'
+            SEQUENCEFLOW = 'sequenceFlow'
+
+        class MyClass:
+            @pedantic
+            def operation(self, a: MyEnum.SEQUENCEFLOW) -> None:
+                print(a)
+
+        m = MyClass()
+        with self.assertRaises(expected_exception=AssertionError):
+            m.operation(a=MyEnum.SEQUENCEFLOW)
+
+    def test_enum_1_corrected(self):
+        from enum import Enum
+
+        class MyEnum(Enum):
+            STARTEVENT = 'startEvent'
+            ACTIVITY = 'task'
+            SEQUENCEFLOW = 'sequenceFlow'
+            ENDEVENT = 'endEvent'
+            ID = 'id'
+            NAME = 'name'
+
+        @pedantic
+        def operation(a: MyEnum) -> None:
+            print(a)
+
+        operation(a=MyEnum.SEQUENCEFLOW)
+
     def test_sloppy_types_1(self):
         """Problem here: use typing.Dict instead of dict"""
         @pedantic
@@ -770,4 +805,4 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 if __name__ == '__main__':
     # run a specific unit test
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_sloppy_types_1_almost_corrected()
+    test.test_enum_1()

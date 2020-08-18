@@ -37,6 +37,11 @@ def __is_special_func(func: Callable[..., Any]) -> bool:
                                              'index', 'trunc', 'repr', 'unicode', 'hash', 'nonzero', 'dir', 'sizeof']]
 
 
+def __qual_name(func: Callable[..., Any]) -> str:
+    """uniform design for error messages"""
+    return f'In function {func.__qualname__}:' + '\n'
+
+
 def __is_value_matching_type_hint(value: Any, type_hint: Any, func: Callable[..., Any]) -> bool:
     """Wrapper for file "type_hint_parser.py"."""
     f_name = func.__name__
@@ -53,7 +58,10 @@ def __is_value_matching_type_hint(value: Any, type_hint: Any, func: Callable[...
     try:
         return is_instance(value, type_hint)
     except (AssertionError, AttributeError, Exception) as ex:
-        raise AssertionError(f'In function "{f_name}": {ex}')
+        raise AssertionError(f'{__qual_name(func=func)} An error occurred during type hint checking. '
+                             f'Value: {value} Annotation: {type_hint} '
+                             f'Mostly this is caused by an incorrect type annotation. '
+                             f'Details: {ex} ')
 
 
 def __get_parsed_docstring(func: Callable) -> Docstring:
