@@ -877,4 +877,4 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 if __name__ == '__main__':
     # run a specific unit test
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_any()
+    test.test_instance_method_5()

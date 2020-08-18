@@ -34,20 +34,20 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         b.operation()
 
     def test_overrides_static_method(self):
-        """Problem here: Static methods cannot be overwritten"""
-
         class A:
             @staticmethod
             def operation():
                 pass
 
-        with self.assertRaises(expected_exception=AssertionError):
-            class B(A):
+        class B(A):
+            @staticmethod
+            @overrides(A)
+            def operation():
+                return 42
 
-                @staticmethod
-                @overrides(A)
-                def operation():
-                    return 42
+        b = B()
+        self.assertEqual(b.operation(), 42)
+        self.assertEqual(B.operation(), 42)
 
     def test_deprecated_1(self):
         @deprecated

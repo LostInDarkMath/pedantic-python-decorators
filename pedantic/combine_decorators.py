@@ -8,6 +8,9 @@ def combine(decorators: List[Callable[[Callable[..., Any]], Callable[..., Any]]]
         - @combine([pedantic, overrides(ParentClass)])
         - @combine([pedantic, validate_args(lambda x: x > 42)])
         - @combine([pedantic_class, trace_class])
+
+    Warnings: The decorated function will be executed multiple times during each call which may have an surprising
+        impact of the state for instance. So if you can, avoid combine and try stacking decorators instead.
     """
     def get_combined_decorator(func: Callable[..., Any], ) -> Callable[..., Any]:
         def master_decorator(*args, **kwargs) -> Any:

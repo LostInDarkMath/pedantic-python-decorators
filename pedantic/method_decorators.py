@@ -2,8 +2,11 @@ import functools
 import inspect
 from typing import Callable, Any, Tuple, Dict, Type, Union
 from datetime import datetime
-from docstring_parser import parse, Docstring
 import warnings
+import re
+
+# third party
+from docstring_parser import parse, Docstring
 
 # local file imports
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
@@ -13,7 +16,24 @@ from pedantic.type_hint_parser import is_instance
 # HELPER FUNCTIONS ###
 def __is_instance_method(func: Callable) -> bool:
     spec = inspect.getfullargspec(func)
+
+    # handling a very special case
+    if __is_static_method(func=func):
+        return True
+
+    # handling chained decorators
+    if len(re.findall('@', inspect.getsource(func).split('def')[0])) > 1:
+        return True
+
     return spec.args and spec.args[0] == 'self'
+
+
+def __is_static_method(func: Callable[..., Any]) -> bool:
+    return '@staticmethod' in inspect.getsource(func)
+
+
+def __uses_multiple_decorators(func: Callable[..., Any]) -> bool:
+    return len(re.findall('@', inspect.getsource(func).split('def')[0])) > 1
 
 
 def __get_args_without_self(func: Callable, args: Tuple[Any, ...]) -> Tuple[Any, ...]:
@@ -125,7 +145,7 @@ def __require_kwargs_and_type_checking(func: Callable,
                 f'{__qual_name(func=func)} Type hint is incorrect: Passed Argument {key}={actual_value} ' \
                 f'does not have type {expected_type}.'
 
-    result = func(*args, **kwargs)
+    result = func(*args, **kwargs) if not __is_static_method(func=func) else func(**kwargs)
     expected_result_type = annotations['return']
 
     if isinstance(expected_result_type, str):
