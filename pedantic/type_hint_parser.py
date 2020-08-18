@@ -66,15 +66,14 @@ def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     if hasattr(typing, 'get_args'):
         # Python 3.8.0 throws index error here, for argument cls = typing.Callable (without type arguments)
         try:
-            res = typing.get_args(cls)
+            return __clean_type_arguments(args=typing.get_args(cls))
         except IndexError:
             return ()
-        return () if str(res) == '(~T,)' else res
     elif hasattr(cls, '__args__'):
         # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
 
-        res = cls.__args__
-        if res is None or res == () or any([isinstance(o, typing.TypeVar) for o in res]):
+        res = __clean_type_arguments(args=cls.__args__)
+        if res == ():
             return ()
 
         origin = get_origin(cls)
@@ -83,6 +82,12 @@ def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
         return res
     else:
         return ()
+
+
+def __clean_type_arguments(args: typing.Tuple[typing.Any, ...]) -> typing.Tuple[typing.Any, ...]:
+    if args is None or args == () or any([isinstance(o, typing.TypeVar) for o in args]):
+        return ()
+    return args
 
 
 def has_required_type_arguments(cls: typing.Any) -> bool:
