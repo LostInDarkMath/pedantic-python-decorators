@@ -383,25 +383,9 @@ def _instancecheck_union(value, type_):
     return any(is_instance(value, typ) for typ in types)
 
 
-def _instancecheck_type(value, type_):
-    # if it's not a class, return False
-    if not isinstance(value, type):
-        return False
-
-    if is_base_generic(type_):
-        return True
-
-    type_args = get_subtypes(type_)
-    if len(type_args) != 1:
-        raise TypeError("Type must have exactly 1 type argument; found {}".format(type_args))
-
-    return is_subtype(value, type_args[0])
-
-
 _SPECIAL_INSTANCE_CHECKERS = {
     'Union': _instancecheck_union,
     'Callable': _instancecheck_callable,
-    'Type': _instancecheck_type,
     'Any': lambda v, t: True,
 }
 
