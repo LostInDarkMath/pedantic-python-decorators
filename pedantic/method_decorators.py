@@ -2,8 +2,11 @@ import functools
 import inspect
 from typing import Callable, Any, Tuple, Dict, Type, Union
 from datetime import datetime
-from docstring_parser import parse, Docstring
 import warnings
+import re
+
+# third party
+from docstring_parser import parse, Docstring
 
 # local file imports
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
@@ -16,17 +19,28 @@ def __is_instance_method(func: Callable) -> bool:
     return spec.args and spec.args[0] == 'self'
 
 
-def __get_args_without_self(func: Callable, args: Tuple[Any, ...]) -> Tuple[Any, ...]:
-    return args[1:] if __is_instance_method(func) else args  # self is always the first argument if present
+def __is_static_method(func: Callable[..., Any]) -> bool:
+    return '@staticmethod' in inspect.getsource(func)
 
 
-def __require_kwargs(func: Callable, args: Tuple[Any, ...]) -> None:
-    args_without_self = __get_args_without_self(func=func, args=args)
+def __uses_multiple_decorators(func: Callable[..., Any], max_allowed: int = 1) -> bool:
+    return len(re.findall('@', inspect.getsource(func).split('def')[0])) > max_allowed
+
+
+def __get_args_without_self(func: Callable, args: Tuple[Any, ...], max_allowed) -> Tuple[Any, ...]:
+    if __is_instance_method(func) or __is_static_method(func) or __uses_multiple_decorators(func, max_allowed):
+        return args[1:]  # self is always the first argument if present
+    return args
+
+
+def __require_kwargs(func: Callable, args: Tuple[Any, ...], max_allowed: int) -> None:
+    args_without_self = __get_args_without_self(func=func, args=args, max_allowed=max_allowed)
 
     if __is_special_func(func=func):
         return
 
-    assert args_without_self == (), f'Use kwargs when you call {func.__name__}! Args: {args_without_self}'
+    assert args_without_self == (), f'{__qual_name(func=func)} Use kwargs when you call function {func.__name__}. ' \
+                                    f'Args: {args_without_self}'
 
 
 def __is_special_func(func: Callable[..., Any]) -> bool:
@@ -37,13 +51,34 @@ def __is_special_func(func: Callable[..., Any]) -> bool:
                                              'index', 'trunc', 'repr', 'unicode', 'hash', 'nonzero', 'dir', 'sizeof']]
 
 
+def __qual_name(func: Callable[..., Any]) -> str:
+    """uniform design for error messages"""
+    return f'In function {func.__qualname__}:' + '\n'
+
+
 def __is_value_matching_type_hint(value: Any, type_hint: Any, func: Callable[..., Any]) -> bool:
+    """Wrapper for file "type_hint_parser.py"."""
+
     if type_hint is None:
         return value == type_hint
+    assert type(type_hint) is not tuple, \
+        f'{__qual_name(func=func)} Use "Tuple[]" instead of "{type_hint}" as type hint.'
+    assert type_hint is not tuple, f'{__qual_name(func=func)} Use "Tuple[]" instead of "tuple" as type hint.'
+    assert type_hint is not list, f'{__qual_name(func=func)} Use "List[]" instead of "list" as type hint.'
+    assert type_hint is not dict, f'{__qual_name(func=func)} Use "Dict[]" instead of "dict" as type hint.'
+    assert type_hint is not set, f'{__qual_name(func=func)} Use "Set[]" instead of "set" as type hint.'
+    assert type_hint is not frozenset, \
+        f'{__qual_name(func=func)} Use "FrozenSet[]" instead of "frozenset" as type hint.'
+
     try:
         return is_instance(value, type_hint)
     except AssertionError as ex:
-        raise AssertionError(f'In function "{func.__name__}": {ex}')
+        raise AssertionError(f'{__qual_name(func=func)} {ex}')
+    except (AttributeError, Exception) as ex:
+        raise AssertionError(f'{__qual_name(func=func)} An error occurred during type hint checking. '
+                             f'Value: {value} Annotation: {type_hint} '
+                             f'Mostly this is caused by an incorrect type annotation. '
+                             f'Details: {ex} ')
 
 
 def __get_parsed_docstring(func: Callable) -> Docstring:
@@ -51,8 +86,7 @@ def __get_parsed_docstring(func: Callable) -> Docstring:
     try:
         return parse(docstring)
     except (Exception, TypeError) as ex:
-        raise AssertionError(f'Could not parse docstring of function "{func.__name__}". '
-                             f'Please check syntax. Details: {ex}')
+        raise AssertionError(f'{__qual_name(func=func)} Could not parse docstring. Please check syntax. Details: {ex}')
 
 
 def __get_annotations(func: Callable) -> Dict[str, Any]:
@@ -63,16 +97,17 @@ def __require_kwargs_and_type_checking(func: Callable,
                                        args: Tuple[Any, ...],
                                        kwargs: Dict[str, Any],
                                        annotations: Dict[str, Any],
-                                       signature: inspect.Signature) -> Any:
+                                       signature: inspect.Signature,
+                                       max_allowed: int) -> Any:
     """ Passing annotations and signature here has the advantage, that it only needs be calculated once
     and not during every function call.
     """
-    __require_kwargs(func=func, args=args)
+    __require_kwargs(func=func, args=args, max_allowed=max_allowed)
     params = signature.parameters
-    f_name = func.__name__
 
     assert signature.return_annotation is not inspect.Signature.empty, \
-        f'Function "{f_name}" should have a type hint for the return type (e.g. None if there is nothing returned).'
+        f'{__qual_name(func=func)} Their should be a type hint for the return type ' \
+        f'(e.g. None if there is nothing returned).'
 
     i = 1 if __is_instance_method(func=func) else 0
     for key in params:
@@ -83,14 +118,14 @@ def __require_kwargs_and_type_checking(func: Callable,
             continue
 
         assert expected_type is not inspect.Signature.empty, \
-            f'Function "{f_name}" should have a type hint for parameter "{param.name}".'
+            f'{__qual_name(func=func)} Parameter "{param.name}" should have a type hint.'
 
         if param.default is inspect.Signature.empty:
             if __is_special_func(func=func):
                 actual_value = args[i]
                 i += 1
             else:
-                assert key in kwargs, f'Parameter "{key}" of function "{f_name}" is unfilled.'
+                assert key in kwargs, f'{__qual_name(func=func)} Parameter "{key}" is unfilled.'
                 actual_value = kwargs[key]
         else:
             actual_value = kwargs[key] if key in kwargs else param.default
@@ -98,46 +133,44 @@ def __require_kwargs_and_type_checking(func: Callable,
         if isinstance(expected_type, str):
             class_name = actual_value.__class__.__name__
             assert class_name == expected_type, \
-                f'Type hint of function "{f_name}" is incorrect: ' \
-                f'Expected type is "{expected_type}" but got "{class_name}" instead.'
+                f'{__qual_name(func=func)} Type hint is incorrect. Expected: {expected_type} but was {class_name} instead.'
         else:
             assert __is_value_matching_type_hint(value=actual_value, type_hint=expected_type, func=func), \
-                f'Type hint of function "{f_name}" is incorrect: ' \
-                f'Argument {key}={actual_value} has not type {expected_type}.'
+                f'{__qual_name(func=func)} Type hint is incorrect: Passed Argument {key}={actual_value} ' \
+                f'does not have type {expected_type}.'
 
-    result = func(*args, **kwargs)
+    result = func(*args, **kwargs) if not __is_static_method(func=func) else func(**kwargs)
     expected_result_type = annotations['return']
 
     if isinstance(expected_result_type, str):
         assert result.__class__.__name__ == expected_result_type, \
-            f'Type hint of function "{f_name}" is incorrect: ' \
-            f'Expected type is "{expected_result_type}" but got "{result.__class__.__name__}" instead.'
+            f'{__qual_name(func=func)} Type hint is incorrect: Expected: {expected_result_type} ' \
+            f'but was {result.__class__.__name__} instead.'
     else:
         assert __is_value_matching_type_hint(value=result, type_hint=expected_result_type, func=func), \
-            f'Return type of function "{f_name}" is incorrect: ' \
-            f'Expected {expected_result_type}, but got {type(result)} instead.'
+            f'{__qual_name(func=func)} Return type is incorrect: Expected {expected_result_type} ' \
+            f'but {result} was the return value which does not match.'
     return result
 
 
 def __require_docstring_google_format(func: Callable, docstring: Docstring, annotations: Dict[str, Any]) -> None:
     """
-        Of course, the params docstring and annotations are absolute here, but passing saves performance here,
+        Of course, the params docstring and annotations are obsolete here, but passing saves performance here,
         because they are only calculated once. If we would calculate them here, it would be very expensive.
     """
-    f_name = func.__name__
     num_documented_args = len(docstring.params)
     num_taken_args = len([a for a in annotations if a != 'return'])
     assert num_documented_args == num_taken_args, \
-        f'There are {num_documented_args} argument(s) documented, but ' \
-        f'{num_taken_args} are actually taken by function "{f_name}".'
+        f'{__qual_name(func=func)} There are {num_documented_args} argument(s) documented, but ' \
+        f'{num_taken_args} are actually taken.'
 
     if docstring.returns is None:
         assert 'return' not in annotations or annotations['return'] is None, \
-            f'The return type {annotations["return"]} of function "{f_name}" is not documented.'
+            f'{__qual_name(func=func)} The return type {annotations["return"]} is not documented.'
     else:
         assert 'return' in annotations and annotations['return'] is not None, \
-            f'Function "{f_name}" documents the return type "{docstring.returns.type_name}" ' \
-            f'but does not return anything.'
+            f'{__qual_name(func=func)} The return type {docstring.returns.type_name} is documented but the function ' \
+            f'does not return anything.'
 
     for annotation in annotations:
         expected_type_raw = annotations[annotation]
@@ -152,21 +185,21 @@ def __require_docstring_google_format(func: Callable, docstring: Docstring, anno
 
         if annotation == 'return' and annotations[annotation] is not None:
             assert len(docstring.returns.args) == 2, \
-                f'Parse Error in function "{f_name}": Only Google style Python docstrings are supported.'
+                f'{__qual_name(func=func)} Parsing Error. Only Google style Python docstrings are supported.'
 
             actual_return_type: str = docstring.returns.args[1]
             assert actual_return_type == expected_type, \
-                f'Type does not match in function "{f_name}": Type annotation is "{expected_type}" ' \
-                f'but type "{actual_return_type}" was documented.'
+                f'{__qual_name(func=func)} Documented type is incorrect: Annotation: {expected_type} ' \
+                f'Documented: {actual_return_type}'
         elif annotation != 'return':  # parameters passed to function
             docstring_param = None
             for param in docstring.params:
                 if param.arg_name == annotation:
                     docstring_param = param
-            assert docstring_param is not None, f'Parameter "{annotation}" in function "{f_name}" is not documented!'
+            assert docstring_param is not None, f'{__qual_name(func=func)} Parameter {annotation} is not documented.'
             assert expected_type == docstring_param.type_name, \
-                f'Type of parameter "{annotation}" in function "{f_name}" does not match: it has type ' \
-                f'"{expected_type}", but type "{docstring_param.type_name}" is documented instead!'
+                f'{__qual_name(func=func)} Documented type of parameter {annotation} is incorrect. ' \
+                f'Expected {expected_type} but documented is {docstring_param.type_name}.'
 
 
 def __raise_warning(msg: str, category: Type[Warning]):
@@ -188,7 +221,8 @@ def overrides(interface_class: Any) -> Callable:
         >>>         print('hi')
     """
     def overrider(func: Callable) -> Callable:
-        assert __is_instance_method(func), f'Function "{func.__name__}" is not an instance method!'
+        assert __is_instance_method(func) or __uses_multiple_decorators(func), \
+            f'Function "{func.__name__}" is not an instance method!'
         assert (func.__name__ in dir(interface_class)), \
             f"Parent class {interface_class.__name__} does not have such a method '{func.__name__}'."
         return func
@@ -302,7 +336,7 @@ def dirty(func: Callable) -> Callable:
     return wrapper
 
 
-def require_kwargs(func: Callable) -> Callable:
+def require_kwargs(func: Callable, is_class_decorator: bool = False) -> Callable:
     """
         Checks that each passed argument is a keyword argument.
         Example:
@@ -314,12 +348,13 @@ def require_kwargs(func: Callable) -> Callable:
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
-        __require_kwargs(func=func, args=args)
+        __require_kwargs(func=func, args=args, max_allowed=0 if is_class_decorator else 1)
         return func(*args, **kwargs)
     return wrapper
 
 
-def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> Callable:
+def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]],
+                  is_class_decorator: bool = False) -> Callable:
     """
       Validates each passed argument with the given validator.
       Example:
@@ -333,11 +368,13 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> 
         def validate(obj: Any) -> None:
             res = validator(obj)
             res, msg = res if type(res) is not bool else (res, 'Invalid arguments.')
-            assert res, msg
+            assert res, f'{__qual_name(func=func)} {msg}'
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
-            args_without_self = __get_args_without_self(func=func, args=args)
+            args_without_self = __get_args_without_self(func=func,
+                                                        args=args,
+                                                        max_allowed=0 if is_class_decorator else 1)
 
             for arg in args_without_self:
                 validate(arg)
@@ -350,7 +387,7 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> 
     return outer
 
 
-def require_not_none(func: Callable) -> Callable:
+def require_not_none(func: Callable, is_class_decorator: bool = False) -> Callable:
     """
       Checks that each passed argument is not None and raises AssertionError if there is some.
       Example:
@@ -360,10 +397,10 @@ def require_not_none(func: Callable) -> Callable:
    """
     def validator(arg: Any) -> Tuple[bool, str]:
         return arg is not None, f'Argument of function "{func.__name__}" should not be None!'
-    return validate_args(validator)(func)
+    return validate_args(validator=validator, is_class_decorator=is_class_decorator)(func)
 
 
-def require_not_empty_strings(func: Callable) -> Callable:
+def require_not_empty_strings(func: Callable, is_class_decorator: bool = False) -> Callable:
     """
        Throw a ValueError if the arguments are None, not strings, or empty strings or contains only whitespaces.
        Example:
@@ -377,10 +414,10 @@ def require_not_empty_strings(func: Callable) -> Callable:
     def validator(arg: Any) -> Tuple[bool, str]:
         return arg is not None and type(arg) is str and len(arg.strip()) > 0, \
             f'Arguments of function "{func.__name__}" should be a not empty string! Got: {arg}'
-    return validate_args(validator)(func)
+    return validate_args(validator=validator, is_class_decorator=is_class_decorator)(func)
 
 
-def pedantic(func: Callable) -> Callable:
+def pedantic(func: Callable, is_class_decorator: bool = False) -> Callable:
     """
        Checks the types and throw an AssertionError if a type is incorrect.
        This decorator reads the type hints and use them as contracts that will be checked.
@@ -410,11 +447,13 @@ def pedantic(func: Callable) -> Callable:
                                                   args=args,
                                                   kwargs=kwargs,
                                                   annotations=annotations,
-                                                  signature=inspect.signature(func))
+                                                  signature=inspect.signature(func),
+                                                  max_allowed=0 if is_class_decorator else 1
+                                                  )
     return wrapper
 
 
-def pedantic_require_docstring(func: Callable) -> Callable:
+def pedantic_require_docstring(func: Callable, is_class_decorator: bool = False) -> Callable:
     """It's like pedantic, but now it forces you to write docstrings (Google format)."""
 
     annotations = __get_annotations(func=func)
@@ -426,6 +465,7 @@ def pedantic_require_docstring(func: Callable) -> Callable:
                                                  args=args,
                                                  kwargs=kwargs,
                                                  annotations=annotations,
-                                                 signature=inspect.signature(func))
+                                                 signature=inspect.signature(func),
+                                                 max_allowed=0 if is_class_decorator else 1)
         return res
     return wrapper

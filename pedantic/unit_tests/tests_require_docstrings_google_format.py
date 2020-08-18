@@ -83,7 +83,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
 
     def test_google_docstring_3(self):
         @pedantic_require_docstring
-        def calc(file_loc: str, print_cols: bool) -> list:
+        def calc(file_loc: str, print_cols: bool) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
             Args:
@@ -92,7 +92,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
                     (default is False)
 
             Returns:
-                list: a list of strings representing the header columns
+                List[str]: a list of strings representing the header columns
             """
 
             return [file_loc, str(print_cols)]
@@ -102,7 +102,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
     def test_google_docstring_4(self):
         """Problem here: Argument 'amount' is NOT a parameter of the function."""
         @pedantic_require_docstring
-        def calc(file_loc: str, print_cols: bool) -> list:
+        def calc(file_loc: str, print_cols: bool) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
             Args:
@@ -112,7 +112,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
                 amount (int): THIS ARGUMENT IS NOT TAKEN BY THE FUNCTION
 
             Returns:
-                list: a list of strings representing the header columns
+                List[str]: a list of strings representing the header columns
             """
 
             return [file_loc, str(print_cols)]
@@ -122,7 +122,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
 
     def test_google_docstring_corrected(self):
         @pedantic_require_docstring
-        def calc(file_loc: str, print_cols: bool, amount: int) -> list:
+        def calc(file_loc: str, print_cols: bool, amount: int) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
             Args:
@@ -132,10 +132,10 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
                 amount (int): now it is
 
             Returns:
-                list: a list of strings representing the header columns
+                List[str]: a list of strings representing the header columns
             """
 
-            return [file_loc, str(print_cols), amount]
+            return [file_loc, str(print_cols), str(amount)]
 
         calc(file_loc='Hi', print_cols=False, amount=42)
 
@@ -210,7 +210,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
     def test_undocumented_arg(self):
         """Problem here: docstring misses argument"""
         @pedantic_require_docstring
-        def calc(file_loc: str, print_cols: bool, number: int) -> list:
+        def calc(file_loc: str, print_cols: bool, number: int) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
             Args:
@@ -219,7 +219,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
                     (default is False)
 
             Returns:
-                list: a list of strings representing the header columns
+                List[str]: a list of strings representing the header columns
             """
 
             return [file_loc, str(print_cols), str(number)]
@@ -229,7 +229,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
 
     def test_undocumented_arg_corrected(self):
         @pedantic_require_docstring
-        def calc(file_loc: str, print_cols: bool, number: int) -> list:
+        def calc(file_loc: str, print_cols: bool, number: int) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
             Args:
@@ -239,7 +239,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
                 number (int): magic number
 
             Returns:
-                list: a list of strings representing the header columns
+                List[str]: a list of strings representing the header columns
             """
 
             return [file_loc, str(print_cols), str(number)]
@@ -326,8 +326,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
 
             Args:
                 file_loc (str): The file location of the spreadsheet
-                print_cols (bool): A flag used to print the columns to the console
-                    (default is False)
+                print_cols (bool): A flag used to print the columns to the console (default is False)
 
             Returns:
             """
@@ -335,6 +334,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
             return [file_loc, str(print_cols)]
 
         with self.assertRaises(expected_exception=AssertionError):
+            # the error message here is actually wrong due to the behavior of the docstring-parser package
             calc(file_loc='Hi', print_cols=False)
 
     def test_return_value_2_corrected(self):
@@ -429,3 +429,8 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
             return str(a) + str(b) + c
 
         calc(a=42, b=3.14, c='hi')
+
+
+if __name__ == '__main__':
+    t = TestRequireDocstringGoogleFormat()
+    t.test_return_value_2()

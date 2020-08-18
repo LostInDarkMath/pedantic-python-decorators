@@ -66,15 +66,14 @@ def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     if hasattr(typing, 'get_args'):
         # Python 3.8.0 throws index error here, for argument cls = typing.Callable (without type arguments)
         try:
-            res = typing.get_args(cls)
+            return __clean_type_arguments(args=typing.get_args(cls))
         except IndexError:
             return ()
-        return () if str(res) == '(~T,)' else res
     elif hasattr(cls, '__args__'):
         # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
 
-        res = cls.__args__
-        if res is None or res == () or str(res) == '(~T,)':
+        res = __clean_type_arguments(args=cls.__args__)
+        if res == ():
             return ()
 
         origin = get_origin(cls)
@@ -83,6 +82,12 @@ def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
         return res
     else:
         return ()
+
+
+def __clean_type_arguments(args: typing.Tuple[typing.Any, ...]) -> typing.Tuple[typing.Any, ...]:
+    if args is None or args == () or any([isinstance(o, typing.TypeVar) for o in args]):
+        return ()
+    return args
 
 
 def has_required_type_arguments(cls: typing.Any) -> bool:
@@ -99,6 +104,7 @@ def has_required_type_arguments(cls: typing.Any) -> bool:
         'typing.Callable': 2,
         'typing.List': 1,
         'typing.Set': 1,
+        'typing.FrozenSet': 1,
         'typing.Iterable': 1,
         'typing.Dict': 2,
         'typing.Optional': 2,  # because typing.get_args(typing.Optional[int]) returns (int, None)
@@ -377,25 +383,9 @@ def _instancecheck_union(value, type_):
     return any(is_instance(value, typ) for typ in types)
 
 
-def _instancecheck_type(value, type_):
-    # if it's not a class, return False
-    if not isinstance(value, type):
-        return False
-
-    if is_base_generic(type_):
-        return True
-
-    type_args = get_subtypes(type_)
-    if len(type_args) != 1:
-        raise TypeError("Type must have exactly 1 type argument; found {}".format(type_args))
-
-    return is_subtype(value, type_args[0])
-
-
 _SPECIAL_INSTANCE_CHECKERS = {
     'Union': _instancecheck_union,
     'Callable': _instancecheck_callable,
-    'Type': _instancecheck_type,
     'Any': lambda v, t: True,
 }
 

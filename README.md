@@ -204,54 +204,6 @@ m.calc(b=42)
 m.print(s='Hi')
 ```
 
-## Using multiple decorators
-Sometimes you may want to use multiple decorators on the same method or class. But the normal way of doing this can cause probleme sometimes:
-```python
-# this can cause trouble
-@pedantic
-@validate_args(lambda x: x > 0)
-def some_calculation(self, x: int) -> int:
-    return x
-```
-Instead, you can use the `combine` decorator, which takes a list of decorators as an argument. The order of the list doesn't matter:
-```python
-@combine([pedantic, validate_args(lambda x: x > 0)])
-def some_calculation(self, x: int) -> int:
-    return x
-```
-This also works for class decorators as well. However, a very common scenario is to combine `@pedantic_class` with `@overrides` which both works well together even without using `@combine`. So you can write things like this:
-```python
-from abc import ABC, abstractmethod
-from pedantic import pedantic_class, overrides
-
-@pedantic_class
-class Abstract(ABC):
-    @abstractmethod
-    def func(self, b: str) -> str:
-        pass
-
-    @abstractmethod
-    def bunk(self) -> int:
-        pass
-
-@pedantic_class
-class Foo(Abstract):
-    def __init__(self, a: int) -> None:
-        self.a = a
-
-    @overrides(Abstract)
-    def func(self, b: str) -> str:
-        return b
-
-    @overrides(Abstract)
-    def operation(self) -> int:
-        return self.a
-
-f = Foo(a=42)
-f.func(b='Hi')
-f.operation()
-```
-
 # How to start
 ## Installation
 ## Option 1: installing with pip from [Pypi](https://pypi.org/)
