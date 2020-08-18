@@ -16,15 +16,6 @@ from pedantic.type_hint_parser import is_instance
 # HELPER FUNCTIONS ###
 def __is_instance_method(func: Callable) -> bool:
     spec = inspect.getfullargspec(func)
-
-    # handling a very special case
-    if __is_static_method(func=func):
-        return True
-
-    # handling chained decorators
-    if len(re.findall('@', inspect.getsource(func).split('def')[0])) > 1:
-        return True
-
     return spec.args and spec.args[0] == 'self'
 
 
@@ -37,7 +28,9 @@ def __uses_multiple_decorators(func: Callable[..., Any]) -> bool:
 
 
 def __get_args_without_self(func: Callable, args: Tuple[Any, ...]) -> Tuple[Any, ...]:
-    return args[1:] if __is_instance_method(func) else args  # self is always the first argument if present
+    if __is_instance_method(func) or __is_static_method(func) or __uses_multiple_decorators(func):
+        return args[1:]  # self is always the first argument if present
+    return args
 
 
 def __require_kwargs(func: Callable, args: Tuple[Any, ...]) -> None:
@@ -227,7 +220,8 @@ def overrides(interface_class: Any) -> Callable:
         >>>         print('hi')
     """
     def overrider(func: Callable) -> Callable:
-        assert __is_instance_method(func), f'Function "{func.__name__}" is not an instance method!'
+        assert __is_instance_method(func) or __uses_multiple_decorators(func), \
+            f'Function "{func.__name__}" is not an instance method!'
         assert (func.__name__ in dir(interface_class)), \
             f"Parent class {interface_class.__name__} does not have such a method '{func.__name__}'."
         return func
