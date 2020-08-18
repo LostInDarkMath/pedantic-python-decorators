@@ -74,7 +74,7 @@ def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
         # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
 
         res = cls.__args__
-        if res is None or res == () or str(res) == '(~T,)':
+        if res is None or res == () or any([isinstance(o, typing.TypeVar) for o in res]):
             return ()
 
         origin = get_origin(cls)
