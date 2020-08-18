@@ -26,7 +26,8 @@ def __require_kwargs(func: Callable, args: Tuple[Any, ...]) -> None:
     if __is_special_func(func=func):
         return
 
-    assert args_without_self == (), f'Use kwargs when you call {func.__name__}! Args: {args_without_self}'
+    assert args_without_self == (), f'{__qual_name(func=func)} Use kwargs when you call function {func.__name__}. ' \
+                                    f'Args: {args_without_self}'
 
 
 def __is_special_func(func: Callable[..., Any]) -> bool:
@@ -44,12 +45,11 @@ def __qual_name(func: Callable[..., Any]) -> str:
 
 def __is_value_matching_type_hint(value: Any, type_hint: Any, func: Callable[..., Any]) -> bool:
     """Wrapper for file "type_hint_parser.py"."""
-    f_name = func.__name__
 
     if type_hint is None:
         return value == type_hint
-    assert type(type_hint) is not tuple, f'Use "Tuple[]" instead of "{type_hint}" as type hint in function "{f_name}".'
-
+    assert type(type_hint) is not tuple, \
+        f'{__qual_name(func=func)} Use "Tuple[]" instead of "{type_hint}" as type hint.'
     assert type_hint is not tuple, f'{__qual_name(func=func)} Use "Tuple[]" instead of "tuple" as type hint.'
     assert type_hint is not list, f'{__qual_name(func=func)} Use "List[]" instead of "list" as type hint.'
     assert type_hint is not dict, f'{__qual_name(func=func)} Use "Dict[]" instead of "dict" as type hint.'
@@ -73,8 +73,7 @@ def __get_parsed_docstring(func: Callable) -> Docstring:
     try:
         return parse(docstring)
     except (Exception, TypeError) as ex:
-        raise AssertionError(f'Could not parse docstring of function "{func.__name__}". '
-                             f'Please check syntax. Details: {ex}')
+        raise AssertionError(f'{__qual_name(func=func)} Could not parse docstring. Please check syntax. Details: {ex}')
 
 
 def __get_annotations(func: Callable) -> Dict[str, Any]:
@@ -91,10 +90,10 @@ def __require_kwargs_and_type_checking(func: Callable,
     """
     __require_kwargs(func=func, args=args)
     params = signature.parameters
-    f_name = func.__name__
 
     assert signature.return_annotation is not inspect.Signature.empty, \
-        f'Function "{f_name}" should have a type hint for the return type (e.g. None if there is nothing returned).'
+        f'{__qual_name(func=func)} Their should be a type hint for the return type ' \
+        f'(e.g. None if there is nothing returned).'
 
     i = 1 if __is_instance_method(func=func) else 0
     for key in params:
@@ -105,14 +104,14 @@ def __require_kwargs_and_type_checking(func: Callable,
             continue
 
         assert expected_type is not inspect.Signature.empty, \
-            f'Function "{f_name}" should have a type hint for parameter "{param.name}".'
+            f'{__qual_name(func=func)} Parameter "{param.name}" should have a type hint.'
 
         if param.default is inspect.Signature.empty:
             if __is_special_func(func=func):
                 actual_value = args[i]
                 i += 1
             else:
-                assert key in kwargs, f'Parameter "{key}" of function "{f_name}" is unfilled.'
+                assert key in kwargs, f'{__qual_name(func=func)} Parameter "{key}" is unfilled.'
                 actual_value = kwargs[key]
         else:
             actual_value = kwargs[key] if key in kwargs else param.default
@@ -120,46 +119,44 @@ def __require_kwargs_and_type_checking(func: Callable,
         if isinstance(expected_type, str):
             class_name = actual_value.__class__.__name__
             assert class_name == expected_type, \
-                f'Type hint of function "{f_name}" is incorrect: ' \
-                f'Expected type is "{expected_type}" but got "{class_name}" instead.'
+                f'{__qual_name(func=func)} Type hint is incorrect. Expected: {expected_type} but was {class_name} instead.'
         else:
             assert __is_value_matching_type_hint(value=actual_value, type_hint=expected_type, func=func), \
-                f'Type hint of function "{f_name}" is incorrect: ' \
-                f'Argument {key}={actual_value} has not type {expected_type}.'
+                f'{__qual_name(func=func)} Type hint is incorrect: Passed Argument {key}={actual_value} ' \
+                f'does not have type {expected_type}.'
 
     result = func(*args, **kwargs)
     expected_result_type = annotations['return']
 
     if isinstance(expected_result_type, str):
         assert result.__class__.__name__ == expected_result_type, \
-            f'Type hint of function "{f_name}" is incorrect: ' \
-            f'Expected type is "{expected_result_type}" but got "{result.__class__.__name__}" instead.'
+            f'{__qual_name(func=func)} Type hint is incorrect: Expected: {expected_result_type} ' \
+            f'but was {result.__class__.__name__} instead.'
     else:
         assert __is_value_matching_type_hint(value=result, type_hint=expected_result_type, func=func), \
-            f'Return type of function "{f_name}" is incorrect: ' \
-            f'Expected {expected_result_type}, but got {type(result)} instead.'
+            f'{__qual_name(func=func)} Return type is incorrect: Expected {expected_result_type} ' \
+            f'but {result} was the return value which does not match.'
     return result
 
 
 def __require_docstring_google_format(func: Callable, docstring: Docstring, annotations: Dict[str, Any]) -> None:
     """
-        Of course, the params docstring and annotations are absolute here, but passing saves performance here,
+        Of course, the params docstring and annotations are obsolete here, but passing saves performance here,
         because they are only calculated once. If we would calculate them here, it would be very expensive.
     """
-    f_name = func.__name__
     num_documented_args = len(docstring.params)
     num_taken_args = len([a for a in annotations if a != 'return'])
     assert num_documented_args == num_taken_args, \
-        f'There are {num_documented_args} argument(s) documented, but ' \
-        f'{num_taken_args} are actually taken by function "{f_name}".'
+        f'{__qual_name(func=func)} There are {num_documented_args} argument(s) documented, but ' \
+        f'{num_taken_args} are actually taken.'
 
     if docstring.returns is None:
         assert 'return' not in annotations or annotations['return'] is None, \
-            f'The return type {annotations["return"]} of function "{f_name}" is not documented.'
+            f'{__qual_name(func=func)} The return type {annotations["return"]} is not documented.'
     else:
         assert 'return' in annotations and annotations['return'] is not None, \
-            f'Function "{f_name}" documents the return type "{docstring.returns.type_name}" ' \
-            f'but does not return anything.'
+            f'{__qual_name(func=func)} The return type {docstring.returns.type_name} is documented but the function ' \
+            f'does not return anything.'
 
     for annotation in annotations:
         expected_type_raw = annotations[annotation]
@@ -174,21 +171,21 @@ def __require_docstring_google_format(func: Callable, docstring: Docstring, anno
 
         if annotation == 'return' and annotations[annotation] is not None:
             assert len(docstring.returns.args) == 2, \
-                f'Parse Error in function "{f_name}": Only Google style Python docstrings are supported.'
+                f'{__qual_name(func=func)} Parsing Error. Only Google style Python docstrings are supported.'
 
             actual_return_type: str = docstring.returns.args[1]
             assert actual_return_type == expected_type, \
-                f'Type does not match in function "{f_name}": Type annotation is "{expected_type}" ' \
-                f'but type "{actual_return_type}" was documented.'
+                f'{__qual_name(func=func)} Documented type is incorrect: Annotation: {expected_type} ' \
+                f'Documented: {actual_return_type}'
         elif annotation != 'return':  # parameters passed to function
             docstring_param = None
             for param in docstring.params:
                 if param.arg_name == annotation:
                     docstring_param = param
-            assert docstring_param is not None, f'Parameter "{annotation}" in function "{f_name}" is not documented!'
+            assert docstring_param is not None, f'{__qual_name(func=func)} Parameter {annotation} is not documented.'
             assert expected_type == docstring_param.type_name, \
-                f'Type of parameter "{annotation}" in function "{f_name}" does not match: it has type ' \
-                f'"{expected_type}", but type "{docstring_param.type_name}" is documented instead!'
+                f'{__qual_name(func=func)} Documented type of paramter {annotation} is incorrect. ' \
+                f'Expected {expected_type} but documented is {docstring_param.type_name}.'
 
 
 def __raise_warning(msg: str, category: Type[Warning]):
@@ -355,7 +352,7 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> 
         def validate(obj: Any) -> None:
             res = validator(obj)
             res, msg = res if type(res) is not bool else (res, 'Invalid arguments.')
-            assert res, msg
+            assert res, f'{__qual_name(func=func)} {msg}'
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:

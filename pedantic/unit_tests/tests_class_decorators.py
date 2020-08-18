@@ -74,9 +74,9 @@ class TestClassDecorators(unittest.TestCase):
             def print(self, s: str):
                 print(f'{self.a} and {s}')
 
+        m = MyClass(a=5)
+        m.calc(b=42)
         with self.assertRaises(expected_exception=AssertionError):
-            m = MyClass(a=5)
-            m.calc(b=42)
             m.print(s='Hi')
 
     def test_multiple_methods_3(self):
@@ -92,10 +92,10 @@ class TestClassDecorators(unittest.TestCase):
             def print(self, s: str) -> None:
                 res = f'{self.a} and {s}'
 
+        m = MyClass(a=5)
         with self.assertRaises(expected_exception=AssertionError):
-            m = MyClass(a=5)
             m.calc(b=42)
-            m.print(s='Hi')
+        m.print(s='Hi')
 
     def test_multiple_methods_4(self):
         """Problem here: not called with kwargs"""
@@ -110,9 +110,9 @@ class TestClassDecorators(unittest.TestCase):
             def print(self, s: str) -> None:
                 res = f'{self.a} and {s}'
 
+        m = MyClass(a=5)
+        m.calc(b=42)
         with self.assertRaises(expected_exception=AssertionError):
-            m = MyClass(a=5)
-            m.calc(b=42)
             m.print('Hi')
 
     def test_generator_1(self):
@@ -131,7 +131,6 @@ class TestClassDecorators(unittest.TestCase):
 
         with self.assertRaises(expected_exception=AssertionError):
             m = MyClass.generator()
-            m.double(b=42)
 
     def test_generator_1_corrected(self):
         @pedantic_class
@@ -219,7 +218,6 @@ class TestClassDecorators(unittest.TestCase):
 
         with self.assertRaises(expected_exception=AssertionError):
             m = MyClass.generator()
-            m.double(b=42)
 
     def test_pedantic_class_require_docstring_2(self):
         """Problem here: Typo in docstring corresponding to type annotation string"""
@@ -256,7 +254,6 @@ class TestClassDecorators(unittest.TestCase):
 
         with self.assertRaises(expected_exception=AssertionError):
             m = MyClass.generator()
-            m.double(b=42)
 
     def test_pedantic_class_require_docstring_3(self):
         """Problem here: One docstring is wrong"""
@@ -291,8 +288,8 @@ class TestClassDecorators(unittest.TestCase):
                 """
                 return MyClass(s='generated')
 
+        m = MyClass.generator()
         with self.assertRaises(expected_exception=AssertionError):
-            m = MyClass.generator()
             m.double(b=42)
 
     def test_trace_class(self):
@@ -551,7 +548,7 @@ class TestClassDecorators(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             f.func('Hi')
         with self.assertRaises(expected_exception=AssertionError):
-            f2 = Foo(3.1415)
+            f2 = Foo(a=3.1415)
         f.a = 3.145
         with self.assertRaises(expected_exception=AssertionError):
             f.bunk()

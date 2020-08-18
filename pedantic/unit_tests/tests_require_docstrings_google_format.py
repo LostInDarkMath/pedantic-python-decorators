@@ -326,8 +326,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
 
             Args:
                 file_loc (str): The file location of the spreadsheet
-                print_cols (bool): A flag used to print the columns to the console
-                    (default is False)
+                print_cols (bool): A flag used to print the columns to the console (default is False)
 
             Returns:
             """
@@ -335,6 +334,7 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
             return [file_loc, str(print_cols)]
 
         with self.assertRaises(expected_exception=AssertionError):
+            # the error message here is actually wrong due to the behavior of the docstring-parser package
             calc(file_loc='Hi', print_cols=False)
 
     def test_return_value_2_corrected(self):
@@ -429,3 +429,8 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
             return str(a) + str(b) + c
 
         calc(a=42, b=3.14, c='hi')
+
+
+if __name__ == '__main__':
+    t = TestRequireDocstringGoogleFormat()
+    t.test_return_value_2()

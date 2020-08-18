@@ -223,7 +223,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return n[0][0]
 
         calc(n=[[42.0]])
-        self.assertTrue(True)
 
     def test_all_ok_8(self):
         @pedantic
@@ -468,7 +467,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         calc(i=42.0)(10.0)
 
     def test_lambda_4(self):
-        """Problem here: inner function needs to use @pedantic"""
+        """Problem here: inner function: int != float"""
         @pedantic
         def calc(i: float) -> Callable[[float], str]:
             def res(x: int) -> str:
@@ -878,4 +877,4 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 if __name__ == '__main__':
     # run a specific unit test
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_sloppy_types_1_almost_corrected()
+    test.test_any()
