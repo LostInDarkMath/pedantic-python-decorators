@@ -15,12 +15,21 @@ def for_all_methods(decorator: Callable) -> Callable:
     """
     def decorate(cls: Any) -> Any:
         for attr in cls.__dict__:
-            if callable(getattr(cls, attr)):
+            attr_value = getattr(cls, attr)
+
+            if callable(attr_value):
                 # if 'is_class_decorator' in inspect.getfullargspec(decorator).annotations: DOESNT WORK HERE
                 try:
-                    setattr(cls, attr, decorator(getattr(cls, attr), is_class_decorator=True))
+                    setattr(cls, attr, decorator(attr_value, is_class_decorator=True))
                 except TypeError:
-                    setattr(cls, attr, decorator(getattr(cls, attr)))
+                    setattr(cls, attr, decorator(attr_value))
+            elif isinstance(attr_value, property):
+                prop = attr_value
+                wrapped_getter = decorator(prop.fget) if prop.fget is not None else None
+                wrapped_setter = decorator(prop.fset) if prop.fset is not None else None
+                wrapped_deleter = decorator(prop.fdel) if prop.fdel is not None else None
+                new_prop = property(fget=wrapped_getter, fset=wrapped_setter, fdel=wrapped_deleter)
+                setattr(cls, attr, new_prop)  # write back new property
         return cls
     return decorate
 

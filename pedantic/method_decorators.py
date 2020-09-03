@@ -23,6 +23,10 @@ def __is_static_method(func: Callable[..., Any]) -> bool:
     return '@staticmethod' in inspect.getsource(func)
 
 
+def __is_property_setter(func: Callable[..., Any]) -> bool:
+    return f'@{func.__name__}.setter' in inspect.getsource(func)
+
+
 def __uses_multiple_decorators(func: Callable[..., Any], max_allowed: int = 1) -> bool:
     return len(re.findall('@', inspect.getsource(func).split('def')[0])) > max_allowed
 
@@ -36,7 +40,7 @@ def __get_args_without_self(func: Callable, args: Tuple[Any, ...], max_allowed) 
 def __require_kwargs(func: Callable, args: Tuple[Any, ...], max_allowed: int) -> None:
     args_without_self = __get_args_without_self(func=func, args=args, max_allowed=max_allowed)
 
-    if __is_special_func(func=func):
+    if __is_special_func(func=func) or __is_property_setter(func=func):
         return
 
     assert args_without_self == (), f'{__qual_name(func=func)} Use kwargs when you call function {func.__name__}. ' \
@@ -121,7 +125,7 @@ def __require_kwargs_and_type_checking(func: Callable,
             f'{__qual_name(func=func)} Parameter "{param.name}" should have a type hint.'
 
         if param.default is inspect.Signature.empty:
-            if __is_special_func(func=func):
+            if __is_special_func(func=func) or __is_property_setter(func=func):
                 actual_value = args[i]
                 i += 1
             else:
