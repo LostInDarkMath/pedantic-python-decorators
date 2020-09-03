@@ -1,7 +1,9 @@
 import unittest
 
 # local file imports
-from pedantic import overrides
+from typing import Any
+
+from pedantic import overrides, pedantic
 from pedantic.class_decorators import pedantic_class, pedantic_class_require_docstring, trace_class, timer_class
 
 
@@ -600,8 +602,121 @@ class TestClassDecorators(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             print(MyStaticClass.double_func(a=0))
 
+    def test_property_1(self):
+        @pedantic_class
+        class MyClass(object):
+            def __init__(self, some_arg: Any) -> None:
+                self._some_attribute = some_arg
+
+            @property
+            def some_attribute(self) -> int:
+                return self._some_attribute
+
+            @some_attribute.setter
+            def some_attribute(self, value: str) -> None:
+                self._some_attribute = value
+
+            def calc(self, value: float) -> float:
+                return 2 * value
+
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(42)
+
+        m = MyClass(some_arg=42)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.some_attribute = 100
+        m.calc(value=42.0)
+
+    def test_property_1(self):
+        """Problem here: property setter and getter have incorrect type hints str != int != float"""
+        @pedantic_class
+        class MyClass(object):
+            def __init__(self, some_arg: int) -> None:
+                self._some_attribute = some_arg
+
+            @property
+            def some_attribute(self) -> float:
+                return self._some_attribute
+
+            @some_attribute.setter
+            def some_attribute(self, value: str) -> None:
+                self._some_attribute = value
+
+            def calc(self, value: float) -> float:
+                return 2 * value
+
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(42)
+
+        m = MyClass(some_arg=42)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.some_attribute = 100
+
+        with self.assertRaises(expected_exception=AssertionError):
+            print(m.some_attribute)
+        m.calc(value=42.0)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.calc(value=42)
+
+    def test_property_2(self):
+        """Problems here: property setter and getter misses type hints"""
+
+        @pedantic_class
+        class MyClass(object):
+            def __init__(self, some_arg: int) -> None:
+                self._some_attribute = some_arg
+
+            @property
+            def some_attribute(self):
+                return self._some_attribute
+
+            @some_attribute.setter
+            def some_attribute(self, value: int):
+                self._some_attribute = value
+
+            def calc(self, value: float) -> float:
+                return 2 * value
+
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(42)
+
+        m = MyClass(some_arg=42)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.some_attribute = 100
+
+        with self.assertRaises(expected_exception=AssertionError):
+            print(m.some_attribute)
+        m.calc(value=42.0)
+        with self.assertRaises(expected_exception=AssertionError):
+            m.calc(value=42)
+
+    def test_property_1_corrected(self):
+        @pedantic_class
+        class MyClass(object):
+            def __init__(self, some_arg: int) -> None:
+                self._some_attribute = some_arg
+
+            @property
+            def some_attribute(self) -> int:
+                return self._some_attribute
+
+            @some_attribute.setter
+            def some_attribute(self, value: int) -> None:
+                if value is None:
+                    raise ValueError()
+                self._some_attribute = value
+
+            def calc(self, value: float) -> float:
+                return 2 * value
+
+        m = MyClass(some_arg=42)
+        self.assertEqual(m.some_attribute, 42)
+        m.some_attribute = 100
+        self.assertEqual(m.some_attribute, 100)
+        m.calc(value=42.0)
+
 
 if __name__ == '__main__':
     # run single test
     test = TestClassDecorators()
-    test.test_static_method_1()
+    test.test_property_1()
