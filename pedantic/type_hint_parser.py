@@ -132,6 +132,10 @@ def _get_base_class_as_str(cls: typing.Any) -> str:
 
 
 def _is_generic(cls: typing.Any) -> bool:
+    """
+    Detects any kind of generic, for example `List` or `List[int]`. This includes "special" types like
+    Union and Tuple - anything that's subscriptable, basically.
+    """
     if hasattr(typing, '_GenericAlias'):
         if isinstance(cls, typing._GenericAlias):
             return True
@@ -167,7 +171,10 @@ def _is_base_generic(cls: typing.Any) -> bool:
 
 
 def _get_base_generic(cls: typing.Any) -> typing.Any:
-    if cls._name is None or not hasattr(typing, '_GenericAlias'):
+    if not hasattr(typing, '_GenericAlias'):
+        return cls.__origin__
+    
+    if cls._name is None:
         return cls.__origin__
     else:
         return getattr(typing, cls._name)
@@ -202,14 +209,6 @@ def _get_subtypes(cls):
     return subtypes
 
 
-def is_generic(cls):
-    """
-    Detects any kind of generic, for example `List` or `List[int]`. This includes "special" types like
-    Union and Tuple - anything that's subscriptable, basically.
-    """
-    return _is_generic(cls)
-
-
 def is_base_generic(cls: typing.Any) -> bool:
     """
     Detects generic base classes.
@@ -238,7 +237,7 @@ def is_qualified_generic(cls):
     """
     Detects generics with arguments, for example `List[int]` (but not `List`)
     """
-    return is_generic(cls) and not is_base_generic(cls)
+    return _is_generic(cls) and not is_base_generic(cls)
 
 
 def get_base_generic(cls):
@@ -368,7 +367,7 @@ _SPECIAL_INSTANCE_CHECKERS = {
 
 
 def _is_subtype(sub_type, super_type):
-    if not is_generic(sub_type):
+    if not _is_generic(sub_type):
         python_super = _python_type(super_type)
         python_sub = _python_type(sub_type)
         return issubclass(python_sub, python_super)
@@ -381,7 +380,7 @@ def _is_subtype(sub_type, super_type):
 
     # at this point we know that `sub_type`'s base type is a subtype of `super_type`'s base type.
     # If `super_type` isn't qualified, then there's nothing more to do.
-    if not is_generic(super_type) or is_base_generic(super_type):
+    if not _is_generic(super_type) or is_base_generic(super_type):
         return True
 
     # at this point we know that `super_type` is a qualified generic... so if `sub_type` isn't
