@@ -1,4 +1,4 @@
-"""From: https://stackoverflow.com/a/55504010/10975692"""
+"""Idea is taken from: https://stackoverflow.com/a/55504010/10975692"""
 
 import inspect
 import typing
@@ -42,64 +42,16 @@ def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
     return isinstance(obj, type_)
 
 
-def get_origin(cls: typing.Any) -> typing.Any:
+def _has_required_type_arguments(cls: typing.Any) -> bool:
     """Examples:
-    >>> get_origin(typing.List[float])
-    >>> <class 'list'>
-    """
-    return typing.get_origin(cls) if hasattr(typing, 'get_origin') else cls.__origin__
-
-
-def get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
-    """Examples:
-    >>> get_type_arguments(int)
-    >>> ()
-    >>> get_type_arguments(typing.List)
-    >>> ()
-    >>> get_type_arguments(typing.List[int])
-    >>> (<class 'int'>,)
-    >>> get_type_arguments(typing.Callable[[int, float], str])
-    >>> ([<class 'int'>, <class 'float'>], <class 'str'>)
-    >>> get_type_arguments(typing.Callable[..., str])
-    >>> (Ellipses, <class 'str'>)
-    """
-    if hasattr(typing, 'get_args'):
-        # Python 3.8.0 throws index error here, for argument cls = typing.Callable (without type arguments)
-        try:
-            return __clean_type_arguments(args=typing.get_args(cls))
-        except IndexError:
-            return ()
-    elif hasattr(cls, '__args__'):
-        # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
-
-        res = __clean_type_arguments(args=cls.__args__)
-        if res == ():
-            return ()
-
-        origin = get_origin(cls)
-        if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
-            res = (list(res[:-1]), res[-1])
-        return res
-    else:
-        return ()
-
-
-def __clean_type_arguments(args: typing.Tuple[typing.Any, ...]) -> typing.Tuple[typing.Any, ...]:
-    if args is None or args == () or any([isinstance(o, typing.TypeVar) for o in args]):
-        return ()
-    return args
-
-
-def has_required_type_arguments(cls: typing.Any) -> bool:
-    """Examples:
-    >>> has_required_type_arguments(typing.List)
+    >>> _has_required_type_arguments(typing.List)
     >>> False
-    >>> has_required_type_arguments(typing.List[int])
+    >>> _has_required_type_arguments(typing.List[int])
     >>> True
-    >>> has_required_type_arguments(typing.Callable[[int, float], typing.Tuple[float, str]])
+    >>> _has_required_type_arguments(typing.Callable[[int, float], typing.Tuple[float, str]])
     >>> True
     """
-    num_type_args = len(get_type_arguments(cls))
+    num_type_args = len(_get_type_arguments(cls))
     requirements_exact = {
         'typing.Callable': 2,
         'typing.List': 1,
@@ -113,7 +65,7 @@ def has_required_type_arguments(cls: typing.Any) -> bool:
         'typing.Tuple': 1,
         'typing.Union': 2,
     }
-    base: str = get_base_class_as_str(cls=cls)
+    base: str = _get_base_class_as_str(cls=cls)
 
     if base in requirements_exact:
         return requirements_exact[base] == num_type_args
@@ -123,90 +75,118 @@ def has_required_type_arguments(cls: typing.Any) -> bool:
         return True
 
 
-def get_base_class_as_str(cls: typing.Any) -> str:
+def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
+    """Examples:
+    >>> _get_type_arguments(int)
+    >>> ()
+    >>> _get_type_arguments(typing.List)
+    >>> ()
+    >>> _get_type_arguments(typing.List[int])
+    >>> (<class 'int'>,)
+    >>> get_type_arguments(typing.Callable[[int, float], str])
+    >>> ([<class 'int'>, <class 'float'>], <class 'str'>)
+    >>> get_type_arguments(typing.Callable[..., str])
+    >>> (Ellipses, <class 'str'>)
+    """
+    if hasattr(typing, 'get_args'):
+        # Python 3.8.0 throws index error here, for argument cls = typing.Callable (without type arguments)
+        try:
+            return _clean_type_arguments(args=typing.get_args(cls))
+        except IndexError:
+            return ()
+    elif hasattr(cls, '__args__'):
+        # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
+
+        res = _clean_type_arguments(args=cls.__args__)
+        if res == ():
+            return ()
+
+        origin = _get_origin(cls)
+        if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
+            res = (list(res[:-1]), res[-1])
+        return res
+    else:
+        return ()
+
+
+def _clean_type_arguments(args: typing.Tuple[typing.Any, ...]) -> typing.Tuple[typing.Any, ...]:
+    if args is None or args == () or any([isinstance(o, typing.TypeVar) for o in args]):
+        return ()
+    return args
+
+
+def _get_origin(cls: typing.Any) -> typing.Any:
+    """Examples:
+    >>> _get_origin(typing.List[float])
+    >>> <class 'list'>
+    """
+    return typing.get_origin(cls) if hasattr(typing, 'get_origin') else cls.__origin__
+
+
+def _get_base_class_as_str(cls: typing.Any) -> str:
     """Example:
-    >>> get_base_class_as_str(typing.List[int])
+    >>> _get_base_class_as_str(typing.List[int])
     >>> 'typing.List'
     """
     return str(cls).split('[')[0]
 
 
-if hasattr(typing, '_GenericAlias'):
-    def _is_generic(cls):
-
+def _is_generic(cls: typing.Any) -> bool:
+    if hasattr(typing, '_GenericAlias'):
         if isinstance(cls, typing._GenericAlias):
             return True
 
         if isinstance(cls, typing._SpecialForm):
             return cls not in {typing.Any}
-        return False
+    else:
+        if isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
+            return True
+    return False
 
 
-    def _is_base_generic(cls) -> bool:
+def _is_base_generic(cls: typing.Any) -> bool:
+    if hasattr(typing, '_GenericAlias'):
         if isinstance(cls, typing._GenericAlias):
             if cls.__origin__ in {typing.Generic, typing_protocol}:
                 return False
 
-            is_variadic_generic_alias = str(cls) in ['typing.Tuple', 'typing.Callable']
-            if hasattr(typing, "_VariadicGenericAlias") and not \
-                    (isinstance(cls, typing._VariadicGenericAlias) == is_variadic_generic_alias):
-                raise ValueError(f'Assumption made during refactoring failed: {is_variadic_generic_alias}')
-
-            if is_variadic_generic_alias:
+            if str(cls) in ['typing.Tuple', 'typing.Callable']:
                 return True
 
             return len(cls.__parameters__) > 0
 
         if isinstance(cls, typing._SpecialForm):
             return cls._name in {'ClassVar', 'Union', 'Optional'}
-
-        return False
-
-
-    def _get_base_generic(cls):
-        # subclasses of Generic will have their _name set to None, but
-        # their __origin__ will point to the base generic
-        if cls._name is None:
-            return cls.__origin__
-        else:
-            return getattr(typing, cls._name)
-
-
-    def _get_python_type(cls):
-        """Like `python_type`, but only works with `typing` classes."""
-        return cls.__origin__
-
-
-    def _get_name(cls):
-        return cls._name
-else:
-    def _is_generic(cls):
-        if isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
-            return True
-        return False
-
-
-    def _is_base_generic(cls):
+    else:
         if isinstance(cls, (typing.GenericMeta, typing._Union)):
             return cls.__args__ in {None, ()}
 
         if isinstance(cls, typing._Optional):
             return True
-        return False
+    return False
 
-    def _get_base_generic(cls):
+
+def _get_base_generic(cls: typing.Any) -> typing.Any:
+    if cls._name is None or not hasattr(typing, '_GenericAlias'):
         return cls.__origin__
+    else:
+        return getattr(typing, cls._name)
 
-    def _get_python_type(cls):
-        """Like `python_type`, but only works with `typing` classes."""
-        # Many classes actually reference their corresponding abstract base class from the abc module
-        # instead of their builtin variant (i.e. typing.List references MutableSequence instead of list).
-        # We're interested in the builtin class (if any), so we'll traverse the MRO and look for it there.
+
+def _get_python_type(cls: typing.Any) -> typing.Any:
+    """Like `python_type`, but only works with `typing` classes."""
+    if hasattr(typing, '_GenericAlias'):
+        return cls.__origin__
+    else:
         for typ in cls.mro():
             if typ.__module__ == 'builtins' and typ is not object:
                 return typ
 
-    def _get_name(cls):
+
+def _get_name(cls: typing.Any) -> str:
+    if hasattr(typing, '_GenericAlias'):
+        return cls._name
+    else:
         try:
             return cls.__name__
         except AttributeError:
@@ -248,7 +228,7 @@ def is_base_generic(cls: typing.Any) -> bool:
     >>> is_base_generic(typing.List[typing.List[int]])
     >>> False
     """
-    assert has_required_type_arguments(cls), \
+    assert _has_required_type_arguments(cls), \
         f'The type annotation "{cls}" misses some type arguments e.g. ' \
         f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
     return _is_base_generic(cls)
