@@ -6,7 +6,6 @@ from pedantic.method_decorators import pedantic, pedantic_require_docstring, tra
 
 def for_all_methods(decorator: Callable) -> Callable:
     """
-    From: https://stackoverflow.com/questions/6307761/how-to-decorate-all-functions-of-a-class-without-typing-it-over-and-over-for-eac/6307868#6307868
     Example:
     >>> @for_all_methods(pedantic)
     >>> class C(object):
@@ -18,7 +17,6 @@ def for_all_methods(decorator: Callable) -> Callable:
             attr_value = getattr(cls, attr)
 
             if callable(attr_value):
-                # if 'is_class_decorator' in inspect.getfullargspec(decorator).annotations: DOESNT WORK HERE
                 try:
                     setattr(cls, attr, decorator(attr_value, is_class_decorator=True))
                 except TypeError:

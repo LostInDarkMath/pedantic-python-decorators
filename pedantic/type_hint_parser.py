@@ -143,13 +143,10 @@ if hasattr(typing, '_GenericAlias'):
 
 
     def _is_base_generic(cls) -> bool:
-        # return len(typing.get_args(cls)) == 0
-
         if isinstance(cls, typing._GenericAlias):
             if cls.__origin__ in {typing.Generic, typing_protocol}:
                 return False
 
-            # inserted by Willi to make is compatible with Python versions 3.9 or later
             is_variadic_generic_alias = str(cls) in ['typing.Tuple', 'typing.Callable']
             if hasattr(typing, "_VariadicGenericAlias") and not \
                     (isinstance(cls, typing._VariadicGenericAlias) == is_variadic_generic_alias):
@@ -363,13 +360,13 @@ def _instancecheck_callable(value, type_):
                 missing_annotations.append(param)
                 continue
 
-            if not is_subtype(param_type, expected_type):
+            if not _is_subtype(param_type, expected_type):
                 return False
 
     if sig.return_annotation is inspect.Signature.empty:
         missing_annotations.append('return')
     else:
-        if not is_subtype(sig.return_annotation, ret_type):
+        if not _is_subtype(sig.return_annotation, ret_type):
             return False
 
     assert not missing_annotations,\
@@ -390,15 +387,15 @@ _SPECIAL_INSTANCE_CHECKERS = {
 }
 
 
-def is_subtype(sub_type, super_type):
+def _is_subtype(sub_type, super_type):
     if not is_generic(sub_type):
-        python_super = python_type(super_type)
-        python_sub = python_type(sub_type)
+        python_super = _python_type(super_type)
+        python_sub = _python_type(sub_type)
         return issubclass(python_sub, python_super)
 
     # at this point we know `sub_type` is a generic
-    python_sub = python_type(sub_type)
-    python_super = python_type(super_type)
+    python_sub = _python_type(sub_type)
+    python_super = _python_type(super_type)
     if not issubclass(python_sub, python_super):
         return False
 
@@ -416,27 +413,27 @@ def is_subtype(sub_type, super_type):
     # compare their sub-types.
     sub_args = get_subtypes(sub_type)
     super_args = get_subtypes(super_type)
-    return all(is_subtype(sub_arg, super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
+    return all(_is_subtype(sub_arg, super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
 
 
-def python_type(annotation):
+def _python_type(annotation):
     """
     Given a type annotation or a class as input, returns the corresponding python class.
 
     Examples:
-        >>> python_type(typing.Dict)
+        >>> _python_type(typing.Dict)
         <class 'dict'>
-        >>> python_type(typing.List[int])
+        >>> _python_type(typing.List[int])
         <class 'list'>
-        >>> python_type(int)
+        >>> _python_type(int)
         <class 'int'>
-        >>> python_type(typing.Any)
+        >>> _python_type(typing.Any)
         <class 'object'>
     """
     if hasattr(annotation, 'mro'):
         mro = annotation.mro()
         if typing.Type in mro:
-            return annotation.python_type
+            return annotation._python_type
         elif annotation.__module__ == 'typing':
             return _get_python_type(annotation)
         else:
