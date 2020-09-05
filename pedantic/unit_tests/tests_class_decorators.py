@@ -187,112 +187,105 @@ class TestClassDecorators(unittest.TestCase):
 
     def test_pedantic_class_require_docstring_1(self):
         """Problem here: Typo in type annotation string"""
-        @pedantic_class_require_docstring
-        class MyClass:
-            def __init__(self, s: str) -> None:
-                """Constructor
-
-                Args:
-                    s (str): name
-                """
-                self.s = s
-
-            def double(self, b: int) -> str:
-                """some method
-
-                Args:
-                    b (int): magic number
-
-                Returns:
-                    str: cool stuff
-
-                """
-                return self.s + str(b)
-
-            @staticmethod
-            def generator() -> 'MyClas':
-                """Static
-
-                Returns:
-                    MyClass: instance
-                """
-                return MyClass(s='generated')
-
         with self.assertRaises(expected_exception=AssertionError):
-            m = MyClass.generator()
+            @pedantic_class_require_docstring
+            class MyClass:
+                def __init__(self, s: str) -> None:
+                    """Constructor
+
+                    Args:
+                        s (str): name
+                    """
+                    self.s = s
+
+                def double(self, b: int) -> str:
+                    """some method
+
+                    Args:
+                        b (int): magic number
+
+                    Returns:
+                        str: cool stuff
+
+                    """
+                    return self.s + str(b)
+
+                @staticmethod
+                def generator() -> 'MyClas':
+                    """Static
+
+                    Returns:
+                        MyClass: instance
+                    """
+                    return MyClass(s='generated')
 
     def test_pedantic_class_require_docstring_2(self):
         """Problem here: Typo in docstring corresponding to type annotation string"""
-        @pedantic_class_require_docstring
-        class MyClass:
-            def __init__(self, s: str) -> None:
-                """Constructor
-
-                Args:
-                    s (str): name
-                """
-                self.s = s
-
-            def double(self, b: int) -> str:
-                """some method
-
-                Args:
-                    b (int): magic number
-
-                Returns:
-                    str: cool stuff
-
-                """
-                return self.s + str(b)
-
-            @staticmethod
-            def generator() -> 'MyClass':
-                """Static
-
-                Returns:
-                    MyClas: instance
-                """
-                return MyClass(s='generated')
-
         with self.assertRaises(expected_exception=AssertionError):
-            m = MyClass.generator()
+            @pedantic_class_require_docstring
+            class MyClass:
+                def __init__(self, s: str) -> None:
+                    """Constructor
+
+                    Args:
+                        s (str): name
+                    """
+                    self.s = s
+
+                def double(self, b: int) -> str:
+                    """some method
+
+                    Args:
+                        b (int): magic number
+
+                    Returns:
+                        str: cool stuff
+
+                    """
+                    return self.s + str(b)
+
+                @staticmethod
+                def generator() -> 'MyClass':
+                    """Static
+
+                    Returns:
+                        MyClas: instance
+                    """
+                    return MyClass(s='generated')
 
     def test_pedantic_class_require_docstring_3(self):
         """Problem here: One docstring is wrong"""
-        @pedantic_class_require_docstring
-        class MyClass:
-            def __init__(self, s: str) -> None:
-                """Constructor
-
-                Args:
-                    s (str): name
-                """
-                self.s = s
-
-            def double(self, b: int) -> str:
-                """some method
-
-                Args:
-                    b (float): magic number
-
-                Returns:
-                    str: cool stuff
-
-                """
-                return self.s + str(b)
-
-            @staticmethod
-            def generator() -> 'MyClass':
-                """Static
-
-                Returns:
-                    MyClass: instance
-                """
-                return MyClass(s='generated')
-
-        m = MyClass.generator()
         with self.assertRaises(expected_exception=AssertionError):
-            m.double(b=42)
+            @pedantic_class_require_docstring
+            class MyClass:
+                def __init__(self, s: str) -> None:
+                    """Constructor
+
+                    Args:
+                        s (str): name
+                    """
+                    self.s = s
+
+                def double(self, b: int) -> str:
+                    """some method
+
+                    Args:
+                        b (float): magic number
+
+                    Returns:
+                        str: cool stuff
+
+                    """
+                    return self.s + str(b)
+
+                @staticmethod
+                def generator() -> 'MyClass':
+                    """Static
+
+                    Returns:
+                        MyClass: instance
+                    """
+                    return MyClass(s='generated')
 
     def test_trace_class(self):
         @trace_class

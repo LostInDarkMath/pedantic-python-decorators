@@ -253,10 +253,10 @@ def pedantic(func: Callable, is_class_decorator: bool = False) -> Callable:
 def pedantic_require_docstring(func: Callable, is_class_decorator: bool = False) -> Callable:
     """It's like pedantic, but now it forces you to write docstrings (Google format)."""
     decorated_func = DecoratedFunction(func=func)
+    _assert_has_correct_docstring(decorated_func=decorated_func)
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
-        _assert_has_correct_docstring(decorated_func=decorated_func)
         res = _assert_has_kwargs_and_correct_type_hints(decorated_func=decorated_func,
                                                         args=args,
                                                         kwargs=kwargs,
@@ -325,6 +325,9 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
     annotations = decorated_func.annotations
     docstring = decorated_func.docstring
     err_prefix = decorated_func.err
+
+    raw_doc = decorated_func.func.__doc__
+    assert raw_doc is not None and raw_doc != '', f'{err_prefix} The function should have a docstring!'
 
     num_documented_args = len(docstring.params)
     num_taken_args = len([a for a in annotations if a != 'return'])
