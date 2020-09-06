@@ -82,7 +82,7 @@ def _get_name(cls: typing.Any) -> str:
          >>> _get_name(typing.Callable)
         'Callable'
     """
-    if hasattr(typing, '_GenericAlias'):
+    if hasattr(cls, '_name'):
         return cls._name
     elif hasattr(cls, '__name__'):
         return cls.__name__
