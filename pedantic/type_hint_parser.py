@@ -193,17 +193,10 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     (Ellipsis, <class 'str'>)
     """
     if hasattr(typing, 'get_args'):
-        # Python 3.8.0 throws index error here, for argument cls = typing.Callable (without type arguments)
-        try:
-            return typing.get_args(cls)
-        except IndexError:
-            return ()
+        return typing.get_args(cls)
     elif hasattr(cls, '__args__'):
         # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
-
         res = cls.__args__
-        if res == ():
-            return ()
 
         # origin = _get_origin(cls)
         origin = _get_base_generic(cls)
