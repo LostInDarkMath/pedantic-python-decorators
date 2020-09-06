@@ -69,8 +69,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
             some_calculation(x=1.0)
 
     def test_pedantic_validate_args_2(self):
-        &#34;&#34;&#34;Different order decorators&#34;&#34;&#34;
-        @pedantic
+        @pedantic  # Different order decorators
         @validate_args(lambda x: (x &gt; 0, f&#39;Argument should be greater then 0, but it was {x}.&#39;))
         def some_calculation(x: int) -&gt; int:
             return x
@@ -270,8 +269,7 @@ not have a method with the specified name.</p></div>
             some_calculation(x=1.0)
 
     def test_pedantic_validate_args_2(self):
-        &#34;&#34;&#34;Different order decorators&#34;&#34;&#34;
-        @pedantic
+        @pedantic  # Different order decorators
         @validate_args(lambda x: (x &gt; 0, f&#39;Argument should be greater then 0, but it was {x}.&#39;))
         def some_calculation(x: int) -&gt; int:
             return x
@@ -514,14 +512,13 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_pedantic_validate_args_2</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Different order decorators</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_pedantic_validate_args_2(self):
-    &#34;&#34;&#34;Different order decorators&#34;&#34;&#34;
-    @pedantic
+    @pedantic  # Different order decorators
     @validate_args(lambda x: (x &gt; 0, f&#39;Argument should be greater then 0, but it was {x}.&#39;))
     def some_calculation(x: int) -&gt; int:
         return x

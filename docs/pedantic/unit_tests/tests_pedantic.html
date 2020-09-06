@@ -1,0 +1,4026 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>pedantic.unit_tests.tests_pedantic API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pedantic.unit_tests.tests_pedantic</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import unittest
+from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
+from enum import Enum
+
+# local file imports
+from pedantic.method_decorators import pedantic
+
+
+class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
+
+    def test_no_kwargs_1(self):
+        &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(42, 40, 38)
+
+    def test_no_kwargs_2(self):
+        &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(42, m=40, i=38)
+
+    def test_no_kwargs_1_2_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        calc(n=42, m=40, i=38)
+
+    def test_nested_type_hints_1(self):
+        &#34;&#34;&#34;Problem here: actual return type doesn&#39;t match return type annotation&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int) -&gt; List[List[float]]:
+            return [0.0 * n]
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_nested_type_hints_1_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; List[List[float]]:
+            return [[0.0 * n]]
+
+        calc(n=42)
+
+    def test_nested_type_hints_2(self):
+        &#34;&#34;&#34;Problem here: int != float&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int) -&gt; List[Tuple[float, str]]:
+            return [(n, str(n))]
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_nested_type_hints_2_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; List[Tuple[int, str]]:
+            return [(n, str(n))]
+
+        @pedantic
+        def calc_2(n: float) -&gt; List[Tuple[float, str]]:
+            return [(n, str(n))]
+
+        calc(n=42)
+        calc_2(n=42.0)
+
+    def test_nested_type_hints_3(self):
+        &#34;&#34;&#34;Problem here: inner function actually returns Tuple[int, str]&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, str]:
+                return n * x, str(y)
+            return f
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)(x=3, y=3.14)
+
+    def test_nested_type_hints_3_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[int, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[int, str]:
+                return n * x, str(y)
+
+            return f
+
+        calc(n=42)(x=3, y=3.14)
+
+    def test_nested_type_hints_4(self):
+        &#34;&#34;&#34;Problem here: return type is actually float&#34;&#34;&#34;
+        @pedantic
+        def calc(n: List[List[float]]) -&gt; int:
+            return n[0][0]
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=[[42.0]])
+
+    def test_nested_type_hints_corrected(self):
+        @pedantic
+        def calc(n: List[List[float]]) -&gt; int:
+            return int(n[0][0])
+
+        calc(n=[[42.0]])
+
+    def test_nested_type_hints_5(self):
+        &#34;&#34;&#34;Problem here: Tuple[float, str] != Tuple[float, float]&#34;&#34;&#34;
+
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, float]:
+                return n * float(x), y
+            return f
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_nested_type_hints_5_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, float]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, float]:
+                return n * float(x), y
+            return f
+
+        calc(n=42)
+
+    def test_missing_type_hint_1(self):
+        &#34;&#34;&#34;Problem here: type hint for n missed&#34;&#34;&#34;
+        @pedantic
+        def calc(n) -&gt; float:
+            return 42.0 * n
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_missing_type_hint_1_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; float:
+            return 42.0 * n
+
+        calc(n=42)
+
+    def test_missing_type_hint_2(self):
+        &#34;&#34;&#34;Problem here: Return type annotation missed&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int):
+            return &#39;Hi&#39; + str(n)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_missing_type_hint_2_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; str:
+            return &#39;Hi&#39; + str(n)
+
+        calc(n=42)
+
+    def test_missing_type_hint_3(self):
+        &#34;&#34;&#34;Problem here: type hint for i missed&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_missing_type_hint_3_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        calc(n=42, m=40, i=38)
+
+    def test_all_ok_2(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; str:
+            return str(n + m + i)
+
+        calc(n=42, m=40, i=38)
+
+    def test_all_ok_3(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; None:
+            str(n + m + i)
+
+        calc(n=42, m=40, i=38)
+
+    def test_all_ok_4(self):
+        @pedantic
+        def calc(n: int) -&gt; List[List[int]]:
+            return [[n]]
+
+        calc(n=42)
+
+    def test_all_ok_5(self):
+        @pedantic
+        def calc(n: int) -&gt; List[Tuple[float, str]]:
+            return [(float(n), str(n))]
+
+        calc(n=42)
+
+    def test_all_ok_6(self):
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, str]:
+                return n * float(x), str(y)
+            return f
+
+        calc(n=42)(x=72, y=3.14)
+
+    def test_all_ok_7(self):
+        @pedantic
+        def calc(n: List[List[float]]) -&gt; Any:
+            return n[0][0]
+
+        calc(n=[[42.0]])
+
+    def test_all_ok_8(self):
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, str]:
+                return n * float(x), str(y)
+
+            return f
+
+        calc(n=42)(x=3, y=3.14)
+
+    def test_wrong_type_hint_1(self):
+        &#34;&#34;&#34;Problem here: str != int&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; str:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_1_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; str:
+            return str(n + m + i)
+
+        calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_2(self):
+        &#34;&#34;&#34;Problem here: str != int&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: str) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_2_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: str) -&gt; int:
+            return n + m + int(i)
+
+        calc(n=42, m=40, i=&#39;38&#39;)
+
+    def test_wrong_type_hint_3(self):
+        &#34;&#34;&#34;Problem here: None != int&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; None:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; None:
+            print(n + m + i)
+
+        calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_4(self):
+        &#34;&#34;&#34;Problem here: None != int&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            print(n + m + i)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_4_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        calc(n=42, m=40, i=38)
+
+    def test_none_1(self):
+        &#34;&#34;&#34;Problem here: None is not accepted&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=None)
+
+    def test_none_2(self):
+        @pedantic
+        def calc(n: int, m: int, i: Optional[int]) -&gt; int:
+            return n + m + i if i is not None else n + m
+
+        calc(n=42, m=40, i=None)
+
+    def test_none_3(self):
+        @pedantic
+        def calc(n: int, m: int, i: Union[int, None]) -&gt; int:
+            return n + m + i if i is not None else n + m
+
+        calc(n=42, m=40, i=None)
+
+    def test_none_4(self):
+        &#34;&#34;&#34;Problem here: function may return None&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: Union[int, None]) -&gt; int:
+            return n + m + i if i is not None else None
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=None)
+
+    def test_none_5(self):
+        @pedantic
+        def calc(n: int, m: int, i: Union[int, None]) -&gt; Optional[int]:
+            return n + m + i if i is not None else None
+
+        calc(n=42, m=40, i=None)
+
+    def test_inheritance_1(self):
+        class A:
+            pass
+
+        class B(A):
+            pass
+
+        @pedantic
+        def calc(a: A) -&gt; str:
+            return str(a)
+
+        calc(a=A())
+        calc(a=B())
+
+    def test_inheritance_2(self):
+        &#34;&#34;&#34;Problem here: A is not a subtype of B&#34;&#34;&#34;
+        class A:
+            pass
+
+        class B(A):
+            pass
+
+        @pedantic
+        def calc(a: B) -&gt; str:
+            return str(a)
+
+        calc(a=B())
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(a=A())
+
+    def test_instance_method_1(self):
+        class A:
+            @pedantic
+            def calc(self, i: int) -&gt; str:
+                return str(i)
+
+        a = A()
+        a.calc(i=42)
+
+    def test_instance_method_2(self):
+        &#34;&#34;&#34;Problem here: &#39;i&#39; has no type annotation&#34;&#34;&#34;
+        class A:
+            @pedantic
+            def calc(self, i) -&gt; str:
+                return str(i)
+
+        a = A()
+        with self.assertRaises(expected_exception=AssertionError):
+            a.calc(i=42)
+
+    def test_instance_method_2_corrected(self):
+        class A:
+            @pedantic
+            def calc(self, i: int) -&gt; str:
+                return str(i)
+
+        a = A()
+        a.calc(i=42)
+
+    def test_instance_method_3(self):
+        &#34;&#34;&#34;Problem here: float != int&#34;&#34;&#34;
+        class A:
+            @pedantic
+            def calc(self, i: float) -&gt; str:
+                return str(i)
+
+        a = A()
+        with self.assertRaises(expected_exception=AssertionError):
+            a.calc(i=42)
+
+    def test_instance_method_3_corrected(self):
+        class A:
+            @pedantic
+            def calc(self, i: float) -&gt; str:
+                return str(i)
+
+        a = A()
+        a.calc(i=42.0)
+
+    def test_instance_method_4(self):
+        &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
+        class A:
+            @pedantic
+            def calc(self, i: int) -&gt; str:
+                return str(i)
+
+        a = A()
+        with self.assertRaises(expected_exception=AssertionError):
+            a.calc(42)
+
+    def test_instance_method_5(self):
+        &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
+        class A:
+            @pedantic
+            def calc(self, i: int) -&gt; str:
+                return str(i)
+
+        a = A()
+        a.calc(i=42)
+
+    def test_lambda_1(self):
+        &#34;&#34;&#34;Lambda expressions cannot be typed hinted. So this leads to an error.&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            return lambda x: str(x * i)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(10.0)
+
+    def test_lambda_2(self):
+        &#34;&#34;&#34;Even this is not expected by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            res: Callable[[float], str] = lambda x: str(x * i)
+            return res
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(10.0)
+
+    def test_lambda_3(self):
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            def res(x: float) -&gt; str:
+                return str(x * i)
+            return res
+
+        calc(i=42.0)(10.0)
+
+    def test_lambda_4(self):
+        &#34;&#34;&#34;Problem here: inner function: int != float&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            def res(x: int) -&gt; str:
+                return str(x * i)
+            return res
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(x=10)
+
+    def test_lambda_4_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: float != str&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            @pedantic
+            def res(x: int) -&gt; str:
+                return str(x * i)
+            return res
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(x=10)
+
+    def test_lambda_4_almost_corrected_2(self):
+        @pedantic
+        def calc(i: float) -&gt; Callable[[int], str]:
+            @pedantic
+            def res(x: int) -&gt; str:
+                return str(x * i)
+            return res
+
+        calc(i=42.0)(x=10)
+
+    def test_lambda_5(self):
+        &#34;&#34;&#34;Problem here: float != int&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            @pedantic
+            def res(x: float) -&gt; str:
+                return str(x * i)
+            return res
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(x=10)
+
+    def test_lambda_corrected(self):
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            @pedantic
+            def res(x: float) -&gt; str:
+                return str(x * i)
+
+            return res
+
+        calc(i=42.0)(x=10.0)
+
+    def test_tuple_without_args(self):
+        &#34;&#34;&#34;Problem here: Tuple has no type arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(i: Tuple) -&gt; str:
+            return str(i)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=(42.0, 43, &#39;hi&#39;))
+
+    def test_tuple_without_args_corrected(self):
+        @pedantic
+        def calc(i: Tuple[Any, ...]) -&gt; str:
+            return str(i)
+
+        calc(i=(42.0, 43, &#39;hi&#39;))
+
+    def test_callable_without_args(self):
+        &#34;&#34;&#34;Problem here: Callable has no type arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(i: Callable) -&gt; str:
+            return str(i(&#39; you&#39;))
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
+
+    def test_callable_without_args_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: lambda expressions cannot be type hinted. So don&#39;t use it&#34;&#34;&#34;
+        @pedantic
+        def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
+            return str(i(x=&#39; you&#39;))
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
+
+    def test_callable_without_args_corrected(self):
+        @pedantic
+        def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
+            return str(i(x=&#39; you&#39;))
+
+        @pedantic
+        def arg(x: Any) -&gt; Tuple[Any, ...]:
+            return 42.0, 43, &#39;hi&#39;, x
+        calc(i=arg)
+
+    def test_list_without_args(self):
+        &#34;&#34;&#34;Problem here: List has no type arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(i: List) -&gt; Any:
+            return [i]
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=[42.0, 43, &#39;hi&#39;])
+
+    def test_list_without_args_corrected(self):
+        @pedantic
+        def calc(i: List[Any]) -&gt; List[List[Any]]:
+            return [i]
+
+        calc(i=[42.0, 43, &#39;hi&#39;])
+
+    def test_ellipsis_in_callable_1(self):
+        @pedantic
+        def calc(i: Callable[..., int]) -&gt; int:
+            return i()
+
+        @pedantic
+        def call() -&gt; int:
+            return 42
+
+        calc(i=call)
+
+    def test_ellipsis_in_callable_2(self):
+        @pedantic
+        def calc(i: Callable[..., int]) -&gt; int:
+            return i(x=3.14, y=5)
+
+        @pedantic
+        def call(x: float, y: int) -&gt; int:
+            return 42
+
+        calc(i=call)
+
+    def test_ellipsis_in_callable_3(self):
+        &#34;&#34;&#34;Problem here: call to &#34;call&#34; misses one argument&#34;&#34;&#34;
+        @pedantic
+        def calc(i: Callable[..., int]) -&gt; int:
+            return i(x=3.14)
+
+        @pedantic
+        def call(x: float, y: int) -&gt; int:
+            return 42
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=call)
+
+    def test_optional_args_1(self):
+        @pedantic
+        def calc(a: int, b: int = 42) -&gt; int:
+            return a + b
+
+        calc(a=2)
+
+    def test_optional_args_2(self):
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5.0) -&gt; float:
+            return a + b + c
+
+        calc()
+        calc(a=1)
+        calc(b=1)
+        calc(c=1.0)
+        calc(a=1, b=1)
+        calc(a=1, c=1.0)
+        calc(b=1, c=1.0)
+        calc(a=1, b=1, c=1.0)
+
+    def test_optional_args_3(self):
+        &#34;&#34;&#34;Problem here: optional argument c: 5 is not a float&#34;&#34;&#34;
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5) -&gt; float:
+            return a + b + c
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc()
+
+    def test_optional_args_3_corrected(self):
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5.0) -&gt; float:
+            return a + b + c
+
+        calc()
+
+    def test_optional_args_4(self):
+        class MyClass:
+            @pedantic
+            def foo(self, a: int, b: Optional[int] = 1) -&gt; int:
+                return a + b
+
+        my_class = MyClass()
+        my_class.foo(a=10)
+
+    def test_optional_args_5(self):
+        @pedantic
+        def calc(d: Optional[Dict[int, int]] = None) -&gt; Optional[int]:
+            if d is None:
+                return None
+            return sum(d.keys())
+
+        calc(d=None)
+        calc()
+        calc(d={42: 3})
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(d={42: 3.14})
+
+    def test_optional_args_6(self):
+        &#34;&#34;&#34;&#34;Problem here: str != int&#34;&#34;&#34;
+        @pedantic
+        def calc(d: int = 42) -&gt; int:
+            return int(d)
+
+        calc(d=99999)
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(d=&#39;999999&#39;)
+
+    def test_enum_1(self):
+        &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
+        class MyEnum(Enum):
+            ALPHA = &#39;startEvent&#39;
+            BETA = &#39;task&#39;
+            GAMMA = &#39;sequenceFlow&#39;
+
+        class MyClass:
+            @pedantic
+            def operation(self, a: MyEnum.GAMMA) -&gt; None:
+                print(a)
+
+        m = MyClass()
+        with self.assertRaises(expected_exception=AssertionError):
+            m.operation(a=MyEnum.GAMMA)
+
+    def test_enum_1_corrected(self):
+        class MyEnum(Enum):
+            ALPHA = &#39;startEvent&#39;
+            BETA = &#39;task&#39;
+            GAMMA = &#39;sequenceFlow&#39;
+
+        @pedantic
+        def operation(a: MyEnum) -&gt; None:
+            print(a)
+
+        operation(a=MyEnum.GAMMA)
+
+    def test_sloppy_types_dict(self):
+        &#34;&#34;&#34;Problem here: use typing.Dict instead of dict&#34;&#34;&#34;
+        @pedantic
+        def operation(d: dict) -&gt; int:
+            return len(d.keys())
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1: 1, 2: 2})
+
+    def test_sloppy_types_dict_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.Dict misses type arguments&#34;&#34;&#34;
+        @pedantic
+        def operation(d: Dict) -&gt; int:
+            return len(d.keys())
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1: 1, 2: 2})
+
+    def test_sloppy_types_dict_corrected(self):
+        @pedantic
+        def operation(d: Dict[int, int]) -&gt; int:
+            return len(d.keys())
+
+        operation(d={1: 1, 2: 2})
+
+    def test_sloppy_types_list(self):
+        &#34;&#34;&#34;Problem here: use typing.List instead of list&#34;&#34;&#34;
+        @pedantic
+        def operation(d: list) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=[1, 2, 3, 4])
+
+    def test_sloppy_types_list_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.List misses type argument&#34;&#34;&#34;
+        @pedantic
+        def operation(d: List) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=[1, 2, 3, 4])
+
+    def test_sloppy_types_list_corrected(self):
+        @pedantic
+        def operation(d: List[int]) -&gt; int:
+            return len(d)
+
+        operation(d=[1, 2, 3, 4])
+
+    def test_sloppy_types_tuple(self):
+        &#34;&#34;&#34;Problem here: use typing.Tuple instead of tuple&#34;&#34;&#34;
+        @pedantic
+        def operation(d: tuple) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=(1, 2, 3))
+
+    def test_sloppy_types_tuple_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.Tuple misses type arguments&#34;&#34;&#34;
+        @pedantic
+        def operation(d: Tuple) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=(1, 2, 3))
+
+    def test_sloppy_types_tuple_corrected(self):
+        @pedantic
+        def operation(d: Tuple[int, int, int]) -&gt; int:
+            return len(d)
+
+        operation(d=(1, 2, 3))
+
+    def test_sloppy_types_set(self):
+        &#34;&#34;&#34;Problem here: use typing.Set instead of set&#34;&#34;&#34;
+        @pedantic
+        def operation(d: set) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1, 2, 3})
+
+    def test_sloppy_types_set_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.Set misses type argument&#34;&#34;&#34;
+        @pedantic
+        def operation(d: Set) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1, 2, 3})
+
+    def test_sloppy_types_set_corrected(self):
+        @pedantic
+        def operation(d: Set[int]) -&gt; int:
+            return len(d)
+
+        operation(d={1, 2, 3})
+
+    def test_sloppy_types_frozenset(self):
+        &#34;&#34;&#34;Problem here: use typing.FrozenSet instead of frozenset&#34;&#34;&#34;
+        @pedantic
+        def operation(d: frozenset) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=frozenset({1, 2, 3}))
+
+    def test_sloppy_types_frozenset_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.FrozenSet misses type argument&#34;&#34;&#34;
+        @pedantic
+        def operation(d: FrozenSet) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=frozenset({1, 2, 3}))
+
+    def test_sloppy_types_frozenset_corrected(self):
+        @pedantic
+        def operation(d: FrozenSet[int]) -&gt; int:
+            return len(d)
+
+        operation(d=frozenset({1, 2, 3}))
+
+    def test_type_list(self):
+        &#34;&#34;&#34;Problem here: tuple != list&#34;&#34;&#34;
+        @pedantic
+        def calc(ls: List[Any]) -&gt; int:
+            return len(ls)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(ls=(1, 2, 3))
+
+    def test_type_list_corrected(self):
+        @pedantic
+        def calc(ls: Tuple[Any, ...]) -&gt; int:
+            return len(ls)
+
+        calc(ls=(1, 2, 3))
+
+    def test_any(self):
+        @pedantic
+        def calc(ls: List[Any]) -&gt; Dict[int, Any]:
+            return {i: ls[i] for i in range(0, len(ls))}
+
+        calc(ls=[1, 2, 3])
+        calc(ls=[1.11, 2.0, 3.0])
+        calc(ls=[&#39;1&#39;, &#39;2&#39;, &#39;3&#39;])
+        calc(ls=[10.5, &#39;2&#39;, (3, 4, 5)])
+
+    def test_aliases(self):
+        Vector = List[float]
+
+        @pedantic
+        def scale(scalar: float, vector: Vector) -&gt; Vector:
+            return [scalar * num for num in vector]
+
+        scale(scalar=2.0, vector=[1.0, -4.2, 5.4])
+
+    def test_new_type(self):
+        UserId = NewType(&#39;UserId&#39;, int)
+
+        @pedantic
+        def get_user_name(user_id: UserId) -&gt; str:
+            return str(user_id)
+
+        some_id = UserId(524313)
+        get_user_name(user_id=some_id)
+
+        # the following would be desirable but impossible at runtime:
+        # with self.assertRaises(expected_exception=AssertionError):
+        #     get_user_name(user_id=-1)
+
+    def test_list_of_new_type(self):
+        UserId = NewType(&#39;UserId&#39;, int)
+
+        @pedantic
+        def get_user_name(user_ids: List[UserId]) -&gt; str:
+            return str(user_ids)
+
+        get_user_name(user_ids=[UserId(524313), UserId(42)])
+        with self.assertRaises(expected_exception=AssertionError):
+            get_user_name(user_ids=[UserId(524313), UserId(42), 430.0])
+
+    def test_callable_no_args(self):
+        @pedantic
+        def f(g: Callable[[], str]) -&gt; str:
+            return g()
+
+        @pedantic
+        def greetings() -&gt; str:
+            return &#39;hello world&#39;
+
+        f(g=greetings)
+
+    def test_type_var(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic
+        def first(ls: List[T]) -&gt; T:
+            return ls[0]
+
+        first(ls=[1, 2, 3])
+
+    def test_type_var_wrong(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic
+        def first(ls: List[T]) -&gt; T:
+            return str(ls[0])
+
+        with self.assertRaises(expected_exception=AssertionError):
+            first(ls=[1, 2, 3])
+
+    def test_type_var_wrong_sequence(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic
+        def first(ls: Sequence[T]) -&gt; T:
+            return str(ls[0])
+
+        with self.assertRaises(expected_exception=AssertionError):
+            first(ls=[1, 2, 3])
+
+
+if __name__ == &#39;__main__&#39;:
+    test = TestDecoratorRequireKwargsAndTypeCheck()
+    test.test_type_var_wrong()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck"><code class="flex name class">
+<span>class <span class="ident">TestDecoratorRequireKwargsAndTypeCheck</span></span>
+<span>(</span><span>methodName='runTest')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class whose instances are single test cases.</p>
+<p>By default, the test code itself should be placed in a method named
+'runTest'.</p>
+<p>If the fixture may be used for many test cases, create as
+many test methods as are needed. When instantiating such a TestCase
+subclass, specify in the constructor arguments the name of the test method
+that the instance is to execute.</p>
+<p>Test authors should subclass TestCase for their own tests. Construction
+and deconstruction of the test's environment ('fixture') can be
+implemented by overriding the 'setUp' and 'tearDown' methods respectively.</p>
+<p>If it is necessary to override the <strong>init</strong> method, the base class
+<strong>init</strong> method must always be called. It is important that subclasses
+should not change the signature of their <strong>init</strong> method, since instances
+of the classes are instantiated automatically by parts of the framework
+in order to be run.</p>
+<p>When subclassing TestCase, you can set these attributes:
+* failureException: determines which exception will be raised when
+the instance's assertion methods fail; test methods raising this
+exception will be deemed to have 'failed' rather than 'errored'.
+* longMessage: determines whether long messages (including repr of
+objects used in assert methods) will be printed on failure in <em>addition</em>
+to any explicit message passed.
+* maxDiff: sets the maximum length of a diff in failure messages
+by assert methods using difflib. It is looked up as an instance
+attribute so can be configured by individual tests if required.</p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
+
+    def test_no_kwargs_1(self):
+        &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(42, 40, 38)
+
+    def test_no_kwargs_2(self):
+        &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(42, m=40, i=38)
+
+    def test_no_kwargs_1_2_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        calc(n=42, m=40, i=38)
+
+    def test_nested_type_hints_1(self):
+        &#34;&#34;&#34;Problem here: actual return type doesn&#39;t match return type annotation&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int) -&gt; List[List[float]]:
+            return [0.0 * n]
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_nested_type_hints_1_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; List[List[float]]:
+            return [[0.0 * n]]
+
+        calc(n=42)
+
+    def test_nested_type_hints_2(self):
+        &#34;&#34;&#34;Problem here: int != float&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int) -&gt; List[Tuple[float, str]]:
+            return [(n, str(n))]
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_nested_type_hints_2_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; List[Tuple[int, str]]:
+            return [(n, str(n))]
+
+        @pedantic
+        def calc_2(n: float) -&gt; List[Tuple[float, str]]:
+            return [(n, str(n))]
+
+        calc(n=42)
+        calc_2(n=42.0)
+
+    def test_nested_type_hints_3(self):
+        &#34;&#34;&#34;Problem here: inner function actually returns Tuple[int, str]&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, str]:
+                return n * x, str(y)
+            return f
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)(x=3, y=3.14)
+
+    def test_nested_type_hints_3_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[int, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[int, str]:
+                return n * x, str(y)
+
+            return f
+
+        calc(n=42)(x=3, y=3.14)
+
+    def test_nested_type_hints_4(self):
+        &#34;&#34;&#34;Problem here: return type is actually float&#34;&#34;&#34;
+        @pedantic
+        def calc(n: List[List[float]]) -&gt; int:
+            return n[0][0]
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=[[42.0]])
+
+    def test_nested_type_hints_corrected(self):
+        @pedantic
+        def calc(n: List[List[float]]) -&gt; int:
+            return int(n[0][0])
+
+        calc(n=[[42.0]])
+
+    def test_nested_type_hints_5(self):
+        &#34;&#34;&#34;Problem here: Tuple[float, str] != Tuple[float, float]&#34;&#34;&#34;
+
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, float]:
+                return n * float(x), y
+            return f
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_nested_type_hints_5_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, float]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, float]:
+                return n * float(x), y
+            return f
+
+        calc(n=42)
+
+    def test_missing_type_hint_1(self):
+        &#34;&#34;&#34;Problem here: type hint for n missed&#34;&#34;&#34;
+        @pedantic
+        def calc(n) -&gt; float:
+            return 42.0 * n
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_missing_type_hint_1_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; float:
+            return 42.0 * n
+
+        calc(n=42)
+
+    def test_missing_type_hint_2(self):
+        &#34;&#34;&#34;Problem here: Return type annotation missed&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int):
+            return &#39;Hi&#39; + str(n)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42)
+
+    def test_missing_type_hint_2_corrected(self):
+        @pedantic
+        def calc(n: int) -&gt; str:
+            return &#39;Hi&#39; + str(n)
+
+        calc(n=42)
+
+    def test_missing_type_hint_3(self):
+        &#34;&#34;&#34;Problem here: type hint for i missed&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_missing_type_hint_3_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        calc(n=42, m=40, i=38)
+
+    def test_all_ok_2(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; str:
+            return str(n + m + i)
+
+        calc(n=42, m=40, i=38)
+
+    def test_all_ok_3(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; None:
+            str(n + m + i)
+
+        calc(n=42, m=40, i=38)
+
+    def test_all_ok_4(self):
+        @pedantic
+        def calc(n: int) -&gt; List[List[int]]:
+            return [[n]]
+
+        calc(n=42)
+
+    def test_all_ok_5(self):
+        @pedantic
+        def calc(n: int) -&gt; List[Tuple[float, str]]:
+            return [(float(n), str(n))]
+
+        calc(n=42)
+
+    def test_all_ok_6(self):
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, str]:
+                return n * float(x), str(y)
+            return f
+
+        calc(n=42)(x=72, y=3.14)
+
+    def test_all_ok_7(self):
+        @pedantic
+        def calc(n: List[List[float]]) -&gt; Any:
+            return n[0][0]
+
+        calc(n=[[42.0]])
+
+    def test_all_ok_8(self):
+        @pedantic
+        def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+            @pedantic
+            def f(x: int, y: float) -&gt; Tuple[float, str]:
+                return n * float(x), str(y)
+
+            return f
+
+        calc(n=42)(x=3, y=3.14)
+
+    def test_wrong_type_hint_1(self):
+        &#34;&#34;&#34;Problem here: str != int&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; str:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_1_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; str:
+            return str(n + m + i)
+
+        calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_2(self):
+        &#34;&#34;&#34;Problem here: str != int&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: str) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_2_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: str) -&gt; int:
+            return n + m + int(i)
+
+        calc(n=42, m=40, i=&#39;38&#39;)
+
+    def test_wrong_type_hint_3(self):
+        &#34;&#34;&#34;Problem here: None != int&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; None:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; None:
+            print(n + m + i)
+
+        calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_4(self):
+        &#34;&#34;&#34;Problem here: None != int&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            print(n + m + i)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=38)
+
+    def test_wrong_type_hint_4_corrected(self):
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        calc(n=42, m=40, i=38)
+
+    def test_none_1(self):
+        &#34;&#34;&#34;Problem here: None is not accepted&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: int) -&gt; int:
+            return n + m + i
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=None)
+
+    def test_none_2(self):
+        @pedantic
+        def calc(n: int, m: int, i: Optional[int]) -&gt; int:
+            return n + m + i if i is not None else n + m
+
+        calc(n=42, m=40, i=None)
+
+    def test_none_3(self):
+        @pedantic
+        def calc(n: int, m: int, i: Union[int, None]) -&gt; int:
+            return n + m + i if i is not None else n + m
+
+        calc(n=42, m=40, i=None)
+
+    def test_none_4(self):
+        &#34;&#34;&#34;Problem here: function may return None&#34;&#34;&#34;
+        @pedantic
+        def calc(n: int, m: int, i: Union[int, None]) -&gt; int:
+            return n + m + i if i is not None else None
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(n=42, m=40, i=None)
+
+    def test_none_5(self):
+        @pedantic
+        def calc(n: int, m: int, i: Union[int, None]) -&gt; Optional[int]:
+            return n + m + i if i is not None else None
+
+        calc(n=42, m=40, i=None)
+
+    def test_inheritance_1(self):
+        class A:
+            pass
+
+        class B(A):
+            pass
+
+        @pedantic
+        def calc(a: A) -&gt; str:
+            return str(a)
+
+        calc(a=A())
+        calc(a=B())
+
+    def test_inheritance_2(self):
+        &#34;&#34;&#34;Problem here: A is not a subtype of B&#34;&#34;&#34;
+        class A:
+            pass
+
+        class B(A):
+            pass
+
+        @pedantic
+        def calc(a: B) -&gt; str:
+            return str(a)
+
+        calc(a=B())
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(a=A())
+
+    def test_instance_method_1(self):
+        class A:
+            @pedantic
+            def calc(self, i: int) -&gt; str:
+                return str(i)
+
+        a = A()
+        a.calc(i=42)
+
+    def test_instance_method_2(self):
+        &#34;&#34;&#34;Problem here: &#39;i&#39; has no type annotation&#34;&#34;&#34;
+        class A:
+            @pedantic
+            def calc(self, i) -&gt; str:
+                return str(i)
+
+        a = A()
+        with self.assertRaises(expected_exception=AssertionError):
+            a.calc(i=42)
+
+    def test_instance_method_2_corrected(self):
+        class A:
+            @pedantic
+            def calc(self, i: int) -&gt; str:
+                return str(i)
+
+        a = A()
+        a.calc(i=42)
+
+    def test_instance_method_3(self):
+        &#34;&#34;&#34;Problem here: float != int&#34;&#34;&#34;
+        class A:
+            @pedantic
+            def calc(self, i: float) -&gt; str:
+                return str(i)
+
+        a = A()
+        with self.assertRaises(expected_exception=AssertionError):
+            a.calc(i=42)
+
+    def test_instance_method_3_corrected(self):
+        class A:
+            @pedantic
+            def calc(self, i: float) -&gt; str:
+                return str(i)
+
+        a = A()
+        a.calc(i=42.0)
+
+    def test_instance_method_4(self):
+        &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
+        class A:
+            @pedantic
+            def calc(self, i: int) -&gt; str:
+                return str(i)
+
+        a = A()
+        with self.assertRaises(expected_exception=AssertionError):
+            a.calc(42)
+
+    def test_instance_method_5(self):
+        &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
+        class A:
+            @pedantic
+            def calc(self, i: int) -&gt; str:
+                return str(i)
+
+        a = A()
+        a.calc(i=42)
+
+    def test_lambda_1(self):
+        &#34;&#34;&#34;Lambda expressions cannot be typed hinted. So this leads to an error.&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            return lambda x: str(x * i)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(10.0)
+
+    def test_lambda_2(self):
+        &#34;&#34;&#34;Even this is not expected by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            res: Callable[[float], str] = lambda x: str(x * i)
+            return res
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(10.0)
+
+    def test_lambda_3(self):
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            def res(x: float) -&gt; str:
+                return str(x * i)
+            return res
+
+        calc(i=42.0)(10.0)
+
+    def test_lambda_4(self):
+        &#34;&#34;&#34;Problem here: inner function: int != float&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            def res(x: int) -&gt; str:
+                return str(x * i)
+            return res
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(x=10)
+
+    def test_lambda_4_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: float != str&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            @pedantic
+            def res(x: int) -&gt; str:
+                return str(x * i)
+            return res
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(x=10)
+
+    def test_lambda_4_almost_corrected_2(self):
+        @pedantic
+        def calc(i: float) -&gt; Callable[[int], str]:
+            @pedantic
+            def res(x: int) -&gt; str:
+                return str(x * i)
+            return res
+
+        calc(i=42.0)(x=10)
+
+    def test_lambda_5(self):
+        &#34;&#34;&#34;Problem here: float != int&#34;&#34;&#34;
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            @pedantic
+            def res(x: float) -&gt; str:
+                return str(x * i)
+            return res
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=42.0)(x=10)
+
+    def test_lambda_corrected(self):
+        @pedantic
+        def calc(i: float) -&gt; Callable[[float], str]:
+            @pedantic
+            def res(x: float) -&gt; str:
+                return str(x * i)
+
+            return res
+
+        calc(i=42.0)(x=10.0)
+
+    def test_tuple_without_args(self):
+        &#34;&#34;&#34;Problem here: Tuple has no type arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(i: Tuple) -&gt; str:
+            return str(i)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=(42.0, 43, &#39;hi&#39;))
+
+    def test_tuple_without_args_corrected(self):
+        @pedantic
+        def calc(i: Tuple[Any, ...]) -&gt; str:
+            return str(i)
+
+        calc(i=(42.0, 43, &#39;hi&#39;))
+
+    def test_callable_without_args(self):
+        &#34;&#34;&#34;Problem here: Callable has no type arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(i: Callable) -&gt; str:
+            return str(i(&#39; you&#39;))
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
+
+    def test_callable_without_args_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: lambda expressions cannot be type hinted. So don&#39;t use it&#34;&#34;&#34;
+        @pedantic
+        def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
+            return str(i(x=&#39; you&#39;))
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
+
+    def test_callable_without_args_corrected(self):
+        @pedantic
+        def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
+            return str(i(x=&#39; you&#39;))
+
+        @pedantic
+        def arg(x: Any) -&gt; Tuple[Any, ...]:
+            return 42.0, 43, &#39;hi&#39;, x
+        calc(i=arg)
+
+    def test_list_without_args(self):
+        &#34;&#34;&#34;Problem here: List has no type arguments&#34;&#34;&#34;
+        @pedantic
+        def calc(i: List) -&gt; Any:
+            return [i]
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=[42.0, 43, &#39;hi&#39;])
+
+    def test_list_without_args_corrected(self):
+        @pedantic
+        def calc(i: List[Any]) -&gt; List[List[Any]]:
+            return [i]
+
+        calc(i=[42.0, 43, &#39;hi&#39;])
+
+    def test_ellipsis_in_callable_1(self):
+        @pedantic
+        def calc(i: Callable[..., int]) -&gt; int:
+            return i()
+
+        @pedantic
+        def call() -&gt; int:
+            return 42
+
+        calc(i=call)
+
+    def test_ellipsis_in_callable_2(self):
+        @pedantic
+        def calc(i: Callable[..., int]) -&gt; int:
+            return i(x=3.14, y=5)
+
+        @pedantic
+        def call(x: float, y: int) -&gt; int:
+            return 42
+
+        calc(i=call)
+
+    def test_ellipsis_in_callable_3(self):
+        &#34;&#34;&#34;Problem here: call to &#34;call&#34; misses one argument&#34;&#34;&#34;
+        @pedantic
+        def calc(i: Callable[..., int]) -&gt; int:
+            return i(x=3.14)
+
+        @pedantic
+        def call(x: float, y: int) -&gt; int:
+            return 42
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(i=call)
+
+    def test_optional_args_1(self):
+        @pedantic
+        def calc(a: int, b: int = 42) -&gt; int:
+            return a + b
+
+        calc(a=2)
+
+    def test_optional_args_2(self):
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5.0) -&gt; float:
+            return a + b + c
+
+        calc()
+        calc(a=1)
+        calc(b=1)
+        calc(c=1.0)
+        calc(a=1, b=1)
+        calc(a=1, c=1.0)
+        calc(b=1, c=1.0)
+        calc(a=1, b=1, c=1.0)
+
+    def test_optional_args_3(self):
+        &#34;&#34;&#34;Problem here: optional argument c: 5 is not a float&#34;&#34;&#34;
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5) -&gt; float:
+            return a + b + c
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc()
+
+    def test_optional_args_3_corrected(self):
+        @pedantic
+        def calc(a: int = 3, b: int = 42, c: float = 5.0) -&gt; float:
+            return a + b + c
+
+        calc()
+
+    def test_optional_args_4(self):
+        class MyClass:
+            @pedantic
+            def foo(self, a: int, b: Optional[int] = 1) -&gt; int:
+                return a + b
+
+        my_class = MyClass()
+        my_class.foo(a=10)
+
+    def test_optional_args_5(self):
+        @pedantic
+        def calc(d: Optional[Dict[int, int]] = None) -&gt; Optional[int]:
+            if d is None:
+                return None
+            return sum(d.keys())
+
+        calc(d=None)
+        calc()
+        calc(d={42: 3})
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(d={42: 3.14})
+
+    def test_optional_args_6(self):
+        &#34;&#34;&#34;&#34;Problem here: str != int&#34;&#34;&#34;
+        @pedantic
+        def calc(d: int = 42) -&gt; int:
+            return int(d)
+
+        calc(d=99999)
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(d=&#39;999999&#39;)
+
+    def test_enum_1(self):
+        &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
+        class MyEnum(Enum):
+            ALPHA = &#39;startEvent&#39;
+            BETA = &#39;task&#39;
+            GAMMA = &#39;sequenceFlow&#39;
+
+        class MyClass:
+            @pedantic
+            def operation(self, a: MyEnum.GAMMA) -&gt; None:
+                print(a)
+
+        m = MyClass()
+        with self.assertRaises(expected_exception=AssertionError):
+            m.operation(a=MyEnum.GAMMA)
+
+    def test_enum_1_corrected(self):
+        class MyEnum(Enum):
+            ALPHA = &#39;startEvent&#39;
+            BETA = &#39;task&#39;
+            GAMMA = &#39;sequenceFlow&#39;
+
+        @pedantic
+        def operation(a: MyEnum) -&gt; None:
+            print(a)
+
+        operation(a=MyEnum.GAMMA)
+
+    def test_sloppy_types_dict(self):
+        &#34;&#34;&#34;Problem here: use typing.Dict instead of dict&#34;&#34;&#34;
+        @pedantic
+        def operation(d: dict) -&gt; int:
+            return len(d.keys())
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1: 1, 2: 2})
+
+    def test_sloppy_types_dict_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.Dict misses type arguments&#34;&#34;&#34;
+        @pedantic
+        def operation(d: Dict) -&gt; int:
+            return len(d.keys())
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1: 1, 2: 2})
+
+    def test_sloppy_types_dict_corrected(self):
+        @pedantic
+        def operation(d: Dict[int, int]) -&gt; int:
+            return len(d.keys())
+
+        operation(d={1: 1, 2: 2})
+
+    def test_sloppy_types_list(self):
+        &#34;&#34;&#34;Problem here: use typing.List instead of list&#34;&#34;&#34;
+        @pedantic
+        def operation(d: list) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=[1, 2, 3, 4])
+
+    def test_sloppy_types_list_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.List misses type argument&#34;&#34;&#34;
+        @pedantic
+        def operation(d: List) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=[1, 2, 3, 4])
+
+    def test_sloppy_types_list_corrected(self):
+        @pedantic
+        def operation(d: List[int]) -&gt; int:
+            return len(d)
+
+        operation(d=[1, 2, 3, 4])
+
+    def test_sloppy_types_tuple(self):
+        &#34;&#34;&#34;Problem here: use typing.Tuple instead of tuple&#34;&#34;&#34;
+        @pedantic
+        def operation(d: tuple) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=(1, 2, 3))
+
+    def test_sloppy_types_tuple_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.Tuple misses type arguments&#34;&#34;&#34;
+        @pedantic
+        def operation(d: Tuple) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=(1, 2, 3))
+
+    def test_sloppy_types_tuple_corrected(self):
+        @pedantic
+        def operation(d: Tuple[int, int, int]) -&gt; int:
+            return len(d)
+
+        operation(d=(1, 2, 3))
+
+    def test_sloppy_types_set(self):
+        &#34;&#34;&#34;Problem here: use typing.Set instead of set&#34;&#34;&#34;
+        @pedantic
+        def operation(d: set) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1, 2, 3})
+
+    def test_sloppy_types_set_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.Set misses type argument&#34;&#34;&#34;
+        @pedantic
+        def operation(d: Set) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d={1, 2, 3})
+
+    def test_sloppy_types_set_corrected(self):
+        @pedantic
+        def operation(d: Set[int]) -&gt; int:
+            return len(d)
+
+        operation(d={1, 2, 3})
+
+    def test_sloppy_types_frozenset(self):
+        &#34;&#34;&#34;Problem here: use typing.FrozenSet instead of frozenset&#34;&#34;&#34;
+        @pedantic
+        def operation(d: frozenset) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=frozenset({1, 2, 3}))
+
+    def test_sloppy_types_frozenset_almost_corrected(self):
+        &#34;&#34;&#34;Problem here: typing.FrozenSet misses type argument&#34;&#34;&#34;
+        @pedantic
+        def operation(d: FrozenSet) -&gt; int:
+            return len(d)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            operation(d=frozenset({1, 2, 3}))
+
+    def test_sloppy_types_frozenset_corrected(self):
+        @pedantic
+        def operation(d: FrozenSet[int]) -&gt; int:
+            return len(d)
+
+        operation(d=frozenset({1, 2, 3}))
+
+    def test_type_list(self):
+        &#34;&#34;&#34;Problem here: tuple != list&#34;&#34;&#34;
+        @pedantic
+        def calc(ls: List[Any]) -&gt; int:
+            return len(ls)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            calc(ls=(1, 2, 3))
+
+    def test_type_list_corrected(self):
+        @pedantic
+        def calc(ls: Tuple[Any, ...]) -&gt; int:
+            return len(ls)
+
+        calc(ls=(1, 2, 3))
+
+    def test_any(self):
+        @pedantic
+        def calc(ls: List[Any]) -&gt; Dict[int, Any]:
+            return {i: ls[i] for i in range(0, len(ls))}
+
+        calc(ls=[1, 2, 3])
+        calc(ls=[1.11, 2.0, 3.0])
+        calc(ls=[&#39;1&#39;, &#39;2&#39;, &#39;3&#39;])
+        calc(ls=[10.5, &#39;2&#39;, (3, 4, 5)])
+
+    def test_aliases(self):
+        Vector = List[float]
+
+        @pedantic
+        def scale(scalar: float, vector: Vector) -&gt; Vector:
+            return [scalar * num for num in vector]
+
+        scale(scalar=2.0, vector=[1.0, -4.2, 5.4])
+
+    def test_new_type(self):
+        UserId = NewType(&#39;UserId&#39;, int)
+
+        @pedantic
+        def get_user_name(user_id: UserId) -&gt; str:
+            return str(user_id)
+
+        some_id = UserId(524313)
+        get_user_name(user_id=some_id)
+
+        # the following would be desirable but impossible at runtime:
+        # with self.assertRaises(expected_exception=AssertionError):
+        #     get_user_name(user_id=-1)
+
+    def test_list_of_new_type(self):
+        UserId = NewType(&#39;UserId&#39;, int)
+
+        @pedantic
+        def get_user_name(user_ids: List[UserId]) -&gt; str:
+            return str(user_ids)
+
+        get_user_name(user_ids=[UserId(524313), UserId(42)])
+        with self.assertRaises(expected_exception=AssertionError):
+            get_user_name(user_ids=[UserId(524313), UserId(42), 430.0])
+
+    def test_callable_no_args(self):
+        @pedantic
+        def f(g: Callable[[], str]) -&gt; str:
+            return g()
+
+        @pedantic
+        def greetings() -&gt; str:
+            return &#39;hello world&#39;
+
+        f(g=greetings)
+
+    def test_type_var(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic
+        def first(ls: List[T]) -&gt; T:
+            return ls[0]
+
+        first(ls=[1, 2, 3])
+
+    def test_type_var_wrong(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic
+        def first(ls: List[T]) -&gt; T:
+            return str(ls[0])
+
+        with self.assertRaises(expected_exception=AssertionError):
+            first(ls=[1, 2, 3])
+
+    def test_type_var_wrong_sequence(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic
+        def first(ls: Sequence[T]) -&gt; T:
+            return str(ls[0])
+
+        with self.assertRaises(expected_exception=AssertionError):
+            first(ls=[1, 2, 3])</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>unittest.case.TestCase</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_aliases"><code class="name flex">
+<span>def <span class="ident">test_aliases</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_aliases(self):
+    Vector = List[float]
+
+    @pedantic
+    def scale(scalar: float, vector: Vector) -&gt; Vector:
+        return [scalar * num for num in vector]
+
+    scale(scalar=2.0, vector=[1.0, -4.2, 5.4])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_2"><code class="name flex">
+<span>def <span class="ident">test_all_ok_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_all_ok_2(self):
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; str:
+        return str(n + m + i)
+
+    calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_3"><code class="name flex">
+<span>def <span class="ident">test_all_ok_3</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_all_ok_3(self):
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; None:
+        str(n + m + i)
+
+    calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_4"><code class="name flex">
+<span>def <span class="ident">test_all_ok_4</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_all_ok_4(self):
+    @pedantic
+    def calc(n: int) -&gt; List[List[int]]:
+        return [[n]]
+
+    calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_5"><code class="name flex">
+<span>def <span class="ident">test_all_ok_5</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_all_ok_5(self):
+    @pedantic
+    def calc(n: int) -&gt; List[Tuple[float, str]]:
+        return [(float(n), str(n))]
+
+    calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_6"><code class="name flex">
+<span>def <span class="ident">test_all_ok_6</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_all_ok_6(self):
+    @pedantic
+    def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+        @pedantic
+        def f(x: int, y: float) -&gt; Tuple[float, str]:
+            return n * float(x), str(y)
+        return f
+
+    calc(n=42)(x=72, y=3.14)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_7"><code class="name flex">
+<span>def <span class="ident">test_all_ok_7</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_all_ok_7(self):
+    @pedantic
+    def calc(n: List[List[float]]) -&gt; Any:
+        return n[0][0]
+
+    calc(n=[[42.0]])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_8"><code class="name flex">
+<span>def <span class="ident">test_all_ok_8</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_all_ok_8(self):
+    @pedantic
+    def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+        @pedantic
+        def f(x: int, y: float) -&gt; Tuple[float, str]:
+            return n * float(x), str(y)
+
+        return f
+
+    calc(n=42)(x=3, y=3.14)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_any"><code class="name flex">
+<span>def <span class="ident">test_any</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_any(self):
+    @pedantic
+    def calc(ls: List[Any]) -&gt; Dict[int, Any]:
+        return {i: ls[i] for i in range(0, len(ls))}
+
+    calc(ls=[1, 2, 3])
+    calc(ls=[1.11, 2.0, 3.0])
+    calc(ls=[&#39;1&#39;, &#39;2&#39;, &#39;3&#39;])
+    calc(ls=[10.5, &#39;2&#39;, (3, 4, 5)])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args"><code class="name flex">
+<span>def <span class="ident">test_callable_no_args</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_callable_no_args(self):
+    @pedantic
+    def f(g: Callable[[], str]) -&gt; str:
+        return g()
+
+    @pedantic
+    def greetings() -&gt; str:
+        return &#39;hello world&#39;
+
+    f(g=greetings)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args"><code class="name flex">
+<span>def <span class="ident">test_callable_without_args</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: Callable has no type arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_callable_without_args(self):
+    &#34;&#34;&#34;Problem here: Callable has no type arguments&#34;&#34;&#34;
+    @pedantic
+    def calc(i: Callable) -&gt; str:
+        return str(i(&#39; you&#39;))
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected"><code class="name flex">
+<span>def <span class="ident">test_callable_without_args_almost_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: lambda expressions cannot be type hinted. So don't use it</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_callable_without_args_almost_corrected(self):
+    &#34;&#34;&#34;Problem here: lambda expressions cannot be type hinted. So don&#39;t use it&#34;&#34;&#34;
+    @pedantic
+    def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
+        return str(i(x=&#39; you&#39;))
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected"><code class="name flex">
+<span>def <span class="ident">test_callable_without_args_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_callable_without_args_corrected(self):
+    @pedantic
+    def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
+        return str(i(x=&#39; you&#39;))
+
+    @pedantic
+    def arg(x: Any) -&gt; Tuple[Any, ...]:
+        return 42.0, 43, &#39;hi&#39;, x
+    calc(i=arg)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_1"><code class="name flex">
+<span>def <span class="ident">test_ellipsis_in_callable_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_ellipsis_in_callable_1(self):
+    @pedantic
+    def calc(i: Callable[..., int]) -&gt; int:
+        return i()
+
+    @pedantic
+    def call() -&gt; int:
+        return 42
+
+    calc(i=call)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_2"><code class="name flex">
+<span>def <span class="ident">test_ellipsis_in_callable_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_ellipsis_in_callable_2(self):
+    @pedantic
+    def calc(i: Callable[..., int]) -&gt; int:
+        return i(x=3.14, y=5)
+
+    @pedantic
+    def call(x: float, y: int) -&gt; int:
+        return 42
+
+    calc(i=call)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_3"><code class="name flex">
+<span>def <span class="ident">test_ellipsis_in_callable_3</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: call to "call" misses one argument</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_ellipsis_in_callable_3(self):
+    &#34;&#34;&#34;Problem here: call to &#34;call&#34; misses one argument&#34;&#34;&#34;
+    @pedantic
+    def calc(i: Callable[..., int]) -&gt; int:
+        return i(x=3.14)
+
+    @pedantic
+    def call(x: float, y: int) -&gt; int:
+        return 42
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=call)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1"><code class="name flex">
+<span>def <span class="ident">test_enum_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_enum_1(self):
+    &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
+    class MyEnum(Enum):
+        ALPHA = &#39;startEvent&#39;
+        BETA = &#39;task&#39;
+        GAMMA = &#39;sequenceFlow&#39;
+
+    class MyClass:
+        @pedantic
+        def operation(self, a: MyEnum.GAMMA) -&gt; None:
+            print(a)
+
+    m = MyClass()
+    with self.assertRaises(expected_exception=AssertionError):
+        m.operation(a=MyEnum.GAMMA)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1_corrected"><code class="name flex">
+<span>def <span class="ident">test_enum_1_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_enum_1_corrected(self):
+    class MyEnum(Enum):
+        ALPHA = &#39;startEvent&#39;
+        BETA = &#39;task&#39;
+        GAMMA = &#39;sequenceFlow&#39;
+
+    @pedantic
+    def operation(a: MyEnum) -&gt; None:
+        print(a)
+
+    operation(a=MyEnum.GAMMA)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_1"><code class="name flex">
+<span>def <span class="ident">test_inheritance_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_inheritance_1(self):
+    class A:
+        pass
+
+    class B(A):
+        pass
+
+    @pedantic
+    def calc(a: A) -&gt; str:
+        return str(a)
+
+    calc(a=A())
+    calc(a=B())</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_2"><code class="name flex">
+<span>def <span class="ident">test_inheritance_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: A is not a subtype of B</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_inheritance_2(self):
+    &#34;&#34;&#34;Problem here: A is not a subtype of B&#34;&#34;&#34;
+    class A:
+        pass
+
+    class B(A):
+        pass
+
+    @pedantic
+    def calc(a: B) -&gt; str:
+        return str(a)
+
+    calc(a=B())
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(a=A())</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_1"><code class="name flex">
+<span>def <span class="ident">test_instance_method_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_instance_method_1(self):
+    class A:
+        @pedantic
+        def calc(self, i: int) -&gt; str:
+            return str(i)
+
+    a = A()
+    a.calc(i=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2"><code class="name flex">
+<span>def <span class="ident">test_instance_method_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: 'i' has no type annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_instance_method_2(self):
+    &#34;&#34;&#34;Problem here: &#39;i&#39; has no type annotation&#34;&#34;&#34;
+    class A:
+        @pedantic
+        def calc(self, i) -&gt; str:
+            return str(i)
+
+    a = A()
+    with self.assertRaises(expected_exception=AssertionError):
+        a.calc(i=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2_corrected"><code class="name flex">
+<span>def <span class="ident">test_instance_method_2_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_instance_method_2_corrected(self):
+    class A:
+        @pedantic
+        def calc(self, i: int) -&gt; str:
+            return str(i)
+
+    a = A()
+    a.calc(i=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3"><code class="name flex">
+<span>def <span class="ident">test_instance_method_3</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: float != int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_instance_method_3(self):
+    &#34;&#34;&#34;Problem here: float != int&#34;&#34;&#34;
+    class A:
+        @pedantic
+        def calc(self, i: float) -&gt; str:
+            return str(i)
+
+    a = A()
+    with self.assertRaises(expected_exception=AssertionError):
+        a.calc(i=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3_corrected"><code class="name flex">
+<span>def <span class="ident">test_instance_method_3_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_instance_method_3_corrected(self):
+    class A:
+        @pedantic
+        def calc(self, i: float) -&gt; str:
+            return str(i)
+
+    a = A()
+    a.calc(i=42.0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_4"><code class="name flex">
+<span>def <span class="ident">test_instance_method_4</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: instance methods is not called with kwargs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_instance_method_4(self):
+    &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
+    class A:
+        @pedantic
+        def calc(self, i: int) -&gt; str:
+            return str(i)
+
+    a = A()
+    with self.assertRaises(expected_exception=AssertionError):
+        a.calc(42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_5"><code class="name flex">
+<span>def <span class="ident">test_instance_method_5</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: instance methods is not called with kwargs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_instance_method_5(self):
+    &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
+    class A:
+        @pedantic
+        def calc(self, i: int) -&gt; str:
+            return str(i)
+
+    a = A()
+    a.calc(i=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1"><code class="name flex">
+<span>def <span class="ident">test_lambda_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Lambda expressions cannot be typed hinted. So this leads to an error.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_lambda_1(self):
+    &#34;&#34;&#34;Lambda expressions cannot be typed hinted. So this leads to an error.&#34;&#34;&#34;
+    @pedantic
+    def calc(i: float) -&gt; Callable[[float], str]:
+        return lambda x: str(x * i)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=42.0)(10.0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_2"><code class="name flex">
+<span>def <span class="ident">test_lambda_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Even this is not expected by the type checker. Only test_lambda_3 has the 'correct' syntax</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_lambda_2(self):
+    &#34;&#34;&#34;Even this is not expected by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
+    @pedantic
+    def calc(i: float) -&gt; Callable[[float], str]:
+        res: Callable[[float], str] = lambda x: str(x * i)
+        return res
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=42.0)(10.0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_3"><code class="name flex">
+<span>def <span class="ident">test_lambda_3</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_lambda_3(self):
+    @pedantic
+    def calc(i: float) -&gt; Callable[[float], str]:
+        def res(x: float) -&gt; str:
+            return str(x * i)
+        return res
+
+    calc(i=42.0)(10.0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4"><code class="name flex">
+<span>def <span class="ident">test_lambda_4</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: inner function: int != float</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_lambda_4(self):
+    &#34;&#34;&#34;Problem here: inner function: int != float&#34;&#34;&#34;
+    @pedantic
+    def calc(i: float) -&gt; Callable[[float], str]:
+        def res(x: int) -&gt; str:
+            return str(x * i)
+        return res
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=42.0)(x=10)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected"><code class="name flex">
+<span>def <span class="ident">test_lambda_4_almost_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: float != str</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_lambda_4_almost_corrected(self):
+    &#34;&#34;&#34;Problem here: float != str&#34;&#34;&#34;
+    @pedantic
+    def calc(i: float) -&gt; Callable[[float], str]:
+        @pedantic
+        def res(x: int) -&gt; str:
+            return str(x * i)
+        return res
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=42.0)(x=10)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected_2"><code class="name flex">
+<span>def <span class="ident">test_lambda_4_almost_corrected_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_lambda_4_almost_corrected_2(self):
+    @pedantic
+    def calc(i: float) -&gt; Callable[[int], str]:
+        @pedantic
+        def res(x: int) -&gt; str:
+            return str(x * i)
+        return res
+
+    calc(i=42.0)(x=10)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_5"><code class="name flex">
+<span>def <span class="ident">test_lambda_5</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: float != int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_lambda_5(self):
+    &#34;&#34;&#34;Problem here: float != int&#34;&#34;&#34;
+    @pedantic
+    def calc(i: float) -&gt; Callable[[float], str]:
+        @pedantic
+        def res(x: float) -&gt; str:
+            return str(x * i)
+        return res
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=42.0)(x=10)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_corrected"><code class="name flex">
+<span>def <span class="ident">test_lambda_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_lambda_corrected(self):
+    @pedantic
+    def calc(i: float) -&gt; Callable[[float], str]:
+        @pedantic
+        def res(x: float) -&gt; str:
+            return str(x * i)
+
+        return res
+
+    calc(i=42.0)(x=10.0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_of_new_type"><code class="name flex">
+<span>def <span class="ident">test_list_of_new_type</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_list_of_new_type(self):
+    UserId = NewType(&#39;UserId&#39;, int)
+
+    @pedantic
+    def get_user_name(user_ids: List[UserId]) -&gt; str:
+        return str(user_ids)
+
+    get_user_name(user_ids=[UserId(524313), UserId(42)])
+    with self.assertRaises(expected_exception=AssertionError):
+        get_user_name(user_ids=[UserId(524313), UserId(42), 430.0])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args"><code class="name flex">
+<span>def <span class="ident">test_list_without_args</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: List has no type arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_list_without_args(self):
+    &#34;&#34;&#34;Problem here: List has no type arguments&#34;&#34;&#34;
+    @pedantic
+    def calc(i: List) -&gt; Any:
+        return [i]
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=[42.0, 43, &#39;hi&#39;])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args_corrected"><code class="name flex">
+<span>def <span class="ident">test_list_without_args_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_list_without_args_corrected(self):
+    @pedantic
+    def calc(i: List[Any]) -&gt; List[List[Any]]:
+        return [i]
+
+    calc(i=[42.0, 43, &#39;hi&#39;])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_1"><code class="name flex">
+<span>def <span class="ident">test_missing_type_hint_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: type hint for n missed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_missing_type_hint_1(self):
+    &#34;&#34;&#34;Problem here: type hint for n missed&#34;&#34;&#34;
+    @pedantic
+    def calc(n) -&gt; float:
+        return 42.0 * n
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_1_corrected"><code class="name flex">
+<span>def <span class="ident">test_missing_type_hint_1_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_missing_type_hint_1_corrected(self):
+    @pedantic
+    def calc(n: int) -&gt; float:
+        return 42.0 * n
+
+    calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_2"><code class="name flex">
+<span>def <span class="ident">test_missing_type_hint_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: Return type annotation missed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_missing_type_hint_2(self):
+    &#34;&#34;&#34;Problem here: Return type annotation missed&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int):
+        return &#39;Hi&#39; + str(n)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_2_corrected"><code class="name flex">
+<span>def <span class="ident">test_missing_type_hint_2_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_missing_type_hint_2_corrected(self):
+    @pedantic
+    def calc(n: int) -&gt; str:
+        return &#39;Hi&#39; + str(n)
+
+    calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3"><code class="name flex">
+<span>def <span class="ident">test_missing_type_hint_3</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: type hint for i missed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_missing_type_hint_3(self):
+    &#34;&#34;&#34;Problem here: type hint for i missed&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int, m: int, i) -&gt; int:
+        return n + m + i
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3_corrected"><code class="name flex">
+<span>def <span class="ident">test_missing_type_hint_3_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_missing_type_hint_3_corrected(self):
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; int:
+        return n + m + i
+
+    calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_1"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: actual return type doesn't match return type annotation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_1(self):
+    &#34;&#34;&#34;Problem here: actual return type doesn&#39;t match return type annotation&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int) -&gt; List[List[float]]:
+        return [0.0 * n]
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_1_corrected"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_1_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_1_corrected(self):
+    @pedantic
+    def calc(n: int) -&gt; List[List[float]]:
+        return [[0.0 * n]]
+
+    calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_2"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: int != float</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_2(self):
+    &#34;&#34;&#34;Problem here: int != float&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int) -&gt; List[Tuple[float, str]]:
+        return [(n, str(n))]
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_2_corrected"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_2_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_2_corrected(self):
+    @pedantic
+    def calc(n: int) -&gt; List[Tuple[int, str]]:
+        return [(n, str(n))]
+
+    @pedantic
+    def calc_2(n: float) -&gt; List[Tuple[float, str]]:
+        return [(n, str(n))]
+
+    calc(n=42)
+    calc_2(n=42.0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_3"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_3</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: inner function actually returns Tuple[int, str]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_3(self):
+    &#34;&#34;&#34;Problem here: inner function actually returns Tuple[int, str]&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+        @pedantic
+        def f(x: int, y: float) -&gt; Tuple[float, str]:
+            return n * x, str(y)
+        return f
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42)(x=3, y=3.14)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_3_corrected"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_3_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_3_corrected(self):
+    @pedantic
+    def calc(n: int) -&gt; Callable[[int, float], Tuple[int, str]]:
+        @pedantic
+        def f(x: int, y: float) -&gt; Tuple[int, str]:
+            return n * x, str(y)
+
+        return f
+
+    calc(n=42)(x=3, y=3.14)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_4"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_4</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: return type is actually float</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_4(self):
+    &#34;&#34;&#34;Problem here: return type is actually float&#34;&#34;&#34;
+    @pedantic
+    def calc(n: List[List[float]]) -&gt; int:
+        return n[0][0]
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=[[42.0]])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_5"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_5</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: Tuple[float, str] != Tuple[float, float]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_5(self):
+    &#34;&#34;&#34;Problem here: Tuple[float, str] != Tuple[float, float]&#34;&#34;&#34;
+
+    @pedantic
+    def calc(n: int) -&gt; Callable[[int, float], Tuple[float, str]]:
+        @pedantic
+        def f(x: int, y: float) -&gt; Tuple[float, float]:
+            return n * float(x), y
+        return f
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_5_corrected"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_5_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_5_corrected(self):
+    @pedantic
+    def calc(n: int) -&gt; Callable[[int, float], Tuple[float, float]]:
+        @pedantic
+        def f(x: int, y: float) -&gt; Tuple[float, float]:
+            return n * float(x), y
+        return f
+
+    calc(n=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_corrected"><code class="name flex">
+<span>def <span class="ident">test_nested_type_hints_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_nested_type_hints_corrected(self):
+    @pedantic
+    def calc(n: List[List[float]]) -&gt; int:
+        return int(n[0][0])
+
+    calc(n=[[42.0]])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_new_type"><code class="name flex">
+<span>def <span class="ident">test_new_type</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_new_type(self):
+    UserId = NewType(&#39;UserId&#39;, int)
+
+    @pedantic
+    def get_user_name(user_id: UserId) -&gt; str:
+        return str(user_id)
+
+    some_id = UserId(524313)
+    get_user_name(user_id=some_id)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1"><code class="name flex">
+<span>def <span class="ident">test_no_kwargs_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: function is not called with keyword arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_no_kwargs_1(self):
+    &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; int:
+        return n + m + i
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(42, 40, 38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1_2_corrected"><code class="name flex">
+<span>def <span class="ident">test_no_kwargs_1_2_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_no_kwargs_1_2_corrected(self):
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; int:
+        return n + m + i
+
+    calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_2"><code class="name flex">
+<span>def <span class="ident">test_no_kwargs_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: function is not called with keyword arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_no_kwargs_2(self):
+    &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; int:
+        return n + m + i
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_1"><code class="name flex">
+<span>def <span class="ident">test_none_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: None is not accepted</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_none_1(self):
+    &#34;&#34;&#34;Problem here: None is not accepted&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; int:
+        return n + m + i
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=None)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_2"><code class="name flex">
+<span>def <span class="ident">test_none_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_none_2(self):
+    @pedantic
+    def calc(n: int, m: int, i: Optional[int]) -&gt; int:
+        return n + m + i if i is not None else n + m
+
+    calc(n=42, m=40, i=None)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_3"><code class="name flex">
+<span>def <span class="ident">test_none_3</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_none_3(self):
+    @pedantic
+    def calc(n: int, m: int, i: Union[int, None]) -&gt; int:
+        return n + m + i if i is not None else n + m
+
+    calc(n=42, m=40, i=None)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_4"><code class="name flex">
+<span>def <span class="ident">test_none_4</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: function may return None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_none_4(self):
+    &#34;&#34;&#34;Problem here: function may return None&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int, m: int, i: Union[int, None]) -&gt; int:
+        return n + m + i if i is not None else None
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=None)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_5"><code class="name flex">
+<span>def <span class="ident">test_none_5</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_none_5(self):
+    @pedantic
+    def calc(n: int, m: int, i: Union[int, None]) -&gt; Optional[int]:
+        return n + m + i if i is not None else None
+
+    calc(n=42, m=40, i=None)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_1"><code class="name flex">
+<span>def <span class="ident">test_optional_args_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_optional_args_1(self):
+    @pedantic
+    def calc(a: int, b: int = 42) -&gt; int:
+        return a + b
+
+    calc(a=2)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_2"><code class="name flex">
+<span>def <span class="ident">test_optional_args_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_optional_args_2(self):
+    @pedantic
+    def calc(a: int = 3, b: int = 42, c: float = 5.0) -&gt; float:
+        return a + b + c
+
+    calc()
+    calc(a=1)
+    calc(b=1)
+    calc(c=1.0)
+    calc(a=1, b=1)
+    calc(a=1, c=1.0)
+    calc(b=1, c=1.0)
+    calc(a=1, b=1, c=1.0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_3"><code class="name flex">
+<span>def <span class="ident">test_optional_args_3</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: optional argument c: 5 is not a float</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_optional_args_3(self):
+    &#34;&#34;&#34;Problem here: optional argument c: 5 is not a float&#34;&#34;&#34;
+    @pedantic
+    def calc(a: int = 3, b: int = 42, c: float = 5) -&gt; float:
+        return a + b + c
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc()</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_3_corrected"><code class="name flex">
+<span>def <span class="ident">test_optional_args_3_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_optional_args_3_corrected(self):
+    @pedantic
+    def calc(a: int = 3, b: int = 42, c: float = 5.0) -&gt; float:
+        return a + b + c
+
+    calc()</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_4"><code class="name flex">
+<span>def <span class="ident">test_optional_args_4</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_optional_args_4(self):
+    class MyClass:
+        @pedantic
+        def foo(self, a: int, b: Optional[int] = 1) -&gt; int:
+            return a + b
+
+    my_class = MyClass()
+    my_class.foo(a=10)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_5"><code class="name flex">
+<span>def <span class="ident">test_optional_args_5</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_optional_args_5(self):
+    @pedantic
+    def calc(d: Optional[Dict[int, int]] = None) -&gt; Optional[int]:
+        if d is None:
+            return None
+        return sum(d.keys())
+
+    calc(d=None)
+    calc()
+    calc(d={42: 3})
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(d={42: 3.14})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_6"><code class="name flex">
+<span>def <span class="ident">test_optional_args_6</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>"Problem here: str != int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_optional_args_6(self):
+    &#34;&#34;&#34;&#34;Problem here: str != int&#34;&#34;&#34;
+    @pedantic
+    def calc(d: int = 42) -&gt; int:
+        return int(d)
+
+    calc(d=99999)
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(d=&#39;999999&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_dict</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: use typing.Dict instead of dict</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_dict(self):
+    &#34;&#34;&#34;Problem here: use typing.Dict instead of dict&#34;&#34;&#34;
+    @pedantic
+    def operation(d: dict) -&gt; int:
+        return len(d.keys())
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d={1: 1, 2: 2})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_dict_almost_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: typing.Dict misses type arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_dict_almost_corrected(self):
+    &#34;&#34;&#34;Problem here: typing.Dict misses type arguments&#34;&#34;&#34;
+    @pedantic
+    def operation(d: Dict) -&gt; int:
+        return len(d.keys())
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d={1: 1, 2: 2})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_dict_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_dict_corrected(self):
+    @pedantic
+    def operation(d: Dict[int, int]) -&gt; int:
+        return len(d.keys())
+
+    operation(d={1: 1, 2: 2})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_frozenset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: use typing.FrozenSet instead of frozenset</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_frozenset(self):
+    &#34;&#34;&#34;Problem here: use typing.FrozenSet instead of frozenset&#34;&#34;&#34;
+    @pedantic
+    def operation(d: frozenset) -&gt; int:
+        return len(d)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d=frozenset({1, 2, 3}))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_almost_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_frozenset_almost_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: typing.FrozenSet misses type argument</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_frozenset_almost_corrected(self):
+    &#34;&#34;&#34;Problem here: typing.FrozenSet misses type argument&#34;&#34;&#34;
+    @pedantic
+    def operation(d: FrozenSet) -&gt; int:
+        return len(d)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d=frozenset({1, 2, 3}))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_frozenset_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_frozenset_corrected(self):
+    @pedantic
+    def operation(d: FrozenSet[int]) -&gt; int:
+        return len(d)
+
+    operation(d=frozenset({1, 2, 3}))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_list</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: use typing.List instead of list</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_list(self):
+    &#34;&#34;&#34;Problem here: use typing.List instead of list&#34;&#34;&#34;
+    @pedantic
+    def operation(d: list) -&gt; int:
+        return len(d)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d=[1, 2, 3, 4])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_almost_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_list_almost_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: typing.List misses type argument</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_list_almost_corrected(self):
+    &#34;&#34;&#34;Problem here: typing.List misses type argument&#34;&#34;&#34;
+    @pedantic
+    def operation(d: List) -&gt; int:
+        return len(d)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d=[1, 2, 3, 4])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_list_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_list_corrected(self):
+    @pedantic
+    def operation(d: List[int]) -&gt; int:
+        return len(d)
+
+    operation(d=[1, 2, 3, 4])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_set</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: use typing.Set instead of set</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_set(self):
+    &#34;&#34;&#34;Problem here: use typing.Set instead of set&#34;&#34;&#34;
+    @pedantic
+    def operation(d: set) -&gt; int:
+        return len(d)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d={1, 2, 3})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_almost_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_set_almost_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: typing.Set misses type argument</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_set_almost_corrected(self):
+    &#34;&#34;&#34;Problem here: typing.Set misses type argument&#34;&#34;&#34;
+    @pedantic
+    def operation(d: Set) -&gt; int:
+        return len(d)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d={1, 2, 3})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_set_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_set_corrected(self):
+    @pedantic
+    def operation(d: Set[int]) -&gt; int:
+        return len(d)
+
+    operation(d={1, 2, 3})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_tuple</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: use typing.Tuple instead of tuple</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_tuple(self):
+    &#34;&#34;&#34;Problem here: use typing.Tuple instead of tuple&#34;&#34;&#34;
+    @pedantic
+    def operation(d: tuple) -&gt; int:
+        return len(d)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d=(1, 2, 3))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_almost_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_tuple_almost_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: typing.Tuple misses type arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_tuple_almost_corrected(self):
+    &#34;&#34;&#34;Problem here: typing.Tuple misses type arguments&#34;&#34;&#34;
+    @pedantic
+    def operation(d: Tuple) -&gt; int:
+        return len(d)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        operation(d=(1, 2, 3))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_corrected"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_tuple_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_sloppy_types_tuple_corrected(self):
+    @pedantic
+    def operation(d: Tuple[int, int, int]) -&gt; int:
+        return len(d)
+
+    operation(d=(1, 2, 3))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args"><code class="name flex">
+<span>def <span class="ident">test_tuple_without_args</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: Tuple has no type arguments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_tuple_without_args(self):
+    &#34;&#34;&#34;Problem here: Tuple has no type arguments&#34;&#34;&#34;
+    @pedantic
+    def calc(i: Tuple) -&gt; str:
+        return str(i)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(i=(42.0, 43, &#39;hi&#39;))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args_corrected"><code class="name flex">
+<span>def <span class="ident">test_tuple_without_args_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_tuple_without_args_corrected(self):
+    @pedantic
+    def calc(i: Tuple[Any, ...]) -&gt; str:
+        return str(i)
+
+    calc(i=(42.0, 43, &#39;hi&#39;))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list"><code class="name flex">
+<span>def <span class="ident">test_type_list</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: tuple != list</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_type_list(self):
+    &#34;&#34;&#34;Problem here: tuple != list&#34;&#34;&#34;
+    @pedantic
+    def calc(ls: List[Any]) -&gt; int:
+        return len(ls)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(ls=(1, 2, 3))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list_corrected"><code class="name flex">
+<span>def <span class="ident">test_type_list_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_type_list_corrected(self):
+    @pedantic
+    def calc(ls: Tuple[Any, ...]) -&gt; int:
+        return len(ls)
+
+    calc(ls=(1, 2, 3))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var"><code class="name flex">
+<span>def <span class="ident">test_type_var</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_type_var(self):
+    T = TypeVar(&#39;T&#39;)
+
+    @pedantic
+    def first(ls: List[T]) -&gt; T:
+        return ls[0]
+
+    first(ls=[1, 2, 3])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var_wrong"><code class="name flex">
+<span>def <span class="ident">test_type_var_wrong</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_type_var_wrong(self):
+    T = TypeVar(&#39;T&#39;)
+
+    @pedantic
+    def first(ls: List[T]) -&gt; T:
+        return str(ls[0])
+
+    with self.assertRaises(expected_exception=AssertionError):
+        first(ls=[1, 2, 3])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var_wrong_sequence"><code class="name flex">
+<span>def <span class="ident">test_type_var_wrong_sequence</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_type_var_wrong_sequence(self):
+    T = TypeVar(&#39;T&#39;)
+
+    @pedantic
+    def first(ls: Sequence[T]) -&gt; T:
+        return str(ls[0])
+
+    with self.assertRaises(expected_exception=AssertionError):
+        first(ls=[1, 2, 3])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_1"><code class="name flex">
+<span>def <span class="ident">test_wrong_type_hint_1</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: str != int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_wrong_type_hint_1(self):
+    &#34;&#34;&#34;Problem here: str != int&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; str:
+        return n + m + i
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_1_corrected"><code class="name flex">
+<span>def <span class="ident">test_wrong_type_hint_1_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_wrong_type_hint_1_corrected(self):
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; str:
+        return str(n + m + i)
+
+    calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_2"><code class="name flex">
+<span>def <span class="ident">test_wrong_type_hint_2</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: str != int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_wrong_type_hint_2(self):
+    &#34;&#34;&#34;Problem here: str != int&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int, m: int, i: str) -&gt; int:
+        return n + m + i
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_2_corrected"><code class="name flex">
+<span>def <span class="ident">test_wrong_type_hint_2_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_wrong_type_hint_2_corrected(self):
+    @pedantic
+    def calc(n: int, m: int, i: str) -&gt; int:
+        return n + m + int(i)
+
+    calc(n=42, m=40, i=&#39;38&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_3"><code class="name flex">
+<span>def <span class="ident">test_wrong_type_hint_3</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: None != int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_wrong_type_hint_3(self):
+    &#34;&#34;&#34;Problem here: None != int&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; None:
+        return n + m + i
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_4"><code class="name flex">
+<span>def <span class="ident">test_wrong_type_hint_4</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Problem here: None != int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_wrong_type_hint_4(self):
+    &#34;&#34;&#34;Problem here: None != int&#34;&#34;&#34;
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; int:
+        print(n + m + i)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_4_corrected"><code class="name flex">
+<span>def <span class="ident">test_wrong_type_hint_4_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_wrong_type_hint_4_corrected(self):
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; int:
+        return n + m + i
+
+    calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_corrected"><code class="name flex">
+<span>def <span class="ident">test_wrong_type_hint_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_wrong_type_hint_corrected(self):
+    @pedantic
+    def calc(n: int, m: int, i: int) -&gt; None:
+        print(n + m + i)
+
+    calc(n=42, m=40, i=38)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pedantic.unit_tests" href="index.html">pedantic.unit_tests</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck">TestDecoratorRequireKwargsAndTypeCheck</a></code></h4>
+<ul class="">
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_aliases" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_aliases">test_aliases</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_2">test_all_ok_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_3">test_all_ok_3</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_4">test_all_ok_4</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_5">test_all_ok_5</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_6" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_6">test_all_ok_6</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_7" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_7">test_all_ok_7</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_8" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_8">test_all_ok_8</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_any" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_any">test_any</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args">test_callable_no_args</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args">test_callable_without_args</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected">test_callable_without_args_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected">test_callable_without_args_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_1">test_ellipsis_in_callable_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_2">test_ellipsis_in_callable_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_3">test_ellipsis_in_callable_3</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1">test_enum_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1_corrected">test_enum_1_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_1">test_inheritance_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_2">test_inheritance_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_1">test_instance_method_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2">test_instance_method_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2_corrected">test_instance_method_2_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3">test_instance_method_3</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3_corrected">test_instance_method_3_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_4">test_instance_method_4</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_5">test_instance_method_5</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1">test_lambda_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_2">test_lambda_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_3">test_lambda_3</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4">test_lambda_4</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected">test_lambda_4_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected_2">test_lambda_4_almost_corrected_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_5">test_lambda_5</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_corrected">test_lambda_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_of_new_type" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_of_new_type">test_list_of_new_type</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args">test_list_without_args</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args_corrected">test_list_without_args_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_1">test_missing_type_hint_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_1_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_1_corrected">test_missing_type_hint_1_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_2">test_missing_type_hint_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_2_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_2_corrected">test_missing_type_hint_2_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3">test_missing_type_hint_3</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3_corrected">test_missing_type_hint_3_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_1">test_nested_type_hints_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_1_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_1_corrected">test_nested_type_hints_1_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_2">test_nested_type_hints_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_2_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_2_corrected">test_nested_type_hints_2_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_3">test_nested_type_hints_3</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_3_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_3_corrected">test_nested_type_hints_3_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_4">test_nested_type_hints_4</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_5">test_nested_type_hints_5</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_5_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_5_corrected">test_nested_type_hints_5_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_corrected">test_nested_type_hints_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_new_type" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_new_type">test_new_type</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1">test_no_kwargs_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1_2_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1_2_corrected">test_no_kwargs_1_2_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_2">test_no_kwargs_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_1">test_none_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_2">test_none_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_3">test_none_3</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_4">test_none_4</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_5">test_none_5</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_1">test_optional_args_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_2">test_optional_args_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_3">test_optional_args_3</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_3_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_3_corrected">test_optional_args_3_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_4">test_optional_args_4</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_5">test_optional_args_5</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_6" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_6">test_optional_args_6</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict">test_sloppy_types_dict</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected">test_sloppy_types_dict_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_corrected">test_sloppy_types_dict_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset">test_sloppy_types_frozenset</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_almost_corrected">test_sloppy_types_frozenset_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_corrected">test_sloppy_types_frozenset_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list">test_sloppy_types_list</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_almost_corrected">test_sloppy_types_list_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_corrected">test_sloppy_types_list_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set">test_sloppy_types_set</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_almost_corrected">test_sloppy_types_set_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_corrected">test_sloppy_types_set_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple">test_sloppy_types_tuple</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_almost_corrected">test_sloppy_types_tuple_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_corrected">test_sloppy_types_tuple_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args">test_tuple_without_args</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args_corrected">test_tuple_without_args_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list">test_type_list</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list_corrected">test_type_list_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var">test_type_var</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var_wrong" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var_wrong">test_type_var_wrong</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var_wrong_sequence" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var_wrong_sequence">test_type_var_wrong_sequence</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_1">test_wrong_type_hint_1</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_1_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_1_corrected">test_wrong_type_hint_1_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_2">test_wrong_type_hint_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_2_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_2_corrected">test_wrong_type_hint_2_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_3">test_wrong_type_hint_3</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_4">test_wrong_type_hint_4</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_4_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_4_corrected">test_wrong_type_hint_4_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_wrong_type_hint_corrected">test_wrong_type_hint_corrected</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>
