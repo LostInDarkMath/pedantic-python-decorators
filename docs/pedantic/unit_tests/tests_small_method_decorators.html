@@ -189,7 +189,7 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         def some_calculation(a, b, c):
             return a + b + c
 
-        some_calculation(&#39;Hello &#39;, &#39;W&#39;, &#39;orld   !&#39;)
+        some_calculation(&#39;Hello&#39;, &#39;My&#39;, &#39;World   !&#39;)
         with self.assertRaises(expected_exception=AssertionError):
             some_calculation(&#39;Hello&#39;, &#39;   &#39;, &#39;World&#39;)
         with self.assertRaises(expected_exception=AssertionError):
@@ -435,7 +435,7 @@ not have a method with the specified name.</p></div>
         def some_calculation(a, b, c):
             return a + b + c
 
-        some_calculation(&#39;Hello &#39;, &#39;W&#39;, &#39;orld   !&#39;)
+        some_calculation(&#39;Hello&#39;, &#39;My&#39;, &#39;World   !&#39;)
         with self.assertRaises(expected_exception=AssertionError):
             some_calculation(&#39;Hello&#39;, &#39;   &#39;, &#39;World&#39;)
         with self.assertRaises(expected_exception=AssertionError):
@@ -733,7 +733,7 @@ not have a method with the specified name.</p></div>
     def some_calculation(a, b, c):
         return a + b + c
 
-    some_calculation(&#39;Hello &#39;, &#39;W&#39;, &#39;orld   !&#39;)
+    some_calculation(&#39;Hello&#39;, &#39;My&#39;, &#39;World   !&#39;)
     with self.assertRaises(expected_exception=AssertionError):
         some_calculation(&#39;Hello&#39;, &#39;   &#39;, &#39;World&#39;)
     with self.assertRaises(expected_exception=AssertionError):

@@ -28,6 +28,7 @@
 </summary>
 <pre><code class="python">import unittest
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
+from enum import Enum
 
 # local file imports
 from pedantic.method_decorators import pedantic
@@ -307,7 +308,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_wrong_type_hint_corrected(self):
         @pedantic
         def calc(n: int, m: int, i: int) -&gt; None:
-            n + m + i
+            print(n + m + i)
 
         calc(n=42, m=40, i=38)
 
@@ -315,7 +316,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         &#34;&#34;&#34;Problem here: None != int&#34;&#34;&#34;
         @pedantic
         def calc(n: int, m: int, i: int) -&gt; int:
-            n + m + i
+            print(n + m + i)
 
         with self.assertRaises(expected_exception=AssertionError):
             calc(n=42, m=40, i=38)
@@ -688,8 +689,8 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             def foo(self, a: int, b: Optional[int] = 1) -&gt; int:
                 return a + b
 
-        myclass = MyClass()
-        myclass.foo(a=10)
+        my_class = MyClass()
+        my_class.foo(a=10)
 
     def test_optional_args_5(self):
         @pedantic
@@ -716,39 +717,32 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             calc(d=&#39;999999&#39;)
 
     def test_enum_1(self):
-        &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.SEQUENCEFLOW&#34;&#34;&#34;
-        from enum import Enum
-
+        &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
         class MyEnum(Enum):
-            STARTEVENT = &#39;startEvent&#39;
-            ACTIVITY = &#39;task&#39;
-            SEQUENCEFLOW = &#39;sequenceFlow&#39;
+            ALPHA = &#39;startEvent&#39;
+            BETA = &#39;task&#39;
+            GAMMA = &#39;sequenceFlow&#39;
 
         class MyClass:
             @pedantic
-            def operation(self, a: MyEnum.SEQUENCEFLOW) -&gt; None:
+            def operation(self, a: MyEnum.GAMMA) -&gt; None:
                 print(a)
 
         m = MyClass()
         with self.assertRaises(expected_exception=AssertionError):
-            m.operation(a=MyEnum.SEQUENCEFLOW)
+            m.operation(a=MyEnum.GAMMA)
 
     def test_enum_1_corrected(self):
-        from enum import Enum
-
         class MyEnum(Enum):
-            STARTEVENT = &#39;startEvent&#39;
-            ACTIVITY = &#39;task&#39;
-            SEQUENCEFLOW = &#39;sequenceFlow&#39;
-            ENDEVENT = &#39;endEvent&#39;
-            ID = &#39;id&#39;
-            NAME = &#39;name&#39;
+            ALPHA = &#39;startEvent&#39;
+            BETA = &#39;task&#39;
+            GAMMA = &#39;sequenceFlow&#39;
 
         @pedantic
         def operation(a: MyEnum) -&gt; None:
             print(a)
 
-        operation(a=MyEnum.SEQUENCEFLOW)
+        operation(a=MyEnum.GAMMA)
 
     def test_sloppy_types_dict(self):
         &#34;&#34;&#34;Problem here: use typing.Dict instead of dict&#34;&#34;&#34;
@@ -1301,7 +1295,7 @@ not have a method with the specified name.</p></div>
     def test_wrong_type_hint_corrected(self):
         @pedantic
         def calc(n: int, m: int, i: int) -&gt; None:
-            n + m + i
+            print(n + m + i)
 
         calc(n=42, m=40, i=38)
 
@@ -1309,7 +1303,7 @@ not have a method with the specified name.</p></div>
         &#34;&#34;&#34;Problem here: None != int&#34;&#34;&#34;
         @pedantic
         def calc(n: int, m: int, i: int) -&gt; int:
-            n + m + i
+            print(n + m + i)
 
         with self.assertRaises(expected_exception=AssertionError):
             calc(n=42, m=40, i=38)
@@ -1682,8 +1676,8 @@ not have a method with the specified name.</p></div>
             def foo(self, a: int, b: Optional[int] = 1) -&gt; int:
                 return a + b
 
-        myclass = MyClass()
-        myclass.foo(a=10)
+        my_class = MyClass()
+        my_class.foo(a=10)
 
     def test_optional_args_5(self):
         @pedantic
@@ -1710,39 +1704,32 @@ not have a method with the specified name.</p></div>
             calc(d=&#39;999999&#39;)
 
     def test_enum_1(self):
-        &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.SEQUENCEFLOW&#34;&#34;&#34;
-        from enum import Enum
-
+        &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
         class MyEnum(Enum):
-            STARTEVENT = &#39;startEvent&#39;
-            ACTIVITY = &#39;task&#39;
-            SEQUENCEFLOW = &#39;sequenceFlow&#39;
+            ALPHA = &#39;startEvent&#39;
+            BETA = &#39;task&#39;
+            GAMMA = &#39;sequenceFlow&#39;
 
         class MyClass:
             @pedantic
-            def operation(self, a: MyEnum.SEQUENCEFLOW) -&gt; None:
+            def operation(self, a: MyEnum.GAMMA) -&gt; None:
                 print(a)
 
         m = MyClass()
         with self.assertRaises(expected_exception=AssertionError):
-            m.operation(a=MyEnum.SEQUENCEFLOW)
+            m.operation(a=MyEnum.GAMMA)
 
     def test_enum_1_corrected(self):
-        from enum import Enum
-
         class MyEnum(Enum):
-            STARTEVENT = &#39;startEvent&#39;
-            ACTIVITY = &#39;task&#39;
-            SEQUENCEFLOW = &#39;sequenceFlow&#39;
-            ENDEVENT = &#39;endEvent&#39;
-            ID = &#39;id&#39;
-            NAME = &#39;name&#39;
+            ALPHA = &#39;startEvent&#39;
+            BETA = &#39;task&#39;
+            GAMMA = &#39;sequenceFlow&#39;
 
         @pedantic
         def operation(a: MyEnum) -&gt; None:
             print(a)
 
-        operation(a=MyEnum.SEQUENCEFLOW)
+        operation(a=MyEnum.GAMMA)
 
     def test_sloppy_types_dict(self):
         &#34;&#34;&#34;Problem here: use typing.Dict instead of dict&#34;&#34;&#34;
@@ -2288,28 +2275,26 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_enum_1</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: Type hint for a should be MyEnum instead of MyEnum.SEQUENCEFLOW</p></div>
+<div class="desc"><p>Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_enum_1(self):
-    &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.SEQUENCEFLOW&#34;&#34;&#34;
-    from enum import Enum
-
+    &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
     class MyEnum(Enum):
-        STARTEVENT = &#39;startEvent&#39;
-        ACTIVITY = &#39;task&#39;
-        SEQUENCEFLOW = &#39;sequenceFlow&#39;
+        ALPHA = &#39;startEvent&#39;
+        BETA = &#39;task&#39;
+        GAMMA = &#39;sequenceFlow&#39;
 
     class MyClass:
         @pedantic
-        def operation(self, a: MyEnum.SEQUENCEFLOW) -&gt; None:
+        def operation(self, a: MyEnum.GAMMA) -&gt; None:
             print(a)
 
     m = MyClass()
     with self.assertRaises(expected_exception=AssertionError):
-        m.operation(a=MyEnum.SEQUENCEFLOW)</code></pre>
+        m.operation(a=MyEnum.GAMMA)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_require_kwargs_and_type_check.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1_corrected"><code class="name flex">
@@ -2322,21 +2307,16 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_enum_1_corrected(self):
-    from enum import Enum
-
     class MyEnum(Enum):
-        STARTEVENT = &#39;startEvent&#39;
-        ACTIVITY = &#39;task&#39;
-        SEQUENCEFLOW = &#39;sequenceFlow&#39;
-        ENDEVENT = &#39;endEvent&#39;
-        ID = &#39;id&#39;
-        NAME = &#39;name&#39;
+        ALPHA = &#39;startEvent&#39;
+        BETA = &#39;task&#39;
+        GAMMA = &#39;sequenceFlow&#39;
 
     @pedantic
     def operation(a: MyEnum) -&gt; None:
         print(a)
 
-    operation(a=MyEnum.SEQUENCEFLOW)</code></pre>
+    operation(a=MyEnum.GAMMA)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_require_kwargs_and_type_check.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_1"><code class="name flex">
@@ -3313,8 +3293,8 @@ not have a method with the specified name.</p></div>
         def foo(self, a: int, b: Optional[int] = 1) -&gt; int:
             return a + b
 
-    myclass = MyClass()
-    myclass.foo(a=10)</code></pre>
+    my_class = MyClass()
+    my_class.foo(a=10)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_require_kwargs_and_type_check.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_5"><code class="name flex">
@@ -3871,7 +3851,7 @@ not have a method with the specified name.</p></div>
     &#34;&#34;&#34;Problem here: None != int&#34;&#34;&#34;
     @pedantic
     def calc(n: int, m: int, i: int) -&gt; int:
-        n + m + i
+        print(n + m + i)
 
     with self.assertRaises(expected_exception=AssertionError):
         calc(n=42, m=40, i=38)</code></pre>
@@ -3906,7 +3886,7 @@ not have a method with the specified name.</p></div>
 <pre><code class="python">def test_wrong_type_hint_corrected(self):
     @pedantic
     def calc(n: int, m: int, i: int) -&gt; None:
-        n + m + i
+        print(n + m + i)
 
     calc(n=42, m=40, i=38)</code></pre>
 </details>

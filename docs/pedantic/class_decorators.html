@@ -32,13 +32,13 @@
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
-def for_all_methods(decorator: Callable) -&gt; Callable:
+def for_all_methods(decorator: Callable[..., Any]) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;
     Example:
     &gt;&gt;&gt; @for_all_methods(pedantic)
-    &gt;&gt;&gt; class C(object):
-    &gt;&gt;&gt;     def m1(self): pass
-    &gt;&gt;&gt;     def m2(self, x): pass
+    ... class C(object):
+    ...     def m1(self): pass
+    ...     def m2(self, x): pass
     &#34;&#34;&#34;
     def decorate(cls: Any) -&gt; Any:
         for attr in cls.__dict__:
@@ -60,22 +60,22 @@ def for_all_methods(decorator: Callable) -&gt; Callable:
     return decorate
 
 
-def pedantic_class(cls: Any) -&gt; Callable:
+def pedantic_class(cls: Any) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;Shortcut for @for_all_methods(pedantic) &#34;&#34;&#34;
     return for_all_methods(decorator=pedantic)(cls=cls)
 
 
-def pedantic_class_require_docstring(cls: Any) -&gt; Callable:
+def pedantic_class_require_docstring(cls: Any) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;Shortcut for @for_all_methods(pedantic_require_docstring) &#34;&#34;&#34;
     return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
 
 
-def trace_class(cls: Any) -&gt; Callable:
+def trace_class(cls: Any) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;Shortcut for @for_all_methods(trace) &#34;&#34;&#34;
     return for_all_methods(decorator=trace)(cls=cls)
 
 
-def timer_class(cls: Any) -&gt; Callable:
+def timer_class(cls: Any) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;Shortcut for @for_all_methods(timer) &#34;&#34;&#34;
     return for_all_methods(decorator=timer)(cls=cls)</code></pre>
 </details>
@@ -88,26 +88,26 @@ def timer_class(cls: Any) -&gt; Callable:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.class_decorators.for_all_methods"><code class="name flex">
-<span>def <span class="ident">for_all_methods</span></span>(<span>decorator: Callable) ‑> Callable</span>
+<span>def <span class="ident">for_all_methods</span></span>(<span>decorator: Callable[..., Any]) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Example:</p>
 <pre><code class="python-repl">&gt;&gt;&gt; @for_all_methods(pedantic)
-&gt;&gt;&gt; class C(object):
-&gt;&gt;&gt;     def m1(self): pass
-&gt;&gt;&gt;     def m2(self, x): pass
+... class C(object):
+...     def m1(self): pass
+...     def m2(self, x): pass
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def for_all_methods(decorator: Callable) -&gt; Callable:
+<pre><code class="python">def for_all_methods(decorator: Callable[..., Any]) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;
     Example:
     &gt;&gt;&gt; @for_all_methods(pedantic)
-    &gt;&gt;&gt; class C(object):
-    &gt;&gt;&gt;     def m1(self): pass
-    &gt;&gt;&gt;     def m2(self, x): pass
+    ... class C(object):
+    ...     def m1(self): pass
+    ...     def m2(self, x): pass
     &#34;&#34;&#34;
     def decorate(cls: Any) -&gt; Any:
         for attr in cls.__dict__:
@@ -130,7 +130,7 @@ def timer_class(cls: Any) -&gt; Callable:
 </details>
 </dd>
 <dt id="pedantic.class_decorators.pedantic_class"><code class="name flex">
-<span>def <span class="ident">pedantic_class</span></span>(<span>cls: Any) ‑> Callable</span>
+<span>def <span class="ident">pedantic_class</span></span>(<span>cls: Any) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(pedantic)</p></div>
@@ -138,13 +138,13 @@ def timer_class(cls: Any) -&gt; Callable:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pedantic_class(cls: Any) -&gt; Callable:
+<pre><code class="python">def pedantic_class(cls: Any) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;Shortcut for @for_all_methods(pedantic) &#34;&#34;&#34;
     return for_all_methods(decorator=pedantic)(cls=cls)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.class_decorators.pedantic_class_require_docstring"><code class="name flex">
-<span>def <span class="ident">pedantic_class_require_docstring</span></span>(<span>cls: Any) ‑> Callable</span>
+<span>def <span class="ident">pedantic_class_require_docstring</span></span>(<span>cls: Any) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(pedantic_require_docstring)</p></div>
@@ -152,13 +152,13 @@ def timer_class(cls: Any) -&gt; Callable:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pedantic_class_require_docstring(cls: Any) -&gt; Callable:
+<pre><code class="python">def pedantic_class_require_docstring(cls: Any) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;Shortcut for @for_all_methods(pedantic_require_docstring) &#34;&#34;&#34;
     return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.class_decorators.timer_class"><code class="name flex">
-<span>def <span class="ident">timer_class</span></span>(<span>cls: Any) ‑> Callable</span>
+<span>def <span class="ident">timer_class</span></span>(<span>cls: Any) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(timer)</p></div>
@@ -166,13 +166,13 @@ def timer_class(cls: Any) -&gt; Callable:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def timer_class(cls: Any) -&gt; Callable:
+<pre><code class="python">def timer_class(cls: Any) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;Shortcut for @for_all_methods(timer) &#34;&#34;&#34;
     return for_all_methods(decorator=timer)(cls=cls)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.class_decorators.trace_class"><code class="name flex">
-<span>def <span class="ident">trace_class</span></span>(<span>cls: Any) ‑> Callable</span>
+<span>def <span class="ident">trace_class</span></span>(<span>cls: Any) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(trace)</p></div>
@@ -180,7 +180,7 @@ def timer_class(cls: Any) -&gt; Callable:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def trace_class(cls: Any) -&gt; Callable:
+<pre><code class="python">def trace_class(cls: Any) -&gt; Callable[..., Any]:
     &#34;&#34;&#34;Shortcut for @for_all_methods(trace) &#34;&#34;&#34;
     return for_all_methods(decorator=trace)(cls=cls)</code></pre>
 </details>

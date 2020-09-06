@@ -6,9 +6,8 @@ import collections
 typing_protocol = typing.Protocol if hasattr(typing, 'Protocol') else typing._Protocol
 
 
-def is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
-    """The main function of this module. It is called recursively for nested types."""
-
+def _is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
+    """main function of this file"""
     assert _has_required_type_arguments(type_), \
         f'The type annotation "{type_}" misses some type arguments e.g. ' \
         f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
@@ -300,7 +299,7 @@ def _get_subtypes(cls):
 
 def _instancecheck_iterable(iterable, type_args, type_vars):
     type_ = type_args[0]
-    return all(is_instance(val, type_, type_vars=type_vars) for val in iterable)
+    return all(_is_instance(val, type_, type_vars=type_vars) for val in iterable)
 
 
 def _instancecheck_mapping(mapping, type_args, type_vars):
@@ -309,8 +308,8 @@ def _instancecheck_mapping(mapping, type_args, type_vars):
 
 def _instancecheck_items_view(items_view, type_args, type_vars):
     key_type, value_type = type_args
-    return all(is_instance(key, key_type, type_vars=type_vars) and
-               is_instance(val, value_type, type_vars=type_vars)
+    return all(_is_instance(key, key_type, type_vars=type_vars) and
+               _is_instance(val, value_type, type_vars=type_vars)
                for key, val in items_view)
 
 
@@ -321,12 +320,12 @@ def _instancecheck_tuple(tup, type_args, type_vars) -> bool:
     True
     """
     if Ellipsis in type_args:
-        return all(is_instance(val, type_args[0], type_vars=type_vars) for val in tup)
+        return all(_is_instance(val, type_args[0], type_vars=type_vars) for val in tup)
 
     if len(tup) != len(type_args):
         return False
 
-    return all(is_instance(val, type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
+    return all(_is_instance(val, type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
 
 
 _ORIGIN_TYPE_CHECKERS = {}
@@ -409,7 +408,7 @@ def _instancecheck_callable(value, type_, _):
 
 def _instancecheck_union(value, type_, type_vars):
     types = _get_subtypes(type_)
-    return any(is_instance(value, typ, type_vars=type_vars) for typ in types)
+    return any(_is_instance(value, typ, type_vars=type_vars) for typ in types)
 
 
 _SPECIAL_INSTANCE_CHECKERS = {

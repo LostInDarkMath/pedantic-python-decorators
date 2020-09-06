@@ -9,7 +9,7 @@ import re
 from pedantic.basic_helpers import get_qualified_name_for_err_msg
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 from pedantic.models.decorated_function import DecoratedFunction
-from pedantic.type_hint_parser import is_instance
+from pedantic.type_hint_parser import _is_instance
 
 
 def overrides(interface_class: Any) -> Callable[..., Any]:
@@ -563,7 +563,7 @@ def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, ty
     assert type_hint is not frozenset, f'{err_prefix} Use "FrozenSet[]" instead of "frozenset" as type hint.'
 
     try:
-        return is_instance(value, type_hint, type_vars)
+        return _is_instance(value, type_hint, type_vars)
     except AssertionError as ex:
         raise AssertionError(f'{err_prefix} {ex}')
     except (AttributeError, Exception) as ex:
