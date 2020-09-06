@@ -45,13 +45,13 @@ def is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
             type_vars[type_] = obj
         return True
 
-    if _is_type_newtype(type_):
+    if _is_type_new_type(type_):
         return isinstance(obj, type_.__supertype__)
 
     return isinstance(obj, type_)
 
 
-def _is_type_newtype(type_: typing.Any) -> bool:
+def _is_type_new_type(type_: typing.Any) -> bool:
     return type_.__qualname__ == typing.NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
 
 
@@ -304,14 +304,14 @@ def _instancecheck_iterable(iterable, type_args, type_vars):
 
 
 def _instancecheck_mapping(mapping, type_args, type_vars):
-    return _instancecheck_itemsview(mapping.items(), type_args, type_vars=type_vars)
+    return _instancecheck_items_view(mapping.items(), type_args, type_vars=type_vars)
 
 
-def _instancecheck_itemsview(itemsview, type_args, type_vars):
+def _instancecheck_items_view(items_view, type_args, type_vars):
     key_type, value_type = type_args
     return all(is_instance(key, key_type, type_vars=type_vars) and
                is_instance(val, value_type, type_vars=type_vars)
-               for key, val in itemsview)
+               for key, val in items_view)
 
 
 def _instancecheck_tuple(tup, type_args, type_vars) -> bool:
@@ -351,7 +351,7 @@ for class_path, _check_func in {
     'typing.Mapping': _instancecheck_mapping,
     'typing.MutableMapping': _instancecheck_mapping,
     'typing.MappingView': _instancecheck_mapping,
-    'typing.ItemsView': _instancecheck_itemsview,
+    'typing.ItemsView': _instancecheck_items_view,
     'typing.Dict': _instancecheck_mapping,
     'typing.DefaultDict': _instancecheck_mapping,
     'typing.Counter': _instancecheck_mapping,

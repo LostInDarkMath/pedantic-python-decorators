@@ -1,5 +1,6 @@
 import unittest
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
+from enum import Enum
 
 # local file imports
 from pedantic.method_decorators import pedantic
@@ -279,7 +280,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_wrong_type_hint_corrected(self):
         @pedantic
         def calc(n: int, m: int, i: int) -> None:
-            n + m + i
+            print(n + m + i)
 
         calc(n=42, m=40, i=38)
 
@@ -287,7 +288,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         """Problem here: None != int"""
         @pedantic
         def calc(n: int, m: int, i: int) -> int:
-            n + m + i
+            print(n + m + i)
 
         with self.assertRaises(expected_exception=AssertionError):
             calc(n=42, m=40, i=38)
@@ -660,8 +661,8 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             def foo(self, a: int, b: Optional[int] = 1) -> int:
                 return a + b
 
-        myclass = MyClass()
-        myclass.foo(a=10)
+        my_class = MyClass()
+        my_class.foo(a=10)
 
     def test_optional_args_5(self):
         @pedantic
@@ -688,39 +689,32 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             calc(d='999999')
 
     def test_enum_1(self):
-        """Problem here: Type hint for a should be MyEnum instead of MyEnum.SEQUENCEFLOW"""
-        from enum import Enum
-
+        """Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA"""
         class MyEnum(Enum):
-            STARTEVENT = 'startEvent'
-            ACTIVITY = 'task'
-            SEQUENCEFLOW = 'sequenceFlow'
+            ALPHA = 'startEvent'
+            BETA = 'task'
+            GAMMA = 'sequenceFlow'
 
         class MyClass:
             @pedantic
-            def operation(self, a: MyEnum.SEQUENCEFLOW) -> None:
+            def operation(self, a: MyEnum.GAMMA) -> None:
                 print(a)
 
         m = MyClass()
         with self.assertRaises(expected_exception=AssertionError):
-            m.operation(a=MyEnum.SEQUENCEFLOW)
+            m.operation(a=MyEnum.GAMMA)
 
     def test_enum_1_corrected(self):
-        from enum import Enum
-
         class MyEnum(Enum):
-            STARTEVENT = 'startEvent'
-            ACTIVITY = 'task'
-            SEQUENCEFLOW = 'sequenceFlow'
-            ENDEVENT = 'endEvent'
-            ID = 'id'
-            NAME = 'name'
+            ALPHA = 'startEvent'
+            BETA = 'task'
+            GAMMA = 'sequenceFlow'
 
         @pedantic
         def operation(a: MyEnum) -> None:
             print(a)
 
-        operation(a=MyEnum.SEQUENCEFLOW)
+        operation(a=MyEnum.GAMMA)
 
     def test_sloppy_types_dict(self):
         """Problem here: use typing.Dict instead of dict"""

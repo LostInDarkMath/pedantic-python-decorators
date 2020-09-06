@@ -28,9 +28,9 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
             """Returns the sum of the three args.
 
             Args:
-                n (int): bla
-                m (int): blub
-                i (int): foo
+                n (int): something
+                m (int): something
+                i (int): something
 
             Returns:
                 int: bar
@@ -365,11 +365,11 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
                 """Returns some cool string
 
                 Args:
-                    a (int): dfnoghbn
-                    b (float): fubsuibgi
+                    a (int): something
+                    b (float): something
 
                 Returns:
-                    str: fshgimhj
+                    str: something
                 """
                 return str(a) + str(b) + c
 
@@ -381,12 +381,12 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
             """Returns some cool string
 
             Args:
-                a (int): dfnoghbn
-                b (float): fubsuibgi
-                c (str): dfgnhoif
+                a (int): something
+                b (float): something
+                c (str): something
 
             Returns:
-                str: fshgimhj
+                str: something
             """
             return str(a) + str(b) + c
 

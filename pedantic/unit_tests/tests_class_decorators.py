@@ -3,7 +3,7 @@ import unittest
 # local file imports
 from typing import Any, TypeVar, Generic
 
-from pedantic import overrides, pedantic
+from pedantic import overrides
 from pedantic.class_decorators import pedantic_class, pedantic_class_require_docstring, trace_class, timer_class
 
 

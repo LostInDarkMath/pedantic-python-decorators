@@ -4,7 +4,7 @@ from typing import Any, Callable
 from docstring_parser import parse, Docstring
 
 # local file imports
-from pedantic.basic_helpers import get_qual_name_msg
+from pedantic.basic_helpers import get_qualified_name_for_err_msg
 
 
 def get_parsed_docstring(func: Callable[..., Any]) -> Docstring:
@@ -12,4 +12,5 @@ def get_parsed_docstring(func: Callable[..., Any]) -> Docstring:
         return parse(func.__doc__)
     except (Exception, TypeError) as ex:
         raise AssertionError(
-            f'{get_qual_name_msg(func=func)} Could not parse docstring. Please check syntax. Details: {ex}')
+            f'{get_qualified_name_for_err_msg(func=func)} '
+            f'Could not parse docstring. Please check syntax. Details: {ex}')

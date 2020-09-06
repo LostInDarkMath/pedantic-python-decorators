@@ -161,7 +161,7 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         def some_calculation(a, b, c):
             return a + b + c
 
-        some_calculation('Hello ', 'W', 'orld   !')
+        some_calculation('Hello', 'My', 'World   !')
         with self.assertRaises(expected_exception=AssertionError):
             some_calculation('Hello', '   ', 'World')
         with self.assertRaises(expected_exception=AssertionError):

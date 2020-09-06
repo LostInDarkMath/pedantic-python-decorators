@@ -2,7 +2,7 @@ import inspect
 from typing import Any, Callable, Dict
 
 # local file imports
-from pedantic.basic_helpers import get_qual_name_msg
+from pedantic.basic_helpers import get_qualified_name_for_err_msg
 from pedantic.wrapper_docstring import get_parsed_docstring
 
 
@@ -12,4 +12,4 @@ class DecoratedFunction:
         self.annotations: Dict[str, Any] = inspect.getfullargspec(func).annotations
         self.docstring = get_parsed_docstring(func=func)
         self.signature = inspect.signature(func)
-        self.err: str = get_qual_name_msg(func=func)
+        self.err: str = get_qualified_name_for_err_msg(func=func)

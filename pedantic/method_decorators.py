@@ -6,7 +6,7 @@ import warnings
 import re
 
 # local file imports
-from pedantic.basic_helpers import get_qual_name_msg
+from pedantic.basic_helpers import get_qualified_name_for_err_msg
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 from pedantic.models.decorated_function import DecoratedFunction
 from pedantic.type_hint_parser import is_instance
@@ -262,7 +262,7 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]],
         def validate(obj: Any) -> None:
             res = validator(obj)
             res, msg = res if type(res) is not bool else (res, 'Invalid arguments.')
-            assert res, f'{get_qual_name_msg(func=func)} {msg}'
+            assert res, f'{get_qualified_name_for_err_msg(func=func)} {msg}'
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
@@ -505,7 +505,7 @@ def _assert_uses_kwargs(func: Callable[..., Any], args: Tuple[Any, ...], is_clas
     if _is_func_that_require_kwargs(func=func):
         args_without_self = _get_args_without_self(f=func, args=args, is_class_decorator=is_class_decorator)
         assert args_without_self == (), \
-            f'{get_qual_name_msg(func=func)} Use kwargs when you call function {func.__name__}. ' \
+            f'{get_qualified_name_for_err_msg(func=func)} Use kwargs when you call function {func.__name__}. ' \
             f'Args: {args_without_self}'
 
 
