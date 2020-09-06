@@ -3,6 +3,6 @@ from pedantic.class_decorators \
 
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer, require_not_none, \
     require_not_empty_strings, needs_refactoring, dirty, unimplemented, deprecated, overrides, validate_args, \
-    require_kwargs
+    require_kwargs, trace_if_returns
 
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException

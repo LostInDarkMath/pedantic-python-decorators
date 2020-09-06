@@ -86,6 +86,26 @@ def trace(func: Callable) -> Callable:
     return wrapper
 
 
+def trace_if_returns(return_value: Any) -> Callable:
+    """
+       Prints the passed arguments and keyword arguments if and only if the decorated function returned "return_value".
+       This is useful if you want to figure out which input arguments leads to a special return value.
+       Example:
+       >>> @trace_if_returns(42)
+       >>> def some_calculation(a, b, c):
+       >>>     return a + b + c
+    """
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs) -> Any:
+            result = func(*args, **kwargs)
+            if result == return_value:
+                print(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
+            return result
+        return wrapper
+    return decorator
+
+
 def deprecated(func: Callable) -> Callable:
     """This is a decorator which can be used to mark functions as deprecated. It will result in a warning being emitted
     when the function is used."""

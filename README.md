@@ -172,6 +172,15 @@ def some_calculation(a, b):
     return a + b
 ```
 
+### @trace_if_returns
+Prints the passed arguments and keyword arguments if and only if the decorated function returned a specific value.
+This is useful if you want to figure out which input arguments leads to a special return value.
+```python
+@trace_if_returns(42)
+def some_calculation(a, b):
+    return a + b
+```
+
 ## Decorators for classes
 With the `@for_all_methods` you can use any decorator for classes instead of methods. It is shorthand for putting the same decorator on every method of the class. Example:
 ```python

@@ -4,7 +4,7 @@ import warnings
 # local file imports
 from pedantic.custom_exceptions import TooDirtyException, NotImplementedException
 from pedantic.method_decorators import overrides, deprecated, needs_refactoring, dirty, timer, count_calls, \
-    unimplemented, validate_args, require_not_none, require_not_empty_strings
+    unimplemented, validate_args, require_not_none, require_not_empty_strings, trace, trace_if_returns
 
 
 class TestSmallDecoratorMethods(unittest.TestCase):
@@ -55,11 +55,8 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             return str(i)
 
         with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
             warnings.simplefilter("always")
-            # Trigger a warning.
             old_method(42)
-            # Verify some things
             assert len(w) == 1
             assert issubclass(w[-1].category, DeprecationWarning)
             assert "deprecated" in str(w[-1].message)
@@ -69,11 +66,8 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             return str(i)
 
         with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
             warnings.simplefilter("always")
-            # Trigger a warning.
             old_method(42)
-            # Verify some things
             assert not len(w) == 1
 
     def test_needs_refactoring_1(self):
@@ -82,11 +76,8 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             return str(i)
 
         with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
             warnings.simplefilter("always")
-            # Trigger a warning.
             old_method(42)
-            # Verify some things
             assert len(w) == 1
             assert issubclass(w[-1].category, UserWarning)
             assert "refactoring" in str(w[-1].message)
@@ -96,11 +87,8 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             return str(i)
 
         with warnings.catch_warnings(record=True) as w:
-            # Cause all warnings to always be triggered.
             warnings.simplefilter("always")
-            # Trigger a warning.
             old_method(42)
-            # Verify some things
             assert not len(w) == 1
 
     def test_dirty(self):
@@ -179,3 +167,16 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             some_calculation('Hello', 4, 'World')
         with self.assertRaises(expected_exception=AssertionError):
             some_calculation('Hello', '4', None)
+
+    def test_trace(self):
+        def some_method(x, y):
+            return x + y
+        traced_method = trace(some_method)
+        self.assertEqual(some_method(42, 99), traced_method(42, 99))
+
+    def test_trace_if_returns(self):
+        def some_method(x, y):
+            return x + y
+        traced_method = trace_if_returns(100)(some_method)
+        self.assertEqual(some_method(42, 99), traced_method(42, 99))
+        self.assertEqual(some_method(42, 58), traced_method(42, 58))
