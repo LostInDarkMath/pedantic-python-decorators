@@ -183,7 +183,6 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         self.assertEqual(some_method(42, 58), traced_method(42, 58))
 
     def test_does_same_as_function(self):
-
         def some_method(x, y, z):
             return x * (y + z)
 
@@ -195,7 +194,6 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         other_method(4, 5, 6)
 
     def test_does_same_as_function_wrong(self):
-
         def some_method(x, y, z):
             return x * (y + z)
 
