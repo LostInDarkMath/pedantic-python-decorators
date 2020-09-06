@@ -31,6 +31,8 @@ These decorators will make you write cleaner and well-documented Python code.
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 
+[Read the documentation](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic)
+
 ## The powerful decorators
 ### @pedantic
 The `@pedantic` decorator does the following things:
