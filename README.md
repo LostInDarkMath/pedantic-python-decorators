@@ -181,6 +181,18 @@ def some_calculation(a, b):
     return a + b
 ```
 
+### @does_same_as_function
+Each time the decorated function is executed, the function other_func is also executed and both results will compared. An AssertionError is raised if the results are not equal.
+```python
+def other_calculation(a, b, c):
+    return c + b + a
+
+@does_same_as_function(other_calculation)
+def some_calculation(a, b, c):
+    return a + b + c
+some_calculation(1, 2, 3)
+```
+
 ## Decorators for classes
 With the `@for_all_methods` you can use any decorator for classes instead of methods. It is shorthand for putting the same decorator on every method of the class. Example:
 ```python

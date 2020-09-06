@@ -1,7 +1,7 @@
 import unittest
 
 # local file imports
-from typing import Any
+from typing import Any, TypeVar, Generic
 
 from pedantic import overrides, pedantic
 from pedantic.class_decorators import pedantic_class, pedantic_class_require_docstring, trace_class, timer_class
@@ -707,6 +707,35 @@ class TestClassDecorators(unittest.TestCase):
         m.some_attribute = 100
         self.assertEqual(m.some_attribute, 100)
         m.calc(value=42.0)
+
+    def test_pedantic_generic_class(self):
+        T = TypeVar('T')
+
+        @pedantic_class
+        class LoggedVar(Generic[T]):
+            def __init__(self, value: T, name: str, logger: Any) -> None:
+                self.name = name
+                self.logger = logger
+                self.value = value
+
+            def set(self, new: T) -> None:
+                self.log(message='Set ' + repr(self.value))
+                self.value = new
+
+            def get(self) -> T:
+                self.log(message='Get ' + repr(self.value))
+                return self.value
+
+            def log(self, message: str) -> None:
+                self.logger = self.name + message
+
+        o = LoggedVar(value=42, name='hi', logger='test')
+        o.set(new=57)
+        self.assertTrue(isinstance(o.get(), int))
+
+        # the following feature is not supported yet:
+        # with self.assertRaises(expected_exception=AssertionError):
+        #     o.set(new=3.14)
 
 
 if __name__ == '__main__':

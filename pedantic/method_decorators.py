@@ -12,18 +12,18 @@ from pedantic.models.decorated_function import DecoratedFunction
 from pedantic.type_hint_parser import is_instance
 
 
-def overrides(interface_class: Any) -> Callable:
+def overrides(interface_class: Any) -> Callable[..., Any]:
     """
         Example:
         >>> class Parent:
-        >>>     def instance_method(self):
-        >>>         pass
+        ...     def instance_method(self):
+        ...         pass
         >>> class Child(Parent):
-        >>>     @overrides(Parent)
-        >>>     def instance_method(self):
-        >>>         print('hi')
+        ...     @overrides(Parent)
+        ...     def instance_method(self):
+        ...         print('hi')
     """
-    def overrider(func: Callable) -> Callable:
+    def overrider(func: Callable[..., Any]) -> Callable[..., Any]:
         assert _is_instance_method(func) or _uses_multiple_decorators(func), \
             f'Function "{func.__name__}" is not an instance method!'
         assert (func.__name__ in dir(interface_class)), \
@@ -32,13 +32,16 @@ def overrides(interface_class: Any) -> Callable:
     return overrider
 
 
-def timer(func: Callable) -> Callable:
+def timer(func: Callable[..., Any]) -> Callable[..., Any]:
     """
-        Prints out how long the execution of the function takes in seconds.
+        Prints how long the execution of the decorated function takes.
         Example:
         >>> @timer
-        >>> def some_calculation():
-        >>>     return 42
+        ... def some_calculation():
+        ...     return 42
+        >>> some_calculation()
+        Timer: Finished function 'some_calculation' in 0:00:00.
+        42
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
@@ -51,31 +54,40 @@ def timer(func: Callable) -> Callable:
     return wrapper
 
 
-def count_calls(func: Callable) -> Callable:
+def count_calls(func: Callable[..., Any]) -> Callable[..., Any]:
     """
         Prints how often the method is called during program execution.
         Example:
         >>> @count_calls
-        >>> def some_calculation():
-        >>>     return 42
+        ... def some_calculation():
+        ...    return 42
+        >>> some_calculation()
+        Count Calls: Call 1 of function 'some_calculation' at ...
+        >>> some_calculation()
+        Count Calls: Call 2 of function 'some_calculation' at ...
+        >>> some_calculation()
+        Count Calls: Call 3 of function 'some_calculation' at ...
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
         wrapper.num_calls += 1
         print(f"Count Calls: Call {wrapper.num_calls} of function {func.__name__!r} at {datetime.now()}.")
         return func(*args, **kwargs)
-
     wrapper.num_calls = 0
     return wrapper
 
 
-def trace(func: Callable) -> Callable:
+def trace(func: Callable[..., Any]) -> Callable[..., Any]:
     """
-       Prints the passed arguments and keyword arguments and return values on each function call.
+       Prints the passed posional arguments, keyword arguments and the returned value on each function call.
        Example:
        >>> @trace
-       >>> def some_calculation(a, b, c):
-       >>>     return a + b + c
+       ... def some_calculation(a, b, c):
+       ...     return a + b + c
+       >>> some_calculation(4, 5, 6)
+       Trace: ... calling some_calculation()  with (4, 5, 6), {}
+       Trace: ... some_calculation() returned 15
+       15
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
@@ -86,14 +98,19 @@ def trace(func: Callable) -> Callable:
     return wrapper
 
 
-def trace_if_returns(return_value: Any) -> Callable:
+def trace_if_returns(return_value: Any) -> Callable[..., Any]:
     """
-       Prints the passed arguments and keyword arguments if and only if the decorated function returned "return_value".
+       Prints the passed positional and keyword arguments if and only if the decorated function returned return_value.
        This is useful if you want to figure out which input arguments leads to a special return value.
        Example:
        >>> @trace_if_returns(42)
-       >>> def some_calculation(a, b, c):
-       >>>     return a + b + c
+       ... def some_calculation(a, b, c):
+       ...     return a + b + c
+       >>> some_calculation(1, 2, 3)
+       6
+       >>> some_calculation(10, 8, 24)
+       Function some_calculation returned value 42 for args: (10, 8, 24) and kwargs: {}
+       42
     """
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
@@ -106,21 +123,59 @@ def trace_if_returns(return_value: Any) -> Callable:
     return decorator
 
 
-def deprecated(func: Callable) -> Callable:
-    """This is a decorator which can be used to mark functions as deprecated. It will result in a warning being emitted
-    when the function is used."""
+def does_same_as_function(other_func: Callable[..., Any]) -> Callable[..., Any]:
+    """
+        Each time the decorated function is executed, the function other_func is also executed and both results
+        will compared. An AssertionError is raised if the results are not equal.
+        Example:
+        >>> def other_calculation(a, b, c):
+        ...     return c + b + a
+        >>> @does_same_as_function(other_calculation)
+        ... def some_calculation(a, b, c):
+        ...     return a + b + c
+        >>> some_calculation(1, 2, 3)
+        6
+    """
+    def decorator(decorated_func: Callable[..., Any]) -> Callable[..., Any]:
+        @functools.wraps(decorated_func)
+        def wrapper(*args, **kwargs) -> Any:
+            result = decorated_func(*args, **kwargs)
+            other = other_func(*args, **kwargs)
+            assert other == result, \
+                f'Different outputs: Function {decorated_func.__name__} returns {result} and function ' \
+                f'{other_func.__name__} returns {other} for parameters {args} {kwargs}'
+            return result
+        return wrapper
+    return decorator
+
+
+def deprecated(func: Callable[..., Any]) -> Callable[..., Any]:
+    """
+        This is a decorator which can be used to mark functions as deprecated. It will result in a warning being emitted
+        when the function is used.
+        Example:
+        >>> @deprecated
+        ... def some_calculation(a, b, c):
+        ...     pass
+        >>> some_calculation(5, 4, 3)
+    """
     @functools.wraps(func)
-    def new_func(*args, **kwargs):
+    def new_func(*args, **kwargs) -> Any:
         _raise_warning(msg="Call to deprecated function {}.".format(func.__name__), category=DeprecationWarning)
         return func(*args, **kwargs)
     return new_func
 
 
-def needs_refactoring(func: Callable) -> Callable:
+def needs_refactoring(func: Callable[..., Any]) -> Callable[..., Any]:
     """
         Of course, you refactor immediately if you see something ugly.
         However, if you don't have the time for a big refactoring use this decorator at least.
         A warning is printed everytime the decorated function is called.
+        Example:
+        >>> @needs_refactoring
+        ... def some_calculation(a, b, c):
+        ...     pass
+        >>> some_calculation(5, 4, 3)
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
@@ -129,14 +184,17 @@ def needs_refactoring(func: Callable) -> Callable:
     return wrapper
 
 
-def unimplemented(func: Callable) -> Callable:
+def unimplemented(func: Callable[..., Any]) -> Callable[..., Any]:
     """
         For documentation purposes. Throw NotImplementedException if the function is called.
         Example:
         >>> @unimplemented
-        >>> def some_calculation(a, b, c):
-        >>>     pass
-        >>> some_calculation(5, 4, 3)       # this will lead to an NotImplementedException
+        ... def some_calculation(a, b, c):
+        ...     pass
+        >>> some_calculation(5, 4, 3)
+        Traceback (most recent call last):
+        ...
+        pedantic.custom_exceptions.NotImplementedException: Function "some_calculation" is not implemented yet!
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
@@ -144,14 +202,17 @@ def unimplemented(func: Callable) -> Callable:
     return wrapper
 
 
-def dirty(func: Callable) -> Callable:
+def dirty(func: Callable[..., Any]) -> Callable[..., Any]:
     """
         Prevents dirty code from beeing executed.
         Example:
         >>> @dirty
-        >>> def some_calculation(a, b, c):
-        >>>     return a + a + a + a + a
-        >>> some_calculation(5, 4, 3)       # this will lead to an TooDirtyException
+        ... def some_calculation(a, b, c):
+        ...     return a + a + a + a + a
+        >>> some_calculation(5, 4, 3)
+        Traceback (most recent call last):
+        ...
+        pedantic.custom_exceptions.TooDirtyException: Function "some_calculation" is too dirty to be executed!
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
@@ -159,15 +220,20 @@ def dirty(func: Callable) -> Callable:
     return wrapper
 
 
-def require_kwargs(func: Callable, is_class_decorator: bool = False) -> Callable:
+def require_kwargs(func: Callable[..., Any], is_class_decorator: bool = False) -> Callable[..., Any]:
     """
         Checks that each passed argument is a keyword argument.
         Example:
         >>> @require_kwargs
-        >>> def some_calculation(a, b, c):
-        >>>     return a + b + c
-        >>> some_calculation(5, 4, 3)       # this will lead to an AssertionError
-        >>> some_calculation(a=5, b=4, c=3) # this is okay
+        ... def some_calculation(a, b, c):
+        ...     return a + b + c
+        >>> some_calculation(5, 4, 3)
+        Traceback (most recent call last):
+        ...
+        AssertionError: In function some_calculation:
+         Use kwargs when you call function some_calculation. Args: (5, 4, 3)
+        >>> some_calculation(a=5, b=4, c=3)
+        12
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
@@ -177,17 +243,22 @@ def require_kwargs(func: Callable, is_class_decorator: bool = False) -> Callable
 
 
 def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]],
-                  is_class_decorator: bool = False) -> Callable:
+                  is_class_decorator: bool = False) -> Callable[..., Any]:
     """
       Validates each passed argument with the given validator.
       Example:
       >>> @validate_args(lambda x: (x > 42, f'Each argument should be greater then 42, but it was {x}.'))
-      >>> def some_calculation(a, b, c):
-      >>>     return a + b + c
-      >>> some_calculation(30, 40, 50)  # this leads to an error
-      >>> some_calculation(43, 40, 50)  # this is okay
+      ... def some_calculation(a, b, c):
+      ...     return a + b + c
+      >>> some_calculation(80, 40, 50)
+      Traceback (most recent call last):
+      ...
+      AssertionError: In function some_calculation:
+       Each argument should be greater then 42, but it was 40.
+      >>> some_calculation(43, 48, 50)
+      141
    """
-    def outer(func: Callable) -> Callable:
+    def outer(func: Callable[..., Any]) -> Callable[..., Any]:
         def validate(obj: Any) -> None:
             res = validator(obj)
             res, msg = res if type(res) is not bool else (res, 'Invalid arguments.')
@@ -208,37 +279,56 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]],
     return outer
 
 
-def require_not_none(func: Callable, is_class_decorator: bool = False) -> Callable:
+def require_not_none(func: Callable[..., Any], is_class_decorator: bool = False) -> Callable[..., Any]:
     """
       Checks that each passed argument is not None and raises AssertionError if there is some.
       Example:
       >>> @require_not_none
-      >>> def some_calculation(a, b, c):
-      >>>     return a + b + c
+      ... def some_calculation(a, b, c):
+      ...     return a + b + c
+      >>> some_calculation(80, None, 50)
+      Traceback (most recent call last):
+      ...
+      AssertionError: In function some_calculation:
+       Argument of function "some_calculation" should not be None!
+      >>> some_calculation(43, 48, 50)
+      141
    """
     def validator(arg: Any) -> Tuple[bool, str]:
         return arg is not None, f'Argument of function "{func.__name__}" should not be None!'
     return validate_args(validator=validator, is_class_decorator=is_class_decorator)(func)
 
 
-def require_not_empty_strings(func: Callable, is_class_decorator: bool = False) -> Callable:
+def require_not_empty_strings(func: Callable[..., Any], is_class_decorator: bool = False) -> Callable[..., Any]:
     """
        Throw a ValueError if the arguments are None, not strings, or empty strings or contains only whitespaces.
        Example:
        >>> @require_not_empty_strings
-       >>> def some_calculation(a, b, c):
-       >>>     print(a, b, c)
-       >>> some_calculation('Hi', '   ', 'you')    # this will lead to an ValueError
-       >>> some_calculation('Hi', None, 'you')     # this will lead to an ValueError
-       >>> some_calculation('Hi', 42, 'you')       # this will lead to an ValueError
+       ... def some_calculation(a, b, c):
+       ...     print(a, b, c)
+       >>> some_calculation('Hi', '   ', 'you')
+       Traceback (most recent call last):
+       ...
+       AssertionError: In function some_calculation:
+        Arguments of function "some_calculation" should be a not empty string! Got:
+       >>> some_calculation('Hi', None, 'you')
+       Traceback (most recent call last):
+       ...
+       AssertionError: In function some_calculation:
+        Arguments of function "some_calculation" should be a not empty string! Got:None
+       >>> some_calculation('Hi', 42, 'you')
+       Traceback (most recent call last):
+       ...
+       AssertionError: In function some_calculation:
+        Arguments of function "some_calculation" should be a not empty string! Got:42
    """
     def validator(arg: Any) -> Tuple[bool, str]:
         return arg is not None and type(arg) is str and len(arg.strip()) > 0, \
-            f'Arguments of function "{func.__name__}" should be a not empty string! Got: {arg}'
+            f'Arguments of function "{func.__name__}" should be a not empty string! Got:{str(arg).strip()}'
     return validate_args(validator=validator, is_class_decorator=is_class_decorator)(func)
 
 
-def pedantic(func: Callable, is_class_decorator: bool = False) -> Callable:
+def pedantic(func: Callable[..., Any], is_class_decorator: bool = False) -> Callable[..., Any]:
     """
        Checks the types and throw an AssertionError if a type is incorrect.
        This decorator reads the type hints and use them as contracts that will be checked.
@@ -247,13 +337,28 @@ def pedantic(func: Callable, is_class_decorator: bool = False) -> Callable:
 
        Example:
        >>> @pedantic
-       >>> def some_calculation(a: int, b: float, c: str) -> bool:
-       >>>     print(a, b, c)
-       >>>     return float(a) == b
-       >>> some_calculation(a=42.0, b=14.0, c='you')   # this will lead to an AssertionError
-       >>> some_calculation(a=42, b=None, c='you')     # this will lead to an AssertionError
-       >>> some_calculation(a=42, b=42, c='you')       # this will lead to an AssertionError
-       >>> some_calculation(5, 4.0, 'hi')              # this will lead to an AssertionError
+       ... def some_calculation(a: int, b: float, c: str) -> bool:
+       ...     return float(a) == b and str(b) == c
+       >>> some_calculation(a=42.0, b=14.0, c='you')
+       Traceback (most recent call last):
+       ...
+       AssertionError: In function some_calculation:
+        Type hint is incorrect: Passed Argument a=42.0 does not have type <class 'int'>.
+       >>> some_calculation(a=42, b=None, c='you')
+       Traceback (most recent call last):
+       ...
+       AssertionError: In function some_calculation:
+        Type hint is incorrect: Passed Argument b=None does not have type <class 'float'>.
+       >>> some_calculation(a=42, b=42, c='you')
+       Traceback (most recent call last):
+       ...
+       AssertionError: In function some_calculation:
+        Type hint is incorrect: Passed Argument b=42 does not have type <class 'float'>.
+       >>> some_calculation(5, 4.0, 'hi')
+       Traceback (most recent call last):
+       ...
+       AssertionError: In function some_calculation:
+        Use kwargs when you call function some_calculation. Args: (5, 4.0, 'hi')
    """
 
     decorated_func = DecoratedFunction(func=func)
@@ -270,8 +375,8 @@ def pedantic(func: Callable, is_class_decorator: bool = False) -> Callable:
     return wrapper
 
 
-def pedantic_require_docstring(func: Callable, is_class_decorator: bool = False) -> Callable:
-    """It's like pedantic, but now it forces you to write docstrings (Google format)."""
+def pedantic_require_docstring(func: Callable[..., Any], is_class_decorator: bool = False) -> Callable[..., Any]:
+    """Same as pedantic, but now it forces you to write docstrings (Google style)."""
     decorated_func = DecoratedFunction(func=func)
     _assert_has_correct_docstring(decorated_func=decorated_func)
 
@@ -396,7 +501,7 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
                 f'Expected {expected_type} but documented is {docstring_param.type_name}.'
 
 
-def _assert_uses_kwargs(func: Callable, args: Tuple[Any, ...], is_class_decorator: bool) -> None:
+def _assert_uses_kwargs(func: Callable[..., Any], args: Tuple[Any, ...], is_class_decorator: bool) -> None:
     if _is_func_that_require_kwargs(func=func):
         args_without_self = _get_args_without_self(f=func, args=args, is_class_decorator=is_class_decorator)
         assert args_without_self == (), \
@@ -470,3 +575,8 @@ def _raise_warning(msg: str, category: Type[Warning]):
     warnings.simplefilter('always', category)  # turn off filter
     warnings.warn(msg, category=category, stacklevel=2)
     warnings.simplefilter('default', category)  # reset filter
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

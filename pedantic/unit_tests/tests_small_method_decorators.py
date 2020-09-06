@@ -4,7 +4,8 @@ import warnings
 # local file imports
 from pedantic.custom_exceptions import TooDirtyException, NotImplementedException
 from pedantic.method_decorators import overrides, deprecated, needs_refactoring, dirty, timer, count_calls, \
-    unimplemented, validate_args, require_not_none, require_not_empty_strings, trace, trace_if_returns
+    unimplemented, validate_args, require_not_none, require_not_empty_strings, trace, trace_if_returns, \
+    does_same_as_function
 
 
 class TestSmallDecoratorMethods(unittest.TestCase):
@@ -180,3 +181,28 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         traced_method = trace_if_returns(100)(some_method)
         self.assertEqual(some_method(42, 99), traced_method(42, 99))
         self.assertEqual(some_method(42, 58), traced_method(42, 58))
+
+    def test_does_same_as_function(self):
+
+        def some_method(x, y, z):
+            return x * (y + z)
+
+        @does_same_as_function(some_method)
+        def other_method(x, y, z):
+            return x * y + x * z
+
+        other_method(1, 2, 3)
+        other_method(4, 5, 6)
+
+    def test_does_same_as_function_wrong(self):
+
+        def some_method(x, y, z):
+            return x * (y + z)
+
+        @does_same_as_function(some_method)
+        def other_method(x, y, z):
+            return x * y + z
+
+        other_method(0, 2, 0)
+        with self.assertRaises(expected_exception=AssertionError):
+            other_method(4, 5, 6)
