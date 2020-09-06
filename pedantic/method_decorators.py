@@ -324,7 +324,6 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
             assert class_name == expected_type, \
                 f'{err} Type hint is incorrect. Expected: {expected_type} but was {class_name} instead.'
         else:
-            print('check param', actual_value, expected_type, type_vars)
             assert _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
                                                 err_prefix=err, type_vars=type_vars), \
                 f'{err} Type hint is incorrect: ' \
@@ -338,7 +337,6 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
             f'{err} Type hint is incorrect: Expected: {expected_result_type} ' \
             f'but was {result.__class__.__name__} instead.'
     else:
-        print('check res', type_vars)
         assert _is_value_matching_type_hint(value=result, type_hint=expected_result_type,
                                             err_prefix=err, type_vars=type_vars), \
             f'{err} Return type is incorrect: Expected {expected_result_type} ' \

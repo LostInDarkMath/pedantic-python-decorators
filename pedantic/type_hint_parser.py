@@ -16,7 +16,6 @@ def trace(func: typing.Callable) -> typing.Callable:
         original_result = func(*args, **kwargs)
         print(f'Trace: {datetime.now()} {func.__name__}() returned {original_result!r}')
         return original_result
-
     return wrapper
 
 
@@ -41,7 +40,7 @@ def is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
         f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
 
     if type_.__module__ == 'typing':
-        if _is_qualified_generic(type_):
+        if _is_generic(type_):
             base_generic = _get_base_generic(type_)
         else:
             base_generic = type_
@@ -51,13 +50,7 @@ def is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
             validator = _SPECIAL_INSTANCE_CHECKERS[name]
             return validator(obj, type_, type_vars)
 
-    # TODO this is only used for Sequence[TypeVar]???
-    if _is_base_generic(type_):
-        # raise ValueError('lolo')
-        python_type = _get_python_type(type_)
-        return isinstance(obj, python_type)
-
-    if _is_qualified_generic(type_):
+    if _is_generic(type_):
         python_type = _get_python_type(type_)
         if not isinstance(obj, python_type):
             return False
@@ -69,15 +62,14 @@ def is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
         return validator(obj, type_args, type_vars)
 
     if isinstance(type_, typing.TypeVar):
-        print(type_vars)
         if type_ in type_vars:
-            print('asked dict')
-            assert type(obj) == type(type_vars[type_]), f'For TypeVar {type_} there were values {obj} and {type_vars[type_]} which does not have the same type.'
+            other = type_vars[type_]
+            assert type(obj) == type(other), \
+                f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} and value ' \
+                f'{other} has type {type(other)}'
         else:
             type_vars[type_] = obj
-            print('added to dict')
-        return True  # TODO
-        # raise ValueError(f'How to check if {1} is of TypeVar {type_}?')
+        return True
 
     if _is_type_newtype(type_):
         return isinstance(obj, type_.__supertype__)
@@ -85,16 +77,10 @@ def is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
     return isinstance(obj, type_)
 
 
-# def _is_instance_newtype(obj: typing.Any, type_: typing.Any) -> bool:
-
-
-# leaf
 def _is_type_newtype(type_: typing.Any) -> bool:
     return type_.__qualname__ == typing.NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
 
 
-# mother: is_instance
-# Leaf
 def _get_name(cls: typing.Any) -> str:
     """
     Examples:
@@ -111,41 +97,22 @@ def _get_name(cls: typing.Any) -> str:
         return type(cls).__name__[1:]
 
 
-# mother: is_instance
-def _is_qualified_generic(cls) -> bool:
-    """
-    Detects generics with arguments, for example `List[int]` (but not `List`)
-    Examples:
-        >>> _is_qualified_generic(int)  # float, bool, str
-        False
-        >>> _is_qualified_generic(typing.List[int])
-        True
-        >>> _is_qualified_generic(typing.List[typing.List[int]])
-        True
-        >>> _is_qualified_generic(typing.Any])
-        False
-        >>> _is_qualified_generic(typing.Callable[[int], int])
-        True
-    """
-    return _is_generic(cls) and not _is_base_generic(cls)
-
-
-# mothers: _is_qualified_generic, _is_subtype
+# mothers: is_instance, _is_subtype
 # leaf
 def _is_generic(cls: typing.Any) -> bool:
     """
     Detects any kind of generic, for example `List` or `List[int]`. This includes "special" types like
     Union and Tuple - anything that's subscriptable, basically.
     Examples:
-        >>> _is_qualified_generic(int)  # float, bool, str
+        >>> _is_generic(int)  # float, bool, str
         False
-        >>> _is_qualified_generic(typing.List[int])
+        >>> _is_generic(typing.List[int])
         True
-        >>> _is_qualified_generic(typing.List[typing.List[int]])
+        >>> _is_generic(typing.List[typing.List[int]])
         True
-        >>> _is_qualified_generic(typing.Any])
+        >>> _is_generic(typing.Any])
         False
-        >>> _is_qualified_generic(typing.Callable[[int], int])
+        >>> _is_generic(typing.Callable[[int], int])
         True
     """
     if hasattr(typing, '_GenericAlias'):
@@ -160,9 +127,8 @@ def _is_generic(cls: typing.Any) -> bool:
     return False
 
 
-# mothers: is_qualified_generic, _is_subtype, is_instance, _instancecheck_callable
-# TODO i think this method is senseless if we use _has_required_type_arguments
-# almost as leaf
+# mothers: _is_subtype, _instancecheck_callable
+# leaf
 def _is_base_generic(cls: typing.Any) -> bool:
     """
         Detects generic base classes.
@@ -270,13 +236,13 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     if hasattr(typing, 'get_args'):
         # Python 3.8.0 throws index error here, for argument cls = typing.Callable (without type arguments)
         try:
-            return _clean_type_arguments(args=typing.get_args(cls))
+            return typing.get_args(cls)
         except IndexError:
             return ()
     elif hasattr(cls, '__args__'):
         # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
 
-        res = _clean_type_arguments(args=cls.__args__)
+        res = cls.__args__
         if res == ():
             return ()
 
@@ -286,14 +252,6 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
         return res
     else:
         return ()
-
-
-# mother: _get_type_arguments
-# leaf #TODO remove this
-def _clean_type_arguments(args: typing.Tuple[typing.Any, ...]) -> typing.Tuple[typing.Any, ...]:
-    # if args is None or args == () or any([isinstance(o, typing.TypeVar) for o in args]):
-    #     return ()
-    return args
 
 
 # mother: get_type_arguments
@@ -316,6 +274,66 @@ def _get_base_generic(cls: typing.Any) -> typing.Any:
         return cls.__origin__
     else:
         return getattr(typing, cls._name)
+
+
+# recursive
+# mother: _instancecheck_callable
+def _is_subtype(sub_type, super_type):
+    if not _is_generic(sub_type):
+        python_super = _python_type(super_type)
+        python_sub = _python_type(sub_type)
+        return issubclass(python_sub, python_super)
+
+    # at this point we know `sub_type` is a generic
+    python_sub = _python_type(sub_type)
+    python_super = _python_type(super_type)
+    if not issubclass(python_sub, python_super):
+        return False
+
+    # at this point we know that `sub_type`'s base type is a subtype of `super_type`'s base type.
+    # If `super_type` isn't qualified, then there's nothing more to do.
+    if not _is_generic(super_type) or _is_base_generic(super_type):
+        return True
+
+    # at this point we know that `super_type` is a qualified generic... so if `sub_type` isn't
+    # qualified, it can't be a subtype.
+    if _is_base_generic(sub_type):
+        return False
+
+    # at this point we know that both types are qualified generics, so we just have to
+    # compare their sub-types.
+    sub_args = _get_subtypes(sub_type)
+    super_args = _get_subtypes(super_type)
+    return all(_is_subtype(sub_arg, super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
+
+
+# mother: _is_subtype
+def _python_type(annotation):
+    """
+    Given a type annotation or a class as input, returns the corresponding python class.
+
+    Examples:
+        >>> _python_type(typing.Dict)
+        <class 'dict'>
+        >>> _python_type(typing.List[int])
+        <class 'list'>
+        >>> _python_type(int)
+        <class 'int'>
+        >>> _python_type(typing.Any)
+        <class 'object'>
+    """
+    if hasattr(annotation, 'mro'):
+        mro = annotation.mro()
+        if typing.Type in mro:
+            return annotation._python_type
+        elif annotation.__module__ == 'typing':
+            return _get_python_type(annotation)
+        else:
+            return annotation
+    elif annotation == typing.Any or annotation == Ellipsis:
+        return object
+    else:
+        return _get_python_type(annotation)
 
 
 # mothers: is_instance, _python_type
@@ -370,7 +388,6 @@ def _instancecheck_tuple(tup, type_args, type_vars) -> bool:
     return all(is_instance(val, type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
 
 
-# TODO WTF
 _ORIGIN_TYPE_CHECKERS = {}
 for class_path, check_func in {
     # iterables
@@ -459,63 +476,3 @@ _SPECIAL_INSTANCE_CHECKERS = {
     'Callable': _instancecheck_callable,
     'Any': lambda v, t, tv: True,
 }
-
-
-# recursive
-# mother: _instancecheck_callable
-def _is_subtype(sub_type, super_type):
-    if not _is_generic(sub_type):
-        python_super = _python_type(super_type)
-        python_sub = _python_type(sub_type)
-        return issubclass(python_sub, python_super)
-
-    # at this point we know `sub_type` is a generic
-    python_sub = _python_type(sub_type)
-    python_super = _python_type(super_type)
-    if not issubclass(python_sub, python_super):
-        return False
-
-    # at this point we know that `sub_type`'s base type is a subtype of `super_type`'s base type.
-    # If `super_type` isn't qualified, then there's nothing more to do.
-    if not _is_generic(super_type) or _is_base_generic(super_type):
-        return True
-
-    # at this point we know that `super_type` is a qualified generic... so if `sub_type` isn't
-    # qualified, it can't be a subtype.
-    if _is_base_generic(sub_type):
-        return False
-
-    # at this point we know that both types are qualified generics, so we just have to
-    # compare their sub-types.
-    sub_args = _get_subtypes(sub_type)
-    super_args = _get_subtypes(super_type)
-    return all(_is_subtype(sub_arg, super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
-
-
-# mother: _is_subtype
-def _python_type(annotation):
-    """
-    Given a type annotation or a class as input, returns the corresponding python class.
-
-    Examples:
-        >>> _python_type(typing.Dict)
-        <class 'dict'>
-        >>> _python_type(typing.List[int])
-        <class 'list'>
-        >>> _python_type(int)
-        <class 'int'>
-        >>> _python_type(typing.Any)
-        <class 'object'>
-    """
-    if hasattr(annotation, 'mro'):
-        mro = annotation.mro()
-        if typing.Type in mro:
-            return annotation._python_type
-        elif annotation.__module__ == 'typing':
-            return _get_python_type(annotation)
-        else:
-            return annotation
-    elif annotation == typing.Any or annotation == Ellipsis:
-        return object
-    else:
-        return _get_python_type(annotation)
