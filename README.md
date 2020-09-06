@@ -1,6 +1,35 @@
 # pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators.svg?branch=master)](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators)  [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic)
-Some useful decorators which I use in almost every python project.
-These decorators will make you write cleaner and well-documented Python code.
+These decorators will make you write cleaner and well-documented Python code. 
+
+## Table of contents
+  * [The powerful decorators](#the-powerful-decorators)
+    + [@pedantic](#-pedantic)
+    + [@pedantic_require_docstring](#-pedantic-require-docstring)
+    + [@validate_args](#-validate-args)
+  * [The small decorators:](#the-small-decorators-)
+    + [@overrides](#-overrides)
+    + [@deprecated](#-deprecated)
+    + [@unimplemented](#-unimplemented)
+    + [@needs_refactoring](#-needs-refactoring)
+    + [@dirty](#-dirty)
+    + [@require_kwargs](#-require-kwargs)
+    + [@timer](#-timer)
+    + [@count_calls](#-count-calls)
+    + [@trace](#-trace)
+    + [@trace_if_returns](#-trace-if-returns)
+    + [@does_same_as_function](#-does-same-as-function)
+  * [Decorators for classes](#decorators-for-classes)
+- [How to start](#how-to-start)
+  * [Installation](#installation)
+  * [Option 1: Installing with pip from Pypi](#option-1--installing-with-pip-from--pypi--https---pypiorg--)
+  * [Option 2: Installing with pip and git](#option-2--installing-with-pip-and-git)
+  * [Option 3: Offline installation using wheel](#option-3--offline-installation-using-wheel)
+  * [Usage](#usage)
+  * [Dependencies](#dependencies)
+  * [Risks and Side Effects](#risks-and-side-effects)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 
 ## The powerful decorators
 ### @pedantic
@@ -227,7 +256,7 @@ m.print(s='Hi')
 
 # How to start
 ## Installation
-## Option 1: installing with pip from [Pypi](https://pypi.org/)
+## Option 1: Installing with pip from [Pypi](https://pypi.org/)
 Run `pip install pedantic`.
 
 ## Option 2: Installing with pip and git
