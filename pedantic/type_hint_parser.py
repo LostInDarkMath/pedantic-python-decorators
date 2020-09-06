@@ -26,6 +26,19 @@ def trace(func: typing.Callable) -> typing.Callable:
     return wrapper
 
 
+# TODO remove this
+def trace_if_returns(return_value):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            if result == return_value:
+                print(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
+            return result
+        return wrapper
+    return decorator
+
+
 def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
     """The main function of this module."""
 
@@ -40,6 +53,7 @@ def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
             validator = _SPECIAL_INSTANCE_CHECKERS[name]
             return validator(obj, type_)
 
+    # TODO this is never used
     if _is_base_generic(type_):
         python_type = _get_python_type(type_)
         return isinstance(obj, python_type)
@@ -56,6 +70,24 @@ def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
         return validator(obj, type_args)
 
     return isinstance(obj, type_)
+
+
+# mother: is_instance
+# Leaf
+def _get_name(cls: typing.Any) -> str:
+    """
+    Examples:
+        >>> _get_name(typing.Tuple)
+        'Tuple'
+         >>> _get_name(typing.Callable)
+        'Callable'
+    """
+    if hasattr(typing, '_GenericAlias'):
+        return cls._name
+    elif hasattr(cls, '__name__'):
+        return cls.__name__
+    else:
+        return type(cls).__name__[1:]
 
 
 # mother: is_instance
@@ -77,25 +109,8 @@ def _is_qualified_generic(cls) -> bool:
     return _is_generic(cls) and not _is_base_generic(cls)
 
 
-# mother: is_instance
-# Leaf
-def _get_name(cls: typing.Any) -> str:
-    """
-    Examples:
-        >>> _get_name(typing.Tuple)
-        'Tuple'
-         >>> _get_name(typing.Callable)
-        'Callable'
-    """
-    if hasattr(typing, '_GenericAlias'):
-        return cls._name
-    elif hasattr(cls, '__name__'):
-        return cls.__name__
-    else:
-        return type(cls).__name__[1:]
-
-
 # mothers: _is_qualified_generic, _is_subtype
+# leaf
 def _is_generic(cls: typing.Any) -> bool:
     """
     Detects any kind of generic, for example `List` or `List[int]`. This includes "special" types like
@@ -126,23 +141,26 @@ def _is_generic(cls: typing.Any) -> bool:
 
 # mothers: is_qualified_generic, _is_subtype, is_instance, _instancecheck_callable
 # TODO i think this method is senseless if we use _has_required_type_arguments
+# almost as leaf
 def _is_base_generic(cls: typing.Any) -> bool:
     """
-       Detects generic base classes.
+        Detects generic base classes.
 
-       Examples:
-       >>> is_base_generic(int)  # int, float, str, bool
-       >>> False
-       >>> is_base_generic(typing.List)
-       >>> True
-       >>> is_base_generic(typing.Callable)
-       >>> True
-       >>> is_base_generic(typing.List[int])
-       >>> False
-       >>> is_base_generic(typing.Callable[[int], str])
-       >>> False
-       >>> is_base_generic(typing.List[typing.List[int]])
-       >>> False
+        Examples:
+        >>> _is_base_generic(int)  # int, float, str, bool
+        False
+        >>> _is_base_generic(typing.List)
+        True
+        >>> _is_base_generic(typing.Callable)
+        True
+        >>> _is_base_generic(typing.List[int])
+        False
+        >>> _is_base_generic(typing.Callable[[int], str])
+        False
+        >>> _is_base_generic(typing.List[typing.List[int]])
+        False
+        >>> _is_base_generic(list)
+        False
     """
 
     # TODO this call is bad here
@@ -206,6 +224,7 @@ def _has_required_type_arguments(cls: typing.Any) -> bool:
 
 
 # mother: _has_required_type_arguments
+# leaf
 def _get_base_class_as_str(cls: typing.Any) -> str:
     """Example:
     >>> _get_base_class_as_str(typing.List[int])
@@ -250,6 +269,7 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
 
 
 # mother: _get_type_arguments
+# leaf
 def _clean_type_arguments(args: typing.Tuple[typing.Any, ...]) -> typing.Tuple[typing.Any, ...]:
     if args is None or args == () or any([isinstance(o, typing.TypeVar) for o in args]):
         return ()
@@ -259,13 +279,15 @@ def _clean_type_arguments(args: typing.Tuple[typing.Any, ...]) -> typing.Tuple[t
 # mother: get_type_arguments
 def _get_origin(cls: typing.Any) -> typing.Any:
     """Examples:
-    >>> _get_origin(typing.List[float])
-    >>> <class 'list'>
+        >>> _get_origin(typing.List[float])
+        <class 'list'>
     """
     return typing.get_origin(cls) if hasattr(typing, 'get_origin') else cls.__origin__
 
 
 # mothers: is_instance, _get_subtypes
+# leaf
+# TODO could be related to get_origin
 def _get_base_generic(cls: typing.Any) -> typing.Any:
     if not hasattr(typing, '_GenericAlias'):
         return cls.__origin__
@@ -277,6 +299,7 @@ def _get_base_generic(cls: typing.Any) -> typing.Any:
 
 
 # mothers: is_instance, _python_type
+# leaf
 def _get_python_type(cls: typing.Any) -> typing.Any:
     """Like `python_type`, but only works with `typing` classes."""
     if hasattr(typing, '_GenericAlias'):
@@ -358,11 +381,11 @@ for class_path, check_func in {
     'typing.Tuple': _instancecheck_tuple,
 }.items():
     try:
-        cls = eval(class_path)
+        class_ = eval(class_path)
     except AttributeError:
         continue
 
-    _ORIGIN_TYPE_CHECKERS[cls] = check_func
+    _ORIGIN_TYPE_CHECKERS[class_] = check_func
 
 
 def _instancecheck_callable(value, type_):
