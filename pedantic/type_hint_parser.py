@@ -15,7 +15,7 @@ def is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
 
     if type_.__module__ == 'typing':
         if _is_generic(type_):
-            origin = _get_origin(type_)
+            origin = _get_base_generic(type_)
         else:
             origin = type_
         name = _get_name(origin)
@@ -29,7 +29,7 @@ def is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
         if not isinstance(obj, python_type):
             return False
 
-        base = _get_origin(type_)
+        base = _get_base_generic(type_)
         validator = _ORIGIN_TYPE_CHECKERS[base]
 
         type_args = _get_subtypes(type_)
@@ -205,7 +205,8 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
         if res == ():
             return ()
 
-        origin = _get_origin(cls)
+        # origin = _get_origin(cls)
+        origin = _get_base_generic(cls)
         if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
             res = (list(res[:-1]), res[-1])
         return res
@@ -213,12 +214,19 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
         return ()
 
 
-def _get_origin(cls: typing.Any) -> typing.Any:
-    """Examples:
-        >>> _get_origin(typing.List[float])
-        <class 'list'>
+def _get_base_generic(cls: typing.Any) -> typing.Any:
     """
-    return typing.get_origin(cls) if hasattr(typing, 'get_origin') else cls.__origin__
+    Examples:
+    >>> _get_base_generic(typing.List[float])
+    typing.List
+    """
+    if not hasattr(typing, '_GenericAlias'):
+        return cls.__origin__
+
+    if cls._name is None:
+        return cls.__origin__
+    else:
+        return getattr(typing, cls._name)
 
 
 def _is_subtype(sub_type, super_type):
@@ -291,7 +299,7 @@ def _get_python_type(cls: typing.Any) -> typing.Any:
 def _get_subtypes(cls):
     subtypes = cls.__args__
 
-    if _get_origin(cls) is typing.Callable:
+    if _get_base_generic(cls) is typing.Callable:
         if len(subtypes) != 2 or subtypes[0] is not ...:
             subtypes = (subtypes[:-1], subtypes[-1])
     return subtypes
