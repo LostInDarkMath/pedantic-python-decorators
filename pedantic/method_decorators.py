@@ -1,6 +1,6 @@
 import functools
 import inspect
-from typing import Callable, Any, Tuple, Dict, Type, Union
+from typing import Callable, Any, Tuple, Dict, Type, Union, TypeVar
 from datetime import datetime
 import warnings
 import re
@@ -292,6 +292,7 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
     func = decorated_func.func
     params = decorated_func.signature.parameters
     err = decorated_func.err
+    type_vars = {}
 
     _assert_uses_kwargs(func=func, args=args, is_class_decorator=is_class_decorator)
 
@@ -323,7 +324,9 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
             assert class_name == expected_type, \
                 f'{err} Type hint is incorrect. Expected: {expected_type} but was {class_name} instead.'
         else:
-            assert _is_value_matching_type_hint(value=actual_value, type_hint=expected_type, err_prefix=err), \
+            print('check param', actual_value, expected_type, type_vars)
+            assert _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
+                                                err_prefix=err, type_vars=type_vars), \
                 f'{err} Type hint is incorrect: ' \
                 f'Passed Argument {key}={actual_value} does not have type {expected_type}.'
 
@@ -335,7 +338,9 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
             f'{err} Type hint is incorrect: Expected: {expected_result_type} ' \
             f'but was {result.__class__.__name__} instead.'
     else:
-        assert _is_value_matching_type_hint(value=result, type_hint=expected_result_type, err_prefix=err), \
+        print('check res', type_vars)
+        assert _is_value_matching_type_hint(value=result, type_hint=expected_result_type,
+                                            err_prefix=err, type_vars=type_vars), \
             f'{err} Return type is incorrect: Expected {expected_result_type} ' \
             f'but {result} was the return value which does not match.'
     return result
@@ -439,7 +444,7 @@ def _uses_multiple_decorators(func: Callable[..., Any], max_allowed: int = 1) ->
     return len(re.findall('@', inspect.getsource(func).split('def')[0])) > max_allowed
 
 
-def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str) -> bool:
+def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, type_vars: Dict[TypeVar, Any]) -> bool:
     """Wrapper for file "type_hint_parser.py"."""
 
     if type_hint is None:
@@ -452,7 +457,7 @@ def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str) ->
     assert type_hint is not frozenset, f'{err_prefix} Use "FrozenSet[]" instead of "frozenset" as type hint.'
 
     try:
-        return is_instance(value, type_hint)
+        return is_instance(value, type_hint, type_vars)
     except AssertionError as ex:
         raise AssertionError(f'{err_prefix} {ex}')
     except (AttributeError, Exception) as ex:

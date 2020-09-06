@@ -10,19 +10,13 @@ typing_protocol = typing.Protocol if hasattr(typing, 'Protocol') else typing._Pr
 
 # TODO remove this
 def trace(func: typing.Callable) -> typing.Callable:
-    """
-       Prints the passed arguments and keyword arguments and return values on each function call.
-       Example:
-       >>> @trace
-       >>> def some_calculation(a, b, c):
-       >>>     return a + b + c
-    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> typing.Any:
         print(f'Trace: {datetime.now()} calling {func.__name__}()  with {args}, {kwargs}')
         original_result = func(*args, **kwargs)
         print(f'Trace: {datetime.now()} {func.__name__}() returned {original_result!r}')
         return original_result
+
     return wrapper
 
 
@@ -39,8 +33,12 @@ def trace_if_returns(return_value):
     return decorator
 
 
-def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
-    """The main function of this module."""
+def is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
+    """The main function of this module. It is called recursively for nested types."""
+
+    assert _has_required_type_arguments(type_), \
+        f'The type annotation "{type_}" misses some type arguments e.g. ' \
+        f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
 
     if type_.__module__ == 'typing':
         if _is_qualified_generic(type_):
@@ -51,10 +49,11 @@ def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
 
         if name in _SPECIAL_INSTANCE_CHECKERS:
             validator = _SPECIAL_INSTANCE_CHECKERS[name]
-            return validator(obj, type_)
+            return validator(obj, type_, type_vars)
 
-    # TODO this is never used
+    # TODO this is only used for Sequence[TypeVar]???
     if _is_base_generic(type_):
+        # raise ValueError('lolo')
         python_type = _get_python_type(type_)
         return isinstance(obj, python_type)
 
@@ -67,9 +66,31 @@ def is_instance(obj: typing.Any, type_: typing.Any) -> bool:
         validator = _ORIGIN_TYPE_CHECKERS[base]
 
         type_args = _get_subtypes(type_)
-        return validator(obj, type_args)
+        return validator(obj, type_args, type_vars)
+
+    if isinstance(type_, typing.TypeVar):
+        print(type_vars)
+        if type_ in type_vars:
+            print('asked dict')
+            assert type(obj) == type(type_vars[type_]), f'For TypeVar {type_} there were values {obj} and {type_vars[type_]} which does not have the same type.'
+        else:
+            type_vars[type_] = obj
+            print('added to dict')
+        return True  # TODO
+        # raise ValueError(f'How to check if {1} is of TypeVar {type_}?')
+
+    if _is_type_newtype(type_):
+        return isinstance(obj, type_.__supertype__)
 
     return isinstance(obj, type_)
+
+
+# def _is_instance_newtype(obj: typing.Any, type_: typing.Any) -> bool:
+
+
+# leaf
+def _is_type_newtype(type_: typing.Any) -> bool:
+    return type_.__qualname__ == typing.NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
 
 
 # mother: is_instance
@@ -163,11 +184,6 @@ def _is_base_generic(cls: typing.Any) -> bool:
         False
     """
 
-    # TODO this call is bad here
-    assert _has_required_type_arguments(cls), \
-        f'The type annotation "{cls}" misses some type arguments e.g. ' \
-        f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
-
     if hasattr(typing, '_GenericAlias'):
         if isinstance(cls, typing._GenericAlias):
             if cls.__origin__ in {typing.Generic, typing_protocol}:
@@ -189,7 +205,7 @@ def _is_base_generic(cls: typing.Any) -> bool:
     return False
 
 
-# mother: is_base_generic
+# mother: is_instance
 def _has_required_type_arguments(cls: typing.Any) -> bool:
     """Examples:
     >>> _has_required_type_arguments(typing.List)
@@ -206,6 +222,7 @@ def _has_required_type_arguments(cls: typing.Any) -> bool:
         'typing.Set': 1,
         'typing.FrozenSet': 1,
         'typing.Iterable': 1,
+        'typing.Sequence': 1,
         'typing.Dict': 2,
         'typing.Optional': 2,  # because typing.get_args(typing.Optional[int]) returns (int, None)
     }
@@ -214,6 +231,9 @@ def _has_required_type_arguments(cls: typing.Any) -> bool:
         'typing.Union': 2,
     }
     base: str = _get_base_class_as_str(cls=cls)
+
+    if '[' not in str(cls) and (base in requirements_min or base in requirements_exact):
+        return False
 
     if base in requirements_exact:
         return requirements_exact[base] == num_type_args
@@ -269,10 +289,10 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
 
 
 # mother: _get_type_arguments
-# leaf
+# leaf #TODO remove this
 def _clean_type_arguments(args: typing.Tuple[typing.Any, ...]) -> typing.Tuple[typing.Any, ...]:
-    if args is None or args == () or any([isinstance(o, typing.TypeVar) for o in args]):
-        return ()
+    # if args is None or args == () or any([isinstance(o, typing.TypeVar) for o in args]):
+    #     return ()
     return args
 
 
@@ -320,32 +340,34 @@ def _get_subtypes(cls):
     return subtypes
 
 
-def _instancecheck_iterable(iterable, type_args):
+def _instancecheck_iterable(iterable, type_args, type_vars):
     type_ = type_args[0]
-    return all(is_instance(val, type_) for val in iterable)
+    return all(is_instance(val, type_, type_vars=type_vars) for val in iterable)
 
 
-def _instancecheck_mapping(mapping, type_args):
-    return _instancecheck_itemsview(mapping.items(), type_args)
+def _instancecheck_mapping(mapping, type_args, type_vars):
+    return _instancecheck_itemsview(mapping.items(), type_args, type_vars=type_vars)
 
 
-def _instancecheck_itemsview(itemsview, type_args):
+def _instancecheck_itemsview(itemsview, type_args, type_vars):
     key_type, value_type = type_args
-    return all(is_instance(key, key_type) and is_instance(val, value_type) for key, val in itemsview)
+    return all(is_instance(key, key_type, type_vars=type_vars) and
+               is_instance(val, value_type, type_vars=type_vars)
+               for key, val in itemsview)
 
 
-def _instancecheck_tuple(tup, type_args) -> bool:
+def _instancecheck_tuple(tup, type_args, type_vars) -> bool:
     """Examples:
     >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(typing.Any, Ellipsis))  # = Tuple[Any, ...]
     >>> True
     """
     if Ellipsis in type_args:
-        return all(is_instance(val, type_args[0]) for val in tup)
+        return all(is_instance(val, type_args[0], type_vars=type_vars) for val in tup)
 
     if len(tup) != len(type_args):
         return False
 
-    return all(is_instance(val, type_) for val, type_ in zip(tup, type_args))
+    return all(is_instance(val, type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
 
 
 # TODO WTF
@@ -388,7 +410,7 @@ for class_path, check_func in {
     _ORIGIN_TYPE_CHECKERS[class_] = check_func
 
 
-def _instancecheck_callable(value, type_):
+def _instancecheck_callable(value, type_, _):
     if not callable(value):
         return False
 
@@ -421,21 +443,21 @@ def _instancecheck_callable(value, type_):
         if not _is_subtype(sig.return_annotation, ret_type):
             return False
 
-    assert not missing_annotations,\
+    assert not missing_annotations, \
         f'Parsing of type annotations failed. Maybe you are about to return a lambda expression. ' \
         f'Try returning an inner function instead. {missing_annotations}'
     return True
 
 
-def _instancecheck_union(value, type_):
+def _instancecheck_union(value, type_, type_vars):
     types = _get_subtypes(type_)
-    return any(is_instance(value, typ) for typ in types)
+    return any(is_instance(value, typ, type_vars=type_vars) for typ in types)
 
 
 _SPECIAL_INSTANCE_CHECKERS = {
     'Union': _instancecheck_union,
     'Callable': _instancecheck_callable,
-    'Any': lambda v, t: True,
+    'Any': lambda v, t, tv: True,
 }
 
 

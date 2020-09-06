@@ -1,5 +1,5 @@
 import unittest
-from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet
+from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
 
 # local file imports
 from pedantic.method_decorators import pedantic
@@ -873,8 +873,81 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         calc(ls=['1', '2', '3'])
         calc(ls=[10.5, '2', (3, 4, 5)])
 
+    def test_aliases(self):
+        Vector = List[float]
+
+        @pedantic
+        def scale(scalar: float, vector: Vector) -> Vector:
+            return [scalar * num for num in vector]
+
+        scale(scalar=2.0, vector=[1.0, -4.2, 5.4])
+
+    def test_new_type(self):
+        UserId = NewType('UserId', int)
+
+        @pedantic
+        def get_user_name(user_id: UserId) -> str:
+            return str(user_id)
+
+        some_id = UserId(524313)
+        get_user_name(user_id=some_id)
+
+        # the following would be desirable but impossible at runtime:
+        # with self.assertRaises(expected_exception=AssertionError):
+        #     get_user_name(user_id=-1)
+
+    def test_list_of_new_type(self):
+        UserId = NewType('UserId', int)
+
+        @pedantic
+        def get_user_name(user_ids: List[UserId]) -> str:
+            return str(user_ids)
+
+        get_user_name(user_ids=[UserId(524313), UserId(42)])
+        with self.assertRaises(expected_exception=AssertionError):
+            get_user_name(user_ids=[UserId(524313), UserId(42), 430.0])
+
+    def test_callable_no_args(self):
+        @pedantic
+        def f(g: Callable[[], str]) -> str:
+            return g()
+
+        @pedantic
+        def greetings() -> str:
+            return 'hello world'
+
+        f(g=greetings)
+
+    def test_type_var(self):
+        T = TypeVar('T')
+
+        @pedantic
+        def first(ls: List[T]) -> T:
+            return ls[0]
+
+        first(ls=[1, 2, 3])
+
+    def test_type_var_wrong(self):
+        T = TypeVar('T')
+
+        @pedantic
+        def first(ls: List[T]) -> T:
+            return str(ls[0])
+
+        with self.assertRaises(expected_exception=AssertionError):
+            first(ls=[1, 2, 3])
+
+    def test_type_var_wrong_sequence(self):
+        T = TypeVar('T')
+
+        @pedantic
+        def first(ls: Sequence[T]) -> T:
+            return str(ls[0])
+
+        with self.assertRaises(expected_exception=AssertionError):
+            first(ls=[1, 2, 3])
+
 
 if __name__ == '__main__':
-    # run a specific unit test
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_instance_method_5()
+    test.test_type_var_wrong()
