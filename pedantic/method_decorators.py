@@ -1,6 +1,6 @@
 import functools
 import inspect
-from typing import Callable, Any, Tuple, Dict, Type, Union, TypeVar
+from typing import Callable, Any, Tuple, Dict, Type, Union
 from datetime import datetime
 import warnings
 import re
@@ -442,8 +442,11 @@ def _uses_multiple_decorators(func: Callable[..., Any], max_allowed: int = 1) ->
     return len(re.findall('@', inspect.getsource(func).split('def')[0])) > max_allowed
 
 
-def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, type_vars: Dict[TypeVar, Any]) -> bool:
-    """Wrapper for file "type_hint_parser.py"."""
+def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, type_vars: Dict[type, Any]) -> bool:
+    """
+    Wrapper for file "type_hint_parser.py".
+    NOTE: Type hint "Dict[TypeVar, Any]" crashes in Python 3.6. So "Dict[type, Any]" must be used here.
+    """
 
     if type_hint is None:
         return value == type_hint
