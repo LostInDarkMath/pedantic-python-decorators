@@ -595,7 +595,7 @@ class TestClassDecorators(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             print(MyStaticClass.double_func(a=0))
 
-    def test_property_1(self):
+    def test_property_0(self):
         @pedantic_class
         class MyClass(object):
             def __init__(self, some_arg: Any) -> None:
