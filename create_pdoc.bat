@@ -1,3 +1,4 @@
 pip install pdoc3
-pdoc3 --html pedantic --force
-"html/pedantic/index.html"
+pdoc3 --html --output-dir docs pedantic --force
+"docs/pedantic/index.html"
+pause

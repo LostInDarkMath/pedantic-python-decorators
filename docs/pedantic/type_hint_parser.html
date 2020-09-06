@@ -359,7 +359,7 @@ def _instancecheck_tuple(tup, type_args, type_vars) -&gt; bool:
 
 
 _ORIGIN_TYPE_CHECKERS = {}
-for class_path, check_func in {
+for class_path, _check_func in {
     # iterables
     &#39;typing.Container&#39;: _instancecheck_iterable,
     &#39;typing.Collection&#39;: _instancecheck_iterable,
@@ -394,7 +394,7 @@ for class_path, check_func in {
     except AttributeError:
         continue
 
-    _ORIGIN_TYPE_CHECKERS[class_] = check_func
+    _ORIGIN_TYPE_CHECKERS[class_] = _check_func
 
 
 def _instancecheck_callable(value, type_, _):
@@ -460,33 +460,6 @@ if __name__ == &#34;__main__&#34;:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="pedantic.type_hint_parser.check_func"><code class="name flex">
-<span>def <span class="ident">check_func</span></span>(<span>tup, type_args, type_vars) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Examples:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(typing.Any, Ellipsis), type_vars={})          # = Tuple[Any, ...]
-True
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def _instancecheck_tuple(tup, type_args, type_vars) -&gt; bool:
-    &#34;&#34;&#34;Examples:
-    &gt;&gt;&gt; _instancecheck_tuple(tup=(42.0, 43, &#39;hi&#39;, &#39;you&#39;), type_args=(typing.Any, Ellipsis), type_vars={})  \
-        # = Tuple[Any, ...]
-    True
-    &#34;&#34;&#34;
-    if Ellipsis in type_args:
-        return all(is_instance(val, type_args[0], type_vars=type_vars) for val in tup)
-
-    if len(tup) != len(type_args):
-        return False
-
-    return all(is_instance(val, type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))</code></pre>
-</details>
-</dd>
 <dt id="pedantic.type_hint_parser.is_instance"><code class="name flex">
 <span>def <span class="ident">is_instance</span></span>(<span>obj: Any, type_: Any, type_vars) ‑> bool</span>
 </code></dt>
@@ -559,7 +532,6 @@ True
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="pedantic.type_hint_parser.check_func" href="#pedantic.type_hint_parser.check_func">check_func</a></code></li>
 <li><code><a title="pedantic.type_hint_parser.is_instance" href="#pedantic.type_hint_parser.is_instance">is_instance</a></code></li>
 </ul>
 </li>

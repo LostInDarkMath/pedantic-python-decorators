@@ -330,7 +330,7 @@ def _instancecheck_tuple(tup, type_args, type_vars) -> bool:
 
 
 _ORIGIN_TYPE_CHECKERS = {}
-for class_path, check_func in {
+for class_path, _check_func in {
     # iterables
     'typing.Container': _instancecheck_iterable,
     'typing.Collection': _instancecheck_iterable,
@@ -365,7 +365,7 @@ for class_path, check_func in {
     except AttributeError:
         continue
 
-    _ORIGIN_TYPE_CHECKERS[class_] = check_func
+    _ORIGIN_TYPE_CHECKERS[class_] = _check_func
 
 
 def _instancecheck_callable(value, type_, _):
