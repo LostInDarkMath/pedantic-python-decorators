@@ -16,3 +16,4 @@ build
 dist
 pedantic.egg-info
 
+STEPS_BEFORE_COMMIT.md

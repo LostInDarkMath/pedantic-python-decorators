@@ -4,13 +4,13 @@ from typing import Callable, Any
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
-def for_all_methods(decorator: Callable) -> Callable:
+def for_all_methods(decorator: Callable[..., Any]) -> Callable[..., Any]:
     """
     Example:
     >>> @for_all_methods(pedantic)
-    >>> class C(object):
-    >>>     def m1(self): pass
-    >>>     def m2(self, x): pass
+    ... class C(object):
+    ...     def m1(self): pass
+    ...     def m2(self, x): pass
     """
     def decorate(cls: Any) -> Any:
         for attr in cls.__dict__:
@@ -32,21 +32,21 @@ def for_all_methods(decorator: Callable) -> Callable:
     return decorate
 
 
-def pedantic_class(cls: Any) -> Callable:
+def pedantic_class(cls: Any) -> Callable[..., Any]:
     """Shortcut for @for_all_methods(pedantic) """
     return for_all_methods(decorator=pedantic)(cls=cls)
 
 
-def pedantic_class_require_docstring(cls: Any) -> Callable:
+def pedantic_class_require_docstring(cls: Any) -> Callable[..., Any]:
     """Shortcut for @for_all_methods(pedantic_require_docstring) """
     return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
 
 
-def trace_class(cls: Any) -> Callable:
+def trace_class(cls: Any) -> Callable[..., Any]:
     """Shortcut for @for_all_methods(trace) """
     return for_all_methods(decorator=trace)(cls=cls)
 
 
-def timer_class(cls: Any) -> Callable:
+def timer_class(cls: Any) -> Callable[..., Any]:
     """Shortcut for @for_all_methods(timer) """
     return for_all_methods(decorator=timer)(cls=cls)

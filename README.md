@@ -1,286 +1,76 @@
 # pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators.svg?branch=master)](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators)  [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic)
 These decorators will make you write cleaner and well-documented Python code. 
 
-## Table of contents
-  * [The powerful decorators](#the-powerful-decorators)
-    + [@pedantic](#-pedantic)
-    + [@pedantic_require_docstring](#-pedantic-require-docstring)
-    + [@validate_args](#-validate-args)
-  * [The small decorators:](#the-small-decorators-)
-    + [@overrides](#-overrides)
-    + [@deprecated](#-deprecated)
-    + [@unimplemented](#-unimplemented)
-    + [@needs_refactoring](#-needs-refactoring)
-    + [@dirty](#-dirty)
-    + [@require_kwargs](#-require-kwargs)
-    + [@timer](#-timer)
-    + [@count_calls](#-count-calls)
-    + [@trace](#-trace)
-    + [@trace_if_returns](#-trace-if-returns)
-    + [@does_same_as_function](#-does-same-as-function)
-  * [Decorators for classes](#decorators-for-classes)
-- [How to start](#how-to-start)
-  * [Installation](#installation)
-  * [Option 1: Installing with pip from Pypi](#option-1--installing-with-pip-from--pypi--https---pypiorg--)
-  * [Option 2: Installing with pip and git](#option-2--installing-with-pip-and-git)
-  * [Option 3: Offline installation using wheel](#option-3--offline-installation-using-wheel)
-  * [Usage](#usage)
-  * [Dependencies](#dependencies)
-  * [Risks and Side Effects](#risks-and-side-effects)
+## Getting Started
+There are multiple options for installing this package.
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
-
-
-[Read the documentation](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic)
-
-## The powerful decorators
-### @pedantic
-The `@pedantic` decorator does the following things:
-- The decorated function can only be called by using keyword arguments. Positional arguments are not accepted. Normally, the following snippets are valid Python code, but `@pedantic` there aren't valid any longer:
-  ```python
-  @pedantic
-  def do(s: str, a: float: b: int) -> List[str]:
-    return [s, str(a + b)]
-
-  do('hi', 3.14, 4)  # error! Correct would be: do(s=hi', a=3.14, b=4)
-  ```
-- The decorated function must have [Type annotations](https://docs.python.org/3/library/typing.html). If some type hints are missing, an `AssertionError` is thrown. Examples:
-  ```python
-  @pedantic
-  def foo():    # will raise an error. Correct would be: def foo() -> None:
-    print'bar'
-
-  @pedantic
-  def foo2(s): # will raise an error. Correct would be: def foo(s: str) -> None:
-    print(s)
-  ```
-- The decorator parses the type annotations and each time the function is called, is checks, the argument matches the type annotations, before the function is executed and that the return value matches the corresponding return type annotation. As a consquence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annoted via `Optional[str]` or equivalently `Union[str, None]`. So the following examples will cause `@pedantic` to raise an error:
-    ```python
-    @pedantic
-    def do(s: str, a: float: b: int) -> List[str]:
-        return [s, str(a + b)]
-
-    do(s=None, a=3.14, b=4)     # will raise an error. None is not a string.
-    de(s='None', a=3.14, b=4.0) # will raise an error: 4.0 is not an int.
-
-    @pedantic
-    def do2(s: str, a: float: b: int) -> List[str]:
-        return [s, a + b]  # will raise an error: Expected List[str], but a + b is a float
-    ```
-- If the decorated function has a docstring, that lists the arguments, the docstring is parsed and compared with the type hints. Because the type hints are checked at runtime, the docstring is also checked at runtime. It is checked, that the type annotations matches exactly the arguments, types and return values in the docstring. Currently, only docstrings in the [Google Format](https://google.github.io/styleguide/pyguide.html) are supported.
-`@pedantic` raises an `AssertionError` if one of the following happend:
-  - Not all arguments the function are documented in the docstring.
-  - There are arguments documented in the doc string, that are not taken by the function.
-  - The return value is not documented.
-  - A return value is documented, but the function does not return anything.
-  - The type annotations in function don't match the documented types in the docstring.
-
-### @pedantic_require_docstring
-It's like `@pedantic`, but it additionally forces developers to create docstrings. It raises an `AssertionError`, if there is no docstring.
-
-### @validate_args
-With the `@validate_args` decorator you can do contract checking *outside* of functions. Just pass a validator in, for example:
-```python
-@validate_args(lambda x: (x > 42, f'Each arg should be > 42, but it was {x}.'))
-def some_calculation(a, b, c):
-    return a + b + c
-
-some_calculation(30, 40, 50)  # this leads to an error
-some_calculation(43, 45, 50)  # this is okay
-```
-The error message is optional. So you could also write:
-```python
-@validate_args(lambda x: x > 42)
-def some_calculation(a, b, c):
-```
-There are some shortcuts included for often used validations:
-- `@require_not_none` ensures that each argument is not `None`
-- `@require_not_empty_strings` ensures that each passed argument is a non_empty string, so passind `"   "` will raise an `AssertionError`.
-
-## The small decorators:
-### @overrides
-```python
-from pedantic.method_decorators import overrides
-
-
-class Parent:
-    def instance_method(self):
-        pass
-
-
-class Child(Parent):
-    @overrides(Parent)
-    def instance_method(self):
-        print('hi')
-```
-Together with the [Abstract Base Class](https://docs.python.org/3/library/abc.html) from the standard library, you can write things like that:
-
-```python
-from abc import ABC, abstractmethod
-from pedantic.method_decorators import overrides
-
-
-class Parent(ABC):
-
-    @abstractmethod
-    def instance_method(self):
-        pass
-
-
-class Child(Parent):
-
-    @overrides(Parent)
-    def instance_method(self):
-        print('hi')
-```
-
-### @deprecated
-This is a decorator which can be used to mark functions as deprecated. It will result in a warning being emitted when the function is used.
-```python
-@deprecated
-def oudated_calculation():
-    # perform some stuff
-```
-
-### @unimplemented
-For documentation purposes. Throw `NotImplementedException` if the function is called.
-```python
-@unimplemented
-def new_operation():
-    pass
-```
-
-### @needs_refactoring
-Of course, you refactor immediately if you see something ugly.
-However, if you don't have the time for a big refactoring use this decorator at least.
-A warning is raised everytime the decorated function is called.
-```python
-@needs_refactoring
-def almost_messy_operation():
-    pass
-```
-
-### @dirty
-A decorator for preventing from execution and therefore from causing damage.
-If the function gets called, a `TooDirtyException` is raised.
-```python
-@dirty
-def messy_operation():
-    # messy code goes here
-```
-
-### @require_kwargs
-Checks that each passed argument is a keyword argument and raises an `AssertionError` if any positional arguments are passed.
-```python
-@require_kwargs
-    def some_calculation(a, b, c):
-        return a + b + c
-some_calculation(5, 4, 3)       # this will lead to an AssertionError
-some_calculation(a=5, b=4, c=3) # this is okay
-```
-
-### @timer
-Prints out how long the execution of the function takes in seconds.
-```python
-@timer
-def some_calculation():
-    # perform possible long taking calculation here
-```
-
-### @count_calls
-Prints how often the method is called during program execution.
-```python
-@count_calls
-def some_calculation():
-    print('hello world')
-```
-
-### @trace
-Prints the passed arguments and the return value on each function call.
-```python
-@trace
-def some_calculation(a, b):
-    return a + b
-```
-
-### @trace_if_returns
-Prints the passed arguments and keyword arguments if and only if the decorated function returned a specific value.
-This is useful if you want to figure out which input arguments leads to a special return value.
-```python
-@trace_if_returns(42)
-def some_calculation(a, b):
-    return a + b
-```
-
-### @does_same_as_function
-Each time the decorated function is executed, the function other_func is also executed and both results will compared. An AssertionError is raised if the results are not equal.
-```python
-def other_calculation(a, b, c):
-    return c + b + a
-
-@does_same_as_function(other_calculation)
-def some_calculation(a, b, c):
-    return a + b + c
-some_calculation(1, 2, 3)
-```
-
-## Decorators for classes
-With the `@for_all_methods` you can use any decorator for classes instead of methods. It is shorthand for putting the same decorator on every method of the class. Example:
-```python
-@forall_methods(pedantic)
-class MyClass():
-    # lots of methods
-```
-
-There are a few aliases defined:
-- `pedantic_class` is an alias for `forall_methods(pedantic)`
-- `pedantic_class_require_docstring` is an alias for `forall_methods(pedantic_require_docstring)`
-- `timer_class` is an alias for `forall_methods(timer)`
-- `trace_class` is an alias for `forall_methods(trace)` 
-
-That means by only changing one line of code you can make your class pedantic:
-```python
-@pedantic_class
-class MyClass:
-    def __init__(self, a: int) -> None:
-        self.a = a
-
-    def calc(self, b: int) -> int:
-        return self.a - b
-
-    def print(self, s: str) -> None:
-        print(f'{self.a} and {s}')
-
-m = MyClass(a=5)
-m.calc(b=42)
-m.print(s='Hi')
-```
-
-# How to start
-## Installation
-## Option 1: Installing with pip from [Pypi](https://pypi.org/)
+### Option 1: Installing with pip from [Pypi](https://pypi.org/)
 Run `pip install pedantic`.
 
-## Option 2: Installing with pip and git
+### Option 2: Installing with pip and git
 1. Install [Git](https://git-scm.com/downloads) if you don't have it already.
 2. Run `pip install git+https://github.com/LostInDarkMath/pedantic-python-decorators.git@master`
 
-## Option 3: Offline installation using wheel
+### Option 3: Offline installation using wheel
 1. Download the [latest release here](https://github.com/LostInDarkMath/PythonHelpers/releases/latest) by clicking on `pedantic-python-decorators-x.y.z-py-none-any.whl`.
-2. Execute `pip install pedantic-python-decorators-x.y.z-py3-none-any.whl` where `x.y.z` needs to be the correct version.
+2. Execute `pip install pedantic-python-decorators-x.y.z-py3-none-any.whl`.
 
-## Usage
-In your Python file write `from pedantic import pedantic, pedantic_class` or whatever decorator you want to use.
-Use it like mentioned above. Happy coding!
+### Usage
+Use `from pedantic import pedantic, pedantic_class` to import the pedantic decorators for example. Of course you could import whatever decorator you want to use as well.
+Don't forget to check out the [documentation](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic).
+Happy coding!
 
 ## Dependencies
 Outside the Python standard library, the following dependencies are used:
 - [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2, requires Python 3.6 or later)
 
-Created with Python 3.8.5. [It works with Python 3.6 or newer.](https://travis-ci.com/github/LostInDarkMath/PythonHelpers)
+[This package works with Python 3.6 or newer.](https://travis-ci.com/github/LostInDarkMath/PythonHelpers)
 
 ## Risks and Side Effects
-The usage of decorators may affect the performance of your application. For this reason, it would highly recommend you to disable the decorators during deployment. Best practice would be to integrate this in a automated depoly chain:
-```
-[CI runs tests] => [Remove decorators] => [deploy cleaned code]
-```
+The usage of decorators may affect the performance of your application. For this reason, it would highly recommend you to disable the decorators during deployment automatically after all tests are passed.
+
+## Contributing
+Feel free to contribute by submitting a pull request :)
+
+## Acknowledgments
+* [Rathaustreppe](https://github.com/rathaustreppe)
+* [Aran-Fey](https://stackoverflow.com/questions/55503673/how-do-i-check-if-a-value-matches-a-type-in-python/55504010#55504010)
+* [user395760](https://stackoverflow.com/questions/55503673/how-do-i-check-if-a-value-matches-a-type-in-python/55504010#55504010)
+
+## List of all decorators in this package
+- [@count_calls](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.count_calls)
+- [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.deprecated)
+- [@dirty](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.dirty)
+- [@does_same_as_function](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.does_same_as_function)
+- [@for_all_methods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.for_all_methods)
+- [@needs_refactoring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.needs_refactoring)
+- [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.overrides)
+- [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic)
+- [@pedantic_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.pedantic_class)
+- [@pedantic_class_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.pedantic_class_require_docstring)
+- [@pedantic_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic_require_docstring)
+- [@require_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.require_kwargs)
+- [@timer](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.timer)
+- [@timer_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.timer_class)
+- [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.trace)
+- [@trace_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.trace_class)
+- [@trace_if_returns](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.trace_if_returns)
+- [@unimplemented](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.unimplemented)
+- [@validate_args](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.validate_args)
+
+## The [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic) decorator
+The `@pedantic` decorator does the following things:
+- The decorated function can only be called by using keyword arguments. Positional arguments are not accepted.
+- The decorated function must have [Type annotations](https://docs.python.org/3/library/typing.html).
+- Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
+As a consquence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annoted via `typing.Optional`.
+- If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
+Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported.
+
+In a nutshell:
+`@pedantic` raises an `AssertionError` if one of the following happend:
+- The decorated function is called with positional arguments.
+- The function has no type annotation for their return type or one or more parameters do not have type annotations.
+- A type annotation is incorrect.
+- A type annotation misses type arguments, e.g. `typing.List` instead of `typing.List[int]`.
+- The documented arguments do not match the argument list or their type annotations.
