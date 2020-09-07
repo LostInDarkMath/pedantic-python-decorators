@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>pedantic.type_hint_parser API documentation</title>
+<meta name="description" content="Idea is taken from: https://stackoverflow.com/a/55504010/10975692" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pedantic.type_hint_parser</code></h1>
+</header>
+<section id="section-intro">
+<p>Idea is taken from: <a href="https://stackoverflow.com/a/55504010/10975692">https://stackoverflow.com/a/55504010/10975692</a></p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Idea is taken from: https://stackoverflow.com/a/55504010/10975692&#34;&#34;&#34;
+import inspect
+import typing
+import collections
+
+typing_protocol = typing.Protocol if hasattr(typing, &#39;Protocol&#39;) else typing._Protocol
+
+
+def _is_instance(obj: typing.Any, type_: typing.Any, type_vars) -&gt; bool:
+    &#34;&#34;&#34;main function of this file&#34;&#34;&#34;
+    assert _has_required_type_arguments(type_), \
+        f&#39;The type annotation &#34;{type_}&#34; misses some type arguments e.g. &#39; \
+        f&#39;&#34;typing.Tuple[Any, ...]&#34; or &#34;typing.Callable[..., str]&#34;.&#39;
+
+    if type_.__module__ == &#39;typing&#39;:
+        if _is_generic(type_):
+            origin = _get_base_generic(type_)
+        else:
+            origin = type_
+        name = _get_name(origin)
+
+        if name in _SPECIAL_INSTANCE_CHECKERS:
+            validator = _SPECIAL_INSTANCE_CHECKERS[name]
+            return validator(obj, type_, type_vars)
+
+    if _is_generic(type_):
+        python_type = _get_python_type(type_)
+        if not isinstance(obj, python_type):
+            return False
+
+        base = _get_base_generic(type_)
+        validator = _ORIGIN_TYPE_CHECKERS[base]
+
+        type_args = _get_subtypes(type_)
+        return validator(obj, type_args, type_vars)
+
+    if isinstance(type_, typing.TypeVar):
+        if type_ in type_vars:
+            other = type_vars[type_]
+            assert type(obj) == type(other), \
+                f&#39;For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} and value &#39; \
+                f&#39;{other} has type {type(other)}&#39;
+        else:
+            type_vars[type_] = obj
+        return True
+
+    if _is_type_new_type(type_):
+        return isinstance(obj, type_.__supertype__)
+
+    return isinstance(obj, type_)
+
+
+def _is_type_new_type(type_: typing.Any) -&gt; bool:
+    return type_.__qualname__ == typing.NewType(&#39;name&#39;, int).__qualname__  # arguments of NewType() are arbitrary here
+
+
+def _get_name(cls: typing.Any) -&gt; str:
+    &#34;&#34;&#34;
+    Examples:
+        &gt;&gt;&gt; _get_name(typing.Tuple)
+        &#39;Tuple&#39;
+        &gt;&gt;&gt; _get_name(typing.Callable)
+        &#39;Callable&#39;
+    &#34;&#34;&#34;
+    if hasattr(cls, &#39;_name&#39;):
+        return cls._name
+    elif hasattr(cls, &#39;__name__&#39;):
+        return cls.__name__
+    else:
+        return type(cls).__name__[1:]
+
+
+def _is_generic(cls: typing.Any) -&gt; bool:
+    &#34;&#34;&#34;
+    Detects any kind of generic, for example `List` or `List[int]`. This includes &#34;special&#34; types like
+    Union and Tuple - anything that&#39;s subscriptable, basically.
+    Examples:
+        &gt;&gt;&gt; _is_generic(int)  # float, bool, str
+        False
+        &gt;&gt;&gt; _is_generic(typing.List[int])
+        True
+        &gt;&gt;&gt; _is_generic(typing.List[typing.List[int]])
+        True
+        &gt;&gt;&gt; _is_generic(typing.Any)
+        False
+        &gt;&gt;&gt; _is_generic(typing.Callable[[int], int])
+        True
+    &#34;&#34;&#34;
+    if hasattr(typing, &#39;_GenericAlias&#39;):
+        if isinstance(cls, typing._GenericAlias):
+            return True
+
+        if isinstance(cls, typing._SpecialForm):
+            return cls not in {typing.Any}
+    else:
+        if isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
+            return True
+    return False
+
+
+def _is_base_generic(cls: typing.Any) -&gt; bool:
+    &#34;&#34;&#34;
+        Detects generic base classes.
+
+        Examples:
+        &gt;&gt;&gt; _is_base_generic(int)  # int, float, str, bool
+        False
+        &gt;&gt;&gt; _is_base_generic(typing.List)
+        True
+        &gt;&gt;&gt; _is_base_generic(typing.Callable)
+        True
+        &gt;&gt;&gt; _is_base_generic(typing.List[int])
+        False
+        &gt;&gt;&gt; _is_base_generic(typing.Callable[[int], str])
+        False
+        &gt;&gt;&gt; _is_base_generic(typing.List[typing.List[int]])
+        False
+        &gt;&gt;&gt; _is_base_generic(list)
+        False
+    &#34;&#34;&#34;
+
+    if hasattr(typing, &#39;_GenericAlias&#39;):
+        if isinstance(cls, typing._GenericAlias):
+            if cls.__origin__ in {typing.Generic, typing_protocol}:
+                return False
+
+            if str(cls) in [&#39;typing.Tuple&#39;, &#39;typing.Callable&#39;]:
+                return True
+
+            return len(cls.__parameters__) &gt; 0
+
+        if isinstance(cls, typing._SpecialForm):
+            return cls._name in {&#39;ClassVar&#39;, &#39;Union&#39;, &#39;Optional&#39;}
+    else:
+        if isinstance(cls, (typing.GenericMeta, typing._Union)):
+            return cls.__args__ in {None, ()}
+
+        if isinstance(cls, typing._Optional):
+            return True
+    return False
+
+
+def _has_required_type_arguments(cls: typing.Any) -&gt; bool:
+    &#34;&#34;&#34;Examples:
+    &gt;&gt;&gt; _has_required_type_arguments(typing.List)
+    False
+    &gt;&gt;&gt; _has_required_type_arguments(typing.List[int])
+    True
+    &gt;&gt;&gt; _has_required_type_arguments(typing.Callable[[int, float], typing.Tuple[float, str]])
+    True
+    &#34;&#34;&#34;
+    requirements_exact = {
+        &#39;Callable&#39;: 2,
+        &#39;List&#39;: 1,
+        &#39;Set&#39;: 1,
+        &#39;FrozenSet&#39;: 1,
+        &#39;Iterable&#39;: 1,
+        &#39;Sequence&#39;: 1,
+        &#39;Dict&#39;: 2,
+        &#39;Optional&#39;: 2,  # because typing.get_args(typing.Optional[int]) returns (int, None)
+    }
+    requirements_min = {
+        &#39;Tuple&#39;: 1,
+        &#39;Union&#39;: 2,
+    }
+    base: str = _get_name(cls=cls)
+
+    if &#39;[&#39; not in str(cls) and (base in requirements_min or base in requirements_exact):
+        return False
+
+    num_type_args = len(_get_type_arguments(cls))
+
+    if base in requirements_exact:
+        return requirements_exact[base] == num_type_args
+    elif base in requirements_min:
+        return requirements_min[base] &lt;= num_type_args
+    else:
+        return True
+
+
+def _get_type_arguments(cls: typing.Any) -&gt; typing.Tuple[typing.Any, ...]:
+    &#34;&#34;&#34;Examples:
+    &gt;&gt;&gt; _get_type_arguments(int)
+    ()
+    &gt;&gt;&gt; _get_type_arguments(typing.List) # NOTE: That output here is different on different Python versions!
+    (~T,)
+    &gt;&gt;&gt; _get_type_arguments(typing.List[int])
+    (&lt;class &#39;int&#39;&gt;,)
+    &gt;&gt;&gt; _get_type_arguments(typing.Callable[[int, float], str])
+    ([&lt;class &#39;int&#39;&gt;, &lt;class &#39;float&#39;&gt;], &lt;class &#39;str&#39;&gt;)
+    &gt;&gt;&gt; _get_type_arguments(typing.Callable[..., str])
+    (Ellipsis, &lt;class &#39;str&#39;&gt;)
+    &#34;&#34;&#34;
+    if hasattr(typing, &#39;get_args&#39;):
+        return typing.get_args(cls)
+    elif hasattr(cls, &#39;__args__&#39;):
+        # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
+        res = cls.__args__
+        origin = _get_base_generic(cls)
+        if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
+            res = (list(res[:-1]), res[-1])
+        return res
+    else:
+        return ()
+
+
+def _get_base_generic(cls: typing.Any) -&gt; typing.Any:
+    &#34;&#34;&#34;
+    Examples:
+    &gt;&gt;&gt; _get_base_generic(typing.List[float])
+    typing.List
+    &#34;&#34;&#34;
+    if not hasattr(typing, &#39;_GenericAlias&#39;):
+        return cls.__origin__
+
+    if cls._name is None:
+        return cls.__origin__
+    else:
+        return getattr(typing, cls._name)
+
+
+def _is_subtype(sub_type, super_type):
+    if not _is_generic(sub_type):
+        python_super = _python_type(super_type)
+        python_sub = _python_type(sub_type)
+        return issubclass(python_sub, python_super)
+
+    # at this point we know `sub_type` is a generic
+    python_sub = _python_type(sub_type)
+    python_super = _python_type(super_type)
+    if not issubclass(python_sub, python_super):
+        return False
+
+    # at this point we know that `sub_type`&#39;s base type is a subtype of `super_type`&#39;s base type.
+    # If `super_type` isn&#39;t qualified, then there&#39;s nothing more to do.
+    if not _is_generic(super_type) or _is_base_generic(super_type):
+        return True
+
+    # at this point we know that `super_type` is a qualified generic... so if `sub_type` isn&#39;t
+    # qualified, it can&#39;t be a subtype.
+    if _is_base_generic(sub_type):
+        return False
+
+    # at this point we know that both types are qualified generics, so we just have to
+    # compare their sub-types.
+    sub_args = _get_subtypes(sub_type)
+    super_args = _get_subtypes(super_type)
+    return all(_is_subtype(sub_arg, super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
+
+
+def _python_type(annotation):
+    &#34;&#34;&#34;
+    Given a type annotation or a class as input, returns the corresponding python class.
+
+    Examples:
+        &gt;&gt;&gt; _python_type(typing.Dict)
+        &lt;class &#39;dict&#39;&gt;
+        &gt;&gt;&gt; _python_type(typing.List[int])
+        &lt;class &#39;list&#39;&gt;
+        &gt;&gt;&gt; _python_type(int)
+        &lt;class &#39;int&#39;&gt;
+        &gt;&gt;&gt; _python_type(typing.Any)
+        &lt;class &#39;object&#39;&gt;
+    &#34;&#34;&#34;
+    if hasattr(annotation, &#39;mro&#39;):
+        mro = annotation.mro()
+        if typing.Type in mro:
+            return annotation._python_type
+        elif annotation.__module__ == &#39;typing&#39;:
+            return _get_python_type(annotation)
+        else:
+            return annotation
+    elif annotation == typing.Any or annotation == Ellipsis:
+        return object
+    else:
+        return _get_python_type(annotation)
+
+
+def _get_python_type(cls: typing.Any) -&gt; typing.Any:
+    &#34;&#34;&#34;Like `python_type`, but only works with `typing` classes.&#34;&#34;&#34;
+    if hasattr(cls, &#39;__origin__&#39;):
+        return cls.__origin__
+    else:
+        for typ in cls.mro():
+            if typ.__module__ == &#39;builtins&#39; and typ is not object:
+                return typ
+
+
+def _get_subtypes(cls):
+    subtypes = cls.__args__
+
+    if _get_base_generic(cls) is typing.Callable:
+        if len(subtypes) != 2 or subtypes[0] is not ...:
+            subtypes = (subtypes[:-1], subtypes[-1])
+    return subtypes
+
+
+def _instancecheck_iterable(iterable, type_args, type_vars):
+    type_ = type_args[0]
+    return all(_is_instance(val, type_, type_vars=type_vars) for val in iterable)
+
+
+def _instancecheck_mapping(mapping, type_args, type_vars):
+    return _instancecheck_items_view(mapping.items(), type_args, type_vars=type_vars)
+
+
+def _instancecheck_items_view(items_view, type_args, type_vars):
+    key_type, value_type = type_args
+    return all(_is_instance(key, key_type, type_vars=type_vars) and
+               _is_instance(val, value_type, type_vars=type_vars)
+               for key, val in items_view)
+
+
+def _instancecheck_tuple(tup, type_args, type_vars) -&gt; bool:
+    &#34;&#34;&#34;Examples:
+    &gt;&gt;&gt; _instancecheck_tuple(tup=(42.0, 43, &#39;hi&#39;, &#39;you&#39;), type_args=(typing.Any, Ellipsis), type_vars={})  \
+        # = Tuple[Any, ...]
+    True
+    &#34;&#34;&#34;
+    if Ellipsis in type_args:
+        return all(_is_instance(val, type_args[0], type_vars=type_vars) for val in tup)
+
+    if len(tup) != len(type_args):
+        return False
+
+    return all(_is_instance(val, type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
+
+
+_ORIGIN_TYPE_CHECKERS = {}
+for class_path, _check_func in {
+    # iterables
+    &#39;typing.Container&#39;: _instancecheck_iterable,
+    &#39;typing.Collection&#39;: _instancecheck_iterable,
+    &#39;typing.AbstractSet&#39;: _instancecheck_iterable,
+    &#39;typing.MutableSet&#39;: _instancecheck_iterable,
+    &#39;typing.Sequence&#39;: _instancecheck_iterable,
+    &#39;typing.MutableSequence&#39;: _instancecheck_iterable,
+    &#39;typing.ByteString&#39;: _instancecheck_iterable,
+    &#39;typing.Deque&#39;: _instancecheck_iterable,
+    &#39;typing.List&#39;: _instancecheck_iterable,
+    &#39;typing.Set&#39;: _instancecheck_iterable,
+    &#39;typing.FrozenSet&#39;: _instancecheck_iterable,
+    &#39;typing.KeysView&#39;: _instancecheck_iterable,
+    &#39;typing.ValuesView&#39;: _instancecheck_iterable,
+    &#39;typing.AsyncIterable&#39;: _instancecheck_iterable,
+
+    # mappings
+    &#39;typing.Mapping&#39;: _instancecheck_mapping,
+    &#39;typing.MutableMapping&#39;: _instancecheck_mapping,
+    &#39;typing.MappingView&#39;: _instancecheck_mapping,
+    &#39;typing.ItemsView&#39;: _instancecheck_items_view,
+    &#39;typing.Dict&#39;: _instancecheck_mapping,
+    &#39;typing.DefaultDict&#39;: _instancecheck_mapping,
+    &#39;typing.Counter&#39;: _instancecheck_mapping,
+    &#39;typing.ChainMap&#39;: _instancecheck_mapping,
+
+    # other
+    &#39;typing.Tuple&#39;: _instancecheck_tuple,
+}.items():
+    try:
+        class_ = eval(class_path)
+    except AttributeError:
+        continue
+
+    _ORIGIN_TYPE_CHECKERS[class_] = _check_func
+
+
+def _instancecheck_callable(value, type_, _):
+    if not callable(value):
+        return False
+
+    if _is_base_generic(type_):
+        return True
+
+    param_types, ret_type = _get_subtypes(type_)
+    sig = inspect.signature(value)
+
+    missing_annotations = []
+
+    if param_types is not ...:
+        if len(param_types) != len(sig.parameters):
+            return False
+
+        # if any of the existing annotations don&#39;t match the type, we&#39;ll return False.
+        # Then, if any annotations are missing, we&#39;ll throw an exception.
+        for param, expected_type in zip(sig.parameters.values(), param_types):
+            param_type = param.annotation
+            if param_type is inspect.Parameter.empty:
+                missing_annotations.append(param)
+                continue
+
+            if not _is_subtype(param_type, expected_type):
+                return False
+
+    if sig.return_annotation is inspect.Signature.empty:
+        missing_annotations.append(&#39;return&#39;)
+    else:
+        if not _is_subtype(sig.return_annotation, ret_type):
+            return False
+
+    assert not missing_annotations, \
+        f&#39;Parsing of type annotations failed. Maybe you are about to return a lambda expression. &#39; \
+        f&#39;Try returning an inner function instead. {missing_annotations}&#39;
+    return True
+
+
+def _instancecheck_union(value, type_, type_vars):
+    types = _get_subtypes(type_)
+    return any(_is_instance(value, typ, type_vars=type_vars) for typ in types)
+
+
+_SPECIAL_INSTANCE_CHECKERS = {
+    &#39;Union&#39;: _instancecheck_union,
+    &#39;Callable&#39;: _instancecheck_callable,
+    &#39;Any&#39;: lambda v, t, tv: True,
+}
+
+
+if __name__ == &#34;__main__&#34;:
+    import doctest
+    doctest.testmod()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pedantic" href="index.html">pedantic</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

@@ -4,21 +4,19 @@ from typing import Callable, Any
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
-def for_all_methods(decorator: Callable) -> Callable:
+def for_all_methods(decorator: Callable[..., Any]) -> Callable[..., Any]:
     """
-    From: https://stackoverflow.com/questions/6307761/how-to-decorate-all-functions-of-a-class-without-typing-it-over-and-over-for-eac/6307868#6307868
     Example:
     >>> @for_all_methods(pedantic)
-    >>> class C(object):
-    >>>     def m1(self): pass
-    >>>     def m2(self, x): pass
+    ... class C(object):
+    ...     def m1(self): pass
+    ...     def m2(self, x): pass
     """
     def decorate(cls: Any) -> Any:
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)
 
             if callable(attr_value):
-                # if 'is_class_decorator' in inspect.getfullargspec(decorator).annotations: DOESNT WORK HERE
                 try:
                     setattr(cls, attr, decorator(attr_value, is_class_decorator=True))
                 except TypeError:
@@ -29,26 +27,26 @@ def for_all_methods(decorator: Callable) -> Callable:
                 wrapped_setter = decorator(prop.fset) if prop.fset is not None else None
                 wrapped_deleter = decorator(prop.fdel) if prop.fdel is not None else None
                 new_prop = property(fget=wrapped_getter, fset=wrapped_setter, fdel=wrapped_deleter)
-                setattr(cls, attr, new_prop)  # write back new property
+                setattr(cls, attr, new_prop)
         return cls
     return decorate
 
 
-def pedantic_class(cls: Any) -> Callable:
+def pedantic_class(cls: Any) -> Callable[..., Any]:
     """Shortcut for @for_all_methods(pedantic) """
     return for_all_methods(decorator=pedantic)(cls=cls)
 
 
-def pedantic_class_require_docstring(cls: Any) -> Callable:
+def pedantic_class_require_docstring(cls: Any) -> Callable[..., Any]:
     """Shortcut for @for_all_methods(pedantic_require_docstring) """
     return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
 
 
-def trace_class(cls: Any) -> Callable:
+def trace_class(cls: Any) -> Callable[..., Any]:
     """Shortcut for @for_all_methods(trace) """
     return for_all_methods(decorator=trace)(cls=cls)
 
 
-def timer_class(cls: Any) -> Callable:
+def timer_class(cls: Any) -> Callable[..., Any]:
     """Shortcut for @for_all_methods(timer) """
     return for_all_methods(decorator=timer)(cls=cls)

@@ -41,8 +41,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
             some_calculation(x=1.0)
 
     def test_pedantic_validate_args_2(self):
-        """Different order decorators"""
-        @pedantic
+        @pedantic  # Different order decorators
         @validate_args(lambda x: (x > 0, f'Argument should be greater then 0, but it was {x}.'))
         def some_calculation(x: int) -> int:
             return x
