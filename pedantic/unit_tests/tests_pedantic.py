@@ -886,7 +886,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         some_id = UserId(524313)
         get_user_name(user_id=some_id)
 
-        # the following would be desirable but impossible at runtime:
+        # the following would be desirable but impossible to check at runtime:
         # with self.assertRaises(expected_exception=AssertionError):
         #     get_user_name(user_id=-1)
 

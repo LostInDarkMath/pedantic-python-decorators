@@ -196,8 +196,6 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     elif hasattr(cls, '__args__'):
         # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
         res = cls.__args__
-
-        # origin = _get_origin(cls)
         origin = _get_base_generic(cls)
         if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
             res = (list(res[:-1]), res[-1])

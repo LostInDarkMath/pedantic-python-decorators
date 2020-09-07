@@ -27,7 +27,7 @@ def for_all_methods(decorator: Callable[..., Any]) -> Callable[..., Any]:
                 wrapped_setter = decorator(prop.fset) if prop.fset is not None else None
                 wrapped_deleter = decorator(prop.fdel) if prop.fdel is not None else None
                 new_prop = property(fget=wrapped_getter, fset=wrapped_setter, fdel=wrapped_deleter)
-                setattr(cls, attr, new_prop)  # write back new property
+                setattr(cls, attr, new_prop)
         return cls
     return decorate
 
