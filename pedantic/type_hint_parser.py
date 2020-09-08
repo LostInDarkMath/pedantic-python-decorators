@@ -280,10 +280,6 @@ def _get_python_type(cls: typing.Any) -> typing.Any:
     """Like `python_type`, but only works with `typing` classes."""
     if hasattr(cls, '__origin__'):
         return cls.__origin__
-    else:
-        for typ in cls.mro():
-            if typ.__module__ == 'builtins' and typ is not object:
-                return typ
 
 
 def _get_subtypes(cls):
