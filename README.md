@@ -20,6 +20,24 @@ Use `from pedantic import pedantic, pedantic_class` to import the pedantic decor
 Don't forget to check out the [documentation](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic).
 Happy coding!
 
+### Minimal example
+```python
+from pedantic import pedantic, pedantic_class
+
+@pedantic
+def get_sum_of(a: int, b: int) -> int:
+    return a + b
+
+@pedantic_class
+class MyClass:
+    def __init__(self, x: float, y: float) -> None:
+        self.x = int(x)
+        self.y = int(y)
+
+m = MyClass(x=3.14, y=2.0)
+print(get_sum_of(a=m.x, b=m.y))
+```
+
 ## Dependencies
 Outside the Python standard library, the following dependencies are used:
 - [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2, requires Python 3.6 or later)
