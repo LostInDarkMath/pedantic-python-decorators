@@ -29,7 +29,7 @@ after_success:
   - coveralls
   - rm -r pedantic
   - pip install dist/*.whl
-  - python example.py
+  - python test_deployment.py
 
 # after_failure:
 
