@@ -28,7 +28,7 @@ script:
 after_success:
   - coveralls
   - rm -r pedantic
- # - pip install dist/*.whl
+  - pip install dist/*.whl
   - python example.py
 
 # after_failure:
