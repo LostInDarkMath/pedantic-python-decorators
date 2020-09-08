@@ -31,16 +31,36 @@ from typing import Any, Callable, Dict
 
 # local file imports
 from pedantic.basic_helpers import get_qualified_name_for_err_msg
-from pedantic.wrapper_docstring import get_parsed_docstring
+from pedantic.wrapper_docstring import get_parsed_docstring, Docstring
 
 
 class DecoratedFunction:
     def __init__(self, func: Callable[..., Any]):
-        self.func = func
-        self.annotations: Dict[str, Any] = inspect.getfullargspec(func).annotations
-        self.docstring = get_parsed_docstring(func=func)
-        self.signature = inspect.signature(func)
-        self.err: str = get_qualified_name_for_err_msg(func=func)</code></pre>
+        self._func = func
+        self._annotations = inspect.getfullargspec(func).annotations
+        self._docstring = get_parsed_docstring(func=func)
+        self._signature = inspect.signature(func)
+        self._err: str = get_qualified_name_for_err_msg(func=func)
+
+    @property
+    def func(self) -&gt; Callable[..., Any]:
+        return self._func
+
+    @property
+    def annotations(self) -&gt; Dict[str, Any]:
+        return self._annotations
+
+    @property
+    def docstring(self) -&gt; Docstring:
+        return self._docstring
+
+    @property
+    def signature(self) -&gt; inspect.Signature:
+        return self._signature
+
+    @property
+    def err(self) -&gt; str:
+        return self._err</code></pre>
 </details>
 </section>
 <section>
@@ -64,12 +84,95 @@ class DecoratedFunction:
 </summary>
 <pre><code class="python">class DecoratedFunction:
     def __init__(self, func: Callable[..., Any]):
-        self.func = func
-        self.annotations: Dict[str, Any] = inspect.getfullargspec(func).annotations
-        self.docstring = get_parsed_docstring(func=func)
-        self.signature = inspect.signature(func)
-        self.err: str = get_qualified_name_for_err_msg(func=func)</code></pre>
+        self._func = func
+        self._annotations = inspect.getfullargspec(func).annotations
+        self._docstring = get_parsed_docstring(func=func)
+        self._signature = inspect.signature(func)
+        self._err: str = get_qualified_name_for_err_msg(func=func)
+
+    @property
+    def func(self) -&gt; Callable[..., Any]:
+        return self._func
+
+    @property
+    def annotations(self) -&gt; Dict[str, Any]:
+        return self._annotations
+
+    @property
+    def docstring(self) -&gt; Docstring:
+        return self._docstring
+
+    @property
+    def signature(self) -&gt; inspect.Signature:
+        return self._signature
+
+    @property
+    def err(self) -&gt; str:
+        return self._err</code></pre>
 </details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.annotations"><code class="name">var <span class="ident">annotations</span> : Dict[str, Any]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def annotations(self) -&gt; Dict[str, Any]:
+    return self._annotations</code></pre>
+</details>
+</dd>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.docstring"><code class="name">var <span class="ident">docstring</span> : docstring_parser.common.Docstring</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def docstring(self) -&gt; Docstring:
+    return self._docstring</code></pre>
+</details>
+</dd>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.err"><code class="name">var <span class="ident">err</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def err(self) -&gt; str:
+    return self._err</code></pre>
+</details>
+</dd>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.func"><code class="name">var <span class="ident">func</span> : Callable[..., Any]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def func(self) -&gt; Callable[..., Any]:
+    return self._func</code></pre>
+</details>
+</dd>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.signature"><code class="name">var <span class="ident">signature</span> : inspect.Signature</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def signature(self) -&gt; inspect.Signature:
+    return self._signature</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 </dl>
 </section>
@@ -89,6 +192,13 @@ class DecoratedFunction:
 <ul>
 <li>
 <h4><code><a title="pedantic.models.decorated_function.DecoratedFunction" href="#pedantic.models.decorated_function.DecoratedFunction">DecoratedFunction</a></code></h4>
+<ul class="">
+<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.annotations" href="#pedantic.models.decorated_function.DecoratedFunction.annotations">annotations</a></code></li>
+<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.docstring" href="#pedantic.models.decorated_function.DecoratedFunction.docstring">docstring</a></code></li>
+<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.err" href="#pedantic.models.decorated_function.DecoratedFunction.err">err</a></code></li>
+<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.func" href="#pedantic.models.decorated_function.DecoratedFunction.func">func</a></code></li>
+<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.signature" href="#pedantic.models.decorated_function.DecoratedFunction.signature">signature</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
