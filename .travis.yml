@@ -27,6 +27,8 @@ script:
 
 after_success:
   - coveralls
+  - pip install dist/*.whl
+  - python example.py
 
 # after_failure:
 
