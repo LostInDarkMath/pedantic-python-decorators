@@ -24,12 +24,12 @@ script:
   - coverage run -m unittest pedantic/unit_tests/tests_main.py # run tests with coverage
   #- python pedantic/unit_tests/tests_main.py  
   - python setup.py bdist_wheel  # creating wheel needs to be done during install
+  - coveralls
   - rm -r pedantic
   - pip install dist/*.whl
   - python test_deployment.py
 
-after_success:
-  - coveralls
+# after_success:
 
 # after_failure:
 
