@@ -405,7 +405,7 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
     assert decorated_func.signature.return_annotation is not inspect.Signature.empty, \
         f'{err} Their should be a type hint for the return type (e.g. None if there is nothing returned).'
 
-    i = 1 if _is_instance_method(func=func) else 0
+    arg_index = 1 if _is_instance_method(func=func) else 0
     for key in params:
         param = params[key]
         expected_type = param.annotation
@@ -415,12 +415,14 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
 
         assert expected_type is not inspect.Signature.empty, f'{err} Parameter "{param.name}" should have a type hint.'
 
-        if str(param).startswith('*'):
+        if str(param).startswith('*') and not str(param).startswith('**'):
             for arg in args:
                 assert _is_value_matching_type_hint(value=arg, type_hint=expected_type,
                                                     err_prefix=err, type_vars=type_vars), \
-                    f'{err} Type hint is incorrect: '  # TODO
+                    f'{err} Type hint is incorrect: Passed argument {arg} does not have type {expected_type}.'
+            continue
 
+        if str(param).startswith('**'):
             for kwarg in kwargs:
                 if kwarg in already_checked_kwargs:
                     continue
@@ -428,7 +430,8 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
                 actual_value = kwargs[kwarg]
                 assert _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
                                                     err_prefix=err, type_vars=type_vars), \
-                    f'{err} Type hint is incorrect: {already_checked_kwargs} {actual_value} {kwarg}'  # TODO
+                    f'{err} Type hint is incorrect: ' \
+                    f'Passed Argument {kwarg}={actual_value} does not have type {expected_type}.'
             continue
 
         if param.default is inspect.Signature.empty:
@@ -436,8 +439,8 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
                 assert key in kwargs, f'{err} Parameter "{key}" is unfilled.'
                 actual_value = kwargs[key]
             else:
-                actual_value = args[i]
-                i += 1
+                actual_value = args[arg_index]
+                arg_index += 1
         else:
             actual_value = kwargs[key] if key in kwargs else param.default
 

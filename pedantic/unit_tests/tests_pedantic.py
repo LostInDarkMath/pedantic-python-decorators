@@ -1015,6 +1015,16 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             some_method(a=5, b=0, c=4, d=5, e=6)
 
+    def test_args_kwargs_different_types(self):
+        @pedantic
+        def foo(*args: str, **kwds: int) -> None:
+            print(args)
+            print(kwds)
+
+        foo('a', 'b', 'c')
+        foo(x=1, y=2)
+        foo('', z=0)
+
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
