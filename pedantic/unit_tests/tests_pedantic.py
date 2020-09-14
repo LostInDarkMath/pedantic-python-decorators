@@ -941,7 +941,65 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             first(ls=[1, 2, 3])
 
+    def test_double_pedantic(self):
+        @pedantic
+        @pedantic
+        def f(x: int, y: float) -> Tuple[float, str]:
+            return float(x), str(y)
+
+        f(x=5, y=3.14)
+        with self.assertRaises(expected_exception=AssertionError):
+            f(x=5.0, y=3.14)
+        with self.assertRaises(expected_exception=AssertionError):
+            f(5, 3.14)
+
+    def test_args_kwargs(self):
+        @pedantic
+        def some_method(a: int = 0, b: float = 0.0) -> float:
+            return a * b
+
+        @pedantic
+        def wrapper_method(*args: Union[int, float], **kwargs: Union[int, float]) -> float:
+            return some_method(*args, **kwargs)
+
+        some_method()
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(3, 3.0)
+        some_method(a=3, b=3.0)
+        wrapper_method()
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(3, 3.0)
+        wrapper_method(a=3, b=3.0)
+
+    def test_args_kwargs_no_type_hint(self):
+        @pedantic
+        def method_no_type_hint(*args, **kwargs) -> None:
+            print(args)
+            print(kwargs)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            method_no_type_hint(a=3, b=3.0)
+        with self.assertRaises(expected_exception=AssertionError):
+            method_no_type_hint()
+
+    def test_args_kwargs_wrong_type_hint(self):
+        """See: https://www.python.org/dev/peps/pep-0484/#arbitrary-argument-lists-and-default-argument-values"""
+        @pedantic
+        def wrapper_method(*args: str, **kwargs: str) -> None:
+            print(args)
+            print(kwargs)
+
+        wrapper_method()
+        wrapper_method('hi', 'you', ':)')
+        wrapper_method(a='hi', b='you', c=':)')
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method('hi', 'you', ':)', 7)
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(3, 3.0)
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(a=3, b=3.0)
+
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_type_var_wrong()
+    test.test_args_kwargs_wrong_type_hint()

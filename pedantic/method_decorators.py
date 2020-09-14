@@ -414,6 +414,19 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
 
         assert expected_type is not inspect.Signature.empty, f'{err} Parameter "{param.name}" should have a type hint.'
 
+        if str(param).startswith('*'):
+            for arg in args:
+                assert _is_value_matching_type_hint(value=arg, type_hint=expected_type,
+                                                    err_prefix=err, type_vars=type_vars), \
+                    f'{err} Type hint is incorrect: '  # TODO
+
+            for kwarg in kwargs:
+                actual_value = kwargs[kwarg]
+                assert _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
+                                                    err_prefix=err, type_vars=type_vars), \
+                    f'{err} Type hint is incorrect: '  # TODO
+            continue
+
         if param.default is inspect.Signature.empty:
             if _is_func_that_require_kwargs(func=func):
                 assert key in kwargs, f'{err} Parameter "{key}" is unfilled.'
@@ -519,7 +532,7 @@ def _get_args_without_self(f: Callable[..., Any], args: Tuple[Any, ...], is_clas
 def _is_func_that_require_kwargs(func: Callable[..., Any]) -> bool:
     f_name = func.__name__
 
-    if _is_property_setter(func=func):
+    if _is_property_setter(func=func) or _is_function_that_want_args(func=func):
         return False
 
     if not f_name.startswith('__') or not f_name.endswith('__'):
@@ -532,6 +545,10 @@ def _is_func_that_require_kwargs(func: Callable[..., Any]) -> bool:
 
 def _is_property_setter(func: Callable[..., Any]) -> bool:
     return f'@{func.__name__}.setter' in inspect.getsource(func)
+
+
+def _is_function_that_want_args(func: Callable[..., Any]) -> bool:
+    return '*args' in inspect.getsource(func)
 
 
 def _is_instance_method(func: Callable[..., Any]) -> bool:
