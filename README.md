@@ -22,20 +22,24 @@ Happy coding!
 
 ### Minimal example
 ```python
+from typing import Union, List
 from pedantic import pedantic, pedantic_class
 
 @pedantic
-def get_sum_of(a: int, b: int) -> int:
-    return a + b
+def get_sum_of(values: List[Union[int, float]]) -> Union[int, float]:
+    return sum(values)
 
 @pedantic_class
 class MyClass:
-    def __init__(self, x: float, y: float) -> None:
-        self.x = int(x)
-        self.y = int(y)
+    def __init__(self, x: float, y: int) -> None:
+        self.x = x
+        self.y = y
 
-m = MyClass(x=3.14, y=2.0)
-print(get_sum_of(a=m.x, b=m.y))
+    def print_sum(self) -> None:
+        print(get_sum_of(values=[self.x, self.y]))
+
+m = MyClass(x=3.14, y=2)
+m.print_sum()
 ```
 
 ## Dependencies
