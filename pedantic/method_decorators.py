@@ -398,6 +398,7 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
     params = decorated_func.signature.parameters
     err = decorated_func.err
     type_vars = {}
+    already_checked_kwargs = []
 
     _assert_uses_kwargs(func=func, args=args, is_class_decorator=is_class_decorator)
 
@@ -421,10 +422,13 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
                     f'{err} Type hint is incorrect: '  # TODO
 
             for kwarg in kwargs:
+                if kwarg in already_checked_kwargs:
+                    continue
+
                 actual_value = kwargs[kwarg]
                 assert _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
                                                     err_prefix=err, type_vars=type_vars), \
-                    f'{err} Type hint is incorrect: '  # TODO
+                    f'{err} Type hint is incorrect: {already_checked_kwargs} {actual_value} {kwarg}'  # TODO
             continue
 
         if param.default is inspect.Signature.empty:
@@ -446,6 +450,8 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
                                                 err_prefix=err, type_vars=type_vars), \
                 f'{err} Type hint is incorrect: ' \
                 f'Passed Argument {key}={actual_value} does not have type {expected_type}.'
+
+        already_checked_kwargs.append(key)
 
     result = func(*args, **kwargs) if not _is_static_method(func=func) else func(**kwargs)
     expected_result_type = decorated_func.annotations['return']

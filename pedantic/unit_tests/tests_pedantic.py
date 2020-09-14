@@ -999,7 +999,23 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             wrapper_method(a=3, b=3.0)
 
+    def test_additional_kwargs(self):
+        @pedantic
+        def some_method(a: int, b: float = 0.0, **kwargs: int) -> float:
+            return sum([a, b])
+
+        some_method(a=5)
+        some_method(a=5, b=0.1)
+        some_method(a=5, b=0.1, c=4)
+        some_method(a=5, b=0.1, c=4, d=5, e=6)
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(a=5, b=0.1, c=4, d=5.0, e=6)
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(a=5.0, b=0.1, c=4, d=5, e=6)
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(a=5, b=0, c=4, d=5, e=6)
+
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_args_kwargs_wrong_type_hint()
+    test.test_additional_kwargs()
