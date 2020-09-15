@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 # local file imports
 from typing import Any, TypeVar, Generic
 
-from pedantic import overrides
+from pedantic import overrides, pedantic
 from pedantic.class_decorators import pedantic_class, pedantic_class_require_docstring
 
 
@@ -467,3 +467,16 @@ class TestPedanticClass(unittest.TestCase):
         # the following feature is not supported yet:
         # with self.assertRaises(expected_exception=AssertionError):
         #     o.set(new=3.14)
+
+    def test_double_pedantic(self):
+        @pedantic_class
+        class MyClass:
+            @pedantic
+            def __init__(self, a: int) -> None:
+                self.a = a
+
+        MyClass(a=42)
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(42)
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(a=42.0)

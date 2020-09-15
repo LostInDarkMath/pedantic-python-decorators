@@ -969,10 +969,94 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             first(ls=[1, 2, 3])
 
+    def test_double_pedantic(self):
+        @pedantic
+        @pedantic
+        def f(x: int, y: float) -&gt; Tuple[float, str]:
+            return float(x), str(y)
+
+        f(x=5, y=3.14)
+        with self.assertRaises(expected_exception=AssertionError):
+            f(x=5.0, y=3.14)
+        with self.assertRaises(expected_exception=AssertionError):
+            f(5, 3.14)
+
+    def test_args_kwargs(self):
+        @pedantic
+        def some_method(a: int = 0, b: float = 0.0) -&gt; float:
+            return a * b
+
+        @pedantic
+        def wrapper_method(*args: Union[int, float], **kwargs: Union[int, float]) -&gt; float:
+            return some_method(*args, **kwargs)
+
+        some_method()
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(3, 3.0)
+        some_method(a=3, b=3.0)
+        wrapper_method()
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(3, 3.0)
+        wrapper_method(a=3, b=3.0)
+
+    def test_args_kwargs_no_type_hint(self):
+        @pedantic
+        def method_no_type_hint(*args, **kwargs) -&gt; None:
+            print(args)
+            print(kwargs)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            method_no_type_hint(a=3, b=3.0)
+        with self.assertRaises(expected_exception=AssertionError):
+            method_no_type_hint()
+
+    def test_args_kwargs_wrong_type_hint(self):
+        &#34;&#34;&#34;See: https://www.python.org/dev/peps/pep-0484/#arbitrary-argument-lists-and-default-argument-values&#34;&#34;&#34;
+        @pedantic
+        def wrapper_method(*args: str, **kwargs: str) -&gt; None:
+            print(args)
+            print(kwargs)
+
+        wrapper_method()
+        wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;)
+        wrapper_method(a=&#39;hi&#39;, b=&#39;you&#39;, c=&#39;:)&#39;)
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;, 7)
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(3, 3.0)
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(a=3, b=3.0)
+
+    def test_additional_kwargs(self):
+        @pedantic
+        def some_method(a: int, b: float = 0.0, **kwargs: int) -&gt; float:
+            return sum([a, b])
+
+        some_method(a=5)
+        some_method(a=5, b=0.1)
+        some_method(a=5, b=0.1, c=4)
+        some_method(a=5, b=0.1, c=4, d=5, e=6)
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(a=5, b=0.1, c=4, d=5.0, e=6)
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(a=5.0, b=0.1, c=4, d=5, e=6)
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(a=5, b=0, c=4, d=5, e=6)
+
+    def test_args_kwargs_different_types(self):
+        @pedantic
+        def foo(*args: str, **kwds: int) -&gt; None:
+            print(args)
+            print(kwds)
+
+        foo(&#39;a&#39;, &#39;b&#39;, &#39;c&#39;)
+        foo(x=1, y=2)
+        foo(&#39;&#39;, z=0)
+
 
 if __name__ == &#39;__main__&#39;:
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_type_var_wrong()</code></pre>
+    test.test_additional_kwargs()</code></pre>
 </details>
 </section>
 <section>
@@ -1954,7 +2038,91 @@ not have a method with the specified name.</p></div>
             return str(ls[0])
 
         with self.assertRaises(expected_exception=AssertionError):
-            first(ls=[1, 2, 3])</code></pre>
+            first(ls=[1, 2, 3])
+
+    def test_double_pedantic(self):
+        @pedantic
+        @pedantic
+        def f(x: int, y: float) -&gt; Tuple[float, str]:
+            return float(x), str(y)
+
+        f(x=5, y=3.14)
+        with self.assertRaises(expected_exception=AssertionError):
+            f(x=5.0, y=3.14)
+        with self.assertRaises(expected_exception=AssertionError):
+            f(5, 3.14)
+
+    def test_args_kwargs(self):
+        @pedantic
+        def some_method(a: int = 0, b: float = 0.0) -&gt; float:
+            return a * b
+
+        @pedantic
+        def wrapper_method(*args: Union[int, float], **kwargs: Union[int, float]) -&gt; float:
+            return some_method(*args, **kwargs)
+
+        some_method()
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(3, 3.0)
+        some_method(a=3, b=3.0)
+        wrapper_method()
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(3, 3.0)
+        wrapper_method(a=3, b=3.0)
+
+    def test_args_kwargs_no_type_hint(self):
+        @pedantic
+        def method_no_type_hint(*args, **kwargs) -&gt; None:
+            print(args)
+            print(kwargs)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            method_no_type_hint(a=3, b=3.0)
+        with self.assertRaises(expected_exception=AssertionError):
+            method_no_type_hint()
+
+    def test_args_kwargs_wrong_type_hint(self):
+        &#34;&#34;&#34;See: https://www.python.org/dev/peps/pep-0484/#arbitrary-argument-lists-and-default-argument-values&#34;&#34;&#34;
+        @pedantic
+        def wrapper_method(*args: str, **kwargs: str) -&gt; None:
+            print(args)
+            print(kwargs)
+
+        wrapper_method()
+        wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;)
+        wrapper_method(a=&#39;hi&#39;, b=&#39;you&#39;, c=&#39;:)&#39;)
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;, 7)
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(3, 3.0)
+        with self.assertRaises(expected_exception=AssertionError):
+            wrapper_method(a=3, b=3.0)
+
+    def test_additional_kwargs(self):
+        @pedantic
+        def some_method(a: int, b: float = 0.0, **kwargs: int) -&gt; float:
+            return sum([a, b])
+
+        some_method(a=5)
+        some_method(a=5, b=0.1)
+        some_method(a=5, b=0.1, c=4)
+        some_method(a=5, b=0.1, c=4, d=5, e=6)
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(a=5, b=0.1, c=4, d=5.0, e=6)
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(a=5.0, b=0.1, c=4, d=5, e=6)
+        with self.assertRaises(expected_exception=AssertionError):
+            some_method(a=5, b=0, c=4, d=5, e=6)
+
+    def test_args_kwargs_different_types(self):
+        @pedantic
+        def foo(*args: str, **kwds: int) -&gt; None:
+            print(args)
+            print(kwds)
+
+        foo(&#39;a&#39;, &#39;b&#39;, &#39;c&#39;)
+        foo(x=1, y=2)
+        foo(&#39;&#39;, z=0)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1962,6 +2130,32 @@ not have a method with the specified name.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_additional_kwargs"><code class="name flex">
+<span>def <span class="ident">test_additional_kwargs</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_additional_kwargs(self):
+    @pedantic
+    def some_method(a: int, b: float = 0.0, **kwargs: int) -&gt; float:
+        return sum([a, b])
+
+    some_method(a=5)
+    some_method(a=5, b=0.1)
+    some_method(a=5, b=0.1, c=4)
+    some_method(a=5, b=0.1, c=4, d=5, e=6)
+    with self.assertRaises(expected_exception=AssertionError):
+        some_method(a=5, b=0.1, c=4, d=5.0, e=6)
+    with self.assertRaises(expected_exception=AssertionError):
+        some_method(a=5.0, b=0.1, c=4, d=5, e=6)
+    with self.assertRaises(expected_exception=AssertionError):
+        some_method(a=5, b=0, c=4, d=5, e=6)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_aliases"><code class="name flex">
 <span>def <span class="ident">test_aliases</span></span>(<span>self)</span>
 </code></dt>
@@ -2127,6 +2321,102 @@ not have a method with the specified name.</p></div>
     calc(ls=[10.5, &#39;2&#39;, (3, 4, 5)])</code></pre>
 </details>
 </dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs"><code class="name flex">
+<span>def <span class="ident">test_args_kwargs</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_args_kwargs(self):
+    @pedantic
+    def some_method(a: int = 0, b: float = 0.0) -&gt; float:
+        return a * b
+
+    @pedantic
+    def wrapper_method(*args: Union[int, float], **kwargs: Union[int, float]) -&gt; float:
+        return some_method(*args, **kwargs)
+
+    some_method()
+    with self.assertRaises(expected_exception=AssertionError):
+        some_method(3, 3.0)
+    some_method(a=3, b=3.0)
+    wrapper_method()
+    with self.assertRaises(expected_exception=AssertionError):
+        wrapper_method(3, 3.0)
+    wrapper_method(a=3, b=3.0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_different_types"><code class="name flex">
+<span>def <span class="ident">test_args_kwargs_different_types</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_args_kwargs_different_types(self):
+    @pedantic
+    def foo(*args: str, **kwds: int) -&gt; None:
+        print(args)
+        print(kwds)
+
+    foo(&#39;a&#39;, &#39;b&#39;, &#39;c&#39;)
+    foo(x=1, y=2)
+    foo(&#39;&#39;, z=0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_no_type_hint"><code class="name flex">
+<span>def <span class="ident">test_args_kwargs_no_type_hint</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_args_kwargs_no_type_hint(self):
+    @pedantic
+    def method_no_type_hint(*args, **kwargs) -&gt; None:
+        print(args)
+        print(kwargs)
+
+    with self.assertRaises(expected_exception=AssertionError):
+        method_no_type_hint(a=3, b=3.0)
+    with self.assertRaises(expected_exception=AssertionError):
+        method_no_type_hint()</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_wrong_type_hint"><code class="name flex">
+<span>def <span class="ident">test_args_kwargs_wrong_type_hint</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>See: <a href="https://www.python.org/dev/peps/pep-0484/#arbitrary-argument-lists-and-default-argument-values">https://www.python.org/dev/peps/pep-0484/#arbitrary-argument-lists-and-default-argument-values</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_args_kwargs_wrong_type_hint(self):
+    &#34;&#34;&#34;See: https://www.python.org/dev/peps/pep-0484/#arbitrary-argument-lists-and-default-argument-values&#34;&#34;&#34;
+    @pedantic
+    def wrapper_method(*args: str, **kwargs: str) -&gt; None:
+        print(args)
+        print(kwargs)
+
+    wrapper_method()
+    wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;)
+    wrapper_method(a=&#39;hi&#39;, b=&#39;you&#39;, c=&#39;:)&#39;)
+    with self.assertRaises(expected_exception=AssertionError):
+        wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;, 7)
+    with self.assertRaises(expected_exception=AssertionError):
+        wrapper_method(3, 3.0)
+    with self.assertRaises(expected_exception=AssertionError):
+        wrapper_method(a=3, b=3.0)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args"><code class="name flex">
 <span>def <span class="ident">test_callable_no_args</span></span>(<span>self)</span>
 </code></dt>
@@ -2204,6 +2494,28 @@ not have a method with the specified name.</p></div>
     def arg(x: Any) -&gt; Tuple[Any, ...]:
         return 42.0, 43, &#39;hi&#39;, x
     calc(i=arg)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_double_pedantic"><code class="name flex">
+<span>def <span class="ident">test_double_pedantic</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_double_pedantic(self):
+    @pedantic
+    @pedantic
+    def f(x: int, y: float) -&gt; Tuple[float, str]:
+        return float(x), str(y)
+
+    f(x=5, y=3.14)
+    with self.assertRaises(expected_exception=AssertionError):
+        f(x=5.0, y=3.14)
+    with self.assertRaises(expected_exception=AssertionError):
+        f(5, 3.14)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_1"><code class="name flex">
@@ -3912,6 +4224,7 @@ not have a method with the specified name.</p></div>
 <li>
 <h4><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck">TestDecoratorRequireKwargsAndTypeCheck</a></code></h4>
 <ul class="">
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_additional_kwargs" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_additional_kwargs">test_additional_kwargs</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_aliases" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_aliases">test_aliases</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_2">test_all_ok_2</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_3">test_all_ok_3</a></code></li>
@@ -3921,10 +4234,15 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_7" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_7">test_all_ok_7</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_8" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_all_ok_8">test_all_ok_8</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_any" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_any">test_any</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs">test_args_kwargs</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_different_types" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_different_types">test_args_kwargs_different_types</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_no_type_hint" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_no_type_hint">test_args_kwargs_no_type_hint</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_wrong_type_hint" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_wrong_type_hint">test_args_kwargs_wrong_type_hint</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args">test_callable_no_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args">test_callable_without_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected">test_callable_without_args_almost_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected">test_callable_without_args_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_double_pedantic" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_double_pedantic">test_double_pedantic</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_1">test_ellipsis_in_callable_1</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_2">test_ellipsis_in_callable_2</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_3">test_ellipsis_in_callable_3</a></code></li>

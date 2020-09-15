@@ -32,7 +32,7 @@ from abc import ABC, abstractmethod
 # local file imports
 from typing import Any, TypeVar, Generic
 
-from pedantic import overrides
+from pedantic import overrides, pedantic
 from pedantic.class_decorators import pedantic_class, pedantic_class_require_docstring
 
 
@@ -494,7 +494,20 @@ class TestPedanticClass(unittest.TestCase):
 
         # the following feature is not supported yet:
         # with self.assertRaises(expected_exception=AssertionError):
-        #     o.set(new=3.14)</code></pre>
+        #     o.set(new=3.14)
+
+    def test_double_pedantic(self):
+        @pedantic_class
+        class MyClass:
+            @pedantic
+            def __init__(self, a: int) -&gt; None:
+                self.a = a
+
+        MyClass(a=42)
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(42)
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(a=42.0)</code></pre>
 </details>
 </section>
 <section>
@@ -997,7 +1010,24 @@ not have a method with the specified name.</p></div>
 
         o = LoggedVar(value=42, name=&#39;hi&#39;, logger=&#39;test&#39;)
         o.set(new=57)
-        self.assertTrue(isinstance(o.get(), int))</code></pre>
+        self.assertTrue(isinstance(o.get(), int))
+
+        # the following feature is not supported yet:
+        # with self.assertRaises(expected_exception=AssertionError):
+        #     o.set(new=3.14)
+
+    def test_double_pedantic(self):
+        @pedantic_class
+        class MyClass:
+            @pedantic
+            def __init__(self, a: int) -&gt; None:
+                self.a = a
+
+        MyClass(a=42)
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(42)
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(a=42.0)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1124,6 +1154,29 @@ not have a method with the specified name.</p></div>
 
     foo = Foo(a=10)
     foo.bunk()</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_double_pedantic"><code class="name flex">
+<span>def <span class="ident">test_double_pedantic</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_double_pedantic(self):
+    @pedantic_class
+    class MyClass:
+        @pedantic
+        def __init__(self, a: int) -&gt; None:
+            self.a = a
+
+    MyClass(a=42)
+    with self.assertRaises(expected_exception=AssertionError):
+        MyClass(42)
+    with self.assertRaises(expected_exception=AssertionError):
+        MyClass(a=42.0)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods"><code class="name flex">
@@ -1717,6 +1770,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_constructor_without_return_type" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_constructor_without_return_type">test_constructor_without_return_type</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_constructor_wrong_return_type" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_constructor_wrong_return_type">test_constructor_wrong_return_type</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_docstring_not_required" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_docstring_not_required">test_docstring_not_required</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_double_pedantic" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_double_pedantic">test_double_pedantic</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods">test_multiple_methods</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods_with_missing_and_wrong_type_hints" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods_with_missing_and_wrong_type_hints">test_multiple_methods_with_missing_and_wrong_type_hints</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overrides" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overrides">test_overrides</a></code></li>
