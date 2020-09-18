@@ -49,7 +49,7 @@ Outside the Python standard library, the following dependencies are used:
 [This package works with Python 3.6 or newer.](https://travis-ci.com/github/LostInDarkMath/PythonHelpers)
 
 ## Risks and Side Effects
-The usage of decorators may affect the performance of your application. For this reason, it would highly recommend you to disable the decorators during deployment automatically after all tests are passed.
+The usage of decorators may affect the performance of your application. For this reason, I would highly recommend you to disable the decorators during deployment automatically after all tests are passed.
 
 ## Contributing
 Feel free to contribute by submitting a pull request :)
