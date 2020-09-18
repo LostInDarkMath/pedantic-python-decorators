@@ -27,7 +27,7 @@ setup(
     url=url,
     project_urls={
         "Bug Tracker": f'{url}/issues',
-        "Documentation": url,
+        "Documentation": 'https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/',
         "Source Code": url,
     },
     include_package_data=False,
