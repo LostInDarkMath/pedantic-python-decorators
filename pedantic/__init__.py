@@ -1,3 +1,5 @@
+import sys
+
 from pedantic.class_decorators \
     import pedantic_class, pedantic_class_require_docstring, timer_class, trace_class, for_all_methods
 
@@ -6,3 +8,5 @@ from pedantic.method_decorators import pedantic, pedantic_require_docstring, tra
     require_kwargs, trace_if_returns, does_same_as_function, overrides
 
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
+
+assert sys.version_info >= (3, 6), f'Pedantic does not work with Python versions below 3.6.'

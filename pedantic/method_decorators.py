@@ -1,5 +1,6 @@
 import functools
 import inspect
+import sys
 from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List  # necessary for global context of eval()
 from datetime import datetime
 import warnings
@@ -365,20 +366,24 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
         Use kwargs when you call function some_calculation. Args: (5, 4.0, 'hi')
    """
 
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        decorated_func = DecoratedFunction(func=func)
+    def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
+        decorated_func = DecoratedFunction(func=f)
+
+        if require_docstring and sys.version_info < (3, 7):
+            raise AssertionError(f'Docstrings cannot be checked in Python versions below 3.7. Please '
+                                 f'upgrade your Python version or disable the "require_docstring" option.')
 
         if require_docstring or len(decorated_func.docstring.params) > 0:
             _assert_has_correct_docstring(decorated_func=decorated_func)
 
-        @functools.wraps(func)
+        @functools.wraps(f)
         def wrapper(*args, **kwargs) -> Any:
             return _assert_has_kwargs_and_correct_type_hints(decorated_func=decorated_func,
                                                              args=args,
                                                              kwargs=kwargs,
                                                              is_class_decorator=is_class_decorator)
         return wrapper
-    return decorator if func is None else decorator(func=func)
+    return decorator if func is None else decorator(f=func)
 
 
 def pedantic_require_docstring(func: Optional[Callable[..., Any]] = None, **kwargs: bool) -> Callable[..., Any]:
@@ -470,6 +475,10 @@ def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
 
 
 def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
+    if sys.version_info < (3, 7):
+        _raise_warning(msg='Note: Docstrings cannot be checked in Python versions below 3.7.', category=UserWarning)
+        return
+
     annotations = decorated_func.annotations
     docstring = decorated_func.docstring
     err_prefix = decorated_func.err
@@ -520,19 +529,19 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
 
 def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any:
     """
-    >>> _parse_documented_type(type_='List[str]', context={})
+    >>> _parse_documented_type(type_='List[str]', context={}, err='')
     typing.List[str]
-    >>> _parse_documented_type(type_='float', context={})
+    >>> _parse_documented_type(type_='float', context={}, err='')
     <class 'float'>
-    >>> _parse_documented_type(type_='List[List[bool]]', context={})
+    >>> _parse_documented_type(type_='List[List[bool]]', context={}, err='')
     typing.List[typing.List[bool]]
-    >>> _parse_documented_type(type_='Union[int, float, bool]', context={})
+    >>> _parse_documented_type(type_='Union[int, float, bool]', context={}, err='')
     typing.Union[int, float, bool]
-    >>> _parse_documented_type(type_='Callable[[int, bool, str], float]', context={})
+    >>> _parse_documented_type(type_='Callable[[int, bool, str], float]', context={}, err='')
     typing.Callable[[int, bool, str], float]
-    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={})
+    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='')
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
-    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={})
+    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='')
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
     """
     try:

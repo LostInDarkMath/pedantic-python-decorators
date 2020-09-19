@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Any, TypeVar, Generic
 
 from pedantic import overrides, pedantic
-from pedantic.class_decorators import pedantic_class, pedantic_class_require_docstring
+from pedantic.class_decorators import pedantic_class
 
 
 class TestPedanticClass(unittest.TestCase):
@@ -120,86 +120,6 @@ class TestPedanticClass(unittest.TestCase):
 
         with self.assertRaises(expected_exception=AssertionError):
             MyClass.generator()
-
-    def test_require_docstring(self):
-        @pedantic_class_require_docstring
-        class MyClass:
-            def __init__(self, s: str) -> None:
-                """Constructor
-
-                Args:
-                    s (str): name
-                """
-                self.s = s
-
-            def double(self, b: int) -> str:
-                """some method
-
-                Args:
-                    b (int): magic number
-
-                Returns:
-                    str: cool stuff
-
-                """
-                return self.s + str(b)
-
-            @staticmethod
-            def generator() -> 'MyClass':
-                """Static
-
-                Returns:
-                    MyClass: instance
-                """
-                return MyClass(s='generated')
-
-        m = MyClass.generator()
-        m.double(b=42)
-
-    def test_typo_docstring(self):
-        with self.assertRaises(expected_exception=AssertionError):
-            @pedantic_class_require_docstring
-            class MyClass:
-                def __init__(self, s: str) -> None:
-                    """Constructor
-
-                    Args:
-                        s (str): name
-                    """
-                    self.s = s
-
-                @staticmethod
-                def generator() -> 'MyClass':
-                    """Static
-
-                    Returns:
-                        MyClas: instance
-                    """
-                    return MyClass(s='generated')
-
-    def test_wrong_docstring(self):
-        with self.assertRaises(expected_exception=AssertionError):
-            @pedantic_class_require_docstring
-            class MyClass:
-                def __init__(self, s: str) -> None:
-                    """Constructor
-
-                    Args:
-                        s (str): name
-                    """
-                    self.s = s
-
-                def double(self, b: int) -> str:
-                    """some method
-
-                    Args:
-                        b (float): magic number
-
-                    Returns:
-                        str: cool stuff
-
-                    """
-                    return self.s + str(b)
 
     def test_overriding_contains(self):
         @pedantic_class

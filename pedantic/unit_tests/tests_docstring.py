@@ -457,4 +457,4 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
 if __name__ == '__main__':
     t = TestRequireDocstringGoogleFormat()
-    t.test_user_class()
+    t.test_google_docstring_2()
