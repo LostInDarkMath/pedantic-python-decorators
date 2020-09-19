@@ -1,4 +1,5 @@
 import inspect
+import types
 from typing import Any, Callable, Dict
 
 # local file imports
@@ -7,7 +8,8 @@ from pedantic.wrapper_docstring import get_parsed_docstring, Docstring
 
 
 class DecoratedFunction:
-    def __init__(self, func: Callable[..., Any]):
+    def __init__(self, func: Callable[..., Any]) -> None:
+        assert isinstance(func, types.FunctionType), f'{func} should be a method or function object.'
         self._func = func
         self._annotations = inspect.getfullargspec(func).annotations
         self._docstring = get_parsed_docstring(func=func)

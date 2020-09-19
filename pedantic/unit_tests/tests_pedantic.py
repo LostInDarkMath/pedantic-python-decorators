@@ -1008,7 +1008,14 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         foo(x=1, y=2)
         foo('', z=0)
 
+    def test_pedantic_on_class(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic
+            class MyClass:
+                pass
+            MyClass()
+
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_args_kwargs_different_types()
+    test.test_pedantic_on_class()

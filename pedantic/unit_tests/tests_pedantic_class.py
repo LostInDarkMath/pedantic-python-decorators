@@ -399,7 +399,14 @@ class TestPedanticClass(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             MyClass(a=42.0)
 
+    def test_default_constructor(self):
+        @pedantic_class
+        class MyClass:
+            def fun(self) -> int:
+                return 42
+        m = MyClass()
+        m.fun()
+
 
 if __name__ == '__main__':
     t = TestPedanticClass()
-    t.test_typo_docstring()
