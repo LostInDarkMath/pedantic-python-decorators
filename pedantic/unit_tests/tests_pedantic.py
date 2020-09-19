@@ -2,39 +2,22 @@ import unittest
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
 from enum import Enum
 
-# local file imports
 from pedantic.method_decorators import pedantic
 
 
 class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
-
-    def test_no_kwargs_1(self):
-        """Problem here: function is not called with keyword arguments"""
+    def test_no_kwargs(self):
         @pedantic
         def calc(n: int, m: int, i: int) -> int:
             return n + m + i
 
         with self.assertRaises(expected_exception=AssertionError):
             calc(42, 40, 38)
-
-    def test_no_kwargs_2(self):
-        """Problem here: function is not called with keyword arguments"""
-        @pedantic
-        def calc(n: int, m: int, i: int) -> int:
-            return n + m + i
-
         with self.assertRaises(expected_exception=AssertionError):
             calc(42, m=40, i=38)
-
-    def test_no_kwargs_1_2_corrected(self):
-        @pedantic
-        def calc(n: int, m: int, i: int) -> int:
-            return n + m + i
-
         calc(n=42, m=40, i=38)
 
     def test_nested_type_hints_1(self):
-        """Problem here: actual return type doesn't match return type annotation"""
         @pedantic
         def calc(n: int) -> List[List[float]]:
             return [0.0 * n]

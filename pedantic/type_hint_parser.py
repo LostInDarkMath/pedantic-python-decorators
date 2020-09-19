@@ -178,10 +178,6 @@ def _has_required_type_arguments(cls: typing.Any) -> bool:
         return True
 
 
-def _has_type_arguments(cls: typing.Any) -> bool:
-    return len(_get_type_arguments(cls=cls)) > 0
-
-
 def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     """Examples:
     >>> _get_type_arguments(int)
@@ -281,13 +277,7 @@ def _python_type(annotation):
 
 
 def _get_python_type(cls: typing.Any) -> typing.Any:
-    """Like `python_type`, but only works with `typing` classes."""
-    if hasattr(cls, '__origin__'):
-        return cls.__origin__
-    else:
-        for typ in cls.mro():
-            if typ.__module__ == 'builtins' and typ is not object:
-                return typ
+    return cls.__origin__
 
 
 def _get_subtypes(cls):
@@ -370,12 +360,6 @@ for class_path, _check_func in {
 
 
 def _instancecheck_callable(value, type_, _):
-    if not callable(value):
-        return False
-
-    if _is_base_generic(type_):
-        return True
-
     param_types, ret_type = _get_subtypes(type_)
     sig = inspect.signature(value)
 

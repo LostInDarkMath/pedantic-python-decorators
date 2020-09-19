@@ -454,6 +454,17 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
         get_instance()
 
+    def test_pedantic_args(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic(require_docstring=True)
+            def no_docstrings() -> None:
+                pass
+
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic_require_docstring
+            def no_docstrings() -> None:
+                pass
+
 
 if __name__ == '__main__':
     t = TestRequireDocstringGoogleFormat()

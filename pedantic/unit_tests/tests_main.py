@@ -14,6 +14,8 @@ from pedantic.unit_tests.tests_combination_of_decorators import TestCombinationO
 if sys.version_info >= (3, 7):
     from pedantic.unit_tests.tests_docstring import TestRequireDocstringGoogleFormat
     from pedantic.unit_tests.tests_pedantic_class_docstring import TestPedanticClassDocstring
+else:
+    from pedantic.unit_tests.tests_assertion_error_3_6 import TestAssertionError36
 
 if __name__ == '__main__':
     unittest.main()

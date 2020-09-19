@@ -332,7 +332,6 @@ def require_not_empty_strings(func: Callable[..., Any], is_class_decorator: bool
 def pedantic(func: Optional[Callable[..., Any]] = None,
              is_class_decorator: bool = False,
              require_docstring: bool = False,
-             require_kwargs: bool = True,  # TODO implementing and testing in case of False
              ) -> Callable[..., Any]:
     """
        Checks the types and throw an AssertionError if a type is incorrect.
@@ -378,35 +377,26 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
 
         @functools.wraps(f)
         def wrapper(*args, **kwargs) -> Any:
-            return _assert_has_kwargs_and_correct_type_hints(decorated_func=decorated_func,
-                                                             args=args,
-                                                             kwargs=kwargs,
-                                                             is_class_decorator=is_class_decorator)
+            _assert_uses_kwargs(func=func, args=args, is_class_decorator=is_class_decorator)
+            return _check_types(decorated_func=decorated_func, args=args, kwargs=kwargs)
         return wrapper
     return decorator if func is None else decorator(f=func)
 
 
 def pedantic_require_docstring(func: Optional[Callable[..., Any]] = None, **kwargs: bool) -> Callable[..., Any]:
     """Shortcut for @pedantic(require_docstring=True) """
-    # TODO test assumption
     return pedantic(func=func, require_docstring=True, **kwargs)
 
 
-def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
-                                              args: Tuple[Any, ...],
-                                              kwargs: Dict[str, Any],
-                                              is_class_decorator: bool,
-                                              ) -> Any:
+def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...], kwargs: Dict[str, Any]) -> Any:
     func = decorated_func.func
     params = decorated_func.signature.parameters
     err = decorated_func.err
     type_vars = {}
     already_checked_kwargs = []
 
-    _assert_uses_kwargs(func=func, args=args, is_class_decorator=is_class_decorator)
-
     assert decorated_func.signature.return_annotation is not inspect.Signature.empty, \
-        f'{err} Their should be a type hint for the return type (e.g. None if there is nothing returned).'
+        f'{err} There should be a type hint for the return type (e.g. None if there is nothing returned).'
 
     arg_index = 1 if _is_instance_method(func=func) else 0
     for key in params:
