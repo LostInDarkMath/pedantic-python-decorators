@@ -1,8 +1,9 @@
 import unittest
-from typing import List
+from typing import List, Optional, Any
 
 # local file imports
 from pedantic.method_decorators import pedantic_require_docstring, pedantic
+from pedantic.class_decorators import pedantic_class_require_docstring, pedantic_class
 
 
 class TestRequireDocstringGoogleFormat(unittest.TestCase):
@@ -392,7 +393,60 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
 
         calc(a=42, b=3.14, c='hi')
 
+    def test_documented_none_as_return_type(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic_require_docstring
+            def calc() -> None:
+                """some cool stuff
+
+                Returns:
+                    None: the evil void
+                """
+                pass
+
+    def test_exception_in_docstring_parser(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic_class
+            class Foo:
+                def func(self, b: str) -> str:
+                    """
+                    Function with docstring syntax error below.
+                    Args:
+                        b (str):
+                        simple string
+                    Returns:
+                        str: simple string
+                    """
+                    return b
+
+    def test_user_class(self):
+        class BPMNEnum:
+            self.attr = 'BPMNEnum'
+
+        class BPMNElement:
+            self.attr = 'BPMNElement'
+
+        @pedantic_class_require_docstring
+        class MyClass:
+            def make_element(self, element_type: BPMNEnum,
+                             src_tgt_elements: Optional[List[BPMNElement]] = None) -> List[BPMNElement]:
+                """
+                Searches all element_types in XML-DOM and returns corresponding
+                BPMN-Objects.
+                Args:
+                    element_type(BPMNEnum): abc
+                    src_tgt_elements (Optional[List[BPMNElement]]): abc
+
+                Returns:
+                    List[BPMNElement]: abc
+                """
+                pass
+
+        m = MyClass()
+        # m.make_element()
+
 
 if __name__ == '__main__':
     t = TestRequireDocstringGoogleFormat()
-    t.test_no_doc_string()
+    # t.test_user_class()
+    t.test_exception_in_docstring_parser()

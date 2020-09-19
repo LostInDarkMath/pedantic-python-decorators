@@ -178,6 +178,10 @@ def _has_required_type_arguments(cls: typing.Any) -> bool:
         return True
 
 
+def _has_type_arguments(cls: typing.Any) -> bool:
+    return len(_get_type_arguments(cls=cls)) > 0
+
+
 def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     """Examples:
     >>> _get_type_arguments(int)
