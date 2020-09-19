@@ -1,15 +1,13 @@
-import unittest
-from typing import List, Optional, Any
+from unittest import TestCase
+from typing import List, Optional
 
-# local file imports
 from pedantic.method_decorators import pedantic_require_docstring, pedantic
 from pedantic.class_decorators import pedantic_class_require_docstring, pedantic_class
 
 
-class TestRequireDocstringGoogleFormat(unittest.TestCase):
+class TestRequireDocstringGoogleFormat(TestCase):
 
-    def test_no_doc_string(self):
-        """Problem here: No docstring"""
+    def test_no_docstring(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(n: int, m: int, i: int) -> int:
@@ -445,8 +443,20 @@ class TestRequireDocstringGoogleFormat(unittest.TestCase):
         m = MyClass()
         # m.make_element()
 
+    def test_factory(self):
+        @pedantic_require_docstring
+        def get_instance() -> TestCase:
+            """
+            Returns:
+                TestCase: A new TextCase
+            """
+            return TestCase()
+
+        get_instance()
+
 
 if __name__ == '__main__':
     t = TestRequireDocstringGoogleFormat()
+    t.test_factory()
     # t.test_user_class()
     t.test_exception_in_docstring_parser()

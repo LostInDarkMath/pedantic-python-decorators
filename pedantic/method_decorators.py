@@ -1,6 +1,6 @@
 import functools
 import inspect
-from typing import Callable, Any, Tuple, Dict, Type, Union, Optional
+from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List  # necessary for global context of eval()
 from datetime import datetime
 import warnings
 import re
@@ -9,7 +9,7 @@ import re
 from pedantic.basic_helpers import get_qualified_name_for_err_msg
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 from pedantic.models.decorated_function import DecoratedFunction
-from pedantic.type_hint_parser import _is_instance, _has_type_arguments, _get_type_arguments, _get_base_generic
+from pedantic.type_hint_parser import _is_instance
 
 
 def overrides(interface_class: Any) -> Callable[..., Any]:
@@ -493,14 +493,13 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
             f'is documented but the function does not return anything.'
 
     for annotation in annotations:
-        # expected_type = _get_expected_type_as_str(annotation=annotations[annotation])
         expected_type = annotations[annotation]
 
         if annotation == 'return' and annotations[annotation] is not None:
             assert len(docstring.returns.args) == 2, \
                 f'{err_prefix} Parsing Error. Only Google style Python docstrings are supported.'
 
-            actual_return_type = _parse_type_annotation_from_str(type_=docstring.returns.args[1])
+            actual_return_type = _parse_type_annotation_from_str(type_=docstring.returns.args[1], context=decorated_func.func.__dict__)
             assert actual_return_type == expected_type, \
                 f'{err_prefix} Documented type is incorrect: Annotation: {expected_type} ' \
                 f'Documented: {actual_return_type}'
@@ -511,13 +510,13 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
                     docstring_param = param
             assert docstring_param is not None, \
                 f'{err_prefix} Parameter {annotation} is not documented.'
-            actual_param_type = _parse_type_annotation_from_str(type_=docstring_param.type_name)
+            actual_param_type = _parse_type_annotation_from_str(type_=docstring_param.type_name, context=decorated_func.func.__dict__)
             assert expected_type == actual_param_type, \
                 f'{err_prefix} Documented type of parameter {annotation} is incorrect. ' \
                 f'Expected {expected_type} but documented is {actual_param_type}.'
 
 
-def _parse_type_annotation_from_str(type_: str) -> Any:
+def _parse_type_annotation_from_str(type_: str, context: Dict) -> Any:
     """
     >>> _parse_type_annotation_from_str('List[str]')
     typing.List[str]
@@ -534,60 +533,9 @@ def _parse_type_annotation_from_str(type_: str) -> Any:
     >>> _parse_type_annotation_from_str('Union[List[Dict[str, float]], None]')
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
     """
-    from typing import List, Union, Callable, Optional, Dict  # necessary for doctests
     # TODO: check if it is necessary for functionality
-    return eval(type_)
-
-
-# def _get_expected_type_as_str(annotation: Any) -> str:
-
-#     if 'typing.' in str(annotation):
-#         if _has_type_arguments(cls=annotation):
-#             args = _get_type_arguments(cls=annotation)
-#             result = f'{_get_base_generic(cls=annotation)}['
-#
-#             for a in args:
-#                 if isinstance(a, list):
-#                     result += '['
-#                     for b in a:
-#                         result += f'{_get_expected_type_as_str(annotation=b)}, '
-#                     result = result[:-2] + '], '
-#                 else:
-#                     result += f'{_get_expected_type_as_str(annotation=a)}, '
-#             result = result[:-2] + ']'
-#         else:
-#             result = str(annotation)
-#         return result.replace('typing.', '')
-#     elif hasattr(annotation, '__name__'):
-#         return annotation.__name__.replace('NoneType', 'None')
-#     elif isinstance(annotation, str):
-#         return annotation
-#     else:
-#         return 'None'
-
-
-# def _matches(s: str, t: str) -> bool:
-#     """
-#     >>> _matches('typing.Optional[str]', 'typing.Union[str, None]')
-#     True
-#     """
-#     if s == t:
-#         return True
-#
-#     match = re.search(pattern=r'Optional\[', string=s)
-#     if match:
-#         match.re
-#     return a
-#
-#     pattern = re.compile(r"""(?P<before>)Optional[(?P<arg>)](?P<after>)""", re.VERBOSE)
-#     match = pattern.match(s)
-#     before = match.group('before')
-#     arg = match.group('arg')
-#     after = match.group('after')
-#     print(before)
-#     print(arg)
-#     print(after)
-#     return re.sub(pattern=pattern, repl=f'Union[{arg}]', string=s) == t
+    return eval(type_, globals(), context)
+    # return eval(type_, globals())
 
 
 def _assert_uses_kwargs(func: Callable[..., Any], args: Tuple[Any, ...], is_class_decorator: bool) -> None:

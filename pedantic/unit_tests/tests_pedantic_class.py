@@ -1,7 +1,5 @@
 import unittest
 from abc import ABC, abstractmethod
-
-# local file imports
 from typing import Any, TypeVar, Generic
 
 from pedantic import overrides, pedantic
@@ -480,3 +478,8 @@ class TestPedanticClass(unittest.TestCase):
             MyClass(42)
         with self.assertRaises(expected_exception=AssertionError):
             MyClass(a=42.0)
+
+
+if __name__ == '__main__':
+    t = TestPedanticClass()
+    t.test_require_docstring()
