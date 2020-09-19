@@ -16,7 +16,7 @@ def for_all_methods(decorator: Callable[..., Any]) -> Callable[..., Any]:
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)
 
-            if callable(attr_value):
+            if callable(attr_value) and attr_value != object:
                 try:
                     setattr(cls, attr, decorator(attr_value, is_class_decorator=True))
                 except TypeError:
