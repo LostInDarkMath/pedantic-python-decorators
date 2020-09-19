@@ -473,6 +473,7 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
     annotations = decorated_func.annotations
     docstring = decorated_func.docstring
     err_prefix = decorated_func.err
+    context = {}
 
     raw_doc = decorated_func.func.__doc__
     assert raw_doc is not None and raw_doc != '', f'{err_prefix} The function should have a docstring!'
@@ -490,25 +491,16 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
             f'{err_prefix} The return type {docstring.returns.type_name} ' \
             f'is documented but the function does not return anything.'
 
-    context = {}
-
     for annotation in annotations:
         expected_type = annotations[annotation]
-
-        if hasattr(expected_type, '__name__'):
-            context[expected_type.__name__] = expected_type
-        elif isinstance(expected_type, str):
-            context[expected_type] = expected_type
-        elif str(expected_type).startswith('typing'):
-            args = _get_type_arguments(expected_type)[0]  # TODO parse type arguments recursivly
-            if hasattr(args, '__name__'):
-                context[args.__name__] = args
+        _update_context(context=context, type_=expected_type)
 
         if annotation == 'return' and annotations[annotation] is not None:
             assert len(docstring.returns.args) == 2, \
                 f'{err_prefix} Parsing Error. Only Google style Python docstrings are supported.'
 
-            actual_return_type = _parse_type_annotation_from_str(type_=docstring.returns.args[1], context=context)
+            actual_return_type = _parse_documented_type(
+                type_=docstring.returns.args[1], context=context, err=err_prefix)
             assert actual_return_type == expected_type, \
                 f'{err_prefix} Documented type is incorrect: Annotation: {expected_type} ' \
                 f'Documented: {actual_return_type}'
@@ -519,33 +511,80 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
                     docstring_param = param
             assert docstring_param is not None, \
                 f'{err_prefix} Parameter {annotation} is not documented.'
-            actual_param_type = _parse_type_annotation_from_str(type_=docstring_param.type_name, context=context)
+            actual_param_type = _parse_documented_type(
+                type_=docstring_param.type_name, context=context, err=err_prefix)
             assert expected_type == actual_param_type, \
                 f'{err_prefix} Documented type of parameter {annotation} is incorrect. ' \
                 f'Expected {expected_type} but documented is {actual_param_type}.'
 
 
-def _parse_type_annotation_from_str(type_: str, context: Dict[str, Any]) -> Any:
+def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any:
     """
-    >>> _parse_type_annotation_from_str('List[str]')
+    >>> _parse_documented_type(type_='List[str]', context={})
     typing.List[str]
-    >>> _parse_type_annotation_from_str('float')
+    >>> _parse_documented_type(type_='float', context={})
     <class 'float'>
-    >>> _parse_type_annotation_from_str('List[List[bool]]')
+    >>> _parse_documented_type(type_='List[List[bool]]', context={})
     typing.List[typing.List[bool]]
-    >>> _parse_type_annotation_from_str('Union[int, float, bool]')
+    >>> _parse_documented_type(type_='Union[int, float, bool]', context={})
     typing.Union[int, float, bool]
-    >>> _parse_type_annotation_from_str('Callable[[int, bool, str], float]')
+    >>> _parse_documented_type(type_='Callable[[int, bool, str], float]', context={})
     typing.Callable[[int, bool, str], float]
-    >>> _parse_type_annotation_from_str('Optional[List[Dict[str, float]]]')
+    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={})
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
-    >>> _parse_type_annotation_from_str('Union[List[Dict[str, float]], None]')
+    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={})
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
     """
     try:
         return eval(type_, globals(), context)
-    except NameError as e:
-        raise AssertionError(f'TODO {e}') # TODO
+    except NameError:
+        possible_meant_types = [t for t in context.keys() if isinstance(t, str)]
+        if len(possible_meant_types) > 1:
+            msg = f'Maybe you meant one of the following: {possible_meant_types}'
+        elif len(possible_meant_types) == 1:
+            msg = f'Maybe you meant "{possible_meant_types[0]}"'
+        else:
+            msg = ''
+        raise AssertionError(f'{err} Documented type "{type_}" was not found. {msg}')
+
+
+def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
+    """
+    >>> from typing import List, Union, Optional, Callable
+    >>> _update_context(type_=None, context={})
+    {}
+    >>> _update_context(type_=None, context={'a': 1, 'b': 2})
+    {'a': 1, 'b': 2}
+    >>> _update_context(type_=float, context={})
+    {'float': <class 'float'>}
+    >>> _update_context(type_=List[str], context={})
+    {'str': <class 'str'>}
+    >>> _update_context(type_=List[List[bool]], context={})
+    {'bool': <class 'bool'>}
+    >>> _update_context(type_=Union[int, float, bool], context={})
+    {'int': <class 'int'>, 'float': <class 'float'>, 'bool': <class 'bool'>}
+    >>> _update_context(type_=Callable[[int, bool, str], float], context={})
+    {'int': <class 'int'>, 'bool': <class 'bool'>, 'str': <class 'str'>, 'float': <class 'float'>}
+    >>> _update_context(type_=Optional[List[Dict[str, float]]], context={})
+    {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
+    >>> _update_context(type_=Union[List[Dict[str, float]], None], context={})
+    {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
+    >>> _update_context(type_='MyClass', context={})
+    {'MyClass': 'MyClass'}
+    """
+    if hasattr(type_, '__name__'):
+        context[type_.__name__] = type_
+    elif isinstance(type_, str):
+        context[type_] = type_
+    elif str(type_).startswith('typing'):
+        args = _get_type_arguments(type_)
+
+        for a in args:
+            if isinstance(a, list):  # Callable has a List of Types as first argument
+                for b in a:
+                    _update_context(context=context, type_=b)
+            _update_context(context=context, type_=a)
+    return context
 
 
 def _assert_uses_kwargs(func: Callable[..., Any], args: Tuple[Any, ...], is_class_decorator: bool) -> None:

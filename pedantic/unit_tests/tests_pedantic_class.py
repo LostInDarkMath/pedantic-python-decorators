@@ -482,4 +482,4 @@ class TestPedanticClass(unittest.TestCase):
 
 if __name__ == '__main__':
     t = TestPedanticClass()
-    t.test_require_docstring()
+    t.test_typo_docstring()
