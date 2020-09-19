@@ -448,7 +448,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         def get_instance() -> TestCase:
             """
             Returns:
-                TestCase: A new TextCase
+                TestCase: A new TestCase
             """
             return TestCase()
 
@@ -457,6 +457,4 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
 if __name__ == '__main__':
     t = TestRequireDocstringGoogleFormat()
-    t.test_factory()
-    # t.test_user_class()
-    t.test_exception_in_docstring_parser()
+    t.test_user_class()

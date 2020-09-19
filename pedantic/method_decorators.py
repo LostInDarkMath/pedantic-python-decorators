@@ -9,7 +9,7 @@ import re
 from pedantic.basic_helpers import get_qualified_name_for_err_msg
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 from pedantic.models.decorated_function import DecoratedFunction
-from pedantic.type_hint_parser import _is_instance
+from pedantic.type_hint_parser import _is_instance, _get_type_arguments
 
 
 def overrides(interface_class: Any) -> Callable[..., Any]:
@@ -328,7 +328,11 @@ def require_not_empty_strings(func: Callable[..., Any], is_class_decorator: bool
     return validate_args(validator=validator, is_class_decorator=is_class_decorator)(func)
 
 
-def pedantic(func: Callable[..., Any], is_class_decorator: bool = False) -> Callable[..., Any]:
+def pedantic(func: Optional[Callable[..., Any]] = None,
+             is_class_decorator: bool = False,
+             require_docstring: bool = False,
+             require_kwargs: bool = True,  # TODO implementing and testing in case of False
+             ) -> Callable[..., Any]:
     """
        Checks the types and throw an AssertionError if a type is incorrect.
        This decorator reads the type hints and use them as contracts that will be checked.
@@ -361,39 +365,33 @@ def pedantic(func: Callable[..., Any], is_class_decorator: bool = False) -> Call
         Use kwargs when you call function some_calculation. Args: (5, 4.0, 'hi')
    """
 
-    decorated_func = DecoratedFunction(func=func)
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        decorated_func = DecoratedFunction(func=func)
 
-    if len(decorated_func.docstring.params) > 0:
-        _assert_has_correct_docstring(decorated_func=decorated_func)
+        if require_docstring or len(decorated_func.docstring.params) > 0:
+            _assert_has_correct_docstring(decorated_func=decorated_func)
 
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
-        return _assert_has_kwargs_and_correct_type_hints(decorated_func=decorated_func,
-                                                         args=args,
-                                                         kwargs=kwargs,
-                                                         is_class_decorator=is_class_decorator)
-    return wrapper
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs) -> Any:
+            return _assert_has_kwargs_and_correct_type_hints(decorated_func=decorated_func,
+                                                             args=args,
+                                                             kwargs=kwargs,
+                                                             is_class_decorator=is_class_decorator)
+        return wrapper
+    return decorator if func is None else decorator(func=func)
 
 
-def pedantic_require_docstring(func: Callable[..., Any], is_class_decorator: bool = False) -> Callable[..., Any]:
-    """Same as pedantic, but now it forces you to write docstrings (Google style)."""
-    decorated_func = DecoratedFunction(func=func)
-    _assert_has_correct_docstring(decorated_func=decorated_func)
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
-        res = _assert_has_kwargs_and_correct_type_hints(decorated_func=decorated_func,
-                                                        args=args,
-                                                        kwargs=kwargs,
-                                                        is_class_decorator=is_class_decorator)
-        return res
-    return wrapper
+def pedantic_require_docstring(func: Optional[Callable[..., Any]] = None, **kwargs: bool) -> Callable[..., Any]:
+    """Shortcut for @pedantic(require_docstring=True) """
+    # TODO test assumption
+    return pedantic(func=func, require_docstring=True, **kwargs)
 
 
 def _assert_has_kwargs_and_correct_type_hints(decorated_func: DecoratedFunction,
                                               args: Tuple[Any, ...],
                                               kwargs: Dict[str, Any],
-                                              is_class_decorator: bool) -> Any:
+                                              is_class_decorator: bool,
+                                              ) -> Any:
     func = decorated_func.func
     params = decorated_func.signature.parameters
     err = decorated_func.err
@@ -492,14 +490,25 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
             f'{err_prefix} The return type {docstring.returns.type_name} ' \
             f'is documented but the function does not return anything.'
 
+    context = {}
+
     for annotation in annotations:
         expected_type = annotations[annotation]
+
+        if hasattr(expected_type, '__name__'):
+            context[expected_type.__name__] = expected_type
+        elif isinstance(expected_type, str):
+            context[expected_type] = expected_type
+        elif str(expected_type).startswith('typing'):
+            args = _get_type_arguments(expected_type)[0]  # TODO parse type arguments recursivly
+            if hasattr(args, '__name__'):
+                context[args.__name__] = args
 
         if annotation == 'return' and annotations[annotation] is not None:
             assert len(docstring.returns.args) == 2, \
                 f'{err_prefix} Parsing Error. Only Google style Python docstrings are supported.'
 
-            actual_return_type = _parse_type_annotation_from_str(type_=docstring.returns.args[1], context=decorated_func.func.__dict__)
+            actual_return_type = _parse_type_annotation_from_str(type_=docstring.returns.args[1], context=context)
             assert actual_return_type == expected_type, \
                 f'{err_prefix} Documented type is incorrect: Annotation: {expected_type} ' \
                 f'Documented: {actual_return_type}'
@@ -510,13 +519,13 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
                     docstring_param = param
             assert docstring_param is not None, \
                 f'{err_prefix} Parameter {annotation} is not documented.'
-            actual_param_type = _parse_type_annotation_from_str(type_=docstring_param.type_name, context=decorated_func.func.__dict__)
+            actual_param_type = _parse_type_annotation_from_str(type_=docstring_param.type_name, context=context)
             assert expected_type == actual_param_type, \
                 f'{err_prefix} Documented type of parameter {annotation} is incorrect. ' \
                 f'Expected {expected_type} but documented is {actual_param_type}.'
 
 
-def _parse_type_annotation_from_str(type_: str, context: Dict) -> Any:
+def _parse_type_annotation_from_str(type_: str, context: Dict[str, Any]) -> Any:
     """
     >>> _parse_type_annotation_from_str('List[str]')
     typing.List[str]
@@ -533,9 +542,10 @@ def _parse_type_annotation_from_str(type_: str, context: Dict) -> Any:
     >>> _parse_type_annotation_from_str('Union[List[Dict[str, float]], None]')
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
     """
-    # TODO: check if it is necessary for functionality
-    return eval(type_, globals(), context)
-    # return eval(type_, globals())
+    try:
+        return eval(type_, globals(), context)
+    except NameError as e:
+        raise AssertionError(f'TODO {e}') # TODO
 
 
 def _assert_uses_kwargs(func: Callable[..., Any], args: Tuple[Any, ...], is_class_decorator: bool) -> None:
