@@ -151,8 +151,7 @@ def does_same_as_function(other_func: Callable[..., Any]) -> Callable[..., Any]:
 
 def deprecated(func: Callable[..., Any]) -> Callable[..., Any]:
     """
-        This is a decorator which can be used to mark functions as deprecated. It will result in a warning being emitted
-        when the function is used.
+        Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.
         Example:
         >>> @deprecated
         ... def some_calculation(a, b, c):
@@ -160,8 +159,8 @@ def deprecated(func: Callable[..., Any]) -> Callable[..., Any]:
         >>> some_calculation(5, 4, 3)
     """
     @functools.wraps(func)
-    def new_func(*args, **kwargs) -> Any:
-        _raise_warning(msg="Call to deprecated function {}.".format(func.__name__), category=DeprecationWarning)
+    def new_func(*args: Any, **kwargs: Any) -> Any:
+        _raise_warning(msg=f'Call to deprecated function "{func.__name__}".', category=DeprecationWarning)
         return func(*args, **kwargs)
     return new_func
 
@@ -518,6 +517,7 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
 
 def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any:
     """
+    Works only with Python 3.7 or newer. Otherwise, strange things will happen.
     >>> _parse_documented_type(type_='List[str]', context={}, err='')
     typing.List[str]
     >>> _parse_documented_type(type_='float', context={}, err='')
@@ -548,6 +548,7 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
 
 def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
     """
+    Works only with Python 3.7 or newer. Otherwise, strange things will happen.
     >>> from typing import List, Union, Optional, Callable
     >>> _update_context(type_=None, context={})
     {}

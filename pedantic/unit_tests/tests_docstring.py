@@ -441,7 +441,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 pass
 
         m = MyClass()
-        # m.make_element()
+        # m.make_element() #TODO
 
     def test_factory(self):
         @pedantic_require_docstring
@@ -458,12 +458,12 @@ class TestRequireDocstringGoogleFormat(TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic(require_docstring=True)
             def no_docstrings() -> None:
-                pass
+                print('.')
 
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def no_docstrings() -> None:
-                pass
+                print('.')
 
 
 if __name__ == '__main__':
