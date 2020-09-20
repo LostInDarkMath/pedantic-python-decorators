@@ -21,8 +21,8 @@ def get_doctest_test_suite() -> unittest.TestSuite:
     ]
     new_suite = unittest.TestSuite()
 
-    for test in doctest_suite._tests:
-        if test._dt_test.name.split('.')[-1] not in blacklist:
+    for test in doctest_suite:
+        if test.id().split('.')[-1] not in blacklist:
             new_suite.addTest(test)
 
     return new_suite
