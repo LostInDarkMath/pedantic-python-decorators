@@ -11,9 +11,12 @@ from pedantic.unit_tests.tests_pedantic_class import TestPedanticClass
 from pedantic.unit_tests.tests_pedantic import TestDecoratorRequireKwargsAndTypeCheck
 from pedantic.unit_tests.tests_small_method_decorators import TestSmallDecoratorMethods
 from pedantic.unit_tests.tests_combination_of_decorators import TestCombinationOfDecorators
-from pedantic.unit_tests.tests_docstring import TestRequireDocstringGoogleFormat
-from pedantic.unit_tests.tests_pedantic_class_docstring import TestPedanticClassDocstring
-from pedantic.unit_tests.tests_assertion_error_3_6 import TestAssertionError36
+
+if sys.version_info >= (3, 7):
+    from pedantic.unit_tests.tests_docstring import TestRequireDocstringGoogleFormat
+    from pedantic.unit_tests.tests_pedantic_class_docstring import TestPedanticClassDocstring
+else:
+    from pedantic.unit_tests.tests_assertion_error_3_6 import TestAssertionError36
 
 
 def run_all_tests() -> None:

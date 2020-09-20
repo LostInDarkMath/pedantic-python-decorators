@@ -21,8 +21,7 @@ install:
 # before_script:
 
 script:
-  # - coverage run -m unittest pedantic/unit_tests/tests_main.py # run tests with coverage
-  - coverage run pedantic/unit_tests/tests_main.py
+  - coverage run -m unittest pedantic/unit_tests/tests_main.py # run tests with coverage
   #- python pedantic/unit_tests/tests_main.py  
   - python setup.py bdist_wheel  # creating wheel needs to be done during install
   - coveralls
