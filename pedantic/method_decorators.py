@@ -647,7 +647,7 @@ def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, ty
     >>> _is_value_matching_type_hint('hi', str, '', {})
     True
     >>> _is_value_matching_type_hint(None, str, '', {})
-    True
+    False
     """
 
     if type_hint is None:
