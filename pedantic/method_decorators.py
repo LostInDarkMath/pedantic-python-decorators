@@ -528,18 +528,35 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
     >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='') if sys.version_info >= (3, 9) else print('typing.Optional[typing.List[typing.Dict[str, float]]]')
     typing.Optional[typing.List[typing.Dict[str, float]]]
+    >>> _parse_documented_type(type_='MyClass', context={}, err='')
+    Traceback (most recent call last):
+    ...
+    AssertionError:  Documented type "MyClass" was not found.
+    >>> class MyClass: pass
+    >>> _parse_documented_type(type_='MyClass', context={'MyClass': MyClass}, err='')
+    <class 'pedantic.method_decorators.MyClass'>
+    >>> _parse_documented_type(type_='MyClas', context={'MyClass': MyClass}, err='')
+    Traceback (most recent call last):
+    ...
+    AssertionError:  Documented type "MyClas" was not found. Maybe you meant "MyClass"
+    >>> class MyClub: pass
+    >>> _parse_documented_type(type_='MyClas', context={'MyClass': MyClass, 'MyClub': MyClub}, err='')
+    Traceback (most recent call last):
+    ...
+    AssertionError:  Documented type "MyClas" was not found. Maybe you meant one of the following: ['MyClass', 'MyClub']
     """
+
     try:
         return eval(type_, globals(), context)
     except NameError:
         possible_meant_types = [t for t in context.keys() if isinstance(t, str)]
         if len(possible_meant_types) > 1:
-            msg = f'Maybe you meant one of the following: {possible_meant_types}'
+            msg = f' Maybe you meant one of the following: {possible_meant_types}'
         elif len(possible_meant_types) == 1:
-            msg = f'Maybe you meant "{possible_meant_types[0]}"'
+            msg = f' Maybe you meant "{possible_meant_types[0]}"'
         else:
             msg = ''
-        raise AssertionError(f'{err} Documented type "{type_}" was not found. {msg}')
+        raise AssertionError(f'{err} Documented type "{type_}" was not found.{msg}')
 
 
 def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
