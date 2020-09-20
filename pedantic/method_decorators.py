@@ -1,7 +1,7 @@
 import functools
 import inspect
 import sys
-from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List  # necessary for global context of eval()
+from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List
 from datetime import datetime
 import warnings
 import re
@@ -69,7 +69,7 @@ def count_calls(func: Callable[..., Any]) -> Callable[..., Any]:
         Count Calls: Call 3 of function 'some_calculation' at ...
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         wrapper.num_calls += 1
         print(f"Count Calls: Call {wrapper.num_calls} of function {func.__name__!r} at {datetime.now()}.")
         return func(*args, **kwargs)
@@ -90,7 +90,7 @@ def trace(func: Callable[..., Any]) -> Callable[..., Any]:
        15
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         print(f'Trace: {datetime.now()} calling {func.__name__}()  with {args}, {kwargs}')
         original_result = func(*args, **kwargs)
         print(f'Trace: {datetime.now()} {func.__name__}() returned {original_result!r}')
@@ -114,7 +114,7 @@ def trace_if_returns(return_value: Any) -> Callable[..., Any]:
     """
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             result = func(*args, **kwargs)
             if result == return_value:
                 print(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
@@ -138,7 +138,7 @@ def does_same_as_function(other_func: Callable[..., Any]) -> Callable[..., Any]:
     """
     def decorator(decorated_func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(decorated_func)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             result = decorated_func(*args, **kwargs)
             other = other_func(*args, **kwargs)
             assert other == result, \
@@ -177,7 +177,7 @@ def needs_refactoring(func: Callable[..., Any]) -> Callable[..., Any]:
         >>> some_calculation(5, 4, 3)
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         _raise_warning(msg=f'Function "{func.__name__}" looks terrible and needs a refactoring!', category=UserWarning)
         return func(*args, **kwargs)
     return wrapper
@@ -196,7 +196,7 @@ def unimplemented(func: Callable[..., Any]) -> Callable[..., Any]:
         pedantic.custom_exceptions.NotImplementedException: Function "some_calculation" is not implemented yet!
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         raise NotImplementedException(f'Function "{func.__name__}" is not implemented yet!')
     return wrapper
 
@@ -214,7 +214,7 @@ def dirty(func: Callable[..., Any]) -> Callable[..., Any]:
         pedantic.custom_exceptions.TooDirtyException: Function "some_calculation" is too dirty to be executed!
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         raise TooDirtyException(f'Function "{func.__name__}" is too dirty to be executed!')
     return wrapper
 
@@ -235,7 +235,7 @@ def require_kwargs(func: Callable[..., Any], is_class_decorator: bool = False) -
         12
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         _assert_uses_kwargs(func=func, args=args, is_class_decorator=is_class_decorator)
         return func(*args, **kwargs)
     return wrapper
@@ -264,7 +264,7 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]],
             assert res, f'{get_qualified_name_for_err_msg(func=func)} {msg}'
 
         @functools.wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             args_without_self = _get_args_without_self(f=func, args=args, is_class_decorator=is_class_decorator)
 
             for arg in args_without_self:
@@ -374,7 +374,7 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
             _assert_has_correct_docstring(decorated_func=decorated_func)
 
         @functools.wraps(f)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             _assert_uses_kwargs(func=func, args=args, is_class_decorator=is_class_decorator)
             return _check_types(decorated_func=decorated_func, args=args, kwargs=kwargs)
         return wrapper
@@ -397,6 +397,7 @@ def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...], kwarg
         f'{err} There should be a type hint for the return type (e.g. None if there is nothing returned).'
 
     arg_index = 1 if _is_instance_method(func=func) else 0
+
     for key in params:
         param = params[key]
         expected_type = param.annotation
@@ -571,17 +572,43 @@ def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
     elif isinstance(type_, str):
         context[type_] = type_
     elif str(type_).startswith('typing'):
-        args = _get_type_arguments(type_)
+        type_arguments = _get_type_arguments(type_)
 
-        for a in args:
-            if isinstance(a, list):  # Callable has a List of Types as first argument
-                for b in a:
-                    _update_context(context=context, type_=b)
-            _update_context(context=context, type_=a)
+        for type_argument in type_arguments:
+            if isinstance(type_argument, list):  # Callable has a List of Types as first argument
+                for type_arg in type_argument:
+                    _update_context(context=context, type_=type_arg)
+            _update_context(context=context, type_=type_argument)
     return context
 
 
 def _assert_uses_kwargs(func: Callable[..., Any], args: Tuple[Any, ...], is_class_decorator: bool) -> None:
+    """
+       >>> def f1(): pass
+       >>> _assert_uses_kwargs(f1, (), False)
+       >>> def f2(a, b, c): pass
+       >>> _assert_uses_kwargs(f2, (3, 4, 5), False)
+       Traceback (most recent call last):
+       ...
+       AssertionError: In function f2:
+        Use kwargs when you call function f2. Args: (3, 4, 5)
+       >>> _assert_uses_kwargs(f2, (), False)
+       >>> class A:
+       ...    def f(self): pass
+       ...    @staticmethod
+       ...    def g(arg=42): pass
+       ...    def __compare__(self, other): pass
+       >>> a = A()
+       >>> _assert_uses_kwargs(A.f, (a,), False)
+       >>> _assert_uses_kwargs(A.g, (a,), False)
+       >>> _assert_uses_kwargs(A.g, (a, 45), False)
+       Traceback (most recent call last):
+       ...
+       AssertionError: In function A.g:
+        Use kwargs when you call function g. Args: (45,)
+       >>> _assert_uses_kwargs(A.__compare__, (a, 'hi',), False)
+       >>> _assert_uses_kwargs(A.__compare__, (a,), False)
+    """
     if _is_func_that_require_kwargs(func=func):
         args_without_self = _get_args_without_self(f=func, args=args, is_class_decorator=is_class_decorator)
         assert args_without_self == (), \
@@ -590,6 +617,26 @@ def _assert_uses_kwargs(func: Callable[..., Any], args: Tuple[Any, ...], is_clas
 
 
 def _get_args_without_self(f: Callable[..., Any], args: Tuple[Any, ...], is_class_decorator: bool) -> Tuple[Any, ...]:
+    """
+       >>> def f1(): pass
+       >>> _get_args_without_self(f1, (), False)
+       ()
+       >>> def f2(a, b, c): pass
+       >>> _get_args_without_self(f2, (3, 4, 5), False)
+       (3, 4, 5)
+       >>> class A:
+       ...    def f(self): pass
+       ...    @staticmethod
+       ...    def g(): pass
+       ...    def __compare__(self, other): pass
+       >>> a = A()
+       >>> _get_args_without_self(A.f, (a,), False)
+       ()
+       >>> _get_args_without_self(A.g, (a,), False)
+       ()
+       >>> _get_args_without_self(A.__compare__, (a, 'hi',), False)
+       ('hi',)
+    """
     max_allowed = 0 if is_class_decorator else 1
     if _is_instance_method(f) or _is_static_method(f) or _uses_multiple_decorators(f, max_allowed):
         return args[1:]  # self is always the first argument if present
@@ -597,9 +644,40 @@ def _get_args_without_self(f: Callable[..., Any], args: Tuple[Any, ...], is_clas
 
 
 def _is_func_that_require_kwargs(func: Callable[..., Any]) -> bool:
+    """
+       >>> def f1(*args, **kwargs): pass
+       >>> _is_func_that_require_kwargs(f1)
+       False
+       >>> def f2(a, b, *args, **kwargs): pass
+       >>> _is_func_that_require_kwargs(f2)
+       False
+       >>> def f3(a, b, *args): pass
+       >>> _is_func_that_require_kwargs(f3)
+       False
+       >>> def f4(*args): pass
+       >>> _is_func_that_require_kwargs(f4)
+       False
+       >>> def f5(): pass
+       >>> _is_func_that_require_kwargs(f5)
+       True
+       >>> def f6(a, b, c): pass
+       >>> _is_func_that_require_kwargs(f6)
+       True
+       >>> class A:
+       ...    def f(self): pass
+       ...    @staticmethod
+       ...    def g(): pass
+       ...    def __compare__(self, other): pass
+       >>> _is_func_that_require_kwargs(A.f)
+       True
+       >>> _is_func_that_require_kwargs(A.g)
+       True
+       >>> _is_func_that_require_kwargs(A.__compare__)
+       False
+    """
     f_name = func.__name__
 
-    if _is_property_setter(func=func) or _is_function_that_want_args(func=func):
+    if _is_property_setter(func=func) or _is_function_that_wants_args(func=func):
         return False
 
     if not f_name.startswith('__') or not f_name.endswith('__'):
@@ -611,98 +689,189 @@ def _is_func_that_require_kwargs(func: Callable[..., Any]) -> bool:
 
 
 def _is_property_setter(func: Callable[..., Any]) -> bool:
+    """
+       >>> def h(): pass
+       >>> _is_property_setter(h)
+       False
+       >>> from pedantic import pedantic_class
+       >>> @pedantic_class
+       ... class A:
+       ...    _h = 42
+       ...    def f(self): pass
+       ...    @staticmethod
+       ...    def g(): pass
+       ...    @property
+       ...    def h(self): return self._h
+       ...    @h.setter
+       ...    def h(self, v): self._h = v
+       >>> _is_property_setter(A.f)
+       False
+       >>> _is_property_setter(A.g)
+       False
+    """
     return f'@{func.__name__}.setter' in inspect.getsource(func)
 
 
-def _is_function_that_want_args(func: Callable[..., Any]) -> bool:
+def _is_function_that_wants_args(func: Callable[..., Any]) -> bool:
+    """
+       >>> def f1(*args, **kwargs): pass
+       >>> _is_function_that_wants_args(f1)
+       True
+       >>> def f2(a, b, *args, **kwargs): pass
+       >>> _is_function_that_wants_args(f2)
+       True
+       >>> def f3(a, b, *args): pass
+       >>> _is_function_that_wants_args(f3)
+       True
+       >>> def f4(*args): pass
+       >>> _is_function_that_wants_args(f4)
+       True
+       >>> def h(): pass
+       >>> _is_function_that_wants_args(h)
+       False
+       >>> class A:
+       ...    def f(self): pass
+       ...    @staticmethod
+       ...    def g(): pass
+       >>> _is_function_that_wants_args(A.f)
+       False
+       >>> _is_function_that_wants_args(A.g)
+       False
+    """
     return '*args' in inspect.getsource(func)
 
 
 def _is_instance_method(func: Callable[..., Any]) -> bool:
-    spec = inspect.getfullargspec(func)
-    return spec.args and spec.args[0] == 'self'
+    """
+       >>> def h(): pass
+       >>> _is_instance_method(h)
+       False
+       >>> class A:
+       ...    def f(self): pass
+       ...    @staticmethod
+       ...    def g(): pass
+       >>> _is_instance_method(A.f)
+       True
+       >>> _is_instance_method(A.g)
+       False
+    """
+    arg_spec = inspect.getfullargspec(func)
+    return arg_spec.args != [] and arg_spec.args[0] == 'self'
 
 
 def _is_static_method(func: Callable[..., Any]) -> bool:
+    """
+        >>> def h(): pass
+        >>> _is_static_method(h)
+        False
+        >>> class A:
+        ...    def f(self): pass
+        ...    @staticmethod
+        ...    def g(): pass
+        >>> _is_static_method(A.f)
+        False
+        >>> _is_static_method(A.g)
+        True
+    """
     return '@staticmethod' in inspect.getsource(func)
 
 
 def _uses_multiple_decorators(func: Callable[..., Any], max_allowed: int = 1) -> bool:
+    """
+        >>> @pedantic
+        ... @trace
+        ... def f() -> None: pass
+        >>> _uses_multiple_decorators(f, 1)
+        True
+        >>> _uses_multiple_decorators(f, 2)
+        False
+        >>> @pedantic
+        ... def g() -> None: pass
+        >>> _uses_multiple_decorators(g, 1)
+        False
+        >>> _uses_multiple_decorators(g, 0)
+        True
+        >>> def h() -> None: pass
+        >>> _uses_multiple_decorators(h, 1)
+        False
+        >>> _uses_multiple_decorators(h, 0)
+        False
+    """
     return len(re.findall('@', inspect.getsource(func).split('def')[0])) > max_allowed
 
 
 def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, type_vars: Dict[type, Any]) -> bool:
     """
-    Wrapper for file "type_hint_parser.py".
-    The type hint "Dict[TypeVar, Any]" for "type_vars" crashes in Python 3.6. So "Dict[type, Any]" must be used here.
+        Wrapper for file "type_hint_parser.py".
+        The type hint "Dict[TypeVar, Any]" for type_vars crashes in Python 3.6. So "Dict[type, Any]" must be used here.
 
-    >>> from typing import List, Union, Optional, Callable, Any
-    >>> _is_value_matching_type_hint(5, int, '', {})
-    True
-    >>> _is_value_matching_type_hint(5, float, '', {})
-    False
-    >>> _is_value_matching_type_hint('hi', str, '', {})
-    True
-    >>> _is_value_matching_type_hint(None, str, '', {})
-    False
-    >>> _is_value_matching_type_hint(None, Any, '', {})
-    True
-    >>> _is_value_matching_type_hint(None, None, '', {})
-    True
-    >>> _is_value_matching_type_hint(5, Any, '', {})
-    True
-    >>> _is_value_matching_type_hint(3.1415, float, '', {})
-    True
-    >>> _is_value_matching_type_hint([1, 2, 3, 4], List[int], '', {})
-    True
-    >>> _is_value_matching_type_hint([1, 2, 3.0, 4], List[int], '', {})
-    False
-    >>> _is_value_matching_type_hint([1, 2, 3.0, 4], List[float], '', {})
-    False
-    >>> _is_value_matching_type_hint([1, 2, 3.0, 4], List[Union[float, int]], '', {})
-    True
-    >>> _is_value_matching_type_hint([[True, False], [False], [True], []], List[List[bool]], '', {})
-    True
-    >>> _is_value_matching_type_hint([[True, False, 1], [False], [True], []], List[List[bool]], '', {})
-    False
-    >>> _is_value_matching_type_hint(5, Union[int, float, bool], '', {})
-    True
-    >>> _is_value_matching_type_hint(5.0, Union[int, float, bool], '', {})
-    True
-    >>> _is_value_matching_type_hint(False, Union[int, float, bool], '', {})
-    True
-    >>> _is_value_matching_type_hint('5', Union[int, float, bool], '', {})
-    False
-    >>> def f(a: int, b: bool, c: str) -> float: pass
-    >>> _is_value_matching_type_hint(f, Callable[[int, bool, str], float], '', {})
-    True
-    >>> _is_value_matching_type_hint(None, Optional[List[Dict[str, float]]], '', {})
-    True
-    >>> _is_value_matching_type_hint([{'a': 1.2, 'b': 3.4}], Optional[List[Dict[str, float]]], '', {})
-    True
-    >>> _is_value_matching_type_hint([{'a': 1.2, 'b': 3}], Optional[List[Dict[str, float]]], '', {})
-    False
-    >>> _is_value_matching_type_hint({'a': 1.2, 'b': 3.4}, Optional[List[Dict[str, float]]], '', {})
-    False
-    >>> _is_value_matching_type_hint([{'a': 1.2, 7: 3.4}], Optional[List[Dict[str, float]]], '', {})
-    False
-    >>> class MyClass: pass
-    >>> _is_value_matching_type_hint(MyClass(), 'MyClass', '', {})
-    True
-    >>> _is_value_matching_type_hint(MyClass(), 'MyClas', '', {})
-    False
-    >>> _is_value_matching_type_hint([1, 2, 3], list, '', {})
-    Traceback (most recent call last):
-    ...
-    AssertionError:  Use "List[]" instead of "list" as type hint.
-    >>> _is_value_matching_type_hint((1, 2, 3), tuple, '', {})
-    Traceback (most recent call last):
-    ...
-    AssertionError:  Use "Tuple[]" instead of "tuple" as type hint.
-    >>> _is_value_matching_type_hint({1: 1.0, 2: 2.0, 3: 3.0}, dict, '', {})
-    Traceback (most recent call last):
-    ...
-    AssertionError:  Use "Dict[]" instead of "dict" as type hint.
+        >>> from typing import List, Union, Optional, Callable, Any
+        >>> _is_value_matching_type_hint(5, int, '', {})
+        True
+        >>> _is_value_matching_type_hint(5, float, '', {})
+        False
+        >>> _is_value_matching_type_hint('hi', str, '', {})
+        True
+        >>> _is_value_matching_type_hint(None, str, '', {})
+        False
+        >>> _is_value_matching_type_hint(None, Any, '', {})
+        True
+        >>> _is_value_matching_type_hint(None, None, '', {})
+        True
+        >>> _is_value_matching_type_hint(5, Any, '', {})
+        True
+        >>> _is_value_matching_type_hint(3.1415, float, '', {})
+        True
+        >>> _is_value_matching_type_hint([1, 2, 3, 4], List[int], '', {})
+        True
+        >>> _is_value_matching_type_hint([1, 2, 3.0, 4], List[int], '', {})
+        False
+        >>> _is_value_matching_type_hint([1, 2, 3.0, 4], List[float], '', {})
+        False
+        >>> _is_value_matching_type_hint([1, 2, 3.0, 4], List[Union[float, int]], '', {})
+        True
+        >>> _is_value_matching_type_hint([[True, False], [False], [True], []], List[List[bool]], '', {})
+        True
+        >>> _is_value_matching_type_hint([[True, False, 1], [False], [True], []], List[List[bool]], '', {})
+        False
+        >>> _is_value_matching_type_hint(5, Union[int, float, bool], '', {})
+        True
+        >>> _is_value_matching_type_hint(5.0, Union[int, float, bool], '', {})
+        True
+        >>> _is_value_matching_type_hint(False, Union[int, float, bool], '', {})
+        True
+        >>> _is_value_matching_type_hint('5', Union[int, float, bool], '', {})
+        False
+        >>> def f(a: int, b: bool, c: str) -> float: pass
+        >>> _is_value_matching_type_hint(f, Callable[[int, bool, str], float], '', {})
+        True
+        >>> _is_value_matching_type_hint(None, Optional[List[Dict[str, float]]], '', {})
+        True
+        >>> _is_value_matching_type_hint([{'a': 1.2, 'b': 3.4}], Optional[List[Dict[str, float]]], '', {})
+        True
+        >>> _is_value_matching_type_hint([{'a': 1.2, 'b': 3}], Optional[List[Dict[str, float]]], '', {})
+        False
+        >>> _is_value_matching_type_hint({'a': 1.2, 'b': 3.4}, Optional[List[Dict[str, float]]], '', {})
+        False
+        >>> _is_value_matching_type_hint([{'a': 1.2, 7: 3.4}], Optional[List[Dict[str, float]]], '', {})
+        False
+        >>> class MyClass: pass
+        >>> _is_value_matching_type_hint(MyClass(), 'MyClass', '', {})
+        True
+        >>> _is_value_matching_type_hint(MyClass(), 'MyClas', '', {})
+        False
+        >>> _is_value_matching_type_hint([1, 2, 3], list, '', {})
+        Traceback (most recent call last):
+        ...
+        AssertionError:  Use "List[]" instead of "list" as type hint.
+        >>> _is_value_matching_type_hint((1, 2, 3), tuple, '', {})
+        Traceback (most recent call last):
+        ...
+        AssertionError:  Use "Tuple[]" instead of "tuple" as type hint.
+        >>> _is_value_matching_type_hint({1: 1.0, 2: 2.0, 3: 3.0}, dict, '', {})
+        Traceback (most recent call last):
+        ...
+        AssertionError:  Use "Dict[]" instead of "dict" as type hint.
     """
 
     if type_hint is None:
