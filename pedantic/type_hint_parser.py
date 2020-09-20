@@ -3,8 +3,6 @@ import inspect
 import typing
 import collections
 
-typing_protocol = typing.Protocol if hasattr(typing, 'Protocol') else typing._Protocol
-
 
 def _is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
     """main function of this file"""
@@ -24,7 +22,7 @@ def _is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
             return validator(obj, type_, type_vars)
 
     if _is_generic(type_):
-        python_type = _get_python_type(type_)
+        python_type = type_.__origin__
         if not isinstance(obj, python_type):
             return False
 
@@ -121,9 +119,6 @@ def _is_base_generic(cls: typing.Any) -> bool:
 
     if hasattr(typing, '_GenericAlias'):
         if isinstance(cls, typing._GenericAlias):
-            if cls.__origin__ in {typing.Generic, typing_protocol}:
-                return False
-
             if str(cls) in ['typing.Tuple', 'typing.Callable']:
                 return True
 
@@ -194,7 +189,7 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
     if hasattr(typing, 'get_args'):
         return typing.get_args(cls)
     elif hasattr(cls, '__args__'):
-        # return cls.__args__  # DOESNT WORK. So below is the modified (!) implementation of typing.get_args()
+        # Since return cls.__args__  DOESNT WORK, you find a modified (!) implementation of typing.get_args() below:
         res = cls.__args__
         origin = _get_base_generic(cls)
         if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
@@ -219,7 +214,7 @@ def _get_base_generic(cls: typing.Any) -> typing.Any:
         return getattr(typing, cls._name)
 
 
-def _is_subtype(sub_type, super_type):
+def _is_subtype(sub_type, super_type) -> bool:
     if not _is_generic(sub_type):
         python_super = _python_type(super_type)
         python_sub = _python_type(sub_type)
@@ -248,7 +243,7 @@ def _is_subtype(sub_type, super_type):
     return all(_is_subtype(sub_arg, super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
 
 
-def _python_type(annotation):
+def _python_type(annotation: typing.Any) -> typing.Any:
     """
     Given a type annotation or a class as input, returns the corresponding python class.
 
@@ -267,25 +262,20 @@ def _python_type(annotation):
         if typing.Type in mro:
             return annotation._python_type
         elif annotation.__module__ == 'typing':
-            return _get_python_type(annotation)
+            return annotation.__origin__
         else:
             return annotation
     elif annotation == typing.Any or annotation == Ellipsis:
         return object
     else:
-        return _get_python_type(annotation)
-
-
-def _get_python_type(cls: typing.Any) -> typing.Any:
-    return cls.__origin__
+        return annotation.__origin__
 
 
 def _get_subtypes(cls):
     subtypes = cls.__args__
 
-    if _get_base_generic(cls) is typing.Callable:
-        if len(subtypes) != 2 or subtypes[0] is not ...:
-            subtypes = (subtypes[:-1], subtypes[-1])
+    if _get_base_generic(cls) is typing.Callable and (len(subtypes) != 2 or subtypes[0] is not ...):
+        subtypes = (subtypes[:-1], subtypes[-1])
     return subtypes
 
 

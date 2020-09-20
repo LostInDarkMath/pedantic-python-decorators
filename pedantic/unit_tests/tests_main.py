@@ -4,6 +4,8 @@ import os
 
 sys.path.append(os.getcwd())
 
+from pedantic.unit_tests.tests_doctests import run_doctests
+
 from pedantic.unit_tests.tests_require_kwargs import TestRequireKwargs
 from pedantic.unit_tests.tests_class_decorators import TestClassDecorators
 from pedantic.unit_tests.tests_pedantic_class import TestPedanticClass
@@ -19,6 +21,7 @@ else:
 
 
 def run_tests() -> None:
+    run_doctests()
     unittest.main()
 
 

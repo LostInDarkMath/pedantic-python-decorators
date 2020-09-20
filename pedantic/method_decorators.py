@@ -640,6 +640,14 @@ def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, ty
     """
     Wrapper for file "type_hint_parser.py".
     NOTE: Type hint "Dict[TypeVar, Any]" crashes in Python 3.6. So "Dict[type, Any]" must be used here.
+    >>> _is_value_matching_type_hint(5, int, '', {})
+    True
+    >>> _is_value_matching_type_hint(5, float, '', {})
+    False
+    >>> _is_value_matching_type_hint('hi', str, '', {})
+    True
+    >>> _is_value_matching_type_hint(None, str, '', {})
+    True
     """
 
     if type_hint is None:
@@ -660,10 +668,10 @@ def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, ty
                              f'{type_hint} Mostly this is caused by an incorrect type annotation. Details: {ex} ')
 
 
-def _raise_warning(msg: str, category: Type[Warning]):
-    warnings.simplefilter('always', category)  # turn off filter
-    warnings.warn(msg, category=category, stacklevel=2)
-    warnings.simplefilter('default', category)  # reset filter
+def _raise_warning(msg: str, category: Type[Warning]) -> None:
+    warnings.simplefilter(action='always', category=category)
+    warnings.warn(message=msg, category=category, stacklevel=2)
+    warnings.simplefilter(action='default', category=category)
 
 
 if __name__ == "__main__":
