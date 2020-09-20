@@ -17,5 +17,10 @@ if sys.version_info >= (3, 7):
 else:
     from pedantic.unit_tests.tests_assertion_error_3_6 import TestAssertionError36
 
-if __name__ == '__main__':
+
+def run_tests() -> None:
     unittest.main()
+
+
+if __name__ == '__main__':
+    run_tests()

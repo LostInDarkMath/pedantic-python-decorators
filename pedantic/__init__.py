@@ -9,4 +9,6 @@ from pedantic.method_decorators import pedantic, pedantic_require_docstring, tra
 
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 
+from pedantic.unit_tests.tests_main import run_tests
+
 assert sys.version_info >= (3, 6), f'Pedantic does not work with Python versions below 3.6.'
