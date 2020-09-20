@@ -41,16 +41,16 @@ def timer(func: Callable[..., Any]) -> Callable[..., Any]:
         ... def some_calculation():
         ...     return 42
         >>> some_calculation()
-        Timer: Finished function 'some_calculation' in 0:00:00.
+        Timer: Finished function "some_calculation" in 0:00:00.
         42
     """
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         start_time: datetime = datetime.now()
         value: Any = func(*args, **kwargs)
         end_time = datetime.now()
         run_time = end_time - start_time
-        print("Timer: Finished function {} in {}.".format(repr(func.__name__), run_time))
+        print(f'Timer: Finished function "{func.__name__}" in {run_time}.')
         return value
     return wrapper
 
