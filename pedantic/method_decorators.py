@@ -6,7 +6,6 @@ from datetime import datetime
 import warnings
 import re
 
-# local file imports
 from pedantic.basic_helpers import get_qualified_name_for_err_msg
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 from pedantic.models.decorated_function import DecoratedFunction
@@ -41,7 +40,7 @@ def timer(func: Callable[..., Any]) -> Callable[..., Any]:
         ... def some_calculation():
         ...     return 42
         >>> some_calculation()
-        Timer: Finished function "some_calculation" in 0:00:00.
+        Timer: Finished function "some_calculation" in 0:00:00...
         42
     """
     @functools.wraps(func)
