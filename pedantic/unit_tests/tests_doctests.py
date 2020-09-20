@@ -9,23 +9,29 @@ def run_doctests() -> None:
 
 def get_doctest_test_suite() -> unittest.TestSuite:
     parent_module = __import__('pedantic')
-    method_decorators = parent_module.method_decorators
-    doctest_suite = doctest.DocTestSuite(method_decorators, optionflags=doctest.ELLIPSIS)
-
-    if sys.version_info >= (3, 7):
-        return doctest_suite
-
-    blacklist = [
+    modules = [
+        parent_module.method_decorators,
+        parent_module.type_hint_parser,
+    ]
+    blacklist_python_version_below_3_7 = [
         '_parse_documented_type',
         '_update_context',
     ]
-    new_suite = unittest.TestSuite()
+    test_suites = []
 
-    for test in doctest_suite:
-        if test.id().split('.')[-1] not in blacklist:
-            new_suite.addTest(test)
+    for module in modules:
+        doctest_suite = doctest.DocTestSuite(module=module, optionflags=doctest.ELLIPSIS)
 
-    return new_suite
+        if sys.version_info >= (3, 7):
+            test_suites.append(doctest_suite)
+        else:
+            test_suite_without_blacklist = unittest.TestSuite()
+
+            for test in doctest_suite:
+                if test.id().split('.')[-1] not in blacklist_python_version_below_3_7:
+                    test_suite_without_blacklist.addTest(test)
+            test_suites.append(test_suite_without_blacklist)
+    return unittest.TestSuite(test_suites)
 
 
 if __name__ == '__main__':

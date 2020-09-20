@@ -520,13 +520,17 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     typing.Union[int, float, bool]
     >>> _parse_documented_type(type_='Callable[[int, bool, str], float]', context={}, err='')
     typing.Callable[[int, bool, str], float]
-    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='') if sys.version_info < (3, 9) else print('typing.Union[typing.List[typing.Dict[str, float]], NoneType]')
+    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='') \
+        if sys.version_info < (3, 9) else print('typing.Union[typing.List[typing.Dict[str, float]], NoneType]')
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
-    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='') if sys.version_info >= (3, 9) else print('typing.Optional[typing.List[typing.Dict[str, float]]]')
+    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='') \
+        if sys.version_info >= (3, 9) else print('typing.Optional[typing.List[typing.Dict[str, float]]]')
     typing.Optional[typing.List[typing.Dict[str, float]]]
-    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='') if sys.version_info < (3, 9) else print('typing.Union[typing.List[typing.Dict[str, float]], NoneType]')
+    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='') \
+        if sys.version_info < (3, 9) else print('typing.Union[typing.List[typing.Dict[str, float]], NoneType]')
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
-    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='') if sys.version_info >= (3, 9) else print('typing.Optional[typing.List[typing.Dict[str, float]]]')
+    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='') \
+        if sys.version_info >= (3, 9) else print('typing.Optional[typing.List[typing.Dict[str, float]]]')
     typing.Optional[typing.List[typing.Dict[str, float]]]
     >>> _parse_documented_type(type_='MyClass', context={}, err='')
     Traceback (most recent call last):
