@@ -12,7 +12,7 @@ from pedantic.unit_tests.tests_pedantic import TestDecoratorRequireKwargsAndType
 from pedantic.unit_tests.tests_small_method_decorators import TestSmallDecoratorMethods
 from pedantic.unit_tests.tests_combination_of_decorators import TestCombinationOfDecorators
 
-if sys.version_info >= (3, 7):
+if sys.version_info >= (3, 7):  # this is necessary for travis
     from pedantic.unit_tests.tests_docstring import TestRequireDocstringGoogleFormat
     from pedantic.unit_tests.tests_pedantic_class_docstring import TestPedanticClassDocstring
 else:
@@ -43,7 +43,8 @@ def run_all_tests() -> None:
 
     big_suite = unittest.TestSuite(suites_list)
     runner = unittest.TextTestRunner()
-    runner.run(big_suite)
+    result = runner.run(big_suite)
+    assert not result.errors and not result.failures, f'Some tests failed!'
 
 
 if __name__ == '__main__':
