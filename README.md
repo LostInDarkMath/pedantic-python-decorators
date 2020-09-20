@@ -2,6 +2,7 @@
 These decorators will make you write cleaner and well-documented Python code. 
 
 ## Getting Started
+This package requires Python 3.7 or newer. It also works with Python 3.6, but some features will be disabled in this version, e.g. the checking of docstrings. However, type checking also works fine with Python 3.6. 
 There are multiple options for installing this package.
 
 ### Option 1: Installing with pip from [Pypi](https://pypi.org/)
@@ -44,9 +45,7 @@ m.print_sum()
 
 ## Dependencies
 Outside the Python standard library, the following dependencies are used:
-- [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2, requires Python 3.6 or later)
-
-[This package works with Python 3.6 or newer.](https://travis-ci.com/github/LostInDarkMath/PythonHelpers)
+- [Docstring-Parser](https://github.com/rr-/docstring_parser) 
 
 ## Risks and Side Effects
 The usage of decorators may affect the performance of your application. For this reason, I would highly recommend you to disable the decorators during deployment automatically after all tests are passed.
