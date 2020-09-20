@@ -410,4 +410,4 @@ class TestPedanticClass(unittest.TestCase):
 
 if __name__ == '__main__':
     t = TestPedanticClass()
-    t.test_pedantic_generic_class()
+    t.test_typo_in_type_annotation_string()

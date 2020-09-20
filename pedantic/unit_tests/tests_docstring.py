@@ -438,10 +438,13 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 Returns:
                     List[BPMNElement]: abc
                 """
-                pass
+                element_type.attr = '42'
+                return src_tgt_elements
 
         m = MyClass()
-        # m.make_element() #TODO
+        m.make_element(element_type=BPMNEnum(), src_tgt_elements=[BPMNElement()])
+        with self.assertRaises(expected_exception=AssertionError):
+            m.make_element(element_type=BPMNElement(), src_tgt_elements=[BPMNEnum()])
 
     def test_factory(self):
         @pedantic_require_docstring

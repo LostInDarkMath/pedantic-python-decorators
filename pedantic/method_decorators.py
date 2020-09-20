@@ -435,30 +435,20 @@ def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...], kwarg
         else:
             actual_value = kwargs[key] if key in kwargs else param.default
 
-        if isinstance(expected_type, str):
-            class_name = actual_value.__class__.__name__
-            assert class_name == expected_type, \
-                f'{err} Type hint is incorrect. Expected: {expected_type} but was {class_name} instead.'
-        else:
-            assert _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
-                                                err_prefix=err, type_vars=type_vars), \
-                f'{err} Type hint is incorrect: ' \
-                f'Passed Argument {key}={actual_value} does not have type {expected_type}.'
+        assert _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
+                                            err_prefix=err, type_vars=type_vars), \
+            f'{err} Type hint is incorrect: ' \
+            f'Passed Argument {key}={actual_value} does not have type {expected_type}.'
 
         already_checked_kwargs.append(key)
 
     result = func(*args, **kwargs) if not _is_static_method(func=func) else func(**kwargs)
     expected_result_type = decorated_func.annotations['return']
 
-    if isinstance(expected_result_type, str):
-        assert result.__class__.__name__ == expected_result_type, \
-            f'{err} Type hint is incorrect: Expected: {expected_result_type} ' \
-            f'but was {result.__class__.__name__} instead.'
-    else:
-        assert _is_value_matching_type_hint(value=result, type_hint=expected_result_type,
-                                            err_prefix=err, type_vars=type_vars), \
-            f'{err} Return type is incorrect: Expected {expected_result_type} ' \
-            f'but {result} was the return value which does not match.'
+    assert _is_value_matching_type_hint(value=result, type_hint=expected_result_type,
+                                        err_prefix=err, type_vars=type_vars), \
+        f'{err} Return type is incorrect: Expected {expected_result_type} ' \
+        f'but {result} was the return value which does not match.'
     return result
 
 
@@ -644,7 +634,9 @@ def _uses_multiple_decorators(func: Callable[..., Any], max_allowed: int = 1) ->
 def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, type_vars: Dict[type, Any]) -> bool:
     """
     Wrapper for file "type_hint_parser.py".
-    NOTE: Type hint "Dict[TypeVar, Any]" crashes in Python 3.6. So "Dict[type, Any]" must be used here.
+    The type hint "Dict[TypeVar, Any]" for "type_vars" crashes in Python 3.6. So "Dict[type, Any]" must be used here.
+
+    >>> from typing import List, Union, Optional, Callable, Any
     >>> _is_value_matching_type_hint(5, int, '', {})
     True
     >>> _is_value_matching_type_hint(5, float, '', {})
@@ -653,10 +645,72 @@ def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, ty
     True
     >>> _is_value_matching_type_hint(None, str, '', {})
     False
+    >>> _is_value_matching_type_hint(None, Any, '', {})
+    True
+    >>> _is_value_matching_type_hint(None, None, '', {})
+    True
+    >>> _is_value_matching_type_hint(5, Any, '', {})
+    True
+    >>> _is_value_matching_type_hint(3.1415, float, '', {})
+    True
+    >>> _is_value_matching_type_hint([1, 2, 3, 4], List[int], '', {})
+    True
+    >>> _is_value_matching_type_hint([1, 2, 3.0, 4], List[int], '', {})
+    False
+    >>> _is_value_matching_type_hint([1, 2, 3.0, 4], List[float], '', {})
+    False
+    >>> _is_value_matching_type_hint([1, 2, 3.0, 4], List[Union[float, int]], '', {})
+    True
+    >>> _is_value_matching_type_hint([[True, False], [False], [True], []], List[List[bool]], '', {})
+    True
+    >>> _is_value_matching_type_hint([[True, False, 1], [False], [True], []], List[List[bool]], '', {})
+    False
+    >>> _is_value_matching_type_hint(5, Union[int, float, bool], '', {})
+    True
+    >>> _is_value_matching_type_hint(5.0, Union[int, float, bool], '', {})
+    True
+    >>> _is_value_matching_type_hint(False, Union[int, float, bool], '', {})
+    True
+    >>> _is_value_matching_type_hint('5', Union[int, float, bool], '', {})
+    False
+    >>> def f(a: int, b: bool, c: str) -> float: pass
+    >>> _is_value_matching_type_hint(f, Callable[[int, bool, str], float], '', {})
+    True
+    >>> _is_value_matching_type_hint(None, Optional[List[Dict[str, float]]], '', {})
+    True
+    >>> _is_value_matching_type_hint([{'a': 1.2, 'b': 3.4}], Optional[List[Dict[str, float]]], '', {})
+    True
+    >>> _is_value_matching_type_hint([{'a': 1.2, 'b': 3}], Optional[List[Dict[str, float]]], '', {})
+    False
+    >>> _is_value_matching_type_hint({'a': 1.2, 'b': 3.4}, Optional[List[Dict[str, float]]], '', {})
+    False
+    >>> _is_value_matching_type_hint([{'a': 1.2, 7: 3.4}], Optional[List[Dict[str, float]]], '', {})
+    False
+    >>> class MyClass: pass
+    >>> _is_value_matching_type_hint(MyClass(), 'MyClass', '', {})
+    True
+    >>> _is_value_matching_type_hint(MyClass(), 'MyClas', '', {})
+    False
+    >>> _is_value_matching_type_hint([1, 2, 3], list, '', {})
+    Traceback (most recent call last):
+    ...
+    AssertionError:  Use "List[]" instead of "list" as type hint.
+    >>> _is_value_matching_type_hint((1, 2, 3), tuple, '', {})
+    Traceback (most recent call last):
+    ...
+    AssertionError:  Use "Tuple[]" instead of "tuple" as type hint.
+    >>> _is_value_matching_type_hint({1: 1.0, 2: 2.0, 3: 3.0}, dict, '', {})
+    Traceback (most recent call last):
+    ...
+    AssertionError:  Use "Dict[]" instead of "dict" as type hint.
     """
 
     if type_hint is None:
         return value == type_hint
+    elif isinstance(type_hint, str):
+        class_name = value.__class__.__name__
+        return class_name == type_hint
+
     assert type(type_hint) is not tuple, f'{err_prefix} Use "Tuple[]" instead of "{type_hint}" as type hint.'
     assert type_hint is not tuple, f'{err_prefix} Use "Tuple[]" instead of "tuple" as type hint.'
     assert type_hint is not list, f'{err_prefix} Use "List[]" instead of "list" as type hint.'
@@ -665,7 +719,7 @@ def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, ty
     assert type_hint is not frozenset, f'{err_prefix} Use "FrozenSet[]" instead of "frozenset" as type hint.'
 
     try:
-        return _is_instance(value, type_hint, type_vars)
+        return _is_instance(obj=value, type_=type_hint, type_vars=type_vars)
     except AssertionError as ex:
         raise AssertionError(f'{err_prefix} {ex}')
     except (AttributeError, Exception) as ex:
