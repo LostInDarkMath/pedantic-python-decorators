@@ -518,6 +518,7 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
 def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any:
     """
     Works only with Python 3.7 or newer. Otherwise, strange things will happen.
+    >>> import sys
     >>> _parse_documented_type(type_='List[str]', context={}, err='')
     typing.List[str]
     >>> _parse_documented_type(type_='float', context={}, err='')
@@ -528,10 +529,14 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     typing.Union[int, float, bool]
     >>> _parse_documented_type(type_='Callable[[int, bool, str], float]', context={}, err='')
     typing.Callable[[int, bool, str], float]
-    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='')
+    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='') if sys.version_info < (3, 10) else print('typing.Union[typing.List[typing.Dict[str, float]], NoneType]')
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
-    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='')
+    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='') if sys.version_info >= (3, 10) else print('typing.Optional[typing.List[typing.Dict[str, float]]]')
+    typing.Optional[typing.List[typing.Dict[str, float]]]
+    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='') if sys.version_info < (3, 10) else print('typing.Union[typing.List[typing.Dict[str, float]], NoneType]')
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
+    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='') if sys.version_info >= (3, 10) else print('typing.Optional[typing.List[typing.Dict[str, float]]]')
+    typing.Optional[typing.List[typing.Dict[str, float]]]
     """
     try:
         return eval(type_, globals(), context)
