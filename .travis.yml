@@ -27,11 +27,7 @@ script:
   - coveralls
   - rm -r pedantic
   - pip install dist/*.whl
-  #- python test_deployment.py
-  - |
-    python
-    from pedantic import run_tests
-    run_tests()  
+  - python test_deployment.py
 
 # after_success:
 
