@@ -6,7 +6,7 @@ import collections
 import sys
 
 
-def _is_instance(obj: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
+def _is_instance(obj: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
     assert _has_required_type_arguments(type_), \
         f'The type annotation "{type_}" misses some type arguments e.g. ' \
         f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
@@ -96,7 +96,7 @@ def _is_generic(cls: Any) -> bool:
         >>> from typing import  List, Callable, Any, Union
         >>> _is_generic(int)
         False
-        >>> _is_generic(List)
+        >>> _is_generic(List) if sys.version_info < (3, 9) else print('True')
         True
         >>> _is_generic(List[int])
         True
@@ -106,13 +106,13 @@ def _is_generic(cls: Any) -> bool:
         True
         >>> _is_generic(Any)
         False
-        >>> _is_generic(Tuple)
+        >>> _is_generic(Tuple) if sys.version_info < (3, 9) else print('True')
         True
         >>> _is_generic(Tuple[Any, ...])
         True
         >>> _is_generic(Tuple[str, float, int])
         True
-        >>> _is_generic(Callable)
+        >>> _is_generic(Callable) if sys.version_info < (3, 9) else print('True')
         True
         >>> _is_generic(Callable[[int], int])
         True
@@ -120,7 +120,7 @@ def _is_generic(cls: Any) -> bool:
         True
         >>> _is_generic(Union[int, float, str])
         True
-        >>> _is_generic(Dict)
+        >>> _is_generic(Dict) if sys.version_info < (3, 9) else print('True')
         True
         >>> _is_generic(Dict[str, str])
         True
@@ -202,7 +202,7 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (<class 'float'>,)
         >>> _get_type_arguments(List[int])
         (<class 'int'>,)
-        >>> _get_type_arguments(typing.List) if sys.version_info >= (3, 7) else print('(~T,)')
+        >>> _get_type_arguments(typing.List) if (3, 7) <= sys.version_info < (3, 8, 5) else print('(~T,)')
         (~T,)
         >>> _get_type_arguments(List[List[int]])
         (typing.List[int],)
@@ -212,8 +212,8 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (typing.Tuple[float, str],)
         >>> _get_type_arguments(List[Tuple[Any, ...]])
         (typing.Tuple[typing.Any, ...],)
-        >>> _get_type_arguments(Union[str, float, bool, int]) if sys.version_info >= (3, 7) else \
-            print("(<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)") #TODO: fails with python 3.6 since _get_base_generic is buggy
+        >>> _get_type_arguments(Union[str, float, bool, int]) \
+            if sys.version_info >= (3, 7) else print("(<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)")
         (<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)
         >>> _get_type_arguments(Callable[[int, float], typing.Tuple[float, str]])
         ([<class 'int'>, <class 'float'>], typing.Tuple[float, str])
@@ -376,7 +376,7 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
             if sys.version_info >= (3, 7) else print("<class 'collections.abc.Callable'>")
         <class 'collections.abc.Callable'>
     """
-    if hasattr(annotation, 'mro'): #TODO make pretty
+    if hasattr(annotation, 'mro'):  #TODO make pretty
         if annotation.__module__ == 'typing':
             return annotation.__origin__
         else:
@@ -387,7 +387,7 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         return annotation.__origin__
 
 
-def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[str, Any]) -> bool:
+def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
     """
         >>> from typing import List, Any, Union
         >>> _instancecheck_iterable([1.0, -4.2, 5.4], (float,), {})
@@ -411,7 +411,7 @@ def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dic
     return all(_is_instance(val, type_, type_vars=type_vars) for val in iterable)
 
 
-def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[str, Any]) -> bool:
+def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
     """
         >>> from typing import Any, Optional
         >>> _instancecheck_mapping({0: 1, 1: 2, 2: 3}, (int, Any), {})
@@ -432,7 +432,7 @@ def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[s
     return _instancecheck_items_view(mapping.items(), type_args, type_vars=type_vars)
 
 
-def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[str, Any]) -> bool:
+def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
     """
         >>> from typing import Any, Optional
         >>> _instancecheck_items_view({0: 1, 1: 2, 2: 3}.items(), (int, Any), {})
@@ -456,7 +456,7 @@ def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars
                for key, val in items_view)
 
 
-def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[str, Any]) -> bool:
+def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[type, Any]) -> bool:
     """
         >>> from typing import Any
         >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(Any, Ellipsis), type_vars={})
@@ -479,7 +479,7 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[str, Any]) 
     return all(_is_instance(obj=val, type_=type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
 
 
-def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
+def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
     """
         >>> from typing import Union
         >>> NoneType = type(None)
