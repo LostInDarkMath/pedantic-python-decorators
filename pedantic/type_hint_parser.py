@@ -235,7 +235,7 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
 def _get_base_generic(cls: Any) -> Any:
     """
         >>> from typing import List, Union, Tuple, Callable, Dict, Set
-        >>> _get_base_generic(List) if sys.version_info >= (3, 7) else print('typing.List')
+        >>> _get_base_generic(List)
         typing.List
         >>> _get_base_generic(List[float])
         typing.List
@@ -243,7 +243,7 @@ def _get_base_generic(cls: Any) -> Any:
         typing.List
         >>> _get_base_generic(List[Union[int, float]])
         typing.List
-        >>> _get_base_generic(Tuple) if sys.version_info >= (3, 7) else print('typing.Tuple')
+        >>> _get_base_generic(Tuple)
         typing.Tuple
         >>> _get_base_generic(Tuple[float, int])
         typing.Tuple
@@ -253,26 +253,28 @@ def _get_base_generic(cls: Any) -> Any:
         typing.Callable
         >>> _get_base_generic(Callable[[Union[int, str], float], int])
         typing.Callable
-        >>> _get_base_generic(Dict) if sys.version_info >= (3, 7) else print('typing.Dict')
+        >>> _get_base_generic(Dict)
         typing.Dict
         >>> _get_base_generic(Dict[str, str])
         typing.Dict
-        >>> _get_base_generic(Union) if sys.version_info >= (3, 7) else print('typing.Union')
+        >>> _get_base_generic(Union)
         typing.Union
         >>> _get_base_generic(Union[float, int, str])
         typing.Union
-        >>> _get_base_generic(Set) if sys.version_info >= (3, 7) else print('typing.Set')
+        >>> _get_base_generic(Set)
         typing.Set
         >>> _get_base_generic(Set[int])
         typing.Set
     """
-    if not hasattr(typing, '_GenericAlias'):
-        return cls.__origin__
 
-    if cls._name is None:
-        return cls.__origin__
-    else:
-        return getattr(typing, cls._name)
+    origin = cls.__origin__ if hasattr(cls, '__origin__') else None
+    name = cls._name if hasattr(cls, '_name') else None
+
+    if name is not None:
+        return getattr(typing, name)
+    elif origin is not None:
+        return origin
+    return cls
 
 
 def _is_subtype(sub_type: Any, super_type: Any) -> bool:
