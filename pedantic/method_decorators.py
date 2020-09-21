@@ -593,7 +593,7 @@ def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
     elif isinstance(type_, str):
         context[type_] = type_
     elif str(type_).startswith('typing'):
-        type_arguments = _get_type_arguments(type_)
+        type_arguments = _get_type_arguments(cls=type_)
 
         for type_argument in type_arguments:
             if isinstance(type_argument, list):  # Callable has a List of Types as first argument

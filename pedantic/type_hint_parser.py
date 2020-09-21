@@ -39,7 +39,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
         base = _get_base_generic(type_)
         validator = _ORIGIN_TYPE_CHECKERS[base]
 
-        type_args = _get_subtypes(type_)
+        type_args = _get_type_arguments(cls=type_)
         return validator(obj, type_args, type_vars)
 
     if isinstance(type_, typing.TypeVar):
@@ -173,7 +173,7 @@ def _has_required_type_arguments(cls: Any) -> bool:
     if '[' not in str(cls) and (base in requirements_min or base in requirements_exact):
         return False
 
-    num_type_args = len(_get_type_arguments(cls))
+    num_type_args = len(_get_type_arguments(cls=cls))
 
     if base in requirements_exact:
         return requirements_exact[base] == num_type_args
@@ -183,24 +183,37 @@ def _has_required_type_arguments(cls: Any) -> bool:
         return True
 
 
-def _get_type_arguments(cls: Any) -> Tuple[typing.Any, ...]:
-    """: #TODO
-    # >>> _get_type_arguments(int)
-    # ()
-    # >>> _get_type_arguments(typing.List) # NOTE: That output here is different on different Python versions!
-    # (~T,)
-    # >>> _get_type_arguments(typing.List[int])
-    # (<class 'int'>,)
-    # >>> _get_type_arguments(typing.Callable[[int, float], str])
-    # ([<class 'int'>, <class 'float'>], <class 'str'>)
-    # >>> _get_type_arguments(typing.Callable[..., str])
-    # (Ellipsis, <class 'str'>)
+def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
+    """
+        >>> from typing import Tuple, List, Union, Callable, Any
+        >>> _get_type_arguments(int)
+        ()
+        >>> _get_type_arguments(List[float])
+        (<class 'float'>,)
+        >>> _get_type_arguments(List[int])
+        (<class 'int'>,)
+        >>> _get_type_arguments(typing.List) # TODO: That output here is different on different Python versions!
+        (~T,)
+        >>> _get_type_arguments(List[List[int]])
+        (typing.List[int],)
+        >>> _get_type_arguments(List[List[List[int]]])
+        (typing.List[typing.List[int]],)
+        >>> _get_type_arguments(List[Tuple[float, str]])
+        (typing.Tuple[float, str],)
+        >>> _get_type_arguments(List[Tuple[Any, ...]])
+        (typing.Tuple[typing.Any, ...],)
+        >>> _get_type_arguments(Union[str, float, bool, int])  #TODO: fails with python 3.6 since _get_base_generic is buggy
+        (<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)
+        >>> _get_type_arguments(Callable[[int, float], typing.Tuple[float, str]])
+        ([<class 'int'>, <class 'float'>], typing.Tuple[float, str])
+        >>> _get_type_arguments(typing.Callable[..., str])
+        (Ellipsis, <class 'str'>)
     """
     if hasattr(typing, 'get_args'):
         return typing.get_args(cls)
     elif hasattr(cls, '__args__'):
         res = cls.__args__
-        origin = _get_base_generic(cls)
+        origin = _get_base_generic(cls=cls)
         if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
             res = (list(res[:-1]), res[-1])
         return res
@@ -210,8 +223,37 @@ def _get_type_arguments(cls: Any) -> Tuple[typing.Any, ...]:
 
 def _get_base_generic(cls: Any) -> Any:
     """
-    >>> _get_base_generic(typing.List[float])
-    typing.List
+        >>> from typing import List, Union, Tuple, Callable, Dict, Set
+        >>> _get_base_generic(List)
+        typing.List
+        >>> _get_base_generic(List[float])
+        typing.List
+        >>> _get_base_generic(List[List[float]])
+        typing.List
+        >>> _get_base_generic(List[Union[int, float]])
+        typing.List
+        >>> _get_base_generic(Tuple)
+        typing.Tuple
+        >>> _get_base_generic(Tuple[float, int])
+        typing.Tuple
+        >>> _get_base_generic(Tuple[Union[int, float], str])
+        typing.Tuple
+        >>> _get_base_generic(Callable[..., int])
+        typing.Callable
+        >>> _get_base_generic(Callable[[Union[int, str], float], int])
+        typing.Callable
+        >>> _get_base_generic(Dict)
+        typing.Dict
+        >>> _get_base_generic(Dict[str, str])
+        typing.Dict
+        >>> _get_base_generic(Union)
+        typing.Union
+        >>> _get_base_generic(Union[float, int, str])
+        typing.Union
+        >>> _get_base_generic(Set)
+        typing.Set
+        >>> _get_base_generic(Set[int])
+        typing.Set
     """
     if not hasattr(typing, '_GenericAlias'):
         return cls.__origin__
@@ -291,8 +333,8 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
     if _is_base_generic(sub_type):
         return False
 
-    sub_args = _get_subtypes(sub_type)
-    super_args = _get_subtypes(super_type)
+    sub_args = _get_type_arguments(cls=sub_type)
+    super_args = _get_type_arguments(cls=super_type)
     if len(sub_args) != len(super_args) and Ellipsis not in sub_args + super_args:
         return False
     return all(_is_subtype(sub_type=sub_arg, super_type=super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
@@ -340,33 +382,6 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         return object
     else:
         return annotation.__origin__
-
-
-def _get_subtypes(cls: Any) -> Tuple:
-    """
-        >>> from typing import Tuple, List, Union, Callable, Any
-        >>> _get_subtypes(List[float])
-        (<class 'float'>,)
-        >>> _get_subtypes(List[int])
-        (<class 'int'>,)
-        >>> _get_subtypes(List[List[int]])
-        (typing.List[int],)
-        >>> _get_subtypes(List[List[List[int]]])
-        (typing.List[typing.List[int]],)
-        >>> _get_subtypes(List[Tuple[float, str]])
-        (typing.Tuple[float, str],)
-        >>> _get_subtypes(List[Tuple[Any, ...]])
-        (typing.Tuple[typing.Any, ...],)
-        >>> _get_subtypes(Union[str, float, bool, int])  #TODO: fails with python 3.6 since _get_base_generic is buggy
-        (<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)
-        >>> _get_subtypes(Callable[[int, float], typing.Tuple[float, str]])
-        ((<class 'int'>, <class 'float'>), typing.Tuple[float, str])
-    """
-    subtypes = cls.__args__
-
-    if _get_base_generic(cls) is Callable and (len(subtypes) != 2 or subtypes[0] is not ...):
-        return subtypes[:-1], subtypes[-1]
-    return subtypes
 
 
 def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[str, Any]) -> bool:
@@ -511,7 +526,7 @@ def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
         >>> _instancecheck_callable(f, Callable[..., Any], {})
         True
     """
-    param_types, ret_type = _get_subtypes(cls=type_)
+    param_types, ret_type = _get_type_arguments(cls=type_)
     sig = inspect.signature(obj=value)
     missing_annotations = []
 
@@ -555,7 +570,7 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[str, Any]) -> b
         >>> _instancecheck_union(None, Union[float, NoneType], {})
         True
     """
-    subtypes = _get_subtypes(cls=type_)
+    subtypes = _get_type_arguments(cls=type_)
     return any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in subtypes)
 
 
