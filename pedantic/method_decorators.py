@@ -550,6 +550,8 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     AssertionError:  Documented type "MyClas" was not found. Maybe you meant one of the following: ['MyClass', 'MyClub']
     """
 
+    assert sys.version_info >= (3, 7), f'This method only works with Python 3.7 or newer.'
+
     try:
         return eval(type_, globals(), context)
     except NameError:
@@ -587,7 +589,11 @@ def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
     {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
     >>> _update_context(type_='MyClass', context={})
     {'MyClass': 'MyClass'}
+    >>>
     """
+
+    assert sys.version_info >= (3, 7), f'This method only works with Python 3.7 or newer.'
+
     if hasattr(type_, '__name__'):
         context[type_.__name__] = type_
     elif isinstance(type_, str):

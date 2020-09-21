@@ -1035,4 +1035,4 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_aliases()
+    test.test_type_var()

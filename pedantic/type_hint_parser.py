@@ -195,14 +195,20 @@ def _has_required_type_arguments(cls: Any) -> bool:
 
 def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
     """
-        >>> from typing import Tuple, List, Union, Callable, Any
+        >>> from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar
         >>> _get_type_arguments(int)
         ()
         >>> _get_type_arguments(List[float])
         (<class 'float'>,)
         >>> _get_type_arguments(List[int])
         (<class 'int'>,)
-        >>> _get_type_arguments(typing.List) if (3, 7) <= sys.version_info < (3, 8, 5) else print('(~T,)')
+        >>> UserId = NewType('UserId', int)
+        >>> _get_type_arguments(List[UserId])
+        (<function NewType.<locals>.new_type at ...,)
+        >>> _get_type_arguments(List)
+        ()
+        >>> T = TypeVar('T')
+        >>> _get_type_arguments(List[T])
         (~T,)
         >>> _get_type_arguments(List[List[int]])
         (typing.List[int],)
@@ -212,22 +218,27 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (typing.Tuple[float, str],)
         >>> _get_type_arguments(List[Tuple[Any, ...]])
         (typing.Tuple[typing.Any, ...],)
-        >>> _get_type_arguments(Union[str, float, bool, int]) \
-            if sys.version_info >= (3, 7) else print("(<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)")
-        (<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)
-        >>> _get_type_arguments(Callable[[int, float], typing.Tuple[float, str]])
+        >>> Union[bool, int, float] if sys.version_info >= (3, 7) else \
+            print("typing.Union[bool, int, float]") # in Python 3.6 is bool an subtype of int, WTF!?
+        typing.Union[bool, int, float]
+        >>> _get_type_arguments(Union[str, float, int])
+        (<class 'str'>, <class 'float'>, <class 'int'>)
+        >>> _get_type_arguments(Union[str, float, List[int], int])
+        (<class 'str'>, <class 'float'>, typing.List[int], <class 'int'>)
+        >>> _get_type_arguments(Callable[[int, float], Tuple[float, str]])
         ([<class 'int'>, <class 'float'>], typing.Tuple[float, str])
-        >>> _get_type_arguments(typing.Callable[..., str])
+        >>> _get_type_arguments(Callable[..., str])
         (Ellipsis, <class 'str'>)
     """
+
     if hasattr(typing, 'get_args'):
-        return typing.get_args(cls)
+        return typing.get_args(cls) if '[' in str(cls) else ()
     elif hasattr(cls, '__args__'):
         res = cls.__args__
         origin = _get_base_generic(cls=cls)
         if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
             res = (list(res[:-1]), res[-1])
-        return res
+        return res or ()
     else:
         return ()
 
