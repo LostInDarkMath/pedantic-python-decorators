@@ -1,6 +1,7 @@
 """Idea is taken from: https://stackoverflow.com/a/55504010/10975692"""
 import inspect
 import typing
+from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping
 import collections
 
 
@@ -14,8 +15,7 @@ def trace(func): # TODO remove this
     return wrapper
 
 
-def _is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
-    """main function of this file"""
+def _is_instance(obj: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
     assert _has_required_type_arguments(type_), \
         f'The type annotation "{type_}" misses some type arguments e.g. ' \
         f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
@@ -58,15 +58,16 @@ def _is_instance(obj: typing.Any, type_: typing.Any, type_vars) -> bool:
     return isinstance(obj, type_)
 
 
-def _is_type_new_type(type_: typing.Any) -> bool:
+def _is_type_new_type(type_: Any) -> bool:
     return type_.__qualname__ == typing.NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
 
 
-def _get_name(cls: typing.Any) -> str:
+def _get_name(cls: Any) -> str:
     """
-    >>> _get_name(typing.Tuple)
+    >>> from typing import Tuple, Callable
+    >>> _get_name(Tuple)
     'Tuple'
-    >>> _get_name(typing.Callable)
+    >>> _get_name(Callable)
     'Callable'
     """
     if hasattr(cls, '_name'):
@@ -77,20 +78,21 @@ def _get_name(cls: typing.Any) -> str:
         return type(cls).__name__[1:]
 
 
-def _is_generic(cls: typing.Any) -> bool:
+def _is_generic(cls: Any) -> bool:
     """
     Detects any kind of generic, for example `List` or `List[int]`. This includes "special" types like
     Union and Tuple - anything that's subscriptable, basically.
     Examples:
+        >>> from typing import  List, Callable, Any
         >>> _is_generic(int)  # float, bool, str
         False
-        >>> _is_generic(typing.List[int])
+        >>> _is_generic(List[int])
         True
-        >>> _is_generic(typing.List[typing.List[int]])
+        >>> _is_generic(List[List[int]])
         True
-        >>> _is_generic(typing.Any)
+        >>> _is_generic(Any)
         False
-        >>> _is_generic(typing.Callable[[int], int])
+        >>> _is_generic(Callable[[int], int])
         True
     """
     if hasattr(typing, '_GenericAlias'):
@@ -105,13 +107,13 @@ def _is_generic(cls: typing.Any) -> bool:
     return False
 
 
-def _is_base_generic(cls: typing.Any) -> bool:
+def _is_base_generic(cls: Any) -> bool:
     """
-    >>> _is_base_generic(int)  # int, float, str, bool
+    >>> _is_base_generic(int)
     False
-    >>> _is_base_generic(typing.List)
+    >>> _is_base_generic(typing.List)  #TODO False for Python >= 3.9
     True
-    >>> _is_base_generic(typing.Callable)
+    >>> _is_base_generic(typing.Callable)  #TODO False for Python >= 3.9
     True
     >>> _is_base_generic(typing.List[int])
     False
@@ -141,14 +143,15 @@ def _is_base_generic(cls: typing.Any) -> bool:
     return False
 
 
-def _has_required_type_arguments(cls: typing.Any) -> bool:
+def _has_required_type_arguments(cls: Any) -> bool:
     """
-    >>> _has_required_type_arguments(typing.List)
-    False
-    >>> _has_required_type_arguments(typing.List[int])
-    True
-    >>> _has_required_type_arguments(typing.Callable[[int, float], typing.Tuple[float, str]])
-    True
+        >>> from typing import List, Callable, Tuple
+        >>> _has_required_type_arguments(List)
+        False
+        >>> _has_required_type_arguments(List[int])
+        True
+        >>> _has_required_type_arguments(Callable[[int, float], Tuple[float, str]])
+        True
     """
 
     requirements_exact = {
@@ -180,8 +183,8 @@ def _has_required_type_arguments(cls: typing.Any) -> bool:
         return True
 
 
-def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
-    """Examples: #TODO
+def _get_type_arguments(cls: Any) -> Tuple[typing.Any, ...]:
+    """: #TODO
     # >>> _get_type_arguments(int)
     # ()
     # >>> _get_type_arguments(typing.List) # NOTE: That output here is different on different Python versions!
@@ -205,7 +208,7 @@ def _get_type_arguments(cls: typing.Any) -> typing.Tuple[typing.Any, ...]:
         return ()
 
 
-def _get_base_generic(cls: typing.Any) -> typing.Any:
+def _get_base_generic(cls: Any) -> Any:
     """
     >>> _get_base_generic(typing.List[float])
     typing.List
@@ -219,53 +222,116 @@ def _get_base_generic(cls: typing.Any) -> typing.Any:
         return getattr(typing, cls._name)
 
 
-def _is_subtype(sub_type, super_type) -> bool:
+def _is_subtype(sub_type: Any, super_type: Any) -> bool:
+    """
+        >>> from typing import Any, List, Callable, Tuple, Union, Optional
+        >>> _is_subtype(float, float)
+        True
+        >>> _is_subtype(int, float)
+        False
+        >>> _is_subtype(float, int)
+        False
+        >>> _is_subtype(int, Any)
+        True
+        >>> _is_subtype(Any, int)
+        False
+        >>> _is_subtype(Any, Any)
+        True
+        >>> _is_subtype(Ellipsis, Ellipsis)
+        True
+        >>> _is_subtype(Tuple[float, str], Tuple[float, str])
+        True
+        >>> _is_subtype(Tuple[float], Tuple[float, str])
+        False
+        >>> _is_subtype(Tuple[float, str], Tuple[str])
+        False
+        >>> _is_subtype(Tuple[float, str], Tuple[Any, ...])
+        True
+        >>> _is_subtype(Tuple[Any, ...], Tuple[float, str])
+        False
+        >>> _is_subtype(Tuple[float, str], Tuple[int, ...])
+        False
+        >>> _is_subtype(Tuple[int, str], Tuple[int, ...])
+        True
+        >>> _is_subtype(Tuple[int, ...], Tuple[int, str])
+        False
+        >>> _is_subtype(Tuple[float, str, bool, int], Tuple[Any, ...])
+        True
+        >>> _is_subtype(int, Union[int, float])
+        Traceback (most recent call last):
+        ...
+        TypeError: typing.Union cannot be used with issubclass()
+        >>> _is_subtype(int, Union[str, float])
+        Traceback (most recent call last):
+        ...
+        TypeError: typing.Union cannot be used with issubclass()
+        >>> _is_subtype(List[int], List[Union[int, float]])
+        Traceback (most recent call last):
+        ...
+        TypeError: typing.Union cannot be used with issubclass()
+        >>> _is_subtype(List[Union[int, float]], List[int])
+        Traceback (most recent call last):
+        ...
+        TypeError: issubclass() arg 1 must be a class
+    """
+
     if not _is_generic(sub_type):
-        python_super = _python_type(super_type)
-        python_sub = _python_type(sub_type)
+        python_super = _get_class_of_type_annotation(super_type)
+        python_sub = _get_class_of_type_annotation(sub_type)
         return issubclass(python_sub, python_super)
 
-    # at this point we know `sub_type` is a generic
-    python_sub = _python_type(sub_type)
-    python_super = _python_type(super_type)
+    python_sub = _get_class_of_type_annotation(sub_type)
+    python_super = _get_class_of_type_annotation(super_type)
     if not issubclass(python_sub, python_super):
         return False
 
-    # at this point we know that `sub_type`'s base type is a subtype of `super_type`'s base type.
-    # If `super_type` isn't qualified, then there's nothing more to do.
     if not _is_generic(super_type) or _is_base_generic(super_type):
         return True
 
-    # at this point we know that `super_type` is a qualified generic... so if `sub_type` isn't
-    # qualified, it can't be a subtype.
     if _is_base_generic(sub_type):
         return False
 
-    # at this point we know that both types are qualified generics, so we just have to
-    # compare their sub-types.
     sub_args = _get_subtypes(sub_type)
     super_args = _get_subtypes(super_type)
-    return all(_is_subtype(sub_arg, super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
+    if len(sub_args) != len(super_args) and Ellipsis not in sub_args + super_args:
+        return False
+    return all(_is_subtype(sub_type=sub_arg, super_type=super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
 
 
-def _python_type(annotation: typing.Any) -> typing.Any:
+def _get_class_of_type_annotation(annotation: Any) -> Any:
     """
-    Given a type annotation or a class as input, returns the corresponding python class.
-
-    Examples: # TODO
-        # >>> _python_type(typing.Dict)
-        # <class 'dict'>
-        # >>> _python_type(typing.List[int])
-        # <class 'list'>
-        # >>> _python_type(int)
-        # <class 'int'>
-        # >>> _python_type(typing.Any)
-        # <class 'object'>
+        >>> from typing import Dict, List, Any, Tuple, Callable, Union
+        >>> _get_class_of_type_annotation(int)
+        <class 'int'>
+        >>> _get_class_of_type_annotation(Any)
+        <class 'object'>
+        >>> _get_class_of_type_annotation(Ellipsis)
+        <class 'object'>
+        >>> _get_class_of_type_annotation(Dict)
+        <class 'dict'>
+        >>> _get_class_of_type_annotation(Dict[str, int])
+        <class 'dict'>
+        >>> _get_class_of_type_annotation(List)
+        <class 'list'>
+        >>> _get_class_of_type_annotation(List[int])
+        <class 'list'>
+        >>> _get_class_of_type_annotation(Tuple)
+        <class 'tuple'>
+        >>> _get_class_of_type_annotation(Tuple[int, int])
+        <class 'tuple'>
+        >>> _get_class_of_type_annotation(Callable[[int], int])
+        <class 'collections.abc.Callable'>
+        >>> _get_class_of_type_annotation(Callable)
+        <class 'collections.abc.Callable'>
+        >>> _get_class_of_type_annotation(Union)
+        Traceback (most recent call last):
+        ...
+        AttributeError: '_SpecialForm' object has no attribute '__origin__'
     """
     if hasattr(annotation, 'mro'):
         mro = annotation.mro()
         if typing.Type in mro:
-            return annotation._python_type
+            return annotation._get_class_of_type_annotation
         elif annotation.__module__ == 'typing':
             return annotation.__origin__
         else:
@@ -276,43 +342,123 @@ def _python_type(annotation: typing.Any) -> typing.Any:
         return annotation.__origin__
 
 
-def _get_subtypes(cls):
+def _get_subtypes(cls: Any) -> Tuple:
+    """
+        >>> from typing import Tuple, List, Union, Callable, Any
+        >>> _get_subtypes(List[float])
+        (<class 'float'>,)
+        >>> _get_subtypes(List[int])
+        (<class 'int'>,)
+        >>> _get_subtypes(List[List[int]])
+        (typing.List[int],)
+        >>> _get_subtypes(List[List[List[int]]])
+        (typing.List[typing.List[int]],)
+        >>> _get_subtypes(List[Tuple[float, str]])
+        (typing.Tuple[float, str],)
+        >>> _get_subtypes(List[Tuple[Any, ...]])
+        (typing.Tuple[typing.Any, ...],)
+        >>> _get_subtypes(Union[str, float, bool, int])  #TODO: fails with python 3.6 since _get_base_generic is buggy
+        (<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)
+        >>> _get_subtypes(Callable[[int, float], typing.Tuple[float, str]])
+        ((<class 'int'>, <class 'float'>), typing.Tuple[float, str])
+    """
     subtypes = cls.__args__
 
-    if _get_base_generic(cls) is typing.Callable and (len(subtypes) != 2 or subtypes[0] is not ...):
-        subtypes = (subtypes[:-1], subtypes[-1])
+    if _get_base_generic(cls) is Callable and (len(subtypes) != 2 or subtypes[0] is not ...):
+        return subtypes[:-1], subtypes[-1]
     return subtypes
 
 
-def _instancecheck_iterable(iterable, type_args, type_vars):
+def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[str, Any]) -> bool:
+    """
+        >>> from typing import List, Any, Union
+        >>> _instancecheck_iterable([1.0, -4.2, 5.4], (float,), {})
+        True
+        >>> _instancecheck_iterable([1.0, -4.2, 5], (float,), {})
+        False
+        >>> _instancecheck_iterable(['1.0', -4.2, 5], (Any,), {})
+        True
+        >>> _instancecheck_iterable(['1.0', -4.2, 5], (Union[int, float],), {})
+        False
+        >>> _instancecheck_iterable(['1.0', -4.2, 5], (Union[int, float, str],), {})
+        True
+        >>> _instancecheck_iterable([[], [], [[42]], [[]]], (List[int],), {})
+        False
+        >>> _instancecheck_iterable([[], [], [[42]], [[]]], (List[List[int]],), {})
+        True
+        >>> _instancecheck_iterable([[], [], [[42]], [[]]], (List[List[float]],), {})
+        False
+    """
     type_ = type_args[0]
     return all(_is_instance(val, type_, type_vars=type_vars) for val in iterable)
 
 
-def _instancecheck_mapping(mapping, type_args, type_vars):
+def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[str, Any]) -> bool:
+    """
+        >>> from typing import Any, Optional
+        >>> _instancecheck_mapping({0: 1, 1: 2, 2: 3}, (int, Any), {})
+        True
+        >>> _instancecheck_mapping({0: 1, 1: 2, 2: 3}, (int, int), {})
+        True
+        >>> _instancecheck_mapping({0: 1, 1: 2, 2: 3.0}, (int, int), {})
+        False
+        >>> _instancecheck_mapping({0: 1, 1.0: 2, 2: 3}, (int, int), {})
+        False
+        >>> _instancecheck_mapping({0: '1', 1: 2, 2: 3}, (int, int), {})
+        False
+        >>> _instancecheck_mapping({0: 1, 1: 2, None: 3.0}, (int, int), {})
+        False
+        >>> _instancecheck_mapping({0: 1, 1: 2, None: 3.0}, (int, Optional[int]), {})
+        False
+    """
     return _instancecheck_items_view(mapping.items(), type_args, type_vars=type_vars)
 
 
-def _instancecheck_items_view(items_view, type_args, type_vars):
+def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[str, Any]) -> bool:
+    """
+        >>> from typing import Any, Optional
+        >>> _instancecheck_items_view({0: 1, 1: 2, 2: 3}.items(), (int, Any), {})
+        True
+        >>> _instancecheck_items_view({0: 1, 1: 2, 2: 3}.items(), (int, int), {})
+        True
+        >>> _instancecheck_items_view({0: 1, 1: 2, 2: 3.0}.items(), (int, int), {})
+        False
+        >>> _instancecheck_items_view({0: 1, 1.0: 2, 2: 3}.items(), (int, int), {})
+        False
+        >>> _instancecheck_items_view({0: '1', 1: 2, 2: 3}.items(), (int, int), {})
+        False
+        >>> _instancecheck_items_view({0: 1, 1: 2, None: 3.0}.items(), (int, int), {})
+        False
+        >>> _instancecheck_items_view({0: 1, 1: 2, None: 3.0}.items(), (int, Optional[int]), {})
+        False
+    """
     key_type, value_type = type_args
-    return all(_is_instance(key, key_type, type_vars=type_vars) and
-               _is_instance(val, value_type, type_vars=type_vars)
+    return all(_is_instance(obj=key, type_=key_type, type_vars=type_vars) and
+               _is_instance(obj=val, type_=value_type, type_vars=type_vars)
                for key, val in items_view)
 
 
-def _instancecheck_tuple(tup, type_args, type_vars) -> bool:
-    """Examples:
-    >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(typing.Any, Ellipsis), type_vars={})  \
-        # = Tuple[Any, ...]
-    True
+def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[str, Any]) -> bool:
+    """
+        >>> from typing import Any
+        >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(Any, Ellipsis), type_vars={})
+        True
+        >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(Any,), type_vars={})
+        False
+        >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(float, int, str, str), type_vars={})
+        True
+        >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(float, float, str, str), type_vars={})
+        False
+        >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(float, int, str, int), type_vars={})
+        False
     """
     if Ellipsis in type_args:
-        return all(_is_instance(val, type_args[0], type_vars=type_vars) for val in tup)
+        return all(_is_instance(obj=val, type_=type_args[0], type_vars=type_vars) for val in tup)
 
     if len(tup) != len(type_args):
         return False
 
-    return all(_is_instance(val, type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
+    return all(_is_instance(obj=val, type_=type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
 
 
 _ORIGIN_TYPE_CHECKERS = {}
@@ -347,9 +493,26 @@ for class_path, _check_func in {
     _ORIGIN_TYPE_CHECKERS[class_] = _check_func
 
 
-def _instancecheck_callable(value, type_, _) -> bool:
-    param_types, ret_type = _get_subtypes(type_)
-    sig = inspect.signature(value)
+def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
+    """
+        >>> from typing import Tuple, Callable, Any
+        >>> def f(x: int, y: float) -> Tuple[float, str]:
+        ...       return float(x), str(y)
+        >>> _instancecheck_callable(f, Callable[[int, float], Tuple[float, str]], {})
+        True
+        >>> _instancecheck_callable(f, Callable[[int, float], Tuple[int, str]], {})
+        False
+        >>> _instancecheck_callable(f, Callable[[int, int], Tuple[float, str]], {})
+        False
+        >>> _instancecheck_callable(f, Callable[..., Tuple[float, str]], {})
+        True
+        >>> _instancecheck_callable(f, Callable[..., Tuple[int, str]], {})
+        False
+        >>> _instancecheck_callable(f, Callable[..., Any], {})
+        True
+    """
+    param_types, ret_type = _get_subtypes(cls=type_)
+    sig = inspect.signature(obj=value)
     missing_annotations = []
 
     if param_types is not ...:
@@ -362,13 +525,13 @@ def _instancecheck_callable(value, type_, _) -> bool:
                 missing_annotations.append(param)
                 continue
 
-            if not _is_subtype(param_type, expected_type):
+            if not _is_subtype(sub_type=param_type, super_type=expected_type):
                 return False
 
     if sig.return_annotation is inspect.Signature.empty:
         missing_annotations.append('return')
     else:
-        if not _is_subtype(sig.return_annotation, ret_type):
+        if not _is_subtype(sub_type=sig.return_annotation, super_type=ret_type):
             return False
 
     assert not missing_annotations, \
@@ -377,21 +540,22 @@ def _instancecheck_callable(value, type_, _) -> bool:
     return True
 
 
-def _instancecheck_union(value, type_, type_vars) -> bool:
+def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
     """
+        >>> from typing import Union
         >>> NoneType = type(None)
-        >>> _instancecheck_union(3.0, typing.Union[int, float], {})
+        >>> _instancecheck_union(3.0, Union[int, float], {})
         True
-        >>> _instancecheck_union(3, typing.Union[int, float], {})
+        >>> _instancecheck_union(3, Union[int, float], {})
         True
-        >>> _instancecheck_union('3', typing.Union[int, float], {})
+        >>> _instancecheck_union('3', Union[int, float], {})
         False
-        >>> _instancecheck_union(None, typing.Union[int, NoneType], {})
+        >>> _instancecheck_union(None, Union[int, NoneType], {})
         True
-        >>> _instancecheck_union(None, typing.Union[float, NoneType], {})
+        >>> _instancecheck_union(None, Union[float, NoneType], {})
         True
     """
-    subtypes = _get_subtypes(type_)
+    subtypes = _get_subtypes(cls=type_)
     return any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in subtypes)
 
 

@@ -1015,7 +1015,24 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 pass
             MyClass()
 
+    def test_is_subtype_tuple(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic
+            def foo() -> Callable[[Tuple[float, str]], Tuple[int]]:
+                def bar(a: Tuple[float]) -> Tuple[int]:
+                    return len(a[1]) + int(a[0]),
+                return bar
+            foo()
+
+    def test_is_subtype_tuple_corrected(self):
+        @pedantic
+        def foo() -> Callable[[Tuple[float, str]], Tuple[int]]:
+            def bar(a: Tuple[float, str]) -> Tuple[int]:
+                return len(a[1]) + int(a[0]),
+            return bar
+        foo()
+
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_pedantic_on_class()
+    test.test_is_subtype_tuple()
