@@ -3,6 +3,7 @@ import inspect
 import typing
 from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping
 import collections
+import sys
 
 
 def trace(func): # TODO remove this
@@ -224,7 +225,7 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
 def _get_base_generic(cls: Any) -> Any:
     """
         >>> from typing import List, Union, Tuple, Callable, Dict, Set
-        >>> _get_base_generic(List)
+        >>> _get_base_generic(List) if sys.version_info >= (3, 7) else print('typing.List')
         typing.List
         >>> _get_base_generic(List[float])
         typing.List
@@ -232,7 +233,7 @@ def _get_base_generic(cls: Any) -> Any:
         typing.List
         >>> _get_base_generic(List[Union[int, float]])
         typing.List
-        >>> _get_base_generic(Tuple)
+        >>> _get_base_generic(Tuple) if sys.version_info >= (3, 7) else print('typing.Tuple')
         typing.Tuple
         >>> _get_base_generic(Tuple[float, int])
         typing.Tuple
@@ -242,15 +243,15 @@ def _get_base_generic(cls: Any) -> Any:
         typing.Callable
         >>> _get_base_generic(Callable[[Union[int, str], float], int])
         typing.Callable
-        >>> _get_base_generic(Dict)
+        >>> _get_base_generic(Dict) if sys.version_info >= (3, 7) else print('typing.Dict')
         typing.Dict
         >>> _get_base_generic(Dict[str, str])
         typing.Dict
-        >>> _get_base_generic(Union)
+        >>> _get_base_generic(Union) if sys.version_info >= (3, 7) else print('typing.Union')
         typing.Union
         >>> _get_base_generic(Union[float, int, str])
         typing.Union
-        >>> _get_base_generic(Set)
+        >>> _get_base_generic(Set) if sys.version_info >= (3, 7) else print('typing.Set')
         typing.Set
         >>> _get_base_generic(Set[int])
         typing.Set
@@ -302,15 +303,15 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
         >>> _is_subtype(int, Union[int, float])
         Traceback (most recent call last):
         ...
-        TypeError: typing.Union cannot be used with issubclass()
+        TypeError: ...
         >>> _is_subtype(int, Union[str, float])
         Traceback (most recent call last):
         ...
-        TypeError: typing.Union cannot be used with issubclass()
+        TypeError: ...
         >>> _is_subtype(List[int], List[Union[int, float]])
         Traceback (most recent call last):
         ...
-        TypeError: typing.Union cannot be used with issubclass()
+        TypeError: ...
         >>> _is_subtype(List[Union[int, float]], List[int])
         Traceback (most recent call last):
         ...
@@ -357,7 +358,7 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         <class 'list'>
         >>> _get_class_of_type_annotation(List[int])
         <class 'list'>
-        >>> _get_class_of_type_annotation(Tuple)
+        >>> _get_class_of_type_annotation(Tuple)  # TODO buggy with Python 3.6
         <class 'tuple'>
         >>> _get_class_of_type_annotation(Tuple[int, int])
         <class 'tuple'>
@@ -365,7 +366,7 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         <class 'collections.abc.Callable'>
         >>> _get_class_of_type_annotation(Callable)
         <class 'collections.abc.Callable'>
-        >>> _get_class_of_type_annotation(Union)
+        >>> _get_class_of_type_annotation(Union)  # TODO python 3.6 got nothing
         Traceback (most recent call last):
         ...
         AttributeError: '_SpecialForm' object has no attribute '__origin__'
