@@ -6,27 +6,6 @@ import collections
 import sys
 
 
-def trace(func): # TODO remove this
-    def wrapper(*args, **kwargs):
-        from datetime import datetime
-        print(f'Trace: {datetime.now()} calling {func.__name__}()  with {args}, {kwargs}')
-        original_result = func(*args, **kwargs)
-        print(f'Trace: {datetime.now()} {func.__name__}() returned {original_result!r}')
-        return original_result
-    return wrapper
-
-
-def trace_if_returns(return_value: Any) -> Callable[..., Any]: #TODO remove this
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            result = func(*args, **kwargs)
-            if result == return_value:
-                print(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
-            return result
-        return wrapper
-    return decorator
-
-
 def _is_instance(obj: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
     assert _has_required_type_arguments(type_), \
         f'The type annotation "{type_}" misses some type arguments e.g. ' \
@@ -71,16 +50,38 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
 
 
 def _is_type_new_type(type_: Any) -> bool:
+    """
+        >>> from typing import Tuple, Callable, Any, List, NewType
+        >>> _is_type_new_type(int)
+        False
+        >>> UserId = NewType('UserId', int)
+        >>> _is_type_new_type(UserId)
+        True
+    """
     return type_.__qualname__ == typing.NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
 
 
 def _get_name(cls: Any) -> str:
     """
-    >>> from typing import Tuple, Callable
-    >>> _get_name(Tuple)
-    'Tuple'
-    >>> _get_name(Callable)
-    'Callable'
+        >>> from typing import Tuple, Callable, Any, List
+        >>> _get_name(int)
+        'int'
+        >>> _get_name(Any)
+        'Any'
+        >>> _get_name(List)
+        'List'
+        >>> _get_name(List[int])
+        'List'
+        >>> _get_name(List[Any])
+        'List'
+        >>> _get_name(Tuple)
+        'Tuple'
+        >>> _get_name(Tuple[int, float])
+        'Tuple'
+        >>> _get_name(Tuple[Any, ...])
+        'Tuple'
+        >>> _get_name(Callable)
+        'Callable'
     """
     if hasattr(cls, '_name'):
         return cls._name
@@ -92,19 +93,36 @@ def _get_name(cls: Any) -> str:
 
 def _is_generic(cls: Any) -> bool:
     """
-    Detects any kind of generic, for example `List` or `List[int]`. This includes "special" types like
-    Union and Tuple - anything that's subscriptable, basically.
-    Examples:
-        >>> from typing import  List, Callable, Any
-        >>> _is_generic(int)  # float, bool, str
+        >>> from typing import  List, Callable, Any, Union
+        >>> _is_generic(int)
         False
+        >>> _is_generic(List)
+        True
         >>> _is_generic(List[int])
+        True
+        >>> _is_generic(List[Any])
         True
         >>> _is_generic(List[List[int]])
         True
         >>> _is_generic(Any)
         False
+        >>> _is_generic(Tuple)
+        True
+        >>> _is_generic(Tuple[Any, ...])
+        True
+        >>> _is_generic(Tuple[str, float, int])
+        True
+        >>> _is_generic(Callable)
+        True
         >>> _is_generic(Callable[[int], int])
+        True
+        >>> _is_generic(Union)
+        True
+        >>> _is_generic(Union[int, float, str])
+        True
+        >>> _is_generic(Dict)
+        True
+        >>> _is_generic(Dict[str, str])
         True
     """
     if hasattr(typing, '_GenericAlias'):
@@ -117,47 +135,6 @@ def _is_generic(cls: Any) -> bool:
         if isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
             return True
     return False
-
-# @trace_if_returns(True)
-# def _is_base_generic(cls: Any) -> bool:
-#     """
-#         # >>> from typing import List, Callable, Tuple
-#         # >>> _is_base_generic(int)
-#         # False
-#         # >>> _is_base_generic(List) if sys.version_info <= (3, 9) else not _is_base_generic(List)
-#         # True
-#         # >>> _is_base_generic(Callable) if sys.version_info <= (3, 9) else not _is_base_generic(Callable)
-#         # True
-#         # >>> _is_base_generic(List[int])
-#         # False
-#         # >>> _is_base_generic(Callable[[int], str])
-#         # False
-#         # >>> _is_base_generic(List[List[int]])
-#         # False
-#         # >>> _is_base_generic(list)
-#         # False
-#         # >>> _is_base_generic(Tuple[float, str])
-#         # False
-#         # >>> _is_base_generic(Tuple[Any, ...])
-#         # False
-#     """
-#
-#     if hasattr(typing, '_GenericAlias'):
-#         if isinstance(cls, typing._GenericAlias):
-#             if str(cls) in ['typing.Tuple', 'typing.Callable']:
-#                 return True
-#
-#             return len(cls.__parameters__) > 0
-#
-#         if isinstance(cls, typing._SpecialForm):
-#             return cls._name in {'ClassVar', 'Union', 'Optional'}
-#     else:
-#         if isinstance(cls, (typing.GenericMeta, typing._Union)):
-#             return cls.__args__ in {None, ()}
-#
-#         if isinstance(cls, typing._Optional):
-#             return True
-#     return False
 
 
 def _has_required_type_arguments(cls: Any) -> bool:
@@ -225,7 +202,7 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (<class 'float'>,)
         >>> _get_type_arguments(List[int])
         (<class 'int'>,)
-        >>> _get_type_arguments(typing.List) # TODO: That output here is different on different Python versions!
+        >>> _get_type_arguments(typing.List) if sys.version_info >= (3, 7) else print('(~T,)')
         (~T,)
         >>> _get_type_arguments(List[List[int]])
         (typing.List[int],)
@@ -235,7 +212,8 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (typing.Tuple[float, str],)
         >>> _get_type_arguments(List[Tuple[Any, ...]])
         (typing.Tuple[typing.Any, ...],)
-        >>> _get_type_arguments(Union[str, float, bool, int])  #TODO: fails with python 3.6 since _get_base_generic is buggy
+        >>> _get_type_arguments(Union[str, float, bool, int]) if sys.version_info >= (3, 7) else \
+            print("(<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)") #TODO: fails with python 3.6 since _get_base_generic is buggy
         (<class 'str'>, <class 'float'>, <class 'bool'>, <class 'int'>)
         >>> _get_type_arguments(Callable[[int, float], typing.Tuple[float, str]])
         ([<class 'int'>, <class 'float'>], typing.Tuple[float, str])
@@ -379,32 +357,27 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         <class 'object'>
         >>> _get_class_of_type_annotation(Ellipsis)
         <class 'object'>
-        >>> _get_class_of_type_annotation(Dict)
+        >>> _get_class_of_type_annotation(Dict) if sys.version_info >= (3, 7) else print("<class 'dict'>")
         <class 'dict'>
-        >>> _get_class_of_type_annotation(Dict[str, int])
+        >>> _get_class_of_type_annotation(Dict[str, int]) if sys.version_info >= (3, 7) else print("<class 'dict'>")
         <class 'dict'>
-        >>> _get_class_of_type_annotation(List)
+        >>> _get_class_of_type_annotation(List) if sys.version_info >= (3, 7) else print("<class 'list'>")
         <class 'list'>
-        >>> _get_class_of_type_annotation(List[int])
+        >>> _get_class_of_type_annotation(List[int]) if sys.version_info >= (3, 7) else print("<class 'list'>")
         <class 'list'>
-        >>> _get_class_of_type_annotation(Tuple)  # TODO buggy with Python 3.6
+        >>> _get_class_of_type_annotation(Tuple) if sys.version_info >= (3, 7) else print("<class 'tuple'>")
         <class 'tuple'>
-        >>> _get_class_of_type_annotation(Tuple[int, int])
+        >>> _get_class_of_type_annotation(Tuple[int, int]) if sys.version_info >= (3, 7) else print("<class 'tuple'>")
         <class 'tuple'>
-        >>> _get_class_of_type_annotation(Callable[[int], int])
+        >>> _get_class_of_type_annotation(Callable[[int], int]) \
+            if sys.version_info >= (3, 7) else print("<class 'collections.abc.Callable'>")
         <class 'collections.abc.Callable'>
-        >>> _get_class_of_type_annotation(Callable)
+        >>> _get_class_of_type_annotation(Callable) \
+            if sys.version_info >= (3, 7) else print("<class 'collections.abc.Callable'>")
         <class 'collections.abc.Callable'>
-        >>> _get_class_of_type_annotation(Union)  # TODO python 3.6 got nothing
-        Traceback (most recent call last):
-        ...
-        AttributeError: '_SpecialForm' object has no attribute '__origin__'
     """
-    if hasattr(annotation, 'mro'):
-        mro = annotation.mro()
-        if typing.Type in mro:
-            return annotation._get_class_of_type_annotation
-        elif annotation.__module__ == 'typing':
+    if hasattr(annotation, 'mro'): #TODO make pretty
+        if annotation.__module__ == 'typing':
             return annotation.__origin__
         else:
             return annotation
@@ -506,36 +479,23 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[str, Any]) 
     return all(_is_instance(obj=val, type_=type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
 
 
-_ORIGIN_TYPE_CHECKERS = {}
-for class_path, _check_func in {
-    'typing.Container': _instancecheck_iterable,
-    'typing.Collection': _instancecheck_iterable,
-    'typing.AbstractSet': _instancecheck_iterable,
-    'typing.MutableSet': _instancecheck_iterable,
-    'typing.Sequence': _instancecheck_iterable,
-    'typing.MutableSequence': _instancecheck_iterable,
-    'typing.ByteString': _instancecheck_iterable,
-    'typing.Deque': _instancecheck_iterable,
-    'typing.List': _instancecheck_iterable,
-    'typing.Set': _instancecheck_iterable,
-    'typing.FrozenSet': _instancecheck_iterable,
-    'typing.KeysView': _instancecheck_iterable,
-    'typing.ValuesView': _instancecheck_iterable,
-    'typing.AsyncIterable': _instancecheck_iterable,
-
-    'typing.Mapping': _instancecheck_mapping,
-    'typing.MutableMapping': _instancecheck_mapping,
-    'typing.MappingView': _instancecheck_mapping,
-    'typing.ItemsView': _instancecheck_items_view,
-    'typing.Dict': _instancecheck_mapping,
-    'typing.DefaultDict': _instancecheck_mapping,
-    'typing.Counter': _instancecheck_mapping,
-    'typing.ChainMap': _instancecheck_mapping,
-
-    'typing.Tuple': _instancecheck_tuple,
-}.items():
-    class_ = eval(class_path)
-    _ORIGIN_TYPE_CHECKERS[class_] = _check_func
+def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
+    """
+        >>> from typing import Union
+        >>> NoneType = type(None)
+        >>> _instancecheck_union(3.0, Union[int, float], {})
+        True
+        >>> _instancecheck_union(3, Union[int, float], {})
+        True
+        >>> _instancecheck_union('3', Union[int, float], {})
+        False
+        >>> _instancecheck_union(None, Union[int, NoneType], {})
+        True
+        >>> _instancecheck_union(None, Union[float, NoneType], {})
+        True
+    """
+    subtypes = _get_type_arguments(cls=type_)
+    return any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in subtypes)
 
 
 def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
@@ -585,24 +545,36 @@ def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
     return True
 
 
-def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
-    """
-        >>> from typing import Union
-        >>> NoneType = type(None)
-        >>> _instancecheck_union(3.0, Union[int, float], {})
-        True
-        >>> _instancecheck_union(3, Union[int, float], {})
-        True
-        >>> _instancecheck_union('3', Union[int, float], {})
-        False
-        >>> _instancecheck_union(None, Union[int, NoneType], {})
-        True
-        >>> _instancecheck_union(None, Union[float, NoneType], {})
-        True
-    """
-    subtypes = _get_type_arguments(cls=type_)
-    return any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in subtypes)
+_ORIGIN_TYPE_CHECKERS = {}
+for class_path, _check_func in {
+    'typing.Container': _instancecheck_iterable,
+    'typing.Collection': _instancecheck_iterable,
+    'typing.AbstractSet': _instancecheck_iterable,
+    'typing.MutableSet': _instancecheck_iterable,
+    'typing.Sequence': _instancecheck_iterable,
+    'typing.MutableSequence': _instancecheck_iterable,
+    'typing.ByteString': _instancecheck_iterable,
+    'typing.Deque': _instancecheck_iterable,
+    'typing.List': _instancecheck_iterable,
+    'typing.Set': _instancecheck_iterable,
+    'typing.FrozenSet': _instancecheck_iterable,
+    'typing.KeysView': _instancecheck_iterable,
+    'typing.ValuesView': _instancecheck_iterable,
+    'typing.AsyncIterable': _instancecheck_iterable,
 
+    'typing.Mapping': _instancecheck_mapping,
+    'typing.MutableMapping': _instancecheck_mapping,
+    'typing.MappingView': _instancecheck_mapping,
+    'typing.ItemsView': _instancecheck_items_view,
+    'typing.Dict': _instancecheck_mapping,
+    'typing.DefaultDict': _instancecheck_mapping,
+    'typing.Counter': _instancecheck_mapping,
+    'typing.ChainMap': _instancecheck_mapping,
+
+    'typing.Tuple': _instancecheck_tuple,
+}.items():
+    class_ = eval(class_path)
+    _ORIGIN_TYPE_CHECKERS[class_] = _check_func
 
 _SPECIAL_INSTANCE_CHECKERS = {
     'Union': _instancecheck_union,

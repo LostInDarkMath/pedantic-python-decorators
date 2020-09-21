@@ -184,7 +184,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
             Args:
                 name (str): the name
             """
-            a = 'hi ' + name
+            print('hi ' + name)
 
         calc(name='maria')
 

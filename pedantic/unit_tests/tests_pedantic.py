@@ -1035,4 +1035,4 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_is_subtype_tuple()
+    test.test_aliases()

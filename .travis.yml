@@ -16,8 +16,7 @@ branches:
 install:
   - pip install -r requirements.txt  # install dependencies
   - pip install wheel                # install wheel for building a wheel to deploy 
-  - pip install coveralls            # code coverage
-  - pip install coverage             # code coverage
+  - pip install coveralls
 
 # before_script:
 
