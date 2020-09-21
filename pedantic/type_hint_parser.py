@@ -231,16 +231,17 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (Ellipsis, <class 'str'>)
     """
 
+    result = ()
+
     if hasattr(typing, 'get_args'):
-        return typing.get_args(cls) if '[' in str(cls) else ()
+        result = typing.get_args(cls)
     elif hasattr(cls, '__args__'):
-        res = cls.__args__
+        result = cls.__args__
         origin = _get_base_generic(cls=cls)
-        if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and res[0] is not Ellipsis:
-            res = (list(res[:-1]), res[-1])
-        return res or ()
-    else:
-        return ()
+        if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and result[0] is not Ellipsis:
+            result = (list(result[:-1]), result[-1])
+    result = result or ()
+    return result if '[' in str(cls) else ()
 
 
 def _get_base_generic(cls: Any) -> Any:

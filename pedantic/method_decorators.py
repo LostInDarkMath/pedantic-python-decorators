@@ -368,7 +368,7 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
 
         if require_docstring and sys.version_info < (3, 7):
             raise AssertionError(f'Docstrings cannot be checked in Python versions below 3.7. Please '
-                                 f'upgrade your Python version or disable the "require_docstring" option.')
+                                 f'upgrade your Python version or disable the "require_docstring" option in pedantic.')
 
         if require_docstring or len(decorated_func.docstring.params) > 0:
             _assert_has_correct_docstring(decorated_func=decorated_func)

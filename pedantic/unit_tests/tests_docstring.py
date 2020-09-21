@@ -13,8 +13,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
             def calc(n: int, m: int, i: int) -> int:
                 return n + m + i
 
-    def test_one_line_doc_string(self):
-        """Problem here: The docstring misses arguments and return value"""
+    def test_one_line_doc_string_missing_arguments_and_return(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(n: int, m: int, i: int) -> int:
@@ -38,8 +37,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
         calc(n=42, m=40, i=38)
 
-    def test_google_docstring_1(self):
-        """Problem here: List[str] != list"""
+    def test_list_vs_typing_list(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> List[str]:
@@ -91,8 +89,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
         calc(file_loc='Hi', print_cols=False)
 
-    def test_google_docstring_4(self):
-        """Problem here: Argument 'amount' is NOT a parameter of the function."""
+    def test_more_parameter_documented_than_the_function_takes(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> List[str]:
@@ -128,8 +125,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
         calc(file_loc='Hi', print_cols=False, amount=42)
 
-    def test_google_no_args_keyword(self):
-        """Problem here: Docstring misses the keyword 'Args:' before the arguments listed."""
+    def test_no_args_keyword_before_documented_arguments(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> list:
@@ -145,7 +141,6 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 return [file_loc, str(print_cols)]
 
     def test_google_no_return_keyword(self):
-        """Problem here: Docstring misses the keyword 'Returns:' before the return value."""
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> list:
@@ -164,12 +159,11 @@ class TestRequireDocstringGoogleFormat(TestCase):
         @pedantic_require_docstring
         def calc() -> None:
             """Gets and prints the spreadsheet's header columns"""
-            a = 'hi'
+            pass
 
         calc()
 
-    def test_keep_it_simple_2(self):
-        """Problem here: docstring misses argument"""
+    def test_docstring_misses_argument(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(name: str) -> None:
@@ -189,7 +183,6 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(name='maria')
 
     def test_undocumented_arg(self):
-        """Problem here: docstring misses argument"""
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool, number: int) -> List[str]:
@@ -224,8 +217,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
         calc(file_loc='Hi', print_cols=False, number=42)
 
-    def test_restructured_text_1(self):
-        """Problem here: reStructured Text docstring format cannot be parsed"""
+    def test_restructured_text_style_doctsring_cannot_be_parsed_yet(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> List[str]:
@@ -240,8 +232,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 """
                 return [file_loc, str(print_cols)]
 
-    def test_return_value_1(self):
-        """Problem here: There is a return value documented, but nothing is returned."""
+    def test_return_nothing_but_document_return_value(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool):
@@ -257,8 +248,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 """
                 a = [file_loc, str(print_cols)]
 
-    def test_return_value_11(self):
-        """Problem here: There is a return value documented, but nothing is returned."""
+    def test_return_nothing_but_document_return_value_2(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> None:
@@ -288,8 +278,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
             a = [file_loc, str(print_cols)]
         calc(file_loc='Hi', print_cols=False)
 
-    def test_return_value_2(self):
-        """Problem here: the return value is not documented"""
+    def test_return_value_is_not_documented(self):
         with self.assertRaises(expected_exception=AssertionError):
             # the error message here is actually wrong due to the behavior of the docstring-parser package
             @pedantic_require_docstring
@@ -322,8 +311,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
         calc(file_loc='Hi', print_cols=False)
 
-    def test_return_value_3(self):
-        """Problem here: the return value is not documented"""
+    def test_return_value_is_not_documented_3(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> List[str]:
@@ -337,8 +325,6 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 return [file_loc, str(print_cols)]
 
     def test_wrong_format_1(self):
-        """Problem here: Currently, only Google docstrings are supported"""
-
         with self.assertRaises(expected_exception=AssertionError):
             class MyText:
                 text = 'hi'
@@ -357,7 +343,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                     """
                     return substring in self.text
 
-    def test_pedantic_1(self):
+    def test_undocumented_arg_3(self):
         with self.assertRaises(expected_exception=AssertionError):
             @pedantic
             def calc(a: int, b: float, c: str) -> str:
