@@ -352,6 +352,7 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
 
     sub_args = _get_type_arguments(cls=sub_type)
     super_args = _get_type_arguments(cls=super_type)
+
     if len(sub_args) != len(super_args) and Ellipsis not in sub_args + super_args:
         return False
     return all(_is_subtype(sub_type=sub_arg, super_type=super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
@@ -385,15 +386,12 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
             if sys.version_info >= (3, 7) else print("<class 'collections.abc.Callable'>")
         <class 'collections.abc.Callable'>
     """
-    if hasattr(annotation, 'mro'):  #TODO make pretty
-        if annotation.__module__ == 'typing':
-            return annotation.__origin__
-        else:
-            return annotation
-    elif annotation == typing.Any or annotation == Ellipsis:
+    if annotation in [Any, Ellipsis]:
         return object
-    else:
+    elif annotation.__module__ == 'typing':
         return annotation.__origin__
+    else:
+        return annotation
 
 
 def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
