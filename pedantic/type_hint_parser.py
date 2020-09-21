@@ -16,6 +16,17 @@ def trace(func): # TODO remove this
     return wrapper
 
 
+def trace_if_returns(return_value: Any) -> Callable[..., Any]: #TODO remove this
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            result = func(*args, **kwargs)
+            if result == return_value:
+                print(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
+            return result
+        return wrapper
+    return decorator
+
+
 def _is_instance(obj: Any, type_: Any, type_vars: Dict[str, Any]) -> bool:
     assert _has_required_type_arguments(type_), \
         f'The type annotation "{type_}" misses some type arguments e.g. ' \
@@ -107,51 +118,72 @@ def _is_generic(cls: Any) -> bool:
             return True
     return False
 
-
-def _is_base_generic(cls: Any) -> bool:
-    """
-    >>> _is_base_generic(int)
-    False
-    >>> _is_base_generic(typing.List)  #TODO False for Python >= 3.9
-    True
-    >>> _is_base_generic(typing.Callable)  #TODO False for Python >= 3.9
-    True
-    >>> _is_base_generic(typing.List[int])
-    False
-    >>> _is_base_generic(typing.Callable[[int], str])
-    False
-    >>> _is_base_generic(typing.List[typing.List[int]])
-    False
-    >>> _is_base_generic(list)
-    False
-    """
-
-    if hasattr(typing, '_GenericAlias'):
-        if isinstance(cls, typing._GenericAlias):
-            if str(cls) in ['typing.Tuple', 'typing.Callable']:
-                return True
-
-            return len(cls.__parameters__) > 0
-
-        if isinstance(cls, typing._SpecialForm):
-            return cls._name in {'ClassVar', 'Union', 'Optional'}
-    else:
-        if isinstance(cls, (typing.GenericMeta, typing._Union)):
-            return cls.__args__ in {None, ()}
-
-        if isinstance(cls, typing._Optional):
-            return True
-    return False
+# @trace_if_returns(True)
+# def _is_base_generic(cls: Any) -> bool:
+#     """
+#         # >>> from typing import List, Callable, Tuple
+#         # >>> _is_base_generic(int)
+#         # False
+#         # >>> _is_base_generic(List) if sys.version_info <= (3, 9) else not _is_base_generic(List)
+#         # True
+#         # >>> _is_base_generic(Callable) if sys.version_info <= (3, 9) else not _is_base_generic(Callable)
+#         # True
+#         # >>> _is_base_generic(List[int])
+#         # False
+#         # >>> _is_base_generic(Callable[[int], str])
+#         # False
+#         # >>> _is_base_generic(List[List[int]])
+#         # False
+#         # >>> _is_base_generic(list)
+#         # False
+#         # >>> _is_base_generic(Tuple[float, str])
+#         # False
+#         # >>> _is_base_generic(Tuple[Any, ...])
+#         # False
+#     """
+#
+#     if hasattr(typing, '_GenericAlias'):
+#         if isinstance(cls, typing._GenericAlias):
+#             if str(cls) in ['typing.Tuple', 'typing.Callable']:
+#                 return True
+#
+#             return len(cls.__parameters__) > 0
+#
+#         if isinstance(cls, typing._SpecialForm):
+#             return cls._name in {'ClassVar', 'Union', 'Optional'}
+#     else:
+#         if isinstance(cls, (typing.GenericMeta, typing._Union)):
+#             return cls.__args__ in {None, ()}
+#
+#         if isinstance(cls, typing._Optional):
+#             return True
+#     return False
 
 
 def _has_required_type_arguments(cls: Any) -> bool:
     """
-        >>> from typing import List, Callable, Tuple
+        >>> from typing import List, Callable, Tuple, Any
+        >>> _has_required_type_arguments(int)
+        True
         >>> _has_required_type_arguments(List)
         False
         >>> _has_required_type_arguments(List[int])
         True
+        >>> _has_required_type_arguments(List[List[int]])
+        True
+        >>> _has_required_type_arguments(Tuple)
+        False
+        >>> _has_required_type_arguments(Tuple[int])
+        True
+        >>> _has_required_type_arguments(Tuple[int, float, str])
+        True
+        >>> _has_required_type_arguments(Callable)
+        False
         >>> _has_required_type_arguments(Callable[[int, float], Tuple[float, str]])
+        True
+        >>> _has_required_type_arguments(Callable[..., Any])
+        True
+        >>> _has_required_type_arguments(Callable[[typing.Any], Tuple[typing.Any, ...]],)
         True
     """
 
@@ -328,11 +360,8 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
     if not issubclass(python_sub, python_super):
         return False
 
-    if not _is_generic(super_type) or _is_base_generic(super_type):
+    if not _is_generic(super_type):
         return True
-
-    if _is_base_generic(sub_type):
-        return False
 
     sub_args = _get_type_arguments(cls=sub_type)
     super_args = _get_type_arguments(cls=super_type)
