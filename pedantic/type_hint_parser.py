@@ -277,7 +277,7 @@ def _get_base_generic(cls: Any) -> Any:
 
 def _is_subtype(sub_type: Any, super_type: Any) -> bool:
     """
-        >>> from typing import Any, List, Callable, Tuple, Union, Optional
+        >>> from typing import Any, List, Callable, Tuple, Union, Optional, Iterable
         >>> _is_subtype(float, float)
         True
         >>> _is_subtype(int, float)
@@ -326,15 +326,24 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
         Traceback (most recent call last):
         ...
         TypeError: issubclass() arg 1 must be a class
+        >>> class Parent: pass
+        >>> class Child(Parent): pass
+        >>> _is_subtype(List[Child], List[Parent])
+        True
+        >>> _is_subtype(List[Parent], List[Child])
+        False
+        >>> _is_subtype(List[int], Iterable[int])
+        True
+        >>> _is_subtype(Iterable[int], List[int])
+        False
     """
-
-    if not _is_generic(sub_type):
-        python_super = _get_class_of_type_annotation(super_type)
-        python_sub = _get_class_of_type_annotation(sub_type)
-        return issubclass(python_sub, python_super)
 
     python_sub = _get_class_of_type_annotation(sub_type)
     python_super = _get_class_of_type_annotation(super_type)
+
+    if not _is_generic(sub_type):
+        return issubclass(python_sub, python_super)
+
     if not issubclass(python_sub, python_super):
         return False
 
@@ -515,6 +524,8 @@ def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
         False
         >>> _instancecheck_callable(f, Callable[..., Any], {})
         True
+        >>> _instancecheck_callable(f, Callable[[int, int, int], Tuple[float, str]], {})
+        False
     """
     param_types, ret_type = _get_type_arguments(cls=type_)
     sig = inspect.signature(obj=value)
