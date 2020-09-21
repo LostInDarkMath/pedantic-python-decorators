@@ -367,28 +367,28 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         <class 'object'>
         >>> _get_class_of_type_annotation(Ellipsis)
         <class 'object'>
-        >>> _get_class_of_type_annotation(Dict) if sys.version_info >= (3, 7) else print("<class 'dict'>")
+        >>> _get_class_of_type_annotation(Dict)
         <class 'dict'>
-        >>> _get_class_of_type_annotation(Dict[str, int]) if sys.version_info >= (3, 7) else print("<class 'dict'>")
+        >>> _get_class_of_type_annotation(Dict[str, int])
         <class 'dict'>
-        >>> _get_class_of_type_annotation(List) if sys.version_info >= (3, 7) else print("<class 'list'>")
+        >>> _get_class_of_type_annotation(List)
         <class 'list'>
-        >>> _get_class_of_type_annotation(List[int]) if sys.version_info >= (3, 7) else print("<class 'list'>")
+        >>> _get_class_of_type_annotation(List[int])
         <class 'list'>
-        >>> _get_class_of_type_annotation(Tuple) if sys.version_info >= (3, 7) else print("<class 'tuple'>")
+        >>> _get_class_of_type_annotation(Tuple)
         <class 'tuple'>
-        >>> _get_class_of_type_annotation(Tuple[int, int]) if sys.version_info >= (3, 7) else print("<class 'tuple'>")
+        >>> _get_class_of_type_annotation(Tuple[int, int])
         <class 'tuple'>
-        >>> _get_class_of_type_annotation(Callable[[int], int]) \
-            if sys.version_info >= (3, 7) else print("<class 'collections.abc.Callable'>")
+        >>> _get_class_of_type_annotation(Callable[[int], int])
         <class 'collections.abc.Callable'>
-        >>> _get_class_of_type_annotation(Callable) \
-            if sys.version_info >= (3, 7) else print("<class 'collections.abc.Callable'>")
+        >>> _get_class_of_type_annotation(Callable)
         <class 'collections.abc.Callable'>
     """
     if annotation in [Any, Ellipsis]:
         return object
-    elif annotation.__module__ == 'typing':
+    elif hasattr(annotation, '__extra__'):
+        return annotation.__extra__
+    elif annotation.__module__ == 'typing' and annotation.__origin__ is not None:
         return annotation.__origin__
     else:
         return annotation
