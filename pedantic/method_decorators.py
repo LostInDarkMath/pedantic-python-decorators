@@ -328,6 +328,7 @@ def require_not_empty_strings(func: Callable[..., Any], is_class_decorator: bool
 
 
 def pedantic(func: Optional[Callable[..., Any]] = None,
+             type_vars: Optional[Dict[Any, Any]] = None,
              is_class_decorator: bool = False,
              require_docstring: bool = False,
              ) -> Callable[..., Any]:
@@ -363,6 +364,9 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
         Use kwargs when you call function some_calculation. Args: (5, 4.0, 'hi')
    """
 
+    if type_vars is None:
+        type_vars = {}
+
     def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
         decorated_func = DecoratedFunction(func=f)
 
@@ -372,7 +376,7 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
         @functools.wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             _assert_uses_kwargs(func=func, args=args, is_class_decorator=is_class_decorator)
-            return _check_types(decorated_func=decorated_func, args=args, kwargs=kwargs)
+            return _check_types(decorated_func=decorated_func, args=args, kwargs=kwargs, type_vars=type_vars)
         return wrapper
     return decorator if func is None else decorator(f=func)
 
@@ -382,11 +386,12 @@ def pedantic_require_docstring(func: Optional[Callable[..., Any]] = None, **kwar
     return pedantic(func=func, require_docstring=True, **kwargs)
 
 
-def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...], kwargs: Dict[str, Any]) -> Any:
+def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...],
+                 kwargs: Dict[str, Any],
+                 type_vars: Dict[Any, Any]) -> Any:
     func = decorated_func.func
     params = decorated_func.signature.parameters
     err = decorated_func.err
-    type_vars = {}
     already_checked_kwargs = []
 
     assert decorated_func.signature.return_annotation is not inspect.Signature.empty, \

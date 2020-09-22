@@ -13,14 +13,19 @@ def for_all_methods(decorator: Callable[..., Any]) -> Callable[..., Any]:
     ...     def m2(self, x): pass
     """
     def decorate(cls: Any) -> Any:
+        type_vars = {}
+
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)
 
             if isinstance(attr_value, types.FunctionType):  # if callable(attr_value):  # does not work with Python 3.6
-                try:
-                    setattr(cls, attr, decorator(attr_value, is_class_decorator=True))
-                except TypeError:
-                    setattr(cls, attr, decorator(attr_value))
+                if decorator in [pedantic, pedantic_require_docstring]:
+                    setattr(cls, attr, decorator(attr_value, is_class_decorator=True, type_vars=type_vars))
+                else:
+                    try:
+                        setattr(cls, attr, decorator(attr_value, is_class_decorator=True))
+                    except TypeError:
+                        setattr(cls, attr, decorator(attr_value))
             elif isinstance(attr_value, property):
                 prop = attr_value
                 wrapped_getter = _get_wrapped(prop=prop.fget, decorator=decorator)

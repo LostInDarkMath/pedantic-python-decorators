@@ -234,7 +234,9 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
     if hasattr(cls, '__args__'):
         result = cls.__args__
         origin = _get_base_generic(cls=cls)
-        if origin != cls and ((origin is typing.Callable) or (origin is collections.abc.Callable)) and result[0] is not Ellipsis:
+        if origin != cls and \
+                ((origin is typing.Callable) or (origin is collections.abc.Callable)) and \
+                result[0] is not Ellipsis:
             result = (list(result[:-1]), result[-1])
     result = result or ()
     return result if '[' in str(cls) else ()

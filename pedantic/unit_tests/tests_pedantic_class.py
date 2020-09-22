@@ -382,9 +382,8 @@ class TestPedanticClass(unittest.TestCase):
         o.set(new=57)
         self.assertTrue(isinstance(o.get(), int))
 
-        # the following feature is not supported yet:
-        # with self.assertRaises(expected_exception=AssertionError):
-        #     o.set(new=3.14)
+        with self.assertRaises(expected_exception=AssertionError):
+            o.set(new=3.14)
 
     def test_double_pedantic(self):
         @pedantic_class
