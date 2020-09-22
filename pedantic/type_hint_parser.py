@@ -96,7 +96,7 @@ def _is_generic(cls: Any) -> bool:
         >>> from typing import  List, Callable, Any, Union
         >>> _is_generic(int)
         False
-        >>> _is_generic(List) if sys.version_info < (3, 9) else print('True')
+        >>> _is_generic(List)
         True
         >>> _is_generic(List[int])
         True
@@ -106,13 +106,13 @@ def _is_generic(cls: Any) -> bool:
         True
         >>> _is_generic(Any)
         False
-        >>> _is_generic(Tuple) if sys.version_info < (3, 9) else print('True')
+        >>> _is_generic(Tuple)
         True
         >>> _is_generic(Tuple[Any, ...])
         True
         >>> _is_generic(Tuple[str, float, int])
         True
-        >>> _is_generic(Callable) if sys.version_info < (3, 9) else print('True')
+        >>> _is_generic(Callable)
         True
         >>> _is_generic(Callable[[int], int])
         True
@@ -120,20 +120,21 @@ def _is_generic(cls: Any) -> bool:
         True
         >>> _is_generic(Union[int, float, str])
         True
-        >>> _is_generic(Dict) if sys.version_info < (3, 9) else print('True')
+        >>> _is_generic(Dict)
         True
         >>> _is_generic(Dict[str, str])
         True
     """
-    if hasattr(typing, '_GenericAlias'):
+    if hasattr(typing, '_SpecialGenericAlias') and isinstance(cls, typing._SpecialGenericAlias):
+        return True
+    elif hasattr(typing, '_GenericAlias'):
         if isinstance(cls, typing._GenericAlias):
             return True
 
         if isinstance(cls, typing._SpecialForm):
             return cls not in {typing.Any}
-    else:
-        if isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
-            return True
+    elif isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
+        return True
     return False
 
 

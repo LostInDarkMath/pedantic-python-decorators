@@ -508,7 +508,6 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
 
 def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any:
     """
-    Works only with Python 3.7 or newer. Otherwise, strange things will happen.
     >>> import sys
     >>> _parse_documented_type(type_='List[str]', context={}, err='')
     typing.List[str]
@@ -516,8 +515,8 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     <class 'float'>
     >>> _parse_documented_type(type_='List[List[bool]]', context={}, err='')
     typing.List[typing.List[bool]]
-    >>> _parse_documented_type(type_='Union[int, float, bool]', context={}, err='')
-    typing.Union[int, float, bool]
+    >>> _parse_documented_type(type_='Union[int, float, str]', context={}, err='')
+    typing.Union[int, float, str]
     >>> _parse_documented_type(type_='Callable[[int, bool, str], float]', context={}, err='')
     typing.Callable[[int, bool, str], float]
     >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='') \
@@ -549,8 +548,6 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     ...
     AssertionError:  Documented type "MyClas" was not found. Maybe you meant one of the following: ['MyClass', 'MyClub']
     """
-
-    assert sys.version_info >= (3, 7), f'This method only works with Python 3.7 or newer.'
 
     try:
         return eval(type_, globals(), context)
@@ -592,7 +589,8 @@ def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
     >>>
     """
 
-    assert sys.version_info >= (3, 7), f'This method only works with Python 3.7 or newer.'
+    # assert sys.version_info >= (3, 7), f'This method only works with Python 3.7 or newer.'
+    # TODO: make this work at Python 3.6
 
     if hasattr(type_, '__name__'):
         context[type_.__name__] = type_
