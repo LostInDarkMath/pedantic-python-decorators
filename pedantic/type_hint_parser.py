@@ -179,22 +179,17 @@ def _has_required_type_arguments(cls: Any) -> bool:
         'Union': 2,
     }
     base: str = _get_name(cls=cls)
-
-    if '[' not in str(cls) and (base in requirements_min or base in requirements_exact):
-        return False
-
     num_type_args = len(_get_type_arguments(cls=cls))
 
     if base in requirements_exact:
         return requirements_exact[base] == num_type_args
     elif base in requirements_min:
         return requirements_min[base] <= num_type_args
-    else:
-        return True
+    return True
 
 
 def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
-    """
+    """ Works similar to typing.args()
         >>> from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar
         >>> _get_type_arguments(int)
         ()
@@ -225,6 +220,8 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (<class 'str'>, <class 'float'>, <class 'int'>)
         >>> _get_type_arguments(Union[str, float, List[int], int])
         (<class 'str'>, <class 'float'>, typing.List[int], <class 'int'>)
+        >>> _get_type_arguments(Callable)
+        ()
         >>> _get_type_arguments(Callable[[int, float], Tuple[float, str]])
         ([<class 'int'>, <class 'float'>], typing.Tuple[float, str])
         >>> _get_type_arguments(Callable[..., str])
@@ -233,12 +230,10 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
 
     result = ()
 
-    if hasattr(typing, 'get_args'):
-        result = typing.get_args(cls)
-    elif hasattr(cls, '__args__'):
+    if hasattr(cls, '__args__'):
         result = cls.__args__
         origin = _get_base_generic(cls=cls)
-        if ((origin is typing.Callable) or (origin is collections.abc.Callable)) and result[0] is not Ellipsis:
+        if origin != cls and ((origin is typing.Callable) or (origin is collections.abc.Callable)) and result[0] is not Ellipsis:
             result = (list(result[:-1]), result[-1])
     result = result or ()
     return result if '[' in str(cls) else ()
