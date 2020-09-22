@@ -1,5 +1,6 @@
 language: python
 python: # https://docs.travis-ci.com/user/languages/python/#python-versions
+  - "3.6.0"
   - "3.6"      # current default Python on Travis CI
   - "3.7"
   - "3.8"
