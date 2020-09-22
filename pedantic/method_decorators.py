@@ -366,10 +366,6 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
     def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
         decorated_func = DecoratedFunction(func=f)
 
-        if require_docstring and sys.version_info < (3, 7):
-            raise AssertionError(f'Docstrings cannot be checked in Python versions below 3.7. Please '
-                                 f'upgrade your Python version or disable the "require_docstring" option in pedantic.')
-
         if require_docstring or len(decorated_func.docstring.params) > 0:
             _assert_has_correct_docstring(decorated_func=decorated_func)
 
@@ -454,10 +450,6 @@ def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...], kwarg
 
 
 def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
-    if sys.version_info < (3, 7):
-        _raise_warning(msg='Note: Docstrings cannot be checked in Python versions below 3.7.', category=UserWarning)
-        return
-
     annotations = decorated_func.annotations
     docstring = decorated_func.docstring
     err_prefix = decorated_func.err
@@ -564,37 +556,31 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
 
 def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
     """
-    Works only with Python 3.7 or newer. Otherwise, strange things will happen.
-    >>> from typing import List, Union, Optional, Callable
-    >>> _update_context(type_=None, context={})
-    {}
-    >>> _update_context(type_=None, context={'a': 1, 'b': 2})
-    {'a': 1, 'b': 2}
-    >>> _update_context(type_=float, context={})
-    {'float': <class 'float'>}
-    >>> _update_context(type_=List[str], context={})
-    {'str': <class 'str'>}
-    >>> _update_context(type_=List[List[bool]], context={})
-    {'bool': <class 'bool'>}
-    >>> _update_context(type_=Union[int, float, bool], context={})
-    {'int': <class 'int'>, 'float': <class 'float'>, 'bool': <class 'bool'>}
-    >>> _update_context(type_=Callable[[int, bool, str], float], context={})
-    {'int': <class 'int'>, 'bool': <class 'bool'>, 'str': <class 'str'>, 'float': <class 'float'>}
-    >>> _update_context(type_=Optional[List[Dict[str, float]]], context={})
-    {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
-    >>> _update_context(type_=Union[List[Dict[str, float]], None], context={})
-    {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
-    >>> _update_context(type_='MyClass', context={})
-    {'MyClass': 'MyClass'}
-    >>>
+        >>> from typing import List, Union, Optional, Callable
+        >>> _update_context(type_=None, context={})
+        {}
+        >>> _update_context(type_=None, context={'a': 1, 'b': 2})
+        {'a': 1, 'b': 2}
+        >>> _update_context(type_=float, context={})
+        {'float': <class 'float'>}
+        >>> _update_context(type_=List[str], context={})
+        {'str': <class 'str'>}
+        >>> _update_context(type_=List[List[bool]], context={})
+        {'bool': <class 'bool'>}
+        >>> _update_context(type_=Union[int, float, str], context={})
+        {'int': <class 'int'>, 'float': <class 'float'>, 'str': <class 'str'>}
+        >>> _update_context(type_=Callable[[int, bool, str], float], context={})
+        {'int': <class 'int'>, 'bool': <class 'bool'>, 'str': <class 'str'>, 'float': <class 'float'>}
+        >>> _update_context(type_=Optional[List[Dict[str, float]]], context={})
+        {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
+        >>> _update_context(type_=Union[List[Dict[str, float]], None], context={})
+        {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
+        >>> _update_context(type_='MyClass', context={})
+        {'MyClass': 'MyClass'}
+        >>>
     """
 
-    # assert sys.version_info >= (3, 7), f'This method only works with Python 3.7 or newer.'
-    # TODO: make this work at Python 3.6
-
-    if hasattr(type_, '__name__'):
-        context[type_.__name__] = type_
-    elif isinstance(type_, str):
+    if isinstance(type_, str):
         context[type_] = type_
     elif str(type_).startswith('typing'):
         type_arguments = _get_type_arguments(cls=type_)
@@ -604,6 +590,8 @@ def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
                 for type_arg in type_argument:
                     _update_context(context=context, type_=type_arg)
             _update_context(context=context, type_=type_argument)
+    elif hasattr(type_, '__name__'):
+        context[type_.__name__] = type_
     return context
 
 

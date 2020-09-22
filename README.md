@@ -2,7 +2,7 @@
 These decorators will make you write cleaner and well-documented Python code. 
 
 ## Getting Started
-This package requires Python 3.7 or newer. It also works with Python 3.6, but some features will be disabled in this version, e.g. the checking of docstrings. However, type checking also works fine with Python 3.6. 
+This package requires Python 3.6 or newer. 
 There are multiple options for installing this package.
 
 ### Option 1: Installing with pip from [Pypi](https://pypi.org/)
