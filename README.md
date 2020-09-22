@@ -86,12 +86,12 @@ The `@pedantic` decorator does the following things:
 - The decorated function can only be called by using keyword arguments. Positional arguments are not accepted.
 - The decorated function must have [Type annotations](https://docs.python.org/3/library/typing.html).
 - Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
-As a consquence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annoted via `typing.Optional`.
+As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
 - If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
 Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported.
 
 In a nutshell:
-`@pedantic` raises an `AssertionError` if one of the following happend:
+`@pedantic` raises an `AssertionError` if one of the following happened:
 - The decorated function is called with positional arguments.
 - The function has no type annotation for their return type or one or more parameters do not have type annotations.
 - A type annotation is incorrect.
