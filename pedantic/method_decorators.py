@@ -381,7 +381,7 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
     return decorator if func is None else decorator(f=func)
 
 
-def pedantic_require_docstring(func: Optional[Callable[..., Any]] = None, **kwargs: bool) -> Callable[..., Any]:
+def pedantic_require_docstring(func: Optional[Callable[..., Any]] = None, **kwargs: Any) -> Callable[..., Any]:
     """Shortcut for @pedantic(require_docstring=True) """
     return pedantic(func=func, require_docstring=True, **kwargs)
 
