@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import inspect
+import types
 from typing import Any, Callable, Dict
 
 # local file imports
@@ -35,7 +36,8 @@ from pedantic.wrapper_docstring import get_parsed_docstring, Docstring
 
 
 class DecoratedFunction:
-    def __init__(self, func: Callable[..., Any]):
+    def __init__(self, func: Callable[..., Any]) -&gt; None:
+        assert isinstance(func, types.FunctionType), f&#39;{func} should be a method or function.&#39;
         self._func = func
         self._annotations = inspect.getfullargspec(func).annotations
         self._docstring = get_parsed_docstring(func=func)
@@ -83,7 +85,8 @@ class DecoratedFunction:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DecoratedFunction:
-    def __init__(self, func: Callable[..., Any]):
+    def __init__(self, func: Callable[..., Any]) -&gt; None:
+        assert isinstance(func, types.FunctionType), f&#39;{func} should be a method or function.&#39;
         self._func = func
         self._annotations = inspect.getfullargspec(func).annotations
         self._docstring = get_parsed_docstring(func=func)

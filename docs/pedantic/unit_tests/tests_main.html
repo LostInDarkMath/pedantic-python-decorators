@@ -29,19 +29,47 @@
 <pre><code class="python">import unittest
 import sys
 import os
+
 sys.path.append(os.getcwd())
 
-# local file imports
-from pedantic.unit_tests.tests_require_docstrings_google_format import TestRequireDocstringGoogleFormat
+from pedantic.unit_tests.tests_doctests import get_doctest_test_suite
 from pedantic.unit_tests.tests_require_kwargs import TestRequireKwargs
 from pedantic.unit_tests.tests_class_decorators import TestClassDecorators
 from pedantic.unit_tests.tests_pedantic_class import TestPedanticClass
 from pedantic.unit_tests.tests_pedantic import TestDecoratorRequireKwargsAndTypeCheck
 from pedantic.unit_tests.tests_small_method_decorators import TestSmallDecoratorMethods
 from pedantic.unit_tests.tests_combination_of_decorators import TestCombinationOfDecorators
+from pedantic.unit_tests.tests_docstring import TestRequireDocstringGoogleFormat
+from pedantic.unit_tests.tests_pedantic_class_docstring import TestPedanticClassDocstring
+
+
+def run_all_tests() -&gt; None:
+    test_classes_to_run = [
+        TestRequireKwargs,
+        TestClassDecorators,
+        TestPedanticClass,
+        TestDecoratorRequireKwargsAndTypeCheck,
+        TestSmallDecoratorMethods,
+        TestCombinationOfDecorators,
+        TestRequireDocstringGoogleFormat,
+        TestPedanticClassDocstring,
+    ]
+
+    loader = unittest.TestLoader()
+    suites_list = [get_doctest_test_suite()]
+
+    for test_class in test_classes_to_run:
+        suite = loader.loadTestsFromTestCase(test_class)
+        suites_list.append(suite)
+
+    big_suite = unittest.TestSuite(suites_list)
+    runner = unittest.TextTestRunner()
+    result = runner.run(big_suite)
+    assert not result.errors and not result.failures, f&#39;Some tests failed!&#39;
+
 
 if __name__ == &#39;__main__&#39;:
-    unittest.main()</code></pre>
+    run_all_tests()</code></pre>
 </details>
 </section>
 <section>
@@ -49,6 +77,43 @@ if __name__ == &#39;__main__&#39;:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pedantic.unit_tests.tests_main.run_all_tests"><code class="name flex">
+<span>def <span class="ident">run_all_tests</span></span>(<span>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run_all_tests() -&gt; None:
+    test_classes_to_run = [
+        TestRequireKwargs,
+        TestClassDecorators,
+        TestPedanticClass,
+        TestDecoratorRequireKwargsAndTypeCheck,
+        TestSmallDecoratorMethods,
+        TestCombinationOfDecorators,
+        TestRequireDocstringGoogleFormat,
+        TestPedanticClassDocstring,
+    ]
+
+    loader = unittest.TestLoader()
+    suites_list = [get_doctest_test_suite()]
+
+    for test_class in test_classes_to_run:
+        suite = loader.loadTestsFromTestCase(test_class)
+        suites_list.append(suite)
+
+    big_suite = unittest.TestSuite(suites_list)
+    runner = unittest.TextTestRunner()
+    result = runner.run(big_suite)
+    assert not result.errors and not result.failures, f&#39;Some tests failed!&#39;</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -62,6 +127,11 @@ if __name__ == &#39;__main__&#39;:
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="pedantic.unit_tests" href="index.html">pedantic.unit_tests</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pedantic.unit_tests.tests_main.run_all_tests" href="#pedantic.unit_tests.tests_main.run_all_tests">run_all_tests</a></code></li>
 </ul>
 </li>
 </ul>

@@ -2,6 +2,7 @@
 These decorators will make you write cleaner and well-documented Python code. 
 
 ## Getting Started
+This package requires Python 3.6 or newer. 
 There are multiple options for installing this package.
 
 ### Option 1: Installing with pip from [Pypi](https://pypi.org/)
@@ -44,12 +45,10 @@ m.print_sum()
 
 ## Dependencies
 Outside the Python standard library, the following dependencies are used:
-- [Docstring-Parser](https://github.com/rr-/docstring_parser) (Version 0.7.2, requires Python 3.6 or later)
-
-[This package works with Python 3.6 or newer.](https://travis-ci.com/github/LostInDarkMath/PythonHelpers)
+- [Docstring-Parser](https://github.com/rr-/docstring_parser) 
 
 ## Risks and Side Effects
-The usage of decorators may affect the performance of your application. For this reason, it would highly recommend you to disable the decorators during deployment automatically after all tests are passed.
+The usage of decorators may affect the performance of your application. For this reason, I would highly recommend you to disable the decorators during deployment automatically after all tests are passed.
 
 ## Contributing
 Feel free to contribute by submitting a pull request :)
@@ -87,12 +86,12 @@ The `@pedantic` decorator does the following things:
 - The decorated function can only be called by using keyword arguments. Positional arguments are not accepted.
 - The decorated function must have [Type annotations](https://docs.python.org/3/library/typing.html).
 - Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
-As a consquence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annoted via `typing.Optional`.
+As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
 - If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
 Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported.
 
 In a nutshell:
-`@pedantic` raises an `AssertionError` if one of the following happend:
+`@pedantic` raises an `AssertionError` if one of the following happened:
 - The decorated function is called with positional arguments.
 - The function has no type annotation for their return type or one or more parameters do not have type annotations.
 - A type annotation is incorrect.

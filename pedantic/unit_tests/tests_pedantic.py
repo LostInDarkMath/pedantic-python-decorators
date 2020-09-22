@@ -2,39 +2,22 @@ import unittest
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
 from enum import Enum
 
-# local file imports
 from pedantic.method_decorators import pedantic
 
 
 class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
-
-    def test_no_kwargs_1(self):
-        """Problem here: function is not called with keyword arguments"""
+    def test_no_kwargs(self):
         @pedantic
         def calc(n: int, m: int, i: int) -> int:
             return n + m + i
 
         with self.assertRaises(expected_exception=AssertionError):
             calc(42, 40, 38)
-
-    def test_no_kwargs_2(self):
-        """Problem here: function is not called with keyword arguments"""
-        @pedantic
-        def calc(n: int, m: int, i: int) -> int:
-            return n + m + i
-
         with self.assertRaises(expected_exception=AssertionError):
             calc(42, m=40, i=38)
-
-    def test_no_kwargs_1_2_corrected(self):
-        @pedantic
-        def calc(n: int, m: int, i: int) -> int:
-            return n + m + i
-
         calc(n=42, m=40, i=38)
 
     def test_nested_type_hints_1(self):
-        """Problem here: actual return type doesn't match return type annotation"""
         @pedantic
         def calc(n: int) -> List[List[float]]:
             return [0.0 * n]
@@ -1025,7 +1008,31 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         foo(x=1, y=2)
         foo('', z=0)
 
+    def test_pedantic_on_class(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic
+            class MyClass:
+                pass
+            MyClass()
+
+    def test_is_subtype_tuple(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic
+            def foo() -> Callable[[Tuple[float, str]], Tuple[int]]:
+                def bar(a: Tuple[float]) -> Tuple[int]:
+                    return len(a[1]) + int(a[0]),
+                return bar
+            foo()
+
+    def test_is_subtype_tuple_corrected(self):
+        @pedantic
+        def foo() -> Callable[[Tuple[float, str]], Tuple[int]]:
+            def bar(a: Tuple[float, str]) -> Tuple[int]:
+                return len(a[1]) + int(a[0]),
+            return bar
+        foo()
+
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_additional_kwargs()
+    test.test_type_var()

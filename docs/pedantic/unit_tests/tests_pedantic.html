@@ -30,39 +30,22 @@
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
 from enum import Enum
 
-# local file imports
 from pedantic.method_decorators import pedantic
 
 
 class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
-
-    def test_no_kwargs_1(self):
-        &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
+    def test_no_kwargs(self):
         @pedantic
         def calc(n: int, m: int, i: int) -&gt; int:
             return n + m + i
 
         with self.assertRaises(expected_exception=AssertionError):
             calc(42, 40, 38)
-
-    def test_no_kwargs_2(self):
-        &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
-        @pedantic
-        def calc(n: int, m: int, i: int) -&gt; int:
-            return n + m + i
-
         with self.assertRaises(expected_exception=AssertionError):
             calc(42, m=40, i=38)
-
-    def test_no_kwargs_1_2_corrected(self):
-        @pedantic
-        def calc(n: int, m: int, i: int) -&gt; int:
-            return n + m + i
-
         calc(n=42, m=40, i=38)
 
     def test_nested_type_hints_1(self):
-        &#34;&#34;&#34;Problem here: actual return type doesn&#39;t match return type annotation&#34;&#34;&#34;
         @pedantic
         def calc(n: int) -&gt; List[List[float]]:
             return [0.0 * n]
@@ -1053,10 +1036,34 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         foo(x=1, y=2)
         foo(&#39;&#39;, z=0)
 
+    def test_pedantic_on_class(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic
+            class MyClass:
+                pass
+            MyClass()
+
+    def test_is_subtype_tuple(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic
+            def foo() -&gt; Callable[[Tuple[float, str]], Tuple[int]]:
+                def bar(a: Tuple[float]) -&gt; Tuple[int]:
+                    return len(a[1]) + int(a[0]),
+                return bar
+            foo()
+
+    def test_is_subtype_tuple_corrected(self):
+        @pedantic
+        def foo() -&gt; Callable[[Tuple[float, str]], Tuple[int]]:
+            def bar(a: Tuple[float, str]) -&gt; Tuple[int]:
+                return len(a[1]) + int(a[0]),
+            return bar
+        foo()
+
 
 if __name__ == &#39;__main__&#39;:
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_additional_kwargs()</code></pre>
+    test.test_type_var()</code></pre>
 </details>
 </section>
 <section>
@@ -1106,34 +1113,18 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
-
-    def test_no_kwargs_1(self):
-        &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
+    def test_no_kwargs(self):
         @pedantic
         def calc(n: int, m: int, i: int) -&gt; int:
             return n + m + i
 
         with self.assertRaises(expected_exception=AssertionError):
             calc(42, 40, 38)
-
-    def test_no_kwargs_2(self):
-        &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
-        @pedantic
-        def calc(n: int, m: int, i: int) -&gt; int:
-            return n + m + i
-
         with self.assertRaises(expected_exception=AssertionError):
             calc(42, m=40, i=38)
-
-    def test_no_kwargs_1_2_corrected(self):
-        @pedantic
-        def calc(n: int, m: int, i: int) -&gt; int:
-            return n + m + i
-
         calc(n=42, m=40, i=38)
 
     def test_nested_type_hints_1(self):
-        &#34;&#34;&#34;Problem here: actual return type doesn&#39;t match return type annotation&#34;&#34;&#34;
         @pedantic
         def calc(n: int) -&gt; List[List[float]]:
             return [0.0 * n]
@@ -2122,7 +2113,31 @@ not have a method with the specified name.</p></div>
 
         foo(&#39;a&#39;, &#39;b&#39;, &#39;c&#39;)
         foo(x=1, y=2)
-        foo(&#39;&#39;, z=0)</code></pre>
+        foo(&#39;&#39;, z=0)
+
+    def test_pedantic_on_class(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic
+            class MyClass:
+                pass
+            MyClass()
+
+    def test_is_subtype_tuple(self):
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic
+            def foo() -&gt; Callable[[Tuple[float, str]], Tuple[int]]:
+                def bar(a: Tuple[float]) -&gt; Tuple[int]:
+                    return len(a[1]) + int(a[0]),
+                return bar
+            foo()
+
+    def test_is_subtype_tuple_corrected(self):
+        @pedantic
+        def foo() -&gt; Callable[[Tuple[float, str]], Tuple[int]]:
+            def bar(a: Tuple[float, str]) -&gt; Tuple[int]:
+                return len(a[1]) + int(a[0]),
+            return bar
+        foo()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2821,6 +2836,43 @@ not have a method with the specified name.</p></div>
     a.calc(i=42)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple"><code class="name flex">
+<span>def <span class="ident">test_is_subtype_tuple</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_is_subtype_tuple(self):
+    with self.assertRaises(expected_exception=AssertionError):
+        @pedantic
+        def foo() -&gt; Callable[[Tuple[float, str]], Tuple[int]]:
+            def bar(a: Tuple[float]) -&gt; Tuple[int]:
+                return len(a[1]) + int(a[0]),
+            return bar
+        foo()</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple_corrected"><code class="name flex">
+<span>def <span class="ident">test_is_subtype_tuple_corrected</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_is_subtype_tuple_corrected(self):
+    @pedantic
+    def foo() -&gt; Callable[[Tuple[float, str]], Tuple[int]]:
+        def bar(a: Tuple[float, str]) -&gt; Tuple[int]:
+            return len(a[1]) + int(a[0]),
+        return bar
+    foo()</code></pre>
+</details>
+</dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1"><code class="name flex">
 <span>def <span class="ident">test_lambda_1</span></span>(<span>self)</span>
 </code></dt>
@@ -3154,13 +3206,12 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_nested_type_hints_1</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: actual return type doesn't match return type annotation</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_nested_type_hints_1(self):
-    &#34;&#34;&#34;Problem here: actual return type doesn&#39;t match return type annotation&#34;&#34;&#34;
     @pedantic
     def calc(n: int) -&gt; List[List[float]]:
         return [0.0 * n]
@@ -3369,27 +3420,8 @@ not have a method with the specified name.</p></div>
     get_user_name(user_id=some_id)</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1"><code class="name flex">
-<span>def <span class="ident">test_no_kwargs_1</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Problem here: function is not called with keyword arguments</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_no_kwargs_1(self):
-    &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
-    @pedantic
-    def calc(n: int, m: int, i: int) -&gt; int:
-        return n + m + i
-
-    with self.assertRaises(expected_exception=AssertionError):
-        calc(42, 40, 38)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1_2_corrected"><code class="name flex">
-<span>def <span class="ident">test_no_kwargs_1_2_corrected</span></span>(<span>self)</span>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs"><code class="name flex">
+<span>def <span class="ident">test_no_kwargs</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -3397,31 +3429,16 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_no_kwargs_1_2_corrected(self):
-    @pedantic
-    def calc(n: int, m: int, i: int) -&gt; int:
-        return n + m + i
-
-    calc(n=42, m=40, i=38)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_2"><code class="name flex">
-<span>def <span class="ident">test_no_kwargs_2</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Problem here: function is not called with keyword arguments</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_no_kwargs_2(self):
-    &#34;&#34;&#34;Problem here: function is not called with keyword arguments&#34;&#34;&#34;
+<pre><code class="python">def test_no_kwargs(self):
     @pedantic
     def calc(n: int, m: int, i: int) -&gt; int:
         return n + m + i
 
     with self.assertRaises(expected_exception=AssertionError):
-        calc(42, m=40, i=38)</code></pre>
+        calc(42, 40, 38)
+    with self.assertRaises(expected_exception=AssertionError):
+        calc(42, m=40, i=38)
+    calc(n=42, m=40, i=38)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_1"><code class="name flex">
@@ -3651,6 +3668,23 @@ not have a method with the specified name.</p></div>
     calc(d=99999)
     with self.assertRaises(expected_exception=AssertionError):
         calc(d=&#39;999999&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_on_class"><code class="name flex">
+<span>def <span class="ident">test_pedantic_on_class</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_pedantic_on_class(self):
+    with self.assertRaises(expected_exception=AssertionError):
+        @pedantic
+        class MyClass:
+            pass
+        MyClass()</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict"><code class="name flex">
@@ -4257,6 +4291,8 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3_corrected">test_instance_method_3_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_4">test_instance_method_4</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_5">test_instance_method_5</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple">test_is_subtype_tuple</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple_corrected">test_is_subtype_tuple_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1">test_lambda_1</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_2">test_lambda_2</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_3">test_lambda_3</a></code></li>
@@ -4285,9 +4321,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_5_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_5_corrected">test_nested_type_hints_5_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_corrected">test_nested_type_hints_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_new_type" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_new_type">test_new_type</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1">test_no_kwargs_1</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1_2_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_1_2_corrected">test_no_kwargs_1_2_corrected</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs_2">test_no_kwargs_2</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_no_kwargs">test_no_kwargs</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_1">test_none_1</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_2">test_none_2</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_none_3">test_none_3</a></code></li>
@@ -4300,6 +4334,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_4">test_optional_args_4</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_5">test_optional_args_5</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_6" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_6">test_optional_args_6</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_on_class" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_on_class">test_pedantic_on_class</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict">test_sloppy_types_dict</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected">test_sloppy_types_dict_almost_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_corrected">test_sloppy_types_dict_corrected</a></code></li>

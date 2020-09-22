@@ -1,9 +1,10 @@
 language: python
-python:
+python: # https://docs.travis-ci.com/user/languages/python/#python-versions
   - "3.6"      # current default Python on Travis CI
   - "3.7"
   - "3.8"
   - "3.8-dev"  # 3.8 development branch
+  - "3.9-dev"
   - "nightly"  # nightly build
 
 branches:
@@ -15,14 +16,12 @@ branches:
 install:
   - pip install -r requirements.txt  # install dependencies
   - pip install wheel                # install wheel for building a wheel to deploy 
-  - pip install coveralls            # code coverage
-  - pip install coverage             # code coverage
+  - pip install coveralls
 
 # before_script:
 
 script:
-  - coverage run -m unittest pedantic/unit_tests/tests_main.py # run tests with coverage
-  #- python pedantic/unit_tests/tests_main.py  
+  - coverage run pedantic/unit_tests/tests_main.py # run tests with coverage
   - python setup.py bdist_wheel  # creating wheel needs to be done during install
   - coveralls
   - rm -r pedantic
