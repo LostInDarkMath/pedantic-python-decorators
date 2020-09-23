@@ -165,33 +165,19 @@ def _has_required_type_arguments(cls: Any) -> bool:
         True
     """
 
-    requirements_exact = {
-        'Callable': 2,
-        'List': 1,
-        'Set': 1,
-        'FrozenSet': 1,
-        'Iterable': 1,
-        'Sequence': 1,
-        'Dict': 2,
-        'Optional': 2,  # because typing.get_args(typing.Optional[int]) returns (int, None)
-    }
-    requirements_min = {
-        'Tuple': 1,
-        'Union': 2,
-    }
     base: str = _get_name(cls=cls)
     num_type_args = len(_get_type_arguments(cls=cls))
 
-    if base in requirements_exact:
-        return requirements_exact[base] == num_type_args
-    elif base in requirements_min:
-        return requirements_min[base] <= num_type_args
+    if base in NUM_OF_REQUIRED_TYPE_ARGS_EXACT:
+        return NUM_OF_REQUIRED_TYPE_ARGS_EXACT[base] == num_type_args
+    elif base in NUM_OF_REQUIRED_TYPE_ARGS_MIN:
+        return NUM_OF_REQUIRED_TYPE_ARGS_MIN[base] <= num_type_args
     return True
 
 
 def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
     """ Works similar to typing.args()
-        >>> from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar
+        >>> from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar, Optional
         >>> _get_type_arguments(int)
         ()
         >>> _get_type_arguments(List[float])
@@ -227,6 +213,8 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         ([<class 'int'>, <class 'float'>], typing.Tuple[float, str])
         >>> _get_type_arguments(Callable[..., str])
         (Ellipsis, <class 'str'>)
+        >>> _get_type_arguments(Optional[int])
+        (<class 'int'>, <class 'NoneType'>)
     """
 
     result = ()
@@ -601,6 +589,21 @@ _SPECIAL_INSTANCE_CHECKERS = {
     'Union': _instancecheck_union,
     'Callable': _instancecheck_callable,
     'Any': lambda v, t, tv: True,
+}
+
+NUM_OF_REQUIRED_TYPE_ARGS_EXACT = {
+    'Callable': 2,
+    'List': 1,
+    'Set': 1,
+    'FrozenSet': 1,
+    'Iterable': 1,
+    'Sequence': 1,
+    'Dict': 2,
+    'Optional': 2,  # because _get_type_arguments(Optional[int]) returns (int, None)
+}
+NUM_OF_REQUIRED_TYPE_ARGS_MIN = {
+    'Tuple': 1,
+    'Union': 2,
 }
 
 
