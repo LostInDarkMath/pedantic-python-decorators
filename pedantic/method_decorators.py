@@ -1,4 +1,5 @@
 import functools
+import importlib
 import inspect
 import sys
 from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List
@@ -564,6 +565,9 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     ...
     AssertionError:  Documented type "MyClas" was not found. Maybe you meant one of the following: ['MyClass', 'MyClub']
     """
+
+    assert 'typing.' not in type_, f'{err} Do not use "typing." in docstring. Please replace "{type_}" with ' \
+                                   f'"{type_.replace("typing.", "")}" in  the docstring'
 
     try:
         return eval(type_, globals(), context)
