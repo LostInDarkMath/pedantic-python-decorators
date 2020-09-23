@@ -25,7 +25,9 @@ def overrides(interface_class: Any) -> Callable[..., Any]:
     """
 
     def overrider(func: Callable[..., Any]) -> Callable[..., Any]:
-        assert _is_instance_method(func) or _uses_multiple_decorators(DecoratedFunction(func=func)), \
+        deco_func = DecoratedFunction(func=func)
+        uses_multiple_decorators = deco_func.num_of_decorators > 1
+        assert deco_func.is_instance_method or uses_multiple_decorators, \
             f'Function "{func.__name__}" is not an instance method!'
         assert (func.__name__ in dir(interface_class)), \
             f"Parent class {interface_class.__name__} does not have such a method '{func.__name__}'."
@@ -414,7 +416,7 @@ def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...],
     assert decorated_func.signature.return_annotation is not inspect.Signature.empty, \
         f'{err} There should be a type hint for the return type (e.g. None if there is nothing returned).'
 
-    arg_index = 1 if _is_instance_method(func=func) else 0
+    arg_index = 1 if decorated_func.is_instance_method else 0
 
     for key in params:
         param = params[key]
@@ -445,7 +447,7 @@ def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...],
             continue
 
         if param.default is inspect.Signature.empty:
-            if _is_func_that_require_kwargs(func=decorated_func):
+            if decorated_func.should_have_kwargs:
                 assert key in kwargs, f'{err} Parameter "{key}" is unfilled.'
                 actual_value = kwargs[key]
             else:
@@ -461,7 +463,7 @@ def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...],
 
         already_checked_kwargs.append(key)
 
-    result = func(*args, **kwargs) if not _is_static_method(func=decorated_func) else func(**kwargs)
+    result = func(*args, **kwargs) if not decorated_func.is_static_method else func(**kwargs)
     expected_result_type = decorated_func.annotations['return']
 
     assert _is_value_matching_type_hint(value=result, type_hint=expected_result_type,
@@ -646,7 +648,7 @@ def _assert_uses_kwargs(func: DecoratedFunction, args: Tuple[Any, ...], is_class
        >>> _assert_uses_kwargs(DecoratedFunction(A.__compare__), (a, 'hi',), False)
        >>> _assert_uses_kwargs(DecoratedFunction(A.__compare__), (a,), False)
     """
-    if _is_func_that_require_kwargs(func=func):
+    if func.should_have_kwargs:
         args_without_self = _get_args_without_self(func=func, args=args, is_class_decorator=is_class_decorator)
         assert args_without_self == (), \
             f'{func.err} Use kwargs when you call function {func.name}. ' \
@@ -675,165 +677,10 @@ def _get_args_without_self(func: DecoratedFunction, args: Tuple[Any, ...], is_cl
        ('hi',)
     """
     max_allowed = 0 if is_class_decorator else 1
-    if _is_instance_method(func.func) or _is_static_method(func) or _uses_multiple_decorators(func, max_allowed):
+    uses_multiple_decorators = func.num_of_decorators > max_allowed
+    if func.is_instance_method or func.is_static_method or uses_multiple_decorators:
         return args[1:]  # self is always the first argument if present
     return args
-
-
-def _is_func_that_require_kwargs(func: DecoratedFunction) -> bool:
-    """
-       >>> def f1(*args, **kwargs): pass
-       >>> _is_func_that_require_kwargs(DecoratedFunction(f1))
-       False
-       >>> def f2(a, b, *args, **kwargs): pass
-       >>> _is_func_that_require_kwargs(DecoratedFunction(f2))
-       False
-       >>> def f3(a, b, *args): pass
-       >>> _is_func_that_require_kwargs(DecoratedFunction(f3))
-       False
-       >>> def f4(*args): pass
-       >>> _is_func_that_require_kwargs(DecoratedFunction(f4))
-       False
-       >>> def f5(): pass
-       >>> _is_func_that_require_kwargs(DecoratedFunction(f5))
-       True
-       >>> def f6(a, b, c): pass
-       >>> _is_func_that_require_kwargs(DecoratedFunction(f6))
-       True
-       >>> class A:
-       ...    def f(self): pass
-       ...    @staticmethod
-       ...    def g(): pass
-       ...    def __compare__(self, other): pass
-       >>> _is_func_that_require_kwargs(DecoratedFunction(A.f))
-       True
-       >>> _is_func_that_require_kwargs(DecoratedFunction(A.g))
-       True
-       >>> _is_func_that_require_kwargs(DecoratedFunction(A.__compare__))
-       False
-    """
-
-    if _is_property_setter(func=func) or _is_function_that_wants_args(func=func):
-        return False
-
-    if not func.name.startswith('__') or not func.name.endswith('__'):
-        return True
-
-    return func.name in ['__new__', '__init__', '__str__', '__del__', '__int__', '__float__', '__complex__', '__oct__',
-                         '__hex__', '__index__', '__trunc__', '__repr__', '__unicode__', '__hash__', '__nonzero__',
-                         '__dir__', '__sizeof__']
-
-
-def _is_property_setter(func: DecoratedFunction) -> bool:
-    """
-       >>> def h(): pass
-       >>> _is_property_setter(DecoratedFunction(h))
-       False
-       >>> from pedantic import pedantic_class
-       >>> @pedantic_class
-       ... class A:
-       ...    _h = 42
-       ...    def f(self): pass
-       ...    @staticmethod
-       ...    def g(): pass
-       ...    @property
-       ...    def h(self): return self._h
-       ...    @h.setter
-       ...    def h(self, v): self._h = v
-       >>> _is_property_setter(DecoratedFunction(A.f))
-       False
-       >>> _is_property_setter(DecoratedFunction(A.g))
-       False
-    """
-    return f'@{func.name}.setter' in func.source
-
-
-def _is_function_that_wants_args(func: DecoratedFunction) -> bool:
-    """
-       >>> def f1(*args, **kwargs): pass
-       >>> _is_function_that_wants_args(DecoratedFunction(f1))
-       True
-       >>> def f2(a, b, *args, **kwargs): pass
-       >>> _is_function_that_wants_args(DecoratedFunction(f2))
-       True
-       >>> def f3(a, b, *args): pass
-       >>> _is_function_that_wants_args(DecoratedFunction(f3))
-       True
-       >>> def f4(*args): pass
-       >>> _is_function_that_wants_args(DecoratedFunction(f4))
-       True
-       >>> def h(): pass
-       >>> _is_function_that_wants_args(DecoratedFunction(h))
-       False
-       >>> class A:
-       ...    def f(self): pass
-       ...    @staticmethod
-       ...    def g(): pass
-       >>> _is_function_that_wants_args(DecoratedFunction(A.f))
-       False
-       >>> _is_function_that_wants_args(DecoratedFunction(A.g))
-       False
-    """
-    return '*args' in func.source
-
-
-def _is_instance_method(func: Callable[..., Any]) -> bool:
-    """
-       >>> def h(): pass
-       >>> _is_instance_method(h)
-       False
-       >>> class A:
-       ...    def f(self): pass
-       ...    @staticmethod
-       ...    def g(): pass
-       >>> _is_instance_method(A.f)
-       True
-       >>> _is_instance_method(A.g)
-       False
-    """
-    arg_spec = inspect.getfullargspec(func)
-    return arg_spec.args != [] and arg_spec.args[0] == 'self'
-
-
-def _is_static_method(func: DecoratedFunction) -> bool:
-    """
-        >>> def h(): pass
-        >>> _is_static_method(DecoratedFunction(h))
-        False
-        >>> class A:
-        ...    def f(self): pass
-        ...    @staticmethod
-        ...    def g(): pass
-        >>> _is_static_method(DecoratedFunction(A.f))
-        False
-        >>> _is_static_method(DecoratedFunction(A.g))
-        True
-    """
-    return '@staticmethod' in func.source
-
-
-def _uses_multiple_decorators(func: DecoratedFunction, max_allowed: int = 1) -> bool:
-    """
-        >>> @pedantic
-        ... @trace
-        ... def f() -> None: pass
-        >>> _uses_multiple_decorators(DecoratedFunction(f), 1)
-        True
-        >>> _uses_multiple_decorators(DecoratedFunction(f), 2)
-        False
-        >>> @pedantic
-        ... def g() -> None: pass
-        >>> _uses_multiple_decorators(DecoratedFunction(g), 1)
-        False
-        >>> _uses_multiple_decorators(DecoratedFunction(g), 0)
-        True
-        >>> def h() -> None: pass
-        >>> _uses_multiple_decorators(DecoratedFunction(h), 1)
-        False
-        >>> _uses_multiple_decorators(DecoratedFunction(h), 0)
-        False
-    """
-    return len(re.findall('@', func.source.split('def')[0])) > max_allowed
 
 
 def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, type_vars: Dict[type, Any]) -> bool:
@@ -940,5 +787,4 @@ def _raise_warning(msg: str, category: Type[Warning]) -> None:
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
