@@ -15,6 +15,7 @@ class DecoratedFunction:
         self._docstring = get_parsed_docstring(func=func)
         self._signature = inspect.signature(func)
         self._err: str = get_qualified_name_for_err_msg(func=func)
+        self._source: str = inspect.getsource(object=func)
 
     @property
     def func(self) -> Callable[..., Any]:
@@ -35,3 +36,11 @@ class DecoratedFunction:
     @property
     def err(self) -> str:
         return self._err
+
+    @property
+    def source(self) -> str:
+        return self._source
+
+    @property
+    def name(self) -> str:
+        return self._func.__name__
