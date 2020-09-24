@@ -346,7 +346,6 @@ def require_not_empty_strings(func: Callable[..., Any], is_class_decorator: bool
 
 
 def pedantic(func: Optional[Callable[..., Any]] = None,
-             type_vars: Optional[Dict[Any, Any]] = None,
              is_class_decorator: bool = False,
              require_docstring: bool = False,
              ) -> Callable[..., Any]:
@@ -382,9 +381,6 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
         Use kwargs when you call function some_calculation. Args: (5, 4.0, 'hi')
    """
 
-    if type_vars is None:
-        type_vars = {}
-
     def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
         decorated_func = DecoratedFunction(func=f)
 
@@ -393,6 +389,11 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
 
         @functools.wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
+            if decorated_func.is_instance_method and hasattr(args[0], 'get_type_vars'):
+                type_vars = args[0].get_type_vars()
+            else:
+                type_vars = dict()
+
             _assert_uses_kwargs(func=decorated_func, args=args, is_class_decorator=is_class_decorator)
             return _check_types(decorated_func=decorated_func, args=args, kwargs=kwargs, type_vars=type_vars)
         return wrapper
