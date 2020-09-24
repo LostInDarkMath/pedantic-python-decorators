@@ -6,7 +6,7 @@ import collections
 import sys
 
 
-def _is_instance(obj: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
+def _is_instance(obj: Any, type_: Any, type_vars: Dict[Any, Any]) -> bool:
     assert _has_required_type_arguments(type_), \
         f'The type annotation "{type_}" misses some type arguments e.g. ' \
         f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
@@ -488,7 +488,7 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[type, Any])
 
 def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
     """
-        >>> from typing import Union, TypeVar
+        >>> from typing import Union, TypeVar, Any
         >>> NoneType = type(None)
         >>> _instancecheck_union(3.0, Union[int, float], {})
         True
@@ -530,6 +530,10 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> 
         >>> _instancecheck_union(None, Union[T, NoneType], {T: 42})
         True
         >>> _instancecheck_union('None', Union[T, NoneType, S], {T: 42})
+        True
+        >>> _instancecheck_union(42, Union[T, Any], {})
+        True
+        >>> _instancecheck_union(42, Union[T, Any], {T: 75.7})
         True
     """
 
