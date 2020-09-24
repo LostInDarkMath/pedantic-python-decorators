@@ -39,7 +39,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
             assert type(obj) == type(other), \
                 f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} and value ' \
                 f'{other} has type {type(other)}'
-        else:
+        elif obj is not None:
             type_vars[type_] = obj
         return True
 
@@ -501,8 +501,20 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> 
         >>> _instancecheck_union(None, Union[float, NoneType], {})
         True
     """
-    subtypes = _get_type_arguments(cls=type_)
-    return any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in subtypes)
+    # TODO more tests: Union[S, T, U] testing
+    type_args = _get_type_arguments(cls=type_)
+    args_type_vars = [a for a in type_args if isinstance(a, typing.TypeVar)]
+    args_non_type_vars = [a for a in type_args if not isinstance(a, typing.TypeVar)]
+    result = any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars)
+    if result:
+        return True
+
+    matching_type_vars = [isinstance(value, a) for a in args_type_vars]
+    if not matching_type_vars:
+        return False
+    if len(matching_type_vars) == 1:
+        return _is_instance(obj=value, type_=matching_type_vars[0], type_vars=type_vars)
+    return True
 
 
 def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:

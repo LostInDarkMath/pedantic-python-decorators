@@ -1,11 +1,9 @@
 import functools
-import importlib
 import inspect
 import sys
 from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List
 from datetime import datetime
 import warnings
-import re
 
 from pedantic.basic_helpers import get_qualified_name_for_err_msg
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
