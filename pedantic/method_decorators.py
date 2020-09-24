@@ -5,7 +5,7 @@ from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List
 from datetime import datetime
 import warnings
 
-from pedantic.basic_helpers import get_qualified_name_for_err_msg
+from pedantic.basic_helpers import get_qualified_name_for_err_msg, TYPE_VAR_METHOD_NAME
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 from pedantic.models.decorated_function import DecoratedFunction
 from pedantic.type_hint_parser import _is_instance, _get_type_arguments
@@ -389,8 +389,8 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
 
         @functools.wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            if decorated_func.is_instance_method and hasattr(args[0], 'get_type_vars'):
-                type_vars = args[0].get_type_vars()
+            if decorated_func.is_instance_method and hasattr(args[0], TYPE_VAR_METHOD_NAME):
+                type_vars = getattr(args[0], TYPE_VAR_METHOD_NAME)()
             else:
                 type_vars = dict()
 

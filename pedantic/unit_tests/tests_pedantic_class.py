@@ -4,6 +4,7 @@ from typing import Any, TypeVar, Generic, Optional, List
 
 from pedantic import overrides, pedantic
 from pedantic.class_decorators import pedantic_class
+from pedantic.basic_helpers import TYPE_VAR_METHOD_NAME
 
 
 class TestPedanticClass(unittest.TestCase):
@@ -409,17 +410,18 @@ class TestPedanticClass(unittest.TestCase):
                     return None
 
         my_stack = Stack()
-        self.assertEqual(my_stack.get_type_vars(), {})
+        get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
+        self.assertEqual(get_type_vars(), {})
         with self.assertRaises(expected_exception=IndexError):
             my_stack.pop()
         self.assertIsNone(my_stack.top())
         self.assertIsNone(my_stack.top())
-        self.assertFalse(T in my_stack.get_type_vars())
+        self.assertFalse(T in get_type_vars())
         my_stack.push(item='hi')
-        self.assertTrue(T in my_stack.get_type_vars())
+        self.assertTrue(T in get_type_vars())
         my_stack.push(item='world')
-        self.assertTrue(T in my_stack.get_type_vars())
-        self.assertTrue(len(my_stack.get_type_vars()), 1)
+        self.assertTrue(T in get_type_vars())
+        self.assertTrue(len(get_type_vars()), 1)
         self.assertEqual(my_stack.pop(), 'world')
         self.assertEqual(my_stack.pop(), 'hi')
         self.assertIsNone(my_stack.top())
@@ -427,15 +429,16 @@ class TestPedanticClass(unittest.TestCase):
             my_stack.push(42)
 
         my_other_stack = Stack()
-        self.assertEqual(my_other_stack.get_type_vars(), {})
+        get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
+        self.assertEqual(get_type_vars(), {})
         with self.assertRaises(expected_exception=IndexError):
             my_other_stack.pop()
         self.assertIsNone(my_other_stack.top())
         self.assertIsNone(my_other_stack.top())
         my_other_stack.push(item=100)
-        self.assertTrue(len(my_other_stack.get_type_vars()), 1)
+        self.assertTrue(len(get_type_vars()), 1)
         my_other_stack.push(item=142)
-        self.assertTrue(len(my_other_stack.get_type_vars()), 1)
+        self.assertTrue(len(get_type_vars()), 1)
         self.assertEqual(my_other_stack.pop(), 142)
         self.assertEqual(my_other_stack.pop(), 100)
         self.assertIsNone(my_other_stack.top())

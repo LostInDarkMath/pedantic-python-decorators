@@ -1,6 +1,7 @@
 from typing import Callable, Any, Optional, Dict
 import types
 
+from pedantic.basic_helpers import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
@@ -29,7 +30,7 @@ def for_all_methods(decorator: Callable[..., Any]) -> Callable[..., Any]:
                 new_prop = property(fget=wrapped_getter, fset=wrapped_setter, fdel=wrapped_deleter)
                 setattr(cls, attr, new_prop)
 
-        _add_method_to_class(cls=cls, name='get_type_vars')
+        _add_method_to_class(cls=cls)
         return cls
     return decorate
 
@@ -58,11 +59,9 @@ def _get_wrapped(prop: Optional[Callable[..., Any]], decorator: Callable[..., An
     return decorator(prop) if prop is not None else None
 
 
-def _add_method_to_class(cls: Any, name: str) -> None:
-    attr_name_type_vars = '__pedantic_type_vars__'
-
+def _add_method_to_class(cls: Any) -> None:
     def type_vars(self) -> Dict:
-        if not hasattr(self, attr_name_type_vars):
-            setattr(self, attr_name_type_vars, dict())
-        return getattr(self, attr_name_type_vars)
-    setattr(cls, name, type_vars)
+        if not hasattr(self, TYPE_VAR_ATTR_NAME):
+            setattr(self, TYPE_VAR_ATTR_NAME, dict())
+        return getattr(self, TYPE_VAR_ATTR_NAME)
+    setattr(cls, TYPE_VAR_METHOD_NAME, type_vars)
