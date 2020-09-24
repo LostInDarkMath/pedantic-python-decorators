@@ -5,6 +5,7 @@ from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List
 from datetime import datetime
 import warnings
 
+from pedantic.set_envionment_variables import is_enabled
 from pedantic.basic_helpers import get_qualified_name_for_err_msg, TYPE_VAR_METHOD_NAME
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 from pedantic.models.decorated_function import DecoratedFunction
@@ -382,6 +383,9 @@ def pedantic(func: Optional[Callable[..., Any]] = None,
    """
 
     def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
+        if not is_enabled():
+            return f
+
         decorated_func = DecoratedFunction(func=f)
 
         if require_docstring or len(decorated_func.docstring.params) > 0:

@@ -43,21 +43,6 @@ m = MyClass(x=3.14, y=2)
 m.print_sum()
 ```
 
-## Dependencies
-Outside the Python standard library, the following dependencies are used:
-- [Docstring-Parser](https://github.com/rr-/docstring_parser) 
-
-## Risks and Side Effects
-The usage of decorators may affect the performance of your application. For this reason, I would highly recommend you to disable the decorators during deployment automatically after all tests are passed.
-
-## Contributing
-Feel free to contribute by submitting a pull request :)
-
-## Acknowledgments
-* [Rathaustreppe](https://github.com/rathaustreppe)
-* [Aran-Fey](https://stackoverflow.com/questions/55503673/how-do-i-check-if-a-value-matches-a-type-in-python/55504010#55504010)
-* [user395760](https://stackoverflow.com/questions/55503673/how-do-i-check-if-a-value-matches-a-type-in-python/55504010#55504010)
-
 ## List of all decorators in this package
 - [@count_calls](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.count_calls)
 - [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.deprecated)
@@ -97,3 +82,28 @@ In a nutshell:
 - A type annotation is incorrect.
 - A type annotation misses type arguments, e.g. `typing.List` instead of `typing.List[int]`.
 - The documented arguments do not match the argument list or their type annotations.
+
+## Dependencies
+Outside the Python standard library, the following dependencies are used:
+- [Docstring-Parser](https://github.com/rr-/docstring_parser) 
+
+## Contributing
+Feel free to contribute by submitting a pull request :)
+
+## Acknowledgments
+* [Rathaustreppe](https://github.com/rathaustreppe)
+* [Aran-Fey](https://stackoverflow.com/questions/55503673/how-do-i-check-if-a-value-matches-a-type-in-python/55504010#55504010)
+* [user395760](https://stackoverflow.com/questions/55503673/how-do-i-check-if-a-value-matches-a-type-in-python/55504010#55504010)
+
+## Risks and side effects
+The usage of decorators may affect the performance of your application. 
+For this reason, I would highly recommend you to disable the decorators if your code runs in a productive environment.
+You can disable `pedantic` by set an environment variable:
+```
+export ENABLE_PEDANTIC=0
+```
+You can also disable or enable the environment variables in your Python project:
+```PYthon
+>>> from pedantic import enable_pedantic, disable_pedantic
+>>> enable_pedantic()
+```
