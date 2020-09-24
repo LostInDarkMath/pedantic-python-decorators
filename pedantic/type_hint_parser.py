@@ -488,7 +488,7 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[type, Any])
 
 def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
     """
-        >>> from typing import Union
+        >>> from typing import Union, TypeVar
         >>> NoneType = type(None)
         >>> _instancecheck_union(3.0, Union[int, float], {})
         True
@@ -500,21 +500,60 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> 
         True
         >>> _instancecheck_union(None, Union[float, NoneType], {})
         True
+        >>> S = TypeVar('S')
+        >>> T = TypeVar('T')
+        >>> U = TypeVar('U')
+        >>> _instancecheck_union(42, Union[T, NoneType], {})
+        True
+        >>> _instancecheck_union(None, Union[T, NoneType], {})
+        True
+        >>> _instancecheck_union(None, Union[T, NoneType], {T: 42})
+        True
+        >>> _instancecheck_union('None', Union[T, NoneType], {T: 42})
+        False
+        >>> _instancecheck_union(42, Union[T, S], {})
+        True
+        >>> _instancecheck_union(42, Union[T, S], {T: 42})
+        True
+        >>> _instancecheck_union(42, Union[T, S], {T: '42'})
+        True
+        >>> _instancecheck_union(42, Union[T, S], {T: 42, S: 45.0})
+        True
+        >>> _instancecheck_union(42, Union[T, S], {T: '42', S: 45.0})
+        False
+        >>> _instancecheck_union(42.8, Union[T, S], {T: '42', S: 45.0})
+        True
+        >>> _instancecheck_union(None, Union[T, S], {T: '42', S: 45.0})
+        False
+        >>> _instancecheck_union(None, Union[T, S], {})
+        True
+        >>> _instancecheck_union(None, Union[T, NoneType], {T: 42})
+        True
+        >>> _instancecheck_union('None', Union[T, NoneType, S], {T: 42})
+        True
     """
-    # TODO more tests: Union[S, T, U] testing
+
     type_args = _get_type_arguments(cls=type_)
-    args_type_vars = [a for a in type_args if isinstance(a, typing.TypeVar)]
-    args_non_type_vars = [a for a in type_args if not isinstance(a, typing.TypeVar)]
-    result = any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars)
-    if result:
+    args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, typing.TypeVar)]
+    args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, typing.TypeVar)]
+    args_type_vars_bounded = [type_var for type_var in args_type_vars if type_var in type_vars]
+    args_type_vars_unbounded = [type_var for type_var in args_type_vars if type_var not in args_type_vars_bounded]
+    matches_non_type_var = any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars)
+    if matches_non_type_var:
         return True
 
-    matching_type_vars = [isinstance(value, a) for a in args_type_vars]
-    if not matching_type_vars:
+    for bounded_type_var in args_type_vars_bounded:
+        try:
+            _is_instance(obj=value, type_=bounded_type_var, type_vars=type_vars)
+            return True
+        except AssertionError:
+            pass
+
+    if not args_type_vars_unbounded:
         return False
-    if len(matching_type_vars) == 1:
-        return _is_instance(obj=value, type_=matching_type_vars[0], type_vars=type_vars)
-    return True
+    if len(args_type_vars_unbounded) == 1:
+        return _is_instance(obj=value, type_=args_type_vars_unbounded[0], type_vars=type_vars)
+    return True  # it is impossible to figure out, how to bound these type variables correctly
 
 
 def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
@@ -621,4 +660,4 @@ NUM_OF_REQUIRED_TYPE_ARGS_MIN = {
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
+    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

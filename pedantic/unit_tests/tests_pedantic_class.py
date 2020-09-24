@@ -426,7 +426,7 @@ class TestPedanticClass(unittest.TestCase):
         self.assertEqual(my_stack.pop(), 'hi')
         self.assertIsNone(my_stack.top())
         with self.assertRaises(expected_exception=AssertionError):
-            my_stack.push(42)
+            my_stack.push(item=42)
 
         my_other_stack = Stack()
         get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
