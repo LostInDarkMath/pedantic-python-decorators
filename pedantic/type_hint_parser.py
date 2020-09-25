@@ -637,8 +637,11 @@ for class_path, _check_func in {
 
     'typing.Tuple': _instancecheck_tuple,
 }.items():
-    class_ = eval(class_path)
-    _ORIGIN_TYPE_CHECKERS[class_] = _check_func
+    try:
+        class_ = eval(class_path)
+        _ORIGIN_TYPE_CHECKERS[class_] = _check_func
+    except AttributeError:
+        pass
 
 _SPECIAL_INSTANCE_CHECKERS = {
     'Union': _instancecheck_union,
