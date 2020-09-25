@@ -43,6 +43,23 @@ m = MyClass(x=3.14, y=2)
 m.print_sum()
 ```
 
+## The [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic) decorator
+The `@pedantic` decorator does the following things:
+- The decorated function can only be called by using keyword arguments. Positional arguments are not accepted.
+- The decorated function must have [Type annotations](https://docs.python.org/3/library/typing.html).
+- Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
+As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
+- If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
+Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported.
+
+In a nutshell:
+`@pedantic` raises an `AssertionError` if one of the following happened:
+- The decorated function is called with positional arguments.
+- The function has no type annotation for their return type or one or more parameters do not have type annotations.
+- A type annotation is incorrect.
+- A type annotation misses type arguments, e.g. `typing.List` instead of `typing.List[int]`.
+- The documented arguments do not match the argument list or their type annotations.
+
 ## List of all decorators in this package
 - [@count_calls](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.count_calls)
 - [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.deprecated)
@@ -66,23 +83,6 @@ m.print_sum()
 - [@unimplemented](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.unimplemented)
 - [@validate_args](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.validate_args)
 
-## The [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic) decorator
-The `@pedantic` decorator does the following things:
-- The decorated function can only be called by using keyword arguments. Positional arguments are not accepted.
-- The decorated function must have [Type annotations](https://docs.python.org/3/library/typing.html).
-- Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
-As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
-- If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
-Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported.
-
-In a nutshell:
-`@pedantic` raises an `AssertionError` if one of the following happened:
-- The decorated function is called with positional arguments.
-- The function has no type annotation for their return type or one or more parameters do not have type annotations.
-- A type annotation is incorrect.
-- A type annotation misses type arguments, e.g. `typing.List` instead of `typing.List[int]`.
-- The documented arguments do not match the argument list or their type annotations.
-
 ## Dependencies
 Outside the Python standard library, the following dependencies are used:
 - [Docstring-Parser](https://github.com/rr-/docstring_parser) 
@@ -102,8 +102,8 @@ You can disable `pedantic` by set an environment variable:
 ```
 export ENABLE_PEDANTIC=0
 ```
-You can also disable or enable the environment variables in your Python project:
-```PYthon
->>> from pedantic import enable_pedantic, disable_pedantic
->>> enable_pedantic()
+You can also disable or enable the environment variables in your Python project by calling a method:
+```python
+from pedantic import enable_pedantic, disable_pedantic
+enable_pedantic()
 ```
