@@ -6,7 +6,7 @@ import collections
 import sys
 
 
-def _is_instance(obj: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
+def _is_instance(obj: Any, type_: Any, type_vars: Dict[Any, Any]) -> bool:
     assert _has_required_type_arguments(type_), \
         f'The type annotation "{type_}" misses some type arguments e.g. ' \
         f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
@@ -39,7 +39,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
             assert type(obj) == type(other), \
                 f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} and value ' \
                 f'{other} has type {type(other)}'
-        else:
+        elif obj is not None:
             type_vars[type_] = obj
         return True
 
@@ -165,33 +165,19 @@ def _has_required_type_arguments(cls: Any) -> bool:
         True
     """
 
-    requirements_exact = {
-        'Callable': 2,
-        'List': 1,
-        'Set': 1,
-        'FrozenSet': 1,
-        'Iterable': 1,
-        'Sequence': 1,
-        'Dict': 2,
-        'Optional': 2,  # because typing.get_args(typing.Optional[int]) returns (int, None)
-    }
-    requirements_min = {
-        'Tuple': 1,
-        'Union': 2,
-    }
     base: str = _get_name(cls=cls)
     num_type_args = len(_get_type_arguments(cls=cls))
 
-    if base in requirements_exact:
-        return requirements_exact[base] == num_type_args
-    elif base in requirements_min:
-        return requirements_min[base] <= num_type_args
+    if base in NUM_OF_REQUIRED_TYPE_ARGS_EXACT:
+        return NUM_OF_REQUIRED_TYPE_ARGS_EXACT[base] == num_type_args
+    elif base in NUM_OF_REQUIRED_TYPE_ARGS_MIN:
+        return NUM_OF_REQUIRED_TYPE_ARGS_MIN[base] <= num_type_args
     return True
 
 
 def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
     """ Works similar to typing.args()
-        >>> from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar
+        >>> from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar, Optional
         >>> _get_type_arguments(int)
         ()
         >>> _get_type_arguments(List[float])
@@ -227,6 +213,8 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         ([<class 'int'>, <class 'float'>], typing.Tuple[float, str])
         >>> _get_type_arguments(Callable[..., str])
         (Ellipsis, <class 'str'>)
+        >>> _get_type_arguments(Optional[int])
+        (<class 'int'>, <class 'NoneType'>)
     """
 
     result = ()
@@ -500,7 +488,7 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[type, Any])
 
 def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
     """
-        >>> from typing import Union
+        >>> from typing import Union, TypeVar, Any
         >>> NoneType = type(None)
         >>> _instancecheck_union(3.0, Union[int, float], {})
         True
@@ -512,9 +500,64 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> 
         True
         >>> _instancecheck_union(None, Union[float, NoneType], {})
         True
+        >>> S = TypeVar('S')
+        >>> T = TypeVar('T')
+        >>> U = TypeVar('U')
+        >>> _instancecheck_union(42, Union[T, NoneType], {})
+        True
+        >>> _instancecheck_union(None, Union[T, NoneType], {})
+        True
+        >>> _instancecheck_union(None, Union[T, NoneType], {T: 42})
+        True
+        >>> _instancecheck_union('None', Union[T, NoneType], {T: 42})
+        False
+        >>> _instancecheck_union(42, Union[T, S], {})
+        True
+        >>> _instancecheck_union(42, Union[T, S], {T: 42})
+        True
+        >>> _instancecheck_union(42, Union[T, S], {T: '42'})
+        True
+        >>> _instancecheck_union(42, Union[T, S], {T: 42, S: 45.0})
+        True
+        >>> _instancecheck_union(42, Union[T, S], {T: '42', S: 45.0})
+        False
+        >>> _instancecheck_union(42.8, Union[T, S], {T: '42', S: 45.0})
+        True
+        >>> _instancecheck_union(None, Union[T, S], {T: '42', S: 45.0})
+        False
+        >>> _instancecheck_union(None, Union[T, S], {})
+        True
+        >>> _instancecheck_union(None, Union[T, NoneType], {T: 42})
+        True
+        >>> _instancecheck_union('None', Union[T, NoneType, S], {T: 42})
+        True
+        >>> _instancecheck_union(42, Union[T, Any], {})
+        True
+        >>> _instancecheck_union(42, Union[T, Any], {T: 75.7})
+        True
     """
-    subtypes = _get_type_arguments(cls=type_)
-    return any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in subtypes)
+
+    type_args = _get_type_arguments(cls=type_)
+    args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, typing.TypeVar)]
+    args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, typing.TypeVar)]
+    args_type_vars_bounded = [type_var for type_var in args_type_vars if type_var in type_vars]
+    args_type_vars_unbounded = [type_var for type_var in args_type_vars if type_var not in args_type_vars_bounded]
+    matches_non_type_var = any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars)
+    if matches_non_type_var:
+        return True
+
+    for bounded_type_var in args_type_vars_bounded:
+        try:
+            _is_instance(obj=value, type_=bounded_type_var, type_vars=type_vars)
+            return True
+        except AssertionError:
+            pass
+
+    if not args_type_vars_unbounded:
+        return False
+    if len(args_type_vars_unbounded) == 1:
+        return _is_instance(obj=value, type_=args_type_vars_unbounded[0], type_vars=type_vars)
+    return True  # it is impossible to figure out, how to bound these type variables correctly
 
 
 def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
@@ -603,7 +646,22 @@ _SPECIAL_INSTANCE_CHECKERS = {
     'Any': lambda v, t, tv: True,
 }
 
+NUM_OF_REQUIRED_TYPE_ARGS_EXACT = {
+    'Callable': 2,
+    'List': 1,
+    'Set': 1,
+    'FrozenSet': 1,
+    'Iterable': 1,
+    'Sequence': 1,
+    'Dict': 2,
+    'Optional': 2,  # because _get_type_arguments(Optional[int]) returns (int, None)
+}
+NUM_OF_REQUIRED_TYPE_ARGS_MIN = {
+    'Tuple': 1,
+    'Union': 2,
+}
+
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
+    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

@@ -11,4 +11,6 @@ from pedantic.custom_exceptions import NotImplementedException, TooDirtyExceptio
 
 from pedantic.unit_tests.tests_main import run_all_tests
 
+from pedantic.set_envionment_variables import disable_pedantic, enable_pedantic, is_enabled
+
 assert sys.version_info >= (3, 6), f'Pedantic does not work with Python versions below 3.6.'

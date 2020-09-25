@@ -405,10 +405,10 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
     def test_user_class(self):
         class BPMNEnum:
-            self.attr = 'BPMNEnum'
+            attr = 'BPMNEnum'
 
         class BPMNElement:
-            self.attr = 'BPMNElement'
+            attr = 'BPMNElement'
 
         @pedantic_class_require_docstring
         class MyClass:
@@ -431,6 +431,32 @@ class TestRequireDocstringGoogleFormat(TestCase):
         m.make_element(element_type=BPMNEnum(), src_tgt_elements=[BPMNElement()])
         with self.assertRaises(expected_exception=AssertionError):
             m.make_element(element_type=BPMNElement(), src_tgt_elements=[BPMNEnum()])
+
+    def test_user_class_with_typing(self):
+        class BPMNEnum:
+            attr = 'BPMNEnum'
+
+        class BPMNElement:
+            attr = 'BPMNElement'
+
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic_class_require_docstring
+            class MyClass:
+
+                def make_element(self, element_type: BPMNEnum,
+                                 src_tgt_elements: Optional[List[BPMNElement]] = None) -> List[BPMNElement]:
+                    """
+                    Searches all element_types in XML-DOM and returns corresponding
+                    BPMN-Objects.
+                    Args:
+                        element_type(BPMNEnum): abc
+                        src_tgt_elements (typing.Optional[List[BPMNElement]]): abc
+
+                    Returns:
+                        List[BPMNElement]: abc
+                    """
+                    element_type.attr = '42'
+                    return src_tgt_elements
 
     def test_factory(self):
         @pedantic_require_docstring
@@ -457,4 +483,4 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
 if __name__ == '__main__':
     t = TestRequireDocstringGoogleFormat()
-    t.test_google_docstring_2()
+    t.test_user_class_with_typing()
