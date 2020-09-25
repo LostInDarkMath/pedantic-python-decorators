@@ -1,10 +1,10 @@
 language: python
 python: # https://docs.travis-ci.com/user/languages/python/#python-versions
-  #- "3.6.0"
+  - "3.6.0"
   - "3.6"      # is 3.6.7 actually
   - "3.7"
   - "3.8"
-  - "3.8-dev"  # 3.8 development branch
+  - "3.8-dev"
   - "3.9-dev"
   - "nightly"  # nightly build
 
@@ -12,27 +12,19 @@ branches:
   only:
     - master
 
-notifications:
-  webhooks: https://coveralls.io/webhook?repo_token=COVERALLS_REPO_TOKEN
-  email:
-    recipients:
-    - willi_sontopski@arcor.de
-    on_success: always
-    on_failure: always
-
 # before_install:
 
 install:
-  - pip install -r requirements.txt  # install dependencies
-  - pip install wheel                # install wheel for building a wheel to deploy 
+  - pip install -r requirements.txt
+  - pip install wheel
   - pip install coveralls
 
 # before_script:
 
 script:
-  - coverage run pedantic/unit_tests/tests_main.py # run tests with coverage
-  - python setup.py bdist_wheel  # creating wheel needs to be done during install
-  - coveralls
+  - coverage run pedantic/unit_tests/tests_main.py
+  - python setup.py bdist_wheel  # needs to be done during "script"
+  - coveralls # push coverage before removing it
   - rm -r pedantic
   - pip install dist/*.whl
   - python test_deployment.py
@@ -67,7 +59,6 @@ deploy:
       branch: master
       # tags: false
 
-    # deploy to pypi
   - provider: pypi
     # server: https://test.pypi.org/legacy/  # Deployment to test instance of pypi. Remove before deployment to official PyPi repo.
     username: "__token__"
