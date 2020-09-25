@@ -2,7 +2,7 @@
 These decorators will make you write cleaner and well-documented Python code. 
 
 ## Getting Started
-This package requires Python 3.6 or newer. 
+This package requires Python 3.6.1 or later. 
 There are multiple options for installing this package.
 
 ### Option 1: Installing with pip from [Pypi](https://pypi.org/)
