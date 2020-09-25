@@ -1,6 +1,6 @@
 language: python
 python: # https://docs.travis-ci.com/user/languages/python/#python-versions
-  - "3.6.0"
+  #- "3.6.0"
   - "3.6"      # is 3.6.7 actually
   - "3.7"
   - "3.8"
@@ -72,3 +72,11 @@ deploy:
       branch: master
 
 # after_deploy:
+
+notifications:
+  webhooks: https://coveralls.io/webhook?repo_token=COVERALLS_REPO_TOKEN
+  email:
+    recipients:
+    - willi_sontopski@arcor.de
+    on_success: always
+    on_failure: always
