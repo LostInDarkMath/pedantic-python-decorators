@@ -28,10 +28,11 @@
 </summary>
 <pre><code class="python">import unittest
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar, Generic
+from typing import Any, TypeVar, Generic, Optional, List
 
 from pedantic import overrides, pedantic
 from pedantic.class_decorators import pedantic_class
+from pedantic.basic_helpers import TYPE_VAR_METHOD_NAME
 
 
 class TestPedanticClass(unittest.TestCase):
@@ -413,6 +414,65 @@ class TestPedanticClass(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             o.set(new=3.14)
 
+    def test_stack(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic_class
+        class Stack(Generic[T]):
+            def __init__(self) -&gt; None:
+                self.items: List[T] = []
+
+            def push(self, item: T) -&gt; None:
+                self.items.append(item)
+
+            def pop(self) -&gt; T:
+                return self.items.pop()
+
+            def empty(self) -&gt; bool:
+                return not self.items
+
+            def top(self) -&gt; Optional[T]:
+                if len(self.items) &gt; 0:
+                    return self.items[len(self.items) - 1]
+                else:
+                    return None
+
+        my_stack = Stack()
+        get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
+        self.assertEqual(get_type_vars(), {})
+        with self.assertRaises(expected_exception=IndexError):
+            my_stack.pop()
+        self.assertIsNone(my_stack.top())
+        self.assertIsNone(my_stack.top())
+        self.assertFalse(T in get_type_vars())
+        my_stack.push(item=&#39;hi&#39;)
+        self.assertTrue(T in get_type_vars())
+        my_stack.push(item=&#39;world&#39;)
+        self.assertTrue(T in get_type_vars())
+        self.assertTrue(len(get_type_vars()), 1)
+        self.assertEqual(my_stack.pop(), &#39;world&#39;)
+        self.assertEqual(my_stack.pop(), &#39;hi&#39;)
+        self.assertIsNone(my_stack.top())
+        with self.assertRaises(expected_exception=AssertionError):
+            my_stack.push(item=42)
+
+        my_other_stack = Stack()
+        get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
+        self.assertEqual(get_type_vars(), {})
+        with self.assertRaises(expected_exception=IndexError):
+            my_other_stack.pop()
+        self.assertIsNone(my_other_stack.top())
+        self.assertIsNone(my_other_stack.top())
+        my_other_stack.push(item=100)
+        self.assertTrue(len(get_type_vars()), 1)
+        my_other_stack.push(item=142)
+        self.assertTrue(len(get_type_vars()), 1)
+        self.assertEqual(my_other_stack.pop(), 142)
+        self.assertEqual(my_other_stack.pop(), 100)
+        self.assertIsNone(my_other_stack.top())
+        with self.assertRaises(expected_exception=AssertionError):
+            my_other_stack.push(item=&#39;42&#39;)
+
     def test_double_pedantic(self):
         @pedantic_class
         class MyClass:
@@ -437,7 +497,7 @@ class TestPedanticClass(unittest.TestCase):
 
 if __name__ == &#39;__main__&#39;:
     t = TestPedanticClass()
-    t.test_typo_in_type_annotation_string()</code></pre>
+    t.test_stack()</code></pre>
 </details>
 </section>
 <section>
@@ -864,6 +924,65 @@ not have a method with the specified name.</p></div>
 
         with self.assertRaises(expected_exception=AssertionError):
             o.set(new=3.14)
+
+    def test_stack(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic_class
+        class Stack(Generic[T]):
+            def __init__(self) -&gt; None:
+                self.items: List[T] = []
+
+            def push(self, item: T) -&gt; None:
+                self.items.append(item)
+
+            def pop(self) -&gt; T:
+                return self.items.pop()
+
+            def empty(self) -&gt; bool:
+                return not self.items
+
+            def top(self) -&gt; Optional[T]:
+                if len(self.items) &gt; 0:
+                    return self.items[len(self.items) - 1]
+                else:
+                    return None
+
+        my_stack = Stack()
+        get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
+        self.assertEqual(get_type_vars(), {})
+        with self.assertRaises(expected_exception=IndexError):
+            my_stack.pop()
+        self.assertIsNone(my_stack.top())
+        self.assertIsNone(my_stack.top())
+        self.assertFalse(T in get_type_vars())
+        my_stack.push(item=&#39;hi&#39;)
+        self.assertTrue(T in get_type_vars())
+        my_stack.push(item=&#39;world&#39;)
+        self.assertTrue(T in get_type_vars())
+        self.assertTrue(len(get_type_vars()), 1)
+        self.assertEqual(my_stack.pop(), &#39;world&#39;)
+        self.assertEqual(my_stack.pop(), &#39;hi&#39;)
+        self.assertIsNone(my_stack.top())
+        with self.assertRaises(expected_exception=AssertionError):
+            my_stack.push(item=42)
+
+        my_other_stack = Stack()
+        get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
+        self.assertEqual(get_type_vars(), {})
+        with self.assertRaises(expected_exception=IndexError):
+            my_other_stack.pop()
+        self.assertIsNone(my_other_stack.top())
+        self.assertIsNone(my_other_stack.top())
+        my_other_stack.push(item=100)
+        self.assertTrue(len(get_type_vars()), 1)
+        my_other_stack.push(item=142)
+        self.assertTrue(len(get_type_vars()), 1)
+        self.assertEqual(my_other_stack.pop(), 142)
+        self.assertEqual(my_other_stack.pop(), 100)
+        self.assertIsNone(my_other_stack.top())
+        with self.assertRaises(expected_exception=AssertionError):
+            my_other_stack.push(item=&#39;42&#39;)
 
     def test_double_pedantic(self):
         @pedantic_class
@@ -1417,6 +1536,75 @@ not have a method with the specified name.</p></div>
         m.calc(value=42)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_stack"><code class="name flex">
+<span>def <span class="ident">test_stack</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_stack(self):
+    T = TypeVar(&#39;T&#39;)
+
+    @pedantic_class
+    class Stack(Generic[T]):
+        def __init__(self) -&gt; None:
+            self.items: List[T] = []
+
+        def push(self, item: T) -&gt; None:
+            self.items.append(item)
+
+        def pop(self) -&gt; T:
+            return self.items.pop()
+
+        def empty(self) -&gt; bool:
+            return not self.items
+
+        def top(self) -&gt; Optional[T]:
+            if len(self.items) &gt; 0:
+                return self.items[len(self.items) - 1]
+            else:
+                return None
+
+    my_stack = Stack()
+    get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
+    self.assertEqual(get_type_vars(), {})
+    with self.assertRaises(expected_exception=IndexError):
+        my_stack.pop()
+    self.assertIsNone(my_stack.top())
+    self.assertIsNone(my_stack.top())
+    self.assertFalse(T in get_type_vars())
+    my_stack.push(item=&#39;hi&#39;)
+    self.assertTrue(T in get_type_vars())
+    my_stack.push(item=&#39;world&#39;)
+    self.assertTrue(T in get_type_vars())
+    self.assertTrue(len(get_type_vars()), 1)
+    self.assertEqual(my_stack.pop(), &#39;world&#39;)
+    self.assertEqual(my_stack.pop(), &#39;hi&#39;)
+    self.assertIsNone(my_stack.top())
+    with self.assertRaises(expected_exception=AssertionError):
+        my_stack.push(item=42)
+
+    my_other_stack = Stack()
+    get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
+    self.assertEqual(get_type_vars(), {})
+    with self.assertRaises(expected_exception=IndexError):
+        my_other_stack.pop()
+    self.assertIsNone(my_other_stack.top())
+    self.assertIsNone(my_other_stack.top())
+    my_other_stack.push(item=100)
+    self.assertTrue(len(get_type_vars()), 1)
+    my_other_stack.push(item=142)
+    self.assertTrue(len(get_type_vars()), 1)
+    self.assertEqual(my_other_stack.pop(), 142)
+    self.assertEqual(my_other_stack.pop(), 100)
+    self.assertIsNone(my_other_stack.top())
+    with self.assertRaises(expected_exception=AssertionError):
+        my_other_stack.push(item=&#39;42&#39;)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_static_method_with_sloppy_type_annotation"><code class="name flex">
 <span>def <span class="ident">test_static_method_with_sloppy_type_annotation</span></span>(<span>self)</span>
 </code></dt>
@@ -1550,6 +1738,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_pedantic_generic_class" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_pedantic_generic_class">test_pedantic_generic_class</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_property" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_property">test_property</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_property_getter_and_setter_misses_type_hints" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_property_getter_and_setter_misses_type_hints">test_property_getter_and_setter_misses_type_hints</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_stack" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_stack">test_stack</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_static_method_with_sloppy_type_annotation" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_static_method_with_sloppy_type_annotation">test_static_method_with_sloppy_type_annotation</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_type_annotation_string" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_type_annotation_string">test_type_annotation_string</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_type_annotation_string_typo" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_type_annotation_string_typo">test_type_annotation_string_typo</a></code></li>

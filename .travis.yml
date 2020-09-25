@@ -58,7 +58,6 @@ deploy:
       python: 3.8  # specify the job that should build an release. If not specified, all jobs would create releases.
       branch: master
       # tags: false
-
   - provider: pypi
     # server: https://test.pypi.org/legacy/  # Deployment to test instance of pypi. Remove before deployment to official PyPi repo.
     username: "__token__"
@@ -71,3 +70,11 @@ deploy:
       branch: master
 
 # after_deploy:
+
+notifications: # does not work yet
+  webhooks: https://coveralls.io/webhook?repo_token=COVERALLS_REPO_TOKEN
+  email:
+    recipients:
+    - willi_sontopski@arcor.de
+    on_success: always
+    on_failure: always

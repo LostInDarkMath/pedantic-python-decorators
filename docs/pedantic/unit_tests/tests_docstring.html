@@ -433,10 +433,10 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
     def test_user_class(self):
         class BPMNEnum:
-            self.attr = &#39;BPMNEnum&#39;
+            attr = &#39;BPMNEnum&#39;
 
         class BPMNElement:
-            self.attr = &#39;BPMNElement&#39;
+            attr = &#39;BPMNElement&#39;
 
         @pedantic_class_require_docstring
         class MyClass:
@@ -459,6 +459,32 @@ class TestRequireDocstringGoogleFormat(TestCase):
         m.make_element(element_type=BPMNEnum(), src_tgt_elements=[BPMNElement()])
         with self.assertRaises(expected_exception=AssertionError):
             m.make_element(element_type=BPMNElement(), src_tgt_elements=[BPMNEnum()])
+
+    def test_user_class_with_typing(self):
+        class BPMNEnum:
+            attr = &#39;BPMNEnum&#39;
+
+        class BPMNElement:
+            attr = &#39;BPMNElement&#39;
+
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic_class_require_docstring
+            class MyClass:
+
+                def make_element(self, element_type: BPMNEnum,
+                                 src_tgt_elements: Optional[List[BPMNElement]] = None) -&gt; List[BPMNElement]:
+                    &#34;&#34;&#34;
+                    Searches all element_types in XML-DOM and returns corresponding
+                    BPMN-Objects.
+                    Args:
+                        element_type(BPMNEnum): abc
+                        src_tgt_elements (typing.Optional[List[BPMNElement]]): abc
+
+                    Returns:
+                        List[BPMNElement]: abc
+                    &#34;&#34;&#34;
+                    element_type.attr = &#39;42&#39;
+                    return src_tgt_elements
 
     def test_factory(self):
         @pedantic_require_docstring
@@ -485,7 +511,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
 if __name__ == &#39;__main__&#39;:
     t = TestRequireDocstringGoogleFormat()
-    t.test_google_docstring_2()</code></pre>
+    t.test_user_class_with_typing()</code></pre>
 </details>
 </section>
 <section>
@@ -934,10 +960,10 @@ not have a method with the specified name.</p></div>
 
     def test_user_class(self):
         class BPMNEnum:
-            self.attr = &#39;BPMNEnum&#39;
+            attr = &#39;BPMNEnum&#39;
 
         class BPMNElement:
-            self.attr = &#39;BPMNElement&#39;
+            attr = &#39;BPMNElement&#39;
 
         @pedantic_class_require_docstring
         class MyClass:
@@ -960,6 +986,32 @@ not have a method with the specified name.</p></div>
         m.make_element(element_type=BPMNEnum(), src_tgt_elements=[BPMNElement()])
         with self.assertRaises(expected_exception=AssertionError):
             m.make_element(element_type=BPMNElement(), src_tgt_elements=[BPMNEnum()])
+
+    def test_user_class_with_typing(self):
+        class BPMNEnum:
+            attr = &#39;BPMNEnum&#39;
+
+        class BPMNElement:
+            attr = &#39;BPMNElement&#39;
+
+        with self.assertRaises(expected_exception=AssertionError):
+            @pedantic_class_require_docstring
+            class MyClass:
+
+                def make_element(self, element_type: BPMNEnum,
+                                 src_tgt_elements: Optional[List[BPMNElement]] = None) -&gt; List[BPMNElement]:
+                    &#34;&#34;&#34;
+                    Searches all element_types in XML-DOM and returns corresponding
+                    BPMN-Objects.
+                    Args:
+                        element_type(BPMNEnum): abc
+                        src_tgt_elements (typing.Optional[List[BPMNElement]]): abc
+
+                    Returns:
+                        List[BPMNElement]: abc
+                    &#34;&#34;&#34;
+                    element_type.attr = &#39;42&#39;
+                    return src_tgt_elements
 
     def test_factory(self):
         @pedantic_require_docstring
@@ -1679,10 +1731,10 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">def test_user_class(self):
     class BPMNEnum:
-        self.attr = &#39;BPMNEnum&#39;
+        attr = &#39;BPMNEnum&#39;
 
     class BPMNElement:
-        self.attr = &#39;BPMNElement&#39;
+        attr = &#39;BPMNElement&#39;
 
     @pedantic_class_require_docstring
     class MyClass:
@@ -1705,6 +1757,42 @@ not have a method with the specified name.</p></div>
     m.make_element(element_type=BPMNEnum(), src_tgt_elements=[BPMNElement()])
     with self.assertRaises(expected_exception=AssertionError):
         m.make_element(element_type=BPMNElement(), src_tgt_elements=[BPMNEnum()])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_user_class_with_typing"><code class="name flex">
+<span>def <span class="ident">test_user_class_with_typing</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_user_class_with_typing(self):
+    class BPMNEnum:
+        attr = &#39;BPMNEnum&#39;
+
+    class BPMNElement:
+        attr = &#39;BPMNElement&#39;
+
+    with self.assertRaises(expected_exception=AssertionError):
+        @pedantic_class_require_docstring
+        class MyClass:
+
+            def make_element(self, element_type: BPMNEnum,
+                             src_tgt_elements: Optional[List[BPMNElement]] = None) -&gt; List[BPMNElement]:
+                &#34;&#34;&#34;
+                Searches all element_types in XML-DOM and returns corresponding
+                BPMN-Objects.
+                Args:
+                    element_type(BPMNEnum): abc
+                    src_tgt_elements (typing.Optional[List[BPMNElement]]): abc
+
+                Returns:
+                    List[BPMNElement]: abc
+                &#34;&#34;&#34;
+                element_type.attr = &#39;42&#39;
+                return src_tgt_elements</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_wrong_format_1"><code class="name flex">
@@ -1786,6 +1874,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_undocumented_arg_3" href="#pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_undocumented_arg_3">test_undocumented_arg_3</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_undocumented_arg_corrected" href="#pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_undocumented_arg_corrected">test_undocumented_arg_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_user_class" href="#pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_user_class">test_user_class</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_user_class_with_typing" href="#pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_user_class_with_typing">test_user_class_with_typing</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_wrong_format_1" href="#pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_wrong_format_1">test_wrong_format_1</a></code></li>
 </ul>
 </li>

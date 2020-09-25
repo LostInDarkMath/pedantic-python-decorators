@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>pedantic.basic_helpers API documentation</title>
+<title>pedantic.set_envionment_variables API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,22 +19,31 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>pedantic.basic_helpers</code></h1>
+<h1 class="title">Module <code>pedantic.set_envionment_variables</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import Any, Callable
+<pre><code class="python">import os
 
 
-TYPE_VAR_METHOD_NAME = &#39;__pedantic_m42__&#39;
-TYPE_VAR_ATTR_NAME = &#39;__pedantic_a42__&#39;
+def enable_pedantic() -&gt; None:
+    os.environ[ENVIRONMENT_VARIABLE_NAME] = &#39;1&#39;
 
 
-def get_qualified_name_for_err_msg(func: Callable[..., Any]) -&gt; str:
-    return f&#39;In function {func.__qualname__}:&#39; + &#39;\n&#39;</code></pre>
+def disable_pedantic() -&gt; None:
+    os.environ[ENVIRONMENT_VARIABLE_NAME] = &#39;0&#39;
+
+
+def is_enabled() -&gt; bool:
+    if ENVIRONMENT_VARIABLE_NAME not in os.environ:
+        return True
+    return os.environ[ENVIRONMENT_VARIABLE_NAME] == &#39;1&#39;
+
+
+ENVIRONMENT_VARIABLE_NAME = &#39;ENABLE_PEDANTIC&#39;</code></pre>
 </details>
 </section>
 <section>
@@ -44,8 +53,8 @@ def get_qualified_name_for_err_msg(func: Callable[..., Any]) -&gt; str:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="pedantic.basic_helpers.get_qualified_name_for_err_msg"><code class="name flex">
-<span>def <span class="ident">get_qualified_name_for_err_msg</span></span>(<span>func: Callable[..., Any]) ‑> str</span>
+<dt id="pedantic.set_envionment_variables.disable_pedantic"><code class="name flex">
+<span>def <span class="ident">disable_pedantic</span></span>(<span>) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -53,8 +62,36 @@ def get_qualified_name_for_err_msg(func: Callable[..., Any]) -&gt; str:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_qualified_name_for_err_msg(func: Callable[..., Any]) -&gt; str:
-    return f&#39;In function {func.__qualname__}:&#39; + &#39;\n&#39;</code></pre>
+<pre><code class="python">def disable_pedantic() -&gt; None:
+    os.environ[ENVIRONMENT_VARIABLE_NAME] = &#39;0&#39;</code></pre>
+</details>
+</dd>
+<dt id="pedantic.set_envionment_variables.enable_pedantic"><code class="name flex">
+<span>def <span class="ident">enable_pedantic</span></span>(<span>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def enable_pedantic() -&gt; None:
+    os.environ[ENVIRONMENT_VARIABLE_NAME] = &#39;1&#39;</code></pre>
+</details>
+</dd>
+<dt id="pedantic.set_envionment_variables.is_enabled"><code class="name flex">
+<span>def <span class="ident">is_enabled</span></span>(<span>) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_enabled() -&gt; bool:
+    if ENVIRONMENT_VARIABLE_NAME not in os.environ:
+        return True
+    return os.environ[ENVIRONMENT_VARIABLE_NAME] == &#39;1&#39;</code></pre>
 </details>
 </dd>
 </dl>
@@ -75,7 +112,9 @@ def get_qualified_name_for_err_msg(func: Callable[..., Any]) -&gt; str:
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="pedantic.basic_helpers.get_qualified_name_for_err_msg" href="#pedantic.basic_helpers.get_qualified_name_for_err_msg">get_qualified_name_for_err_msg</a></code></li>
+<li><code><a title="pedantic.set_envionment_variables.disable_pedantic" href="#pedantic.set_envionment_variables.disable_pedantic">disable_pedantic</a></code></li>
+<li><code><a title="pedantic.set_envionment_variables.enable_pedantic" href="#pedantic.set_envionment_variables.enable_pedantic">enable_pedantic</a></code></li>
+<li><code><a title="pedantic.set_envionment_variables.is_enabled" href="#pedantic.set_envionment_variables.is_enabled">is_enabled</a></code></li>
 </ul>
 </li>
 </ul>
