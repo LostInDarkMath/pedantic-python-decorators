@@ -12,6 +12,14 @@ branches:
   only:
     - master
 
+notifications:
+  webhooks: https://coveralls.io/webhook?repo_token=COVERALLS_REPO_TOKEN
+  email:
+    recipients:
+    - willi_sontopski@arcor.de
+    on_success: always
+    on_failure: always
+
 # before_install:
 
 install:
@@ -34,14 +42,6 @@ script:
 # after_failure:
 
 # after_script:
-
-notifications:
-  webhooks: https://coveralls.io/webhook?repo_token=COVERALLS_REPO_TOKEN
-  email:
-    recipients:
-    - willi_sontopski@arcor.de
-    on_success: always
-    on_failure: always
 
 before_deploy:
   # Set up git user name and tag this commit
