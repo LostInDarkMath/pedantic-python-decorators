@@ -27,11 +27,11 @@ def check_generic(instance: Any) -> Dict[TypeVar, Any]:
 
 
 def assert_constructor_called_with_generics(instance: Any) -> None:
-    # TODO maybe we should not do this here and use "first come first serve if no generics are provided. Thats easy"
+    # TODO maybe we should not do this here and use "first come first serve if no generics are provided. That's easy"
     name = instance.__class__.__name__
     frames = inspect.stack()
     filtered = list(filter(lambda f: f.function == 'wrapper', frames))
-    if not filtered: # that's the case if the pseudo-method "get_type_vars()" is called
+    if not filtered:  # that's the case if the pseudo-method "get_type_vars()" is called
         return
 
     frame = frames[frames.index(filtered[-1]) + 1]
@@ -41,7 +41,7 @@ def assert_constructor_called_with_generics(instance: Any) -> None:
     src = [clean_line(line) for line in inspect.getsource(frame.frame).split('\n')]
     target = f'={name}'
     filtered_src = list(filter(lambda line: target in line, src))
-    assert len(filtered_src) >= 1, f'No constructor call found in source\n {src}' # TODO error message
+    assert len(filtered_src) >= 1, f'No constructor call found in source\n {src}'  # TODO error message
     for match in filtered_src:
         constructor_call = match.split(target)[1]
         generics = constructor_call.split('(')[0]
