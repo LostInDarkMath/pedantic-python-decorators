@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, get_args, Generic, TypeVar, Dict
+from typing import Any, Generic, TypeVar, Dict
 
 from pedantic.type_hint_parser import _get_type_arguments
 
@@ -18,7 +18,7 @@ def check_generic(instance: Any) -> Dict[TypeVar, Any]:
     if not hasattr(instance, '__orig_class__'):
         return type_vars
 
-    generic_type_vars = get_args(type(instance).__orig_bases__[0])  # TODO works only for direct inheritance
+    generic_type_vars = _get_type_arguments(type(instance).__orig_bases__[0])  # TODO works only for direct inheritance
     generic_type_args = _get_type_arguments(instance.__orig_class__)
     assert len(generic_type_args) == len(generic_type_vars), f'len doesnt match'
     for i, type_var in enumerate(generic_type_vars):
