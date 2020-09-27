@@ -114,10 +114,10 @@ class TestGenericClasses(unittest.TestCase):
         class Parent:
             pass
 
-        class Child_1(Parent):
+        class Child1(Parent):
             pass
 
-        class Child_2(Parent):
+        class Child2(Parent):
             pass
 
         T = TypeVar('T')
@@ -133,14 +133,14 @@ class TestGenericClasses(unittest.TestCase):
             def set_a(self, val: T) -> None:
                 self.a = val
 
-        m = MyClass[Parent](a=Child_1())
-        self.assertTrue(isinstance(m.get_a(), Child_1))
-        self.assertFalse(isinstance(m.get_a(), Child_2))
-        m.set_a(val=Child_2())
-        self.assertTrue(isinstance(m.get_a(), Child_2))
-        self.assertFalse(isinstance(m.get_a(), Child_1))
+        m = MyClass[Parent](a=Child1())
+        self.assertTrue(isinstance(m.get_a(), Child1))
+        self.assertFalse(isinstance(m.get_a(), Child2))
+        m.set_a(val=Child2())
+        self.assertTrue(isinstance(m.get_a(), Child2))
+        self.assertFalse(isinstance(m.get_a(), Child1))
 
 
 if __name__ == '__main__':
     t = TestGenericClasses()
-    t.test_generic_class_inheritance()
+    t.test_stack()

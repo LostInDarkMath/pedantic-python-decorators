@@ -1,7 +1,8 @@
 import inspect
-from typing import Any, Generic, TypeVar, Dict
+from typing import Any, Generic, Dict
 
 from pedantic.type_hint_parser import _get_type_arguments
+from pedantic.basic_helpers import TypeVar
 
 
 def check_generic(instance: Any) -> Dict[TypeVar, Any]:
@@ -35,8 +36,8 @@ def assert_constructor_called_with_generics(instance: Any) -> None:
         return
 
     frame = frames[frames.index(filtered[-1]) + 1]
-    if frame.function == '__call__':
-        frame = frames[frames.index(filtered[0]) + 2]
+    while frame.filename.endswith('typing.py'):
+        frame = frames[frames.index(frame) + 1]
 
     src = [clean_line(line) for line in inspect.getsource(frame.frame).split('\n')]
     target = f'={name}'

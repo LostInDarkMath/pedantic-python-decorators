@@ -5,8 +5,10 @@ from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tu
 import collections
 import sys
 
+from pedantic.basic_helpers import TypeVar as TypeVar_
 
-def _is_instance(obj: Any, type_: Any, type_vars: Dict[Any, Any]) -> bool:
+
+def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
     assert _has_required_type_arguments(type_), \
         f'The type annotation "{type_}" misses some type arguments e.g. ' \
         f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
@@ -393,7 +395,7 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         return annotation
 
 
-def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import List, Any, Union
         >>> _instancecheck_iterable([1.0, -4.2, 5.4], (float,), {})
@@ -417,7 +419,7 @@ def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dic
     return all(_is_instance(val, type_, type_vars=type_vars) for val in iterable)
 
 
-def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import Any, Optional
         >>> _instancecheck_mapping({0: 1, 1: 2, 2: 3}, (int, Any), {})
@@ -438,7 +440,7 @@ def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[t
     return _instancecheck_items_view(mapping.items(), type_args, type_vars=type_vars)
 
 
-def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import Any, Optional
         >>> _instancecheck_items_view({0: 1, 1: 2, 2: 3}.items(), (int, Any), {})
@@ -462,7 +464,7 @@ def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars
                for key, val in items_view)
 
 
-def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import Any
         >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(Any, Ellipsis), type_vars={})
@@ -485,7 +487,7 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[type, Any])
     return all(_is_instance(obj=val, type_=type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
 
 
-def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import Union, TypeVar, Any
         >>> NoneType = type(None)

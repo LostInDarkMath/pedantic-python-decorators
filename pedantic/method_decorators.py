@@ -6,7 +6,7 @@ from datetime import datetime
 import warnings
 
 from pedantic.set_envionment_variables import is_enabled
-from pedantic.basic_helpers import get_qualified_name_for_err_msg, TYPE_VAR_METHOD_NAME
+from pedantic.basic_helpers import get_qualified_name_for_err_msg, TYPE_VAR_METHOD_NAME, TypeVar
 from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
 from pedantic.models.decorated_function import DecoratedFunction
 from pedantic.type_hint_parser import _is_instance, _get_type_arguments
@@ -411,7 +411,7 @@ def pedantic_require_docstring(func: Optional[Callable[..., Any]] = None, **kwar
 
 def _check_types(decorated_func: DecoratedFunction, args: Tuple[Any, ...],
                  kwargs: Dict[str, Any],
-                 type_vars: Dict[Any, Any]) -> Any:
+                 type_vars: Dict[TypeVar, Any]) -> Any:
     func = decorated_func.func
     params = decorated_func.signature.parameters
     err = decorated_func.err
@@ -690,7 +690,7 @@ def _get_args_without_self(func: DecoratedFunction, args: Tuple[Any, ...], is_cl
     return args
 
 
-def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, type_vars: Dict[type, Any]) -> bool:
+def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, type_vars: Dict[TypeVar, Any]) -> bool:
     """
         Wrapper for file "type_hint_parser.py".
         The type hint "Dict[TypeVar, Any]" for type_vars crashes in Python 3.6. So "Dict[type, Any]" must be used here.
