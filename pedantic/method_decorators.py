@@ -7,12 +7,15 @@ import warnings
 
 from pedantic.set_envionment_variables import is_enabled
 from pedantic.basic_helpers import get_qualified_name_for_err_msg, TYPE_VAR_METHOD_NAME, TypeVar
-from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
+from pedantic.custom_exceptions import NotImplementedException, TooDirtyException, PedanticOverrideException
 from pedantic.models.decorated_function import DecoratedFunction
 from pedantic.type_hint_parser import _is_instance, _get_type_arguments
 
+ReturnType = TypeVar('Return Type')
+F = Callable[..., ReturnType]
 
-def overrides(interface_class: Any) -> Callable[..., Any]:
+
+def overrides(base_class: Any) -> F:
     """
         Example:
         >>> class Parent:
@@ -21,21 +24,25 @@ def overrides(interface_class: Any) -> Callable[..., Any]:
         >>> class Child(Parent):
         ...     @overrides(Parent)
         ...     def instance_method(self):
-        ...         print('hi')
+        ...         print('hello world')
     """
 
-    def overrider(func: Callable[..., Any]) -> Callable[..., Any]:
+    def decorator(func: F) -> F:
         deco_func = DecoratedFunction(func=func)
         uses_multiple_decorators = deco_func.num_of_decorators > 1
-        assert deco_func.is_instance_method or uses_multiple_decorators, \
-            f'Function "{func.__name__}" is not an instance method!'
-        assert (func.__name__ in dir(interface_class)), \
-            f"Parent class {interface_class.__name__} does not have such a method '{func.__name__}'."
+
+        if not deco_func.is_instance_method and not uses_multiple_decorators:
+            raise PedanticOverrideException(
+                f'{deco_func.err} Function "{deco_func.name}" should be an instance method of a class!')
+
+        if deco_func.name not in dir(base_class):
+            raise PedanticOverrideException(
+                f'{deco_func.err} Base class "{base_class.__name__}" does not have such a method "{deco_func.name}".')
         return func
-    return overrider
+    return decorator
 
 
-def timer(func: Callable[..., Any]) -> Callable[..., Any]:
+def timer(func: F) -> F:
     """
         Prints how long the execution of the decorated function takes.
         Example:

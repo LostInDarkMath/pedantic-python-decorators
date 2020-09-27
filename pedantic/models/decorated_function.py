@@ -51,6 +51,10 @@ class DecoratedFunction:
         return self._func.__name__
 
     @property
+    def full_name(self) -> str:
+        return self._func.__qualname__
+
+    @property
     def is_static_method(self) -> bool:
         return '@staticmethod' in self.source
 

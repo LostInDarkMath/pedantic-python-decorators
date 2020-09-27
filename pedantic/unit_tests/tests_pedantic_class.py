@@ -2,8 +2,9 @@ import unittest
 from abc import ABC, abstractmethod
 from typing import Any
 
-from pedantic import overrides, pedantic
+from pedantic.method_decorators import overrides, pedantic
 from pedantic.class_decorators import pedantic_class
+from pedantic.custom_exceptions import PedanticOverrideException
 
 
 class TestPedanticClass(unittest.TestCase):
@@ -259,7 +260,7 @@ class TestPedanticClass(unittest.TestCase):
             def bunk(self) -> int:
                 return 42
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticOverrideException):
             @pedantic_class
             class Foo(Parent):
                 def __init__(self, a: int) -> None:
