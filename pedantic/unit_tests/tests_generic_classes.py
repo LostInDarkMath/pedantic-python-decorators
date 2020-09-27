@@ -108,7 +108,23 @@ class TestGenericClasses(unittest.TestCase):
                 self.a = val
 
         with self.assertRaises(expected_exception=AssertionError):
-            MyClass(a=42)
+            m = MyClass(a=42)
+
+    def test_generic_class_initialised_without_generics_2(self):
+        T = TypeVar('T')
+
+        @pedantic_class
+        class MyClass(Generic[T]):
+            def __init__(self, a: T) -> None:
+                self.a = a
+
+            def get_a(self) -> T:
+                return self.a
+
+            def set_a(self, val: T) -> None:
+                self.a = val
+
+        MyClass(a=42)  # it is not recognized if it isn't assigned
 
     def test_generic_class_inheritance(self):
         class Parent:
@@ -140,7 +156,26 @@ class TestGenericClasses(unittest.TestCase):
         self.assertTrue(isinstance(m.get_a(), Child2))
         self.assertFalse(isinstance(m.get_a(), Child1))
 
+    def test_merge_dicts(self):
+        def create():
+            T = TypeVar('T')
+
+            @pedantic_class
+            class MyClass(Generic[T]):
+                def __init__(self, a: T) -> None:
+                    self.a = a
+
+                def get_a(self) -> T:
+                    return self.a
+
+                def set_a(self, val: T) -> None:
+                    self.a = val
+            return MyClass(a=42)
+        a = create()
+        with self.assertRaises(expected_exception=AssertionError):
+            a.set_a(val='hi')
+
 
 if __name__ == '__main__':
     t = TestGenericClasses()
-    t.test_stack()
+    t.test_generic_class_initialised_without_generics()

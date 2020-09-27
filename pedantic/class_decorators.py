@@ -2,7 +2,8 @@ from typing import Callable, Any, Optional, Dict
 import types
 
 from pedantic.basic_helpers import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME
-from pedantic.check_generic_classes import check_generic, is_generic_class
+from pedantic.check_generic_classes import _check_instance_of_generic_class_and_get_typ_vars, \
+    _is_instance_of_generic_class
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
@@ -37,22 +38,22 @@ def for_all_methods(decorator: Callable[..., Any]) -> Callable[..., Any]:
 
 
 def pedantic_class(cls: Any) -> Callable[..., Any]:
-    """Shortcut for @for_all_methods(pedantic) """
+    """ Shortcut for @for_all_methods(pedantic) """
     return for_all_methods(decorator=pedantic)(cls=cls)
 
 
 def pedantic_class_require_docstring(cls: Any) -> Callable[..., Any]:
-    """Shortcut for @for_all_methods(pedantic_require_docstring) """
+    """ Shortcut for @for_all_methods(pedantic_require_docstring) """
     return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
 
 
 def trace_class(cls: Any) -> Callable[..., Any]:
-    """Shortcut for @for_all_methods(trace) """
+    """ Shortcut for @for_all_methods(trace) """
     return for_all_methods(decorator=trace)(cls=cls)
 
 
 def timer_class(cls: Any) -> Callable[..., Any]:
-    """Shortcut for @for_all_methods(timer) """
+    """ Shortcut for @for_all_methods(timer) """
     return for_all_methods(decorator=timer)(cls=cls)
 
 
@@ -62,17 +63,18 @@ def _get_wrapped(prop: Optional[Callable[..., Any]], decorator: Callable[..., An
 
 def _add_method_to_class(cls: Any) -> None:
     def type_vars(self) -> Dict:
-        if is_generic_class(instance=self):
-            t = getattr(self, TYPE_VAR_ATTR_NAME) if hasattr(self, TYPE_VAR_ATTR_NAME) else {}
-            setattr(self, TYPE_VAR_ATTR_NAME, _merge_dicts(first=check_generic(instance=self), second=t))
+        if _is_instance_of_generic_class(instance=self):
+            type_vars_fifo = getattr(self, TYPE_VAR_ATTR_NAME) if hasattr(self, TYPE_VAR_ATTR_NAME) else {}
+            type_vars_generics = _check_instance_of_generic_class_and_get_typ_vars(instance=self)
+            setattr(self, TYPE_VAR_ATTR_NAME, _merge_dicts(first=type_vars_generics, second=type_vars_fifo))
         else:
-            setattr(self, TYPE_VAR_ATTR_NAME, dict()) # TODO necessary?
+            setattr(self, TYPE_VAR_ATTR_NAME, dict())
         return getattr(self, TYPE_VAR_ATTR_NAME)
     setattr(cls, TYPE_VAR_METHOD_NAME, type_vars)
 
 
-def _merge_dicts(first: Dict, second: Dict) -> Dict:
+def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -> Dict[Any, Any]:
     for key in second:
-        if not key in first:
+        if key not in first:
             first[key] = second[key]
     return first

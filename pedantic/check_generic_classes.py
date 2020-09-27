@@ -5,13 +5,39 @@ from pedantic.type_hint_parser import _get_type_arguments
 from pedantic.basic_helpers import TypeVar
 
 
-def check_generic(instance: Any) -> Dict[TypeVar, Any]:
+def _check_instance_of_generic_class_and_get_typ_vars(instance: Any) -> Dict[TypeVar, Any]:
+    """
+        >>> from typing import TypeVar, Generic, List
+        >>> T = TypeVar('T')
+        >>> class A(Generic[T]): pass
+        >>> a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
+        >>> _check_instance_of_generic_class_and_get_typ_vars(a)
+        {}
+        >>> b = A[int]()
+        >>> _check_instance_of_generic_class_and_get_typ_vars(b)
+        {~T: <class 'int'>}
+        >>> c = A[List[int]]()
+        >>> _check_instance_of_generic_class_and_get_typ_vars(c)
+        {~T: typing.List[int]}
+        >>> S = TypeVar('S')
+        >>> class B(Generic[T, S]): pass
+        >>> d = B()
+        >>> _check_instance_of_generic_class_and_get_typ_vars(d)
+        {}
+        >>> e = B[int]()
+        Traceback (most recent call last):
+        ...
+        TypeError: Too few parameters for ...; actual 1, expected 2
+        >>> f = B[int, float]()
+        >>> _check_instance_of_generic_class_and_get_typ_vars(f)
+        {~T: <class 'int'>, ~S: <class 'float'>}
+        >>> class C(B): pass
+        >>> g = C()
+        >>> _check_instance_of_generic_class_and_get_typ_vars(g)
+        {}
+    """
     type_vars = dict()
-
-    if not is_generic_class(instance=instance):
-        return type_vars
-
-    assert_constructor_called_with_generics(instance=instance)
+    _assert_constructor_called_with_generics(instance=instance)
 
     # The information I need is set after the object construction in the __orig_class__ attribute.
     # This method is called before construction and therefore it returns if the value isn't set
@@ -19,39 +45,75 @@ def check_generic(instance: Any) -> Dict[TypeVar, Any]:
     if not hasattr(instance, '__orig_class__'):
         return type_vars
 
-    generic_type_vars = _get_type_arguments(type(instance).__orig_bases__[0])  # TODO works only for direct inheritance
-    generic_type_args = _get_type_arguments(instance.__orig_class__)
-    assert len(generic_type_args) == len(generic_type_vars), f'len doesnt match'
-    for i, type_var in enumerate(generic_type_vars):
-        type_vars[type_var] = generic_type_args[i]
+    type_variables = _get_type_arguments(type(instance).__orig_bases__[0])
+    actual_types = _get_type_arguments(instance.__orig_class__)
+
+    for i, type_var in enumerate(type_variables):
+        type_vars[type_var] = actual_types[i]
     return type_vars
 
 
-def assert_constructor_called_with_generics(instance: Any) -> None:
-    # TODO maybe we should not do this here and use "first come first serve if no generics are provided. That's easy"
+def _assert_constructor_called_with_generics(instance: Any) -> None:
+    """
+        This is very hacky. Therefore, it is kind of non-aggressive and raises only an error it is sure.
+
+        >>> #TODO copy from above
+    """
     name = instance.__class__.__name__
-    frames = inspect.stack()
-    filtered = list(filter(lambda f: f.function == 'wrapper', frames))
-    if not filtered:  # that's the case if the pseudo-method "get_type_vars()" is called
+    q_name = instance.__class__.__qualname__
+    call_stack_frames = inspect.stack()
+    frame_of_wrapper = list(filter(lambda f: f.function == 'wrapper', call_stack_frames))
+    if not frame_of_wrapper:
         return
 
-    frame = frames[frames.index(filtered[-1]) + 1]
+    frame = call_stack_frames[call_stack_frames.index(frame_of_wrapper[-1]) + 1]
     while frame.filename.endswith('typing.py'):
-        frame = frames[frames.index(frame) + 1]
+        frame = call_stack_frames[call_stack_frames.index(frame) + 1]
 
-    src = [clean_line(line) for line in inspect.getsource(frame.frame).split('\n')]
-    target = f'={name}'
+    src = [_remove_comments_and_spaces_from_src_line(line) for line in inspect.getsource(frame.frame).split('\n')]
+    target = '=' + name
     filtered_src = list(filter(lambda line: target in line, src))
-    assert len(filtered_src) >= 1, f'No constructor call found in source\n {src}'  # TODO error message
+    if not filtered_src:
+        return
+
     for match in filtered_src:
         constructor_call = match.split(target)[1]
         generics = constructor_call.split('(')[0]
-        assert '[' in generics and ']' in generics, f'Use generics!'
+        if '[' not in generics or ']' not in generics:
+            raise AssertionError(f'Use generics when you create an instance of the generic class "{q_name}". \n '
+                                 f'Your call: {match} \n '
+                                 f'How it should be called: {name}[YourType]({constructor_call.split("(")[1]}')
 
 
-def is_generic_class(instance: Any) -> bool:
+def _is_instance_of_generic_class(instance: Any) -> bool:
+    """
+        >>> class A: pass
+        >>> a = A()
+        >>> _is_instance_of_generic_class(a)
+        False
+        >>> from typing import TypeVar, Generic
+        >>> T = TypeVar('T')
+        >>> class B(Generic[T]): pass
+        >>> b = B()
+        >>> _is_instance_of_generic_class(b)
+        True
+        >>> b2 = B[int]()
+        >>> _is_instance_of_generic_class(b2)
+        True
+    """
     return Generic in instance.__class__.__bases__
 
 
-def clean_line(line: str) -> str:
-    return line.split('#')[0].split('"""')[0].split("'''")[0].replace(' ', '')
+def _remove_comments_and_spaces_from_src_line(line: str) -> str:
+    """
+        >>> _remove_comments_and_spaces_from_src_line('a = 42  # this is a comment')
+        'a=42'
+        >>> _remove_comments_and_spaces_from_src_line('m = MyClass[Parent](a=Child1())')
+        'm=MyClass[Parent](a=Child1())'
+    """
+    return line.split('#')[0].replace(' ', '')
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
