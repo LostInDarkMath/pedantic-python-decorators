@@ -4,7 +4,7 @@ import warnings
 # local file imports
 from pedantic.custom_exceptions import TooDirtyException, NotImplementedException, PedanticOverrideException
 from pedantic.method_decorators import overrides, deprecated, needs_refactoring, dirty, timer, count_calls, \
-    unimplemented, validate_args, require_not_none, require_not_empty_strings, trace, trace_if_returns, \
+    unimplemented, validate_args, trace, trace_if_returns, \
     does_same_as_function
 
 
@@ -156,7 +156,7 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             m.some_calculation(-42)
 
     def test_require_not_none(self):
-        @require_not_none
+        @validate_args(lambda x: x is not None)
         def some_calculation(a, b, c):
             return a + b + c
 
@@ -165,7 +165,7 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             some_calculation(30, None, 50)
 
     def test_require_not_empty_strings(self):
-        @require_not_empty_strings
+        @validate_args(lambda x: x is not None and isinstance(x, str) and x.strip() != '')
         def some_calculation(a, b, c):
             return a + b + c
 

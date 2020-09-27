@@ -3,8 +3,7 @@ import re
 import types
 from typing import Any, Callable, Dict
 
-from pedantic.basic_helpers import get_qualified_name_for_err_msg
-from pedantic.wrapper_docstring import get_parsed_docstring, Docstring
+from docstring_parser import parse, Docstring
 
 FUNCTIONS_THAT_REQUIRE_KWARGS = [
     '__new__', '__init__', '__str__', '__del__', '__int__', '__float__', '__complex__', '__oct__', '__hex__',
@@ -14,13 +13,20 @@ FUNCTIONS_THAT_REQUIRE_KWARGS = [
 
 class DecoratedFunction:
     def __init__(self, func: Callable[..., Any]) -> None:
-        assert isinstance(func, (types.FunctionType, types.MethodType)), f'{func} should be a method or function.'
         self._func = func
+
+        if not isinstance(func, (types.FunctionType, types.MethodType)):
+            raise AssertionError(f'{self.full_name} should be a method or function.')
+
         self._full_arg_spec = inspect.getfullargspec(func)
-        self._docstring = get_parsed_docstring(func=func)
         self._signature = inspect.signature(func)
-        self._err: str = get_qualified_name_for_err_msg(func=func)
+        self._err = f'In function {func.__qualname__}:' + '\n'
         self._source: str = inspect.getsource(object=func)
+
+        try:
+            self._docstring = parse(func.__doc__)
+        except (Exception, TypeError) as ex:
+            raise AssertionError(f'{self.err} Could not parse docstring. Please check syntax. Details: {ex}')
 
     @property
     def func(self) -> Callable[..., Any]:

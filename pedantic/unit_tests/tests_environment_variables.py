@@ -1,5 +1,6 @@
 import unittest
 
+from pedantic.custom_exceptions import PedanticTypeCheckException
 from pedantic.set_envionment_variables import enable_pedantic, disable_pedantic, is_enabled
 from pedantic.method_decorators import pedantic
 
@@ -22,7 +23,7 @@ class TestEnvironmentVariables(unittest.TestCase):
         def some_method():
             return 42
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method()
 
     def test_pedantic_disabled(self):

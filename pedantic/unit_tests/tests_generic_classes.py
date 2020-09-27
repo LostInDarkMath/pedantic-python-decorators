@@ -1,8 +1,9 @@
 import unittest
 from typing import Generic, TypeVar, Any, List, Optional
 
-from pedantic.basic_helpers import TYPE_VAR_METHOD_NAME
+from pedantic.constants import TYPE_VAR_METHOD_NAME
 from pedantic.class_decorators import pedantic_class
+from pedantic.custom_exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException
 
 
 class TestGenericClasses(unittest.TestCase):
@@ -31,7 +32,7 @@ class TestGenericClasses(unittest.TestCase):
         o.set(new=57)
         self.assertTrue(isinstance(o.get(), int))
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             o.set(new=3.14)
 
     def test_stack(self):
@@ -73,7 +74,7 @@ class TestGenericClasses(unittest.TestCase):
         self.assertEqual(my_stack.pop(), 'world')
         self.assertEqual(my_stack.pop(), 'hi')
         self.assertIsNone(my_stack.top())
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             my_stack.push(item=42)
 
         my_other_stack = Stack[int]()
@@ -90,7 +91,7 @@ class TestGenericClasses(unittest.TestCase):
         self.assertEqual(my_other_stack.pop(), 142)
         self.assertEqual(my_other_stack.pop(), 100)
         self.assertIsNone(my_other_stack.top())
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             my_other_stack.push(item='42')
 
     def test_generic_class_initialised_without_generics(self):
@@ -107,7 +108,7 @@ class TestGenericClasses(unittest.TestCase):
             def set_a(self, val: T) -> None:
                 self.a = val
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             m = MyClass(a=42)
 
     def test_generic_class_initialised_without_generics_2(self):
@@ -172,7 +173,7 @@ class TestGenericClasses(unittest.TestCase):
                     self.a = val
             return MyClass(a=42)
         a = create()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             a.set_a(val='hi')
 
 

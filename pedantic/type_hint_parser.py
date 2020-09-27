@@ -5,13 +5,15 @@ from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tu
 import collections
 import sys
 
-from pedantic.basic_helpers import TypeVar as TypeVar_
+from pedantic.constants import TypeVar as TypeVar_
+from pedantic.custom_exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
 
 
 def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
-    assert _has_required_type_arguments(type_), \
-        f'The type annotation "{type_}" misses some type arguments e.g. ' \
-        f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
+    if not _has_required_type_arguments(type_):
+        raise PedanticTypeCheckException(
+            f'The type annotation "{type_}" misses some type arguments e.g. '
+            f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".')
 
     if type_.__module__ == 'typing':
         if _is_generic(type_):
@@ -38,9 +40,10 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
     if isinstance(type_, TypeVar):
         if type_ in type_vars:
             other = type_vars[type_]
-            assert isinstance(obj, other), \
-                f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} ' \
-                f'was previously matched to type {other}'
+            if not isinstance(obj, other):
+                raise PedanticTypeVarMismatchException(
+                    f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} '
+                    f'was previously matched to type {other}')
         elif obj is not None:
             type_vars[type_] = type(obj)
         return True
@@ -551,7 +554,7 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any])
         try:
             _is_instance(obj=value, type_=bounded_type_var, type_vars=type_vars)
             return True
-        except AssertionError:
+        except PedanticException:
             pass
 
     if not args_type_vars_unbounded:
@@ -604,9 +607,10 @@ def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
         if not _is_subtype(sub_type=sig.return_annotation, super_type=ret_type):
             return False
 
-    assert not missing_annotations, \
-        f'Parsing of type annotations failed. Maybe you are about to return a lambda expression. ' \
-        f'Try returning an inner function instead. {missing_annotations}'
+    if missing_annotations:
+        raise PedanticTypeCheckException(
+            f'Parsing of type annotations failed. Maybe you are about to return a lambda expression. '
+            f'Try returning an inner function instead. {missing_annotations}')
     return True
 
 

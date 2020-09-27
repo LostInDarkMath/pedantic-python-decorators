@@ -4,7 +4,8 @@ from typing import Any
 
 from pedantic.method_decorators import overrides, pedantic
 from pedantic.class_decorators import pedantic_class
-from pedantic.custom_exceptions import PedanticOverrideException
+from pedantic.custom_exceptions import PedanticOverrideException, PedanticTypeCheckException, \
+    PedanticCallWithArgsException
 
 
 class TestPedanticClass(unittest.TestCase):
@@ -22,7 +23,7 @@ class TestPedanticClass(unittest.TestCase):
             def __init__(self, a) -> None:
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42)
 
     def test_constructor_without_return_type(self):
@@ -31,7 +32,7 @@ class TestPedanticClass(unittest.TestCase):
             def __init__(self, a: int):
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42)
 
     def test_constructor_wrong_return_type(self):
@@ -40,7 +41,7 @@ class TestPedanticClass(unittest.TestCase):
             def __init__(self, a: int) -> int:
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42)
 
     def test_constructor_must_be_called_with_kwargs(self):
@@ -49,7 +50,7 @@ class TestPedanticClass(unittest.TestCase):
             def __init__(self, a: int) -> None:
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
 
     def test_multiple_methods(self):
@@ -67,11 +68,11 @@ class TestPedanticClass(unittest.TestCase):
         m = MyClass(a=5)
         m.calc(b=42)
         m.print(s='Hi')
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             m.calc(45)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(b=45.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             m.print('Hi')
 
     def test_multiple_methods_with_missing_and_wrong_type_hints(self):
@@ -90,11 +91,11 @@ class TestPedanticClass(unittest.TestCase):
                 print(f'{self.a} and {s}')
 
         m = MyClass(a=5)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(b=42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.print(s='Hi')
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.dream(b=2)
 
     def test_type_annotation_string(self):
@@ -119,7 +120,7 @@ class TestPedanticClass(unittest.TestCase):
             def generator() -> 'MyClas':
                 return MyClass(s='generated')
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.generator()
 
     def test_overriding_contains(self):
@@ -130,7 +131,7 @@ class TestPedanticClass(unittest.TestCase):
 
         m = MyClass()
         print(42 in m)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print('something' in m)
 
     def test_type_annotation_string_typo(self):
@@ -144,7 +145,7 @@ class TestPedanticClass(unittest.TestCase):
 
         m = MyClass()
         m.fixed_compare(other=m)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.compare(other=m)
 
     def test_docstring_not_required(self):
@@ -243,12 +244,12 @@ class TestPedanticClass(unittest.TestCase):
         f = Foo(a=42)
         f.func(b='Hi')
         f.bunk()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             f.func('Hi')
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             Foo(a=3.1415)
         f.a = 3.145
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             f.bunk()
 
     def test_overrides_goes_wrong(self):
@@ -294,7 +295,7 @@ class TestPedanticClass(unittest.TestCase):
             def static_bar() -> (int, int):  # this is wrong. Correct would be Tuple[int, int]
                 return 0, 1
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(MyStaticClass.double_func(a=0))
 
     def test_property(self):
@@ -314,18 +315,18 @@ class TestPedanticClass(unittest.TestCase):
             def calc(self, value: float) -> float:
                 return 2 * value
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
 
         m = MyClass(some_arg=42)
         self.assertEqual(m.some_attribute, 42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_attribute = 100
         self.assertEqual(m.some_attribute, 42)
         m.some_attribute = '100'
         self.assertEqual(m._some_attribute, '100')
         m.calc(value=42.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(m.some_attribute)
 
     def test_property_getter_and_setter_misses_type_hints(self):
@@ -345,17 +346,17 @@ class TestPedanticClass(unittest.TestCase):
             def calc(self, value: float) -> float:
                 return 2 * value
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
 
         m = MyClass(some_arg=42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_attribute = 100
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(m.some_attribute)
         m.calc(value=42.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(value=42)
 
     def test_double_pedantic(self):
@@ -366,9 +367,9 @@ class TestPedanticClass(unittest.TestCase):
                 self.a = a
 
         MyClass(a=42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42.0)
 
     def test_default_constructor(self):

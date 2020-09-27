@@ -1,8 +1,9 @@
 import inspect
 from typing import Any, Generic, Dict
 
+from pedantic.custom_exceptions import PedanticTypeVarMismatchException
 from pedantic.type_hint_parser import _get_type_arguments
-from pedantic.basic_helpers import TypeVar
+from pedantic.constants import TypeVar, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED
 
 
 def _check_instance_of_generic_class_and_get_typ_vars(instance: Any) -> Dict[TypeVar, Any]:
@@ -57,8 +58,29 @@ def _assert_constructor_called_with_generics(instance: Any) -> None:
     """
         This is very hacky. Therefore, it is kind of non-aggressive and raises only an error it is sure.
 
-        >>> #TODO copy from above
+        >>> from typing import TypeVar, Generic, List
+        >>> T = TypeVar('T')
+        >>> class A(Generic[T]): pass
+        >>> a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
+        >>> _assert_constructor_called_with_generics(a)
+        >>> b = A[int]()
+        >>> _assert_constructor_called_with_generics(b)
+        >>> c = A[List[int]]()
+        >>> _assert_constructor_called_with_generics(c)
+        >>> S = TypeVar('S')
+        >>> class B(Generic[T, S]): pass
+        >>> d = B()
+        >>> _assert_constructor_called_with_generics(d)
+        >>> f = B[int, float]()
+        >>> _assert_constructor_called_with_generics(f)
+        >>> class C(B): pass
+        >>> g = C()
+        >>> _assert_constructor_called_with_generics(g)
     """
+
+    if hasattr(instance, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED):
+        return
+
     name = instance.__class__.__name__
     q_name = instance.__class__.__qualname__
     call_stack_frames = inspect.stack()
@@ -80,9 +102,11 @@ def _assert_constructor_called_with_generics(instance: Any) -> None:
         constructor_call = match.split(target)[1]
         generics = constructor_call.split('(')[0]
         if '[' not in generics or ']' not in generics:
-            raise AssertionError(f'Use generics when you create an instance of the generic class "{q_name}". \n '
-                                 f'Your call: {match} \n '
-                                 f'How it should be called: {name}[YourType]({constructor_call.split("(")[1]}')
+            raise PedanticTypeVarMismatchException(
+                f'Use generics when you create an instance of the generic class "{q_name}". \n '
+                f'Your call: {match} \n How it should be called: {name}[YourType]({constructor_call.split("(")[1]}')
+
+    setattr(instance, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED, True)
 
 
 def _is_instance_of_generic_class(instance: Any) -> bool:

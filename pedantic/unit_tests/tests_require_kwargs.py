@@ -1,6 +1,7 @@
 import unittest
 
 # local file imports
+from pedantic.custom_exceptions import PedanticCallWithArgsException
 from pedantic.method_decorators import require_kwargs
 
 
@@ -18,7 +19,7 @@ class TestRequireKwargs(unittest.TestCase):
         def calc(n: int, m: int, i: int) -> int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             calc(1, m=2, i=3)
 
     def test_no_kwargs_2(self):
@@ -26,5 +27,5 @@ class TestRequireKwargs(unittest.TestCase):
         def calc(n: int, m: int, i: int) -> int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             calc(1, 2, 3)
