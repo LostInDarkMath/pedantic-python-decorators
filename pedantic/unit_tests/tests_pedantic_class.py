@@ -379,7 +379,7 @@ class TestPedanticClass(unittest.TestCase):
             def log(self, message: str) -> None:
                 self.logger = self.name + message
 
-        o = LoggedVar(value=42, name='hi', logger='test')
+        o = LoggedVar[int](value=42, name='hi', logger='test')
         o.set(new=57)
         self.assertTrue(isinstance(o.get(), int))
 
@@ -409,14 +409,14 @@ class TestPedanticClass(unittest.TestCase):
                 else:
                     return None
 
-        my_stack = Stack()
+        my_stack = Stack[str]()
         get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
-        self.assertEqual(get_type_vars(), {})
+        self.assertEqual(get_type_vars(), {T: str})
         with self.assertRaises(expected_exception=IndexError):
             my_stack.pop()
         self.assertIsNone(my_stack.top())
         self.assertIsNone(my_stack.top())
-        self.assertFalse(T in get_type_vars())
+        # self.assertFalse(T in get_type_vars())
         my_stack.push(item='hi')
         self.assertTrue(T in get_type_vars())
         my_stack.push(item='world')
@@ -428,9 +428,9 @@ class TestPedanticClass(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             my_stack.push(item=42)
 
-        my_other_stack = Stack()
+        my_other_stack = Stack[int]()
         get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
-        self.assertEqual(get_type_vars(), {})
+        self.assertEqual(get_type_vars(), {T: int})
         with self.assertRaises(expected_exception=IndexError):
             my_other_stack.pop()
         self.assertIsNone(my_other_stack.top())

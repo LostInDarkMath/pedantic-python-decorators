@@ -36,11 +36,11 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[Any, Any]) -> bool:
     if isinstance(type_, TypeVar):
         if type_ in type_vars:
             other = type_vars[type_]
-            assert type(obj) == type(other), \
-                f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} and value ' \
-                f'{other} has type {type(other)}'
+            assert isinstance(obj, other), \
+                f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} ' \
+                f'was previously matched to type {other}'
         elif obj is not None:
-            type_vars[type_] = obj
+            type_vars[type_] = type(obj)
         return True
 
     if _is_type_new_type(type_):
@@ -506,33 +506,33 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> 
         True
         >>> _instancecheck_union(None, Union[T, NoneType], {})
         True
-        >>> _instancecheck_union(None, Union[T, NoneType], {T: 42})
+        >>> _instancecheck_union(None, Union[T, NoneType], {T: int})
         True
-        >>> _instancecheck_union('None', Union[T, NoneType], {T: 42})
+        >>> _instancecheck_union('None', Union[T, NoneType], {T: int})
         False
         >>> _instancecheck_union(42, Union[T, S], {})
         True
-        >>> _instancecheck_union(42, Union[T, S], {T: 42})
+        >>> _instancecheck_union(42, Union[T, S], {T: int})
         True
-        >>> _instancecheck_union(42, Union[T, S], {T: '42'})
+        >>> _instancecheck_union(42, Union[T, S], {T: str})
         True
-        >>> _instancecheck_union(42, Union[T, S], {T: 42, S: 45.0})
+        >>> _instancecheck_union(42, Union[T, S], {T: int, S: float})
         True
-        >>> _instancecheck_union(42, Union[T, S], {T: '42', S: 45.0})
+        >>> _instancecheck_union(42, Union[T, S], {T: str, S: float})
         False
-        >>> _instancecheck_union(42.8, Union[T, S], {T: '42', S: 45.0})
+        >>> _instancecheck_union(42.8, Union[T, S], {T: str, S: float})
         True
-        >>> _instancecheck_union(None, Union[T, S], {T: '42', S: 45.0})
+        >>> _instancecheck_union(None, Union[T, S], {T: str, S: float})
         False
         >>> _instancecheck_union(None, Union[T, S], {})
         True
-        >>> _instancecheck_union(None, Union[T, NoneType], {T: 42})
+        >>> _instancecheck_union(None, Union[T, NoneType], {T: int})
         True
-        >>> _instancecheck_union('None', Union[T, NoneType, S], {T: 42})
+        >>> _instancecheck_union('None', Union[T, NoneType, S], {T: int})
         True
         >>> _instancecheck_union(42, Union[T, Any], {})
         True
-        >>> _instancecheck_union(42, Union[T, Any], {T: 75.7})
+        >>> _instancecheck_union(42, Union[T, Any], {T: float})
         True
     """
 

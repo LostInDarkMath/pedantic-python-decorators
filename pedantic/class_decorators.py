@@ -2,7 +2,7 @@ from typing import Callable, Any, Optional, Dict
 import types
 
 from pedantic.basic_helpers import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME
-from pedantic.check_generic_classes import check_generic
+from pedantic.check_generic_classes import check_generic, is_generic_class
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
@@ -62,8 +62,17 @@ def _get_wrapped(prop: Optional[Callable[..., Any]], decorator: Callable[..., An
 
 def _add_method_to_class(cls: Any) -> None:
     def type_vars(self) -> Dict:
-        check_generic(instance=self)
-        if not hasattr(self, TYPE_VAR_ATTR_NAME):
-            setattr(self, TYPE_VAR_ATTR_NAME, dict())
+        if is_generic_class(instance=self):
+            t = getattr(self, TYPE_VAR_ATTR_NAME) if hasattr(self, TYPE_VAR_ATTR_NAME) else {}
+            setattr(self, TYPE_VAR_ATTR_NAME, _merge_dicts(first=check_generic(instance=self), second=t))
+        else:
+            setattr(self, TYPE_VAR_ATTR_NAME, dict()) # TODO necessary?
         return getattr(self, TYPE_VAR_ATTR_NAME)
     setattr(cls, TYPE_VAR_METHOD_NAME, type_vars)
+
+
+def _merge_dicts(first: Dict, second: Dict) -> Dict:
+    for key in second:
+        if not key in first:
+            first[key] = second[key]
+    return first

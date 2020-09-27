@@ -5,6 +5,23 @@ from pedantic.class_decorators import pedantic_class
 
 
 class TestGenericClasses(unittest.TestCase):
+    def test_generic_class_initialised_without_generics(self):
+        T = TypeVar('T')
+
+        @pedantic_class
+        class MyClass(Generic[T]):
+            def __init__(self, a: T) -> None:
+                self.a = a
+
+            def get_a(self) -> T:
+                return self.a
+
+            def set_a(self, val: T) -> None:
+                self.a = val
+
+        with self.assertRaises(expected_exception=AssertionError):
+            MyClass(a=42)
+
     def test_generic_class_inheritance(self):
         class Parent:
             pass
@@ -28,7 +45,7 @@ class TestGenericClasses(unittest.TestCase):
             def set_a(self, val: T) -> None:
                 self.a = val
 
-        m: MyClass[Parent] = MyClass(a=Child_1())  # a dummy comment MyClass(a=Child_3())
+        m = MyClass[Parent](a=Child_1())
         self.assertTrue(isinstance(m.get_a(), Child_1))
         self.assertFalse(isinstance(m.get_a(), Child_2))
         m.set_a(val=Child_2())
