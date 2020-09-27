@@ -2,6 +2,7 @@ from typing import Callable, Any, Optional, Dict
 import types
 
 from pedantic.basic_helpers import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME
+from pedantic.check_generic_classes import check_generic
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
@@ -61,6 +62,7 @@ def _get_wrapped(prop: Optional[Callable[..., Any]], decorator: Callable[..., An
 
 def _add_method_to_class(cls: Any) -> None:
     def type_vars(self) -> Dict:
+        check_generic(instance=self)
         if not hasattr(self, TYPE_VAR_ATTR_NAME):
             setattr(self, TYPE_VAR_ATTR_NAME, dict())
         return getattr(self, TYPE_VAR_ATTR_NAME)
