@@ -1,7 +1,7 @@
 """Idea is taken from: https://stackoverflow.com/a/55504010/10975692"""
 import inspect
 import typing
-from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping
+from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType
 import collections
 import sys
 
@@ -33,7 +33,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[Any, Any]) -> bool:
         type_args = _get_type_arguments(cls=type_)
         return validator(obj, type_args, type_vars)
 
-    if isinstance(type_, typing.TypeVar):
+    if isinstance(type_, TypeVar):
         if type_ in type_vars:
             other = type_vars[type_]
             assert type(obj) == type(other), \
@@ -45,7 +45,6 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[Any, Any]) -> bool:
 
     if _is_type_new_type(type_):
         return isinstance(obj, type_.__supertype__)
-
     return isinstance(obj, type_)
 
 
@@ -58,7 +57,7 @@ def _is_type_new_type(type_: Any) -> bool:
         >>> _is_type_new_type(UserId)
         True
     """
-    return type_.__qualname__ == typing.NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
+    return type_.__qualname__ == NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
 
 
 def _get_name(cls: Any) -> str:
@@ -132,7 +131,7 @@ def _is_generic(cls: Any) -> bool:
             return True
 
         if isinstance(cls, typing._SpecialForm):
-            return cls not in {typing.Any}
+            return cls not in {Any}
     elif isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
         return True
     return False
@@ -223,7 +222,7 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         result = cls.__args__
         origin = _get_base_generic(cls=cls)
         if origin != cls and \
-                ((origin is typing.Callable) or (origin is collections.abc.Callable)) and \
+                ((origin is Callable) or (origin is collections.abc.Callable)) and \
                 result[0] is not Ellipsis:
             result = (list(result[:-1]), result[-1])
     result = result or ()
@@ -538,8 +537,8 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> 
     """
 
     type_args = _get_type_arguments(cls=type_)
-    args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, typing.TypeVar)]
-    args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, typing.TypeVar)]
+    args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, TypeVar)]
+    args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, TypeVar)]
     args_type_vars_bounded = [type_var for type_var in args_type_vars if type_var in type_vars]
     args_type_vars_unbounded = [type_var for type_var in args_type_vars if type_var not in args_type_vars_bounded]
     matches_non_type_var = any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars)
