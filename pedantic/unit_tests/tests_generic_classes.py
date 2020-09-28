@@ -176,6 +176,51 @@ class TestGenericClasses(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             a.set_a(val='hi')
 
+    def test_recursion_depth_exceeded(self):
+        T = TypeVar('T')
+
+        @pedantic_class
+        class Stack(Generic[T]):
+            def __init__(self) -> None:
+                self.items: List[T] = []
+
+            def len(self) -> int:
+                return len(self.items)
+
+            def push(self, item: T) -> None:
+                self.items.append(item)
+
+            def pop(self) -> T:
+                if len(self.items) > 0:
+                    return self.items.pop()
+                else:
+                    raise ValueError()
+
+            def empty(self) -> bool:
+                return not self.items
+
+            def top(self) -> Optional[T]:
+                if len(self.items) > 0:
+                    return self.items[len(self.items) - 1]
+                else:
+                    return None
+
+            def __len__(self) -> int:
+                return len(self.items)
+
+        def create_stack():
+            stack = Stack[int]()
+            return stack
+
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+            stack: Stack[int] = Stack()
+            self.assertTrue(stack.empty())
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+            stack = Stack()
+            self.assertTrue(stack.empty())
+        stack = create_stack()
+        self.assertTrue(stack.empty())
+
 
 if __name__ == '__main__':
     t = TestGenericClasses()

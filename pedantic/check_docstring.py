@@ -115,25 +115,25 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     >>> _parse_documented_type(type_='MyClass', context={}, err='')
     Traceback (most recent call last):
     ...
-    pedantic.exceptions.PedanticDocstringException:  Documented type "MyClass" was not found.
+    pedantic.exceptions.PedanticDocstringException: Documented type "MyClass" was not found.
     >>> class MyClass: pass
     >>> _parse_documented_type(type_='MyClass', context={'MyClass': MyClass}, err='')
     <class 'pedantic.check_docstring.MyClass'>
     >>> _parse_documented_type(type_='MyClas', context={'MyClass': MyClass}, err='')
     Traceback (most recent call last):
     ...
-    pedantic.exceptions.PedanticDocstringException:  Documented type "MyClas" was not found. Maybe you meant "MyClass"
+    pedantic.exceptions.PedanticDocstringException: Documented type "MyClas" was not found. Maybe you meant "MyClass"
     >>> class MyClub: pass
     >>> _parse_documented_type(type_='MyClas', context={'MyClass': MyClass, 'MyClub': MyClub}, err='')
     Traceback (most recent call last):
     ...
-    pedantic.exceptions.PedanticDocstringException:  Documented type "MyClas" was not found. Maybe you meant one of the following: ['MyClass', 'MyClub']
+    pedantic.exceptions.PedanticDocstringException: Documented type "MyClas" was not found. Maybe you meant one of the following: ['MyClass', 'MyClub']
     """
 
     if 'typing.' in type_:
         raise PedanticDocstringException(
-            f'{err} Do not use "typing." in docstring. Please replace "{type_}" with '
-            f'"{type_.replace("typing.", "")}" in  the docstring')
+            f'{err}Do not use "typing." in docstring. Please replace "{type_}" with '
+            f'"{type_.replace("typing.", "")}" in the docstring')
 
     try:
         return eval(type_, globals(), context)
@@ -145,7 +145,7 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
             msg = f' Maybe you meant "{possible_meant_types[0]}"'
         else:
             msg = ''
-        raise PedanticDocstringException(f'{err} Documented type "{type_}" was not found.{msg}')
+        raise PedanticDocstringException(f'{err}Documented type "{type_}" was not found.{msg}')
 
 
 def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
