@@ -1,7 +1,7 @@
 import inspect
 from typing import Any, Generic, Dict
 
-from pedantic.custom_exceptions import PedanticTypeVarMismatchException
+from pedantic.exceptions import PedanticTypeVarMismatchException
 from pedantic.type_hint_parser import _get_type_arguments
 from pedantic.constants import TypeVar, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED
 

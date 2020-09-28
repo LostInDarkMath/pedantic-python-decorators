@@ -3,7 +3,7 @@ from typing import Generic, TypeVar, Any, List, Optional
 
 from pedantic.constants import TYPE_VAR_METHOD_NAME
 from pedantic.class_decorators import pedantic_class
-from pedantic.custom_exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException
+from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException
 
 
 class TestGenericClasses(unittest.TestCase):

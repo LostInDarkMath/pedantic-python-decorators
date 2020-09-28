@@ -7,7 +7,7 @@ from pedantic.method_decorators import pedantic, pedantic_require_docstring, tra
     needs_refactoring, dirty, unimplemented, deprecated, validate_args, \
     require_kwargs, trace_if_returns, does_same_as_function, overrides
 
-from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
+from pedantic.exceptions import NotImplementedException, TooDirtyException
 
 from pedantic.unit_tests.tests_main import run_all_tests
 

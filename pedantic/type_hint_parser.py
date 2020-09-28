@@ -6,7 +6,7 @@ import collections
 import sys
 
 from pedantic.constants import TypeVar as TypeVar_
-from pedantic.custom_exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
+from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
 
 
 def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 # local file imports
 from pedantic.class_decorators import pedantic_class, for_all_methods
-from pedantic.custom_exceptions import PedanticException, PedanticTypeCheckException, PedanticCallWithArgsException
+from pedantic.exceptions import PedanticException, PedanticTypeCheckException, PedanticCallWithArgsException
 from pedantic.method_decorators import overrides, validate_args, pedantic
 
 

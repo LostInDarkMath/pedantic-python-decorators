@@ -1,6 +1,6 @@
 import unittest
 
-from pedantic.custom_exceptions import PedanticTypeCheckException
+from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.set_envionment_variables import enable_pedantic, disable_pedantic, is_enabled
 from pedantic.method_decorators import pedantic
 

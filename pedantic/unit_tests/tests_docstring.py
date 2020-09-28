@@ -1,7 +1,7 @@
 from unittest import TestCase
 from typing import List, Optional
 
-from pedantic.custom_exceptions import PedanticTypeCheckException, PedanticDocstringException
+from pedantic.exceptions import PedanticTypeCheckException, PedanticDocstringException
 from pedantic.method_decorators import pedantic_require_docstring, pedantic
 from pedantic.class_decorators import pedantic_class_require_docstring, pedantic_class
 

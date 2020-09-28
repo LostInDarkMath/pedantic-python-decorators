@@ -41,6 +41,10 @@ class DecoratedFunction:
         return self._docstring
 
     @property
+    def raw_doc(self) -> Docstring:
+        return self._func.__doc__
+
+    @property
     def signature(self) -> inspect.Signature:
         return self._signature
 

@@ -4,7 +4,7 @@ from typing import Any
 
 from pedantic.method_decorators import overrides, pedantic
 from pedantic.class_decorators import pedantic_class
-from pedantic.custom_exceptions import PedanticOverrideException, PedanticTypeCheckException, \
+from pedantic.exceptions import PedanticOverrideException, PedanticTypeCheckException, \
     PedanticCallWithArgsException
 
 

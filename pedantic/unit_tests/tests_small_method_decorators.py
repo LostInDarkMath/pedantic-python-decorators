@@ -2,7 +2,7 @@ import unittest
 import warnings
 
 # local file imports
-from pedantic.custom_exceptions import TooDirtyException, NotImplementedException, PedanticOverrideException
+from pedantic.exceptions import TooDirtyException, NotImplementedException, PedanticOverrideException
 from pedantic.method_decorators import overrides, deprecated, needs_refactoring, dirty, timer, count_calls, \
     unimplemented, validate_args, trace, trace_if_returns, \
     does_same_as_function

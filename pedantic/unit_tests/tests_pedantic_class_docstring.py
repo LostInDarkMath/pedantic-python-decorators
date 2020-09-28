@@ -1,7 +1,7 @@
 import unittest
 
 from pedantic import pedantic_class_require_docstring
-from pedantic.custom_exceptions import PedanticDocstringException
+from pedantic.exceptions import PedanticDocstringException
 
 
 class TestPedanticClassDocstring(unittest.TestCase):

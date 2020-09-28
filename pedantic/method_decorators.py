@@ -1,13 +1,13 @@
 import functools
 import inspect
 import sys
-from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List
+from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List, Mapping
 from datetime import datetime
 import warnings
 
 from pedantic.set_envionment_variables import is_enabled
 from pedantic.constants import TYPE_VAR_METHOD_NAME, TypeVar, ReturnType, F
-from pedantic.custom_exceptions import NotImplementedException, TooDirtyException, PedanticOverrideException, \
+from pedantic.exceptions import NotImplementedException, TooDirtyException, PedanticOverrideException, \
     PedanticTypeCheckException, PedanticException, PedanticDocstringException, PedanticCallWithArgsException, \
     PedanticTypeVarMismatchException
 from pedantic.models.decorated_function import DecoratedFunction
@@ -212,7 +212,7 @@ def unimplemented(func: F) -> F:
         >>> my_function(5, 4, 3)
         Traceback (most recent call last):
         ...
-        pedantic.custom_exceptions.NotImplementedException: Function "my_function" is not implemented yet!
+        pedantic.exceptions.NotImplementedException: Function "my_function" is not implemented yet!
     """
 
     @functools.wraps(func)
@@ -231,7 +231,7 @@ def dirty(func: F) -> F:
         >>> my_function(5, 4, 3)
         Traceback (most recent call last):
         ...
-        pedantic.custom_exceptions.TooDirtyException: Function "my_function" is too dirty to be executed!
+        pedantic.exceptions.TooDirtyException: Function "my_function" is too dirty to be executed!
     """
 
     @functools.wraps(func)
@@ -250,7 +250,7 @@ def require_kwargs(func: F, is_class_decorator: bool = False) -> F:
         >>> my_function(5, 4, 3)
         Traceback (most recent call last):
         ...
-        pedantic.custom_exceptions.PedanticCallWithArgsException: In function my_function:
+        pedantic.exceptions.PedanticCallWithArgsException: In function my_function:
          Use kwargs when you call function my_function. Args: (5, 4, 3)
         >>> my_function(a=5, b=4, c=3)
         12
@@ -320,22 +320,22 @@ def pedantic(func: Optional[F] = None, is_class_decorator: bool = False, require
        >>> my_function(a=42.0, b=14.0, c='you')
        Traceback (most recent call last):
        ...
-       pedantic.custom_exceptions.PedanticTypeCheckException: In function my_function:
+       pedantic.exceptions.PedanticTypeCheckException: In function my_function:
         Type hint is incorrect: Passed Argument a=42.0 does not have type <class 'int'>.
        >>> my_function(a=42, b=None, c='you')
        Traceback (most recent call last):
        ...
-       pedantic.custom_exceptions.PedanticTypeCheckException: In function my_function:
+       pedantic.exceptions.PedanticTypeCheckException: In function my_function:
         Type hint is incorrect: Passed Argument b=None does not have type <class 'float'>.
        >>> my_function(a=42, b=42, c='you')
        Traceback (most recent call last):
        ...
-       pedantic.custom_exceptions.PedanticTypeCheckException: In function my_function:
+       pedantic.exceptions.PedanticTypeCheckException: In function my_function:
         Type hint is incorrect: Passed Argument b=42 does not have type <class 'float'>.
        >>> my_function(5, 4.0, 'hi')
        Traceback (most recent call last):
        ...
-       pedantic.custom_exceptions.PedanticCallWithArgsException: In function my_function:
+       pedantic.exceptions.PedanticCallWithArgsException: In function my_function:
         Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
    """
 
@@ -346,7 +346,7 @@ def pedantic(func: Optional[F] = None, is_class_decorator: bool = False, require
         decorated_func = DecoratedFunction(func=f)
 
         if require_docstring or len(decorated_func.docstring.params) > 0:
-            _assert_has_correct_docstring(decorated_func=decorated_func)
+            _check_docs(decorated_func=decorated_func)
 
         @functools.wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
@@ -376,35 +376,14 @@ def _check_types(decorated_func: DecoratedFunction,
     already_checked_kwargs = []
     arg_index = 1 if decorated_func.is_instance_method else 0
     params_without_self = {k: v for k, v in params.items() if v.name != 'self'}
+    params_without_args_kwargs = {k: v for k, v in params_without_self.items() if not str(v).startswith('*')}
 
-    for key in params_without_self:
+    for key in params_without_args_kwargs:
         param = params[key]
         expected_type = param.annotation
 
         if expected_type is inspect.Signature.empty:
             raise PedanticTypeCheckException(f'{err} Parameter "{param.name}" should have a type hint.')
-
-        # _check_types_args(params)
-        if str(param).startswith('*') and not str(param).startswith('**'):
-            for arg in args:
-                if not _is_value_matching_type_hint(value=arg, type_hint=expected_type,
-                                                    err_prefix=err, type_vars=type_vars):
-                    raise PedanticTypeCheckException(
-                        f'{err} Type hint is incorrect: Passed argument {arg} does not have type {expected_type}.')
-            continue
-
-        # _check_types_kwargs(params)
-        if str(param).startswith('**'):
-            for kwarg in kwargs:
-                if kwarg in already_checked_kwargs:
-                    continue
-
-                actual_value = kwargs[kwarg]
-                if not _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
-                                                    err_prefix=err, type_vars=type_vars):
-                    raise PedanticTypeCheckException(
-                        f'{err} Type hint is incorrect: Passed Argument {kwarg}={actual_value} does not have type {expected_type}.')
-            continue
 
         if param.default is inspect.Signature.empty:
             if decorated_func.should_have_kwargs:
@@ -423,6 +402,10 @@ def _check_types(decorated_func: DecoratedFunction,
 
         already_checked_kwargs.append(key)
 
+    _check_types_args(params=params_without_self, args=args, func=decorated_func, tv=type_vars)
+    _check_types_kwargs(params=params_without_self, kwargs=kwargs, func=decorated_func, tv=type_vars,
+                        ar=already_checked_kwargs)
+
     # _assert_has_return_annotation()
     if decorated_func.signature.return_annotation is inspect.Signature.empty:
         raise PedanticTypeCheckException(
@@ -439,35 +422,57 @@ def _check_types(decorated_func: DecoratedFunction,
     return result
 
 
-def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
-    annotations = decorated_func.annotations
+def _check_types_args(params: Mapping[str, inspect.Parameter], args, func: DecoratedFunction, tv: Dict) -> None:
+    """
+    TODO doctests
+    """
+
+    params_args_only = {k: v for k, v in params.items() if str(v).startswith('*') and not str(v).startswith('**')}
+
+    for param in params_args_only:
+        expected_type = params_args_only[param].annotation
+        for arg in args:
+            if not _is_value_matching_type_hint(value=arg, type_hint=expected_type,
+                                                err_prefix=func.err, type_vars=tv):
+                raise PedanticTypeCheckException(
+                    f'{func.err} Type hint is incorrect: Passed argument {arg} does not have type {expected_type}.')
+
+
+def _check_types_kwargs(params: Mapping[str, inspect.Parameter], kwargs, func: DecoratedFunction, tv: Dict, ar) -> None:
+    """
+    TODO doctests
+    """
+
+    params_kwargs_only = {k: v for k, v in params.items() if str(v).startswith('**')}
+    for param in params_kwargs_only:
+        expected_type = params_kwargs_only[param].annotation
+
+        if expected_type == inspect.Parameter.empty:
+            raise PedanticTypeCheckException('TODO')
+
+        for kwarg in kwargs:
+            if kwarg in ar:
+                continue
+
+            actual_value = kwargs[kwarg]
+            if not _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
+                                                err_prefix=func.err, type_vars=tv):
+                raise PedanticTypeCheckException(
+                    f'{func.err} Type hint is incorrect: Passed Argument {kwarg}={actual_value} does not have type {expected_type}.')
+
+
+def _check_docs(decorated_func: DecoratedFunction) -> None:
     doc = decorated_func.docstring
     err = decorated_func.err
     context = {}
 
-    raw_doc = decorated_func.func.__doc__
-    if raw_doc is None or raw_doc == '':
-        raise PedanticDocstringException(f'{err} The function should have a docstring!')
+    _assert_docstring_is_complete(func=decorated_func)
 
-    num_documented_args = len(doc.params)
-    num_taken_args = len([a for a in annotations if a != 'return'])
-    if num_documented_args != num_taken_args:
-        raise PedanticDocstringException(
-            f'{err} There are {num_documented_args} argument(s) documented, '
-            f'but {num_taken_args} are actually taken.')
-
-    if doc.returns is None and ('return' in annotations and annotations['return'] is not None):
-        raise PedanticDocstringException(f'{err} The return type {annotations["return"]} is not documented.')
-
-    if doc.returns is not None and ('return' not in annotations or annotations['return'] is None):
-        raise PedanticDocstringException(
-            f'{err} The return type {doc.returns.type_name} is documented but the function does not return anything.')
-
-    for annotation in annotations:
-        expected_type = annotations[annotation]
+    for annotation in decorated_func.annotations:
+        expected_type = decorated_func.annotations[annotation]
         _update_context(context=context, type_=expected_type)
 
-        if annotation == 'return' and annotations[annotation] is not None:
+        if annotation == 'return' and decorated_func.annotations[annotation] is not None:
             if len(doc.returns.args) != 2:
                 raise PedanticDocstringException(f'{err} Parsing Error. Only Google style docstrings are supported.')
 
@@ -476,20 +481,38 @@ def _assert_has_correct_docstring(decorated_func: DecoratedFunction) -> None:
             if actual_return_type != expected_type:
                 raise PedanticDocstringException(
                     f'{err} Documented type is incorrect: Annotation: {expected_type} Documented: {actual_return_type}')
-        elif annotation != 'return':  # parameters passed to function
-            docstring_param = None
-            for param in doc.params:
-                if param.arg_name == annotation:
-                    docstring_param = param
-
-            if docstring_param is None:
-                raise PedanticDocstringException(f'{err} Parameter {annotation} is not documented.')
+        elif annotation != 'return':
+            docstring_param = list(filter(lambda p, a=annotation: p.arg_name == a, doc.params))[0]
             actual_param_type = _parse_documented_type(type_=docstring_param.type_name, context=context, err=err)
 
             if expected_type != actual_param_type:
                 raise PedanticDocstringException(
                     f'{err} Documented type of parameter {annotation} is incorrect. Expected {expected_type} '
                     f'but documented is {actual_param_type}.')
+
+
+def _assert_docstring_is_complete(func: DecoratedFunction) -> None:
+    """
+    TODO doctests
+    """
+    if func.raw_doc is None or func.raw_doc == '':
+        raise PedanticDocstringException(f'{func.err} The function should have a docstring!')
+
+    num_documented_args = len(func.docstring.params)
+    num_taken_args = len([a for a in func.annotations if a != 'return'])
+
+    if num_documented_args != num_taken_args:
+        raise PedanticDocstringException(
+            f'{func.err} There are {num_documented_args} argument(s) documented, '
+            f'but {num_taken_args} are actually taken.')
+
+    if func.docstring.returns is None and ('return' in func.annotations and func.annotations['return'] is not None):
+        raise PedanticDocstringException(f'{func.err} The return type {func.annotations["return"]} is not documented.')
+
+    if func.docstring.returns is not None and ('return' not in func.annotations or func.annotations['return'] is None):
+        raise PedanticDocstringException(
+            f'{func.err} The return type {func.docstring.returns.type_name} '
+            f'is documented but the function does not return anything.')
 
 
 def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any:
@@ -520,19 +543,19 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     >>> _parse_documented_type(type_='MyClass', context={}, err='')
     Traceback (most recent call last):
     ...
-    pedantic.custom_exceptions.PedanticDocstringException:  Documented type "MyClass" was not found.
+    pedantic.exceptions.PedanticDocstringException:  Documented type "MyClass" was not found.
     >>> class MyClass: pass
     >>> _parse_documented_type(type_='MyClass', context={'MyClass': MyClass}, err='')
     <class 'pedantic.method_decorators.MyClass'>
     >>> _parse_documented_type(type_='MyClas', context={'MyClass': MyClass}, err='')
     Traceback (most recent call last):
     ...
-    pedantic.custom_exceptions.PedanticDocstringException:  Documented type "MyClas" was not found. Maybe you meant "MyClass"
+    pedantic.exceptions.PedanticDocstringException:  Documented type "MyClas" was not found. Maybe you meant "MyClass"
     >>> class MyClub: pass
     >>> _parse_documented_type(type_='MyClas', context={'MyClass': MyClass, 'MyClub': MyClub}, err='')
     Traceback (most recent call last):
     ...
-    pedantic.custom_exceptions.PedanticDocstringException:  Documented type "MyClas" was not found. Maybe you meant one of the following: ['MyClass', 'MyClub']
+    pedantic.exceptions.PedanticDocstringException:  Documented type "MyClas" was not found. Maybe you meant one of the following: ['MyClass', 'MyClub']
     """
 
     if 'typing.' in type_:
@@ -604,7 +627,7 @@ def _assert_uses_kwargs(func: DecoratedFunction, args: Tuple[Any, ...], is_class
        >>> _assert_uses_kwargs(f2, (3, 4, 5), False)
        Traceback (most recent call last):
        ...
-       pedantic.custom_exceptions.PedanticCallWithArgsException: In function f2:
+       pedantic.exceptions.PedanticCallWithArgsException: In function f2:
         Use kwargs when you call function f2. Args: (3, 4, 5)
        >>> _assert_uses_kwargs(f2, (), False)
        >>> class A:
@@ -618,7 +641,7 @@ def _assert_uses_kwargs(func: DecoratedFunction, args: Tuple[Any, ...], is_class
        >>> _assert_uses_kwargs(DecoratedFunction(A.g), (a, 45), False)
        Traceback (most recent call last):
        ...
-       pedantic.custom_exceptions.PedanticCallWithArgsException: In function A.g:
+       pedantic.exceptions.PedanticCallWithArgsException: In function A.g:
         Use kwargs when you call function g. Args: (45,)
        >>> _assert_uses_kwargs(DecoratedFunction(A.__compare__), (a, 'hi',), False)
        >>> _assert_uses_kwargs(DecoratedFunction(A.__compare__), (a,), False)
@@ -721,15 +744,15 @@ def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, ty
         >>> _is_value_matching_type_hint([1, 2, 3], list, '', {})
         Traceback (most recent call last):
         ...
-        pedantic.custom_exceptions.PedanticTypeCheckException:  Use "List[]" instead of "list" as type hint.
+        pedantic.exceptions.PedanticTypeCheckException:  Use "List[]" instead of "list" as type hint.
         >>> _is_value_matching_type_hint((1, 2, 3), tuple, '', {})
         Traceback (most recent call last):
         ...
-        pedantic.custom_exceptions.PedanticTypeCheckException:  Use "Tuple[]" instead of "tuple" as type hint.
+        pedantic.exceptions.PedanticTypeCheckException:  Use "Tuple[]" instead of "tuple" as type hint.
         >>> _is_value_matching_type_hint({1: 1.0, 2: 2.0, 3: 3.0}, dict, '', {})
         Traceback (most recent call last):
         ...
-        pedantic.custom_exceptions.PedanticTypeCheckException:  Use "Dict[]" instead of "dict" as type hint.
+        pedantic.exceptions.PedanticTypeCheckException:  Use "Dict[]" instead of "dict" as type hint.
     """
 
     if type_hint is None:

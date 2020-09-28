@@ -2,7 +2,7 @@ import unittest
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
 from enum import Enum
 
-from pedantic.custom_exceptions import PedanticTypeCheckException, PedanticException, PedanticCallWithArgsException, \
+from pedantic.exceptions import PedanticTypeCheckException, PedanticException, PedanticCallWithArgsException, \
     PedanticTypeVarMismatchException
 from pedantic.method_decorators import pedantic
 
@@ -1022,4 +1022,4 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_type_var()
+    test.test_additional_kwargs()

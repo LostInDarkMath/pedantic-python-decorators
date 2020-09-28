@@ -1,7 +1,7 @@
 from typing import Callable, Any, Optional, Dict
 import types
 
-from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, ReturnType, F, C
+from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, F, C
 from pedantic.check_generic_classes import _check_instance_of_generic_class_and_get_typ_vars, \
     _is_instance_of_generic_class
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
@@ -32,7 +32,7 @@ def for_all_methods(decorator: F) -> Callable[[C], C]:
                 new_prop = property(fget=wrapped_getter, fset=wrapped_setter, fdel=wrapped_deleter)
                 setattr(cls, attr, new_prop)
 
-        _add_method_to_class(cls=cls)
+        _add_type_var_attr_and_method_to_class(cls=cls)
         return cls
     return decorate
 
@@ -61,7 +61,7 @@ def _get_wrapped(prop: Optional[F], decorator: F) -> Optional[F]:
     return decorator(prop) if prop is not None else None
 
 
-def _add_method_to_class(cls: C) -> None:
+def _add_type_var_attr_and_method_to_class(cls: C) -> None:
     def type_vars(self) -> Dict:
         if _is_instance_of_generic_class(instance=self):
             type_vars_fifo = getattr(self, TYPE_VAR_ATTR_NAME) if hasattr(self, TYPE_VAR_ATTR_NAME) else {}

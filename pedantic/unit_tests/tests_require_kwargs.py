@@ -1,7 +1,7 @@
 import unittest
 
 # local file imports
-from pedantic.custom_exceptions import PedanticCallWithArgsException
+from pedantic.exceptions import PedanticCallWithArgsException
 from pedantic.method_decorators import require_kwargs
 
 
