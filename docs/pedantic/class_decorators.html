@@ -29,27 +29,26 @@
 <pre><code class="python">from typing import Callable, Any, Optional, Dict
 import types
 
-from pedantic.basic_helpers import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME
+from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, F, C
+from pedantic.check_generic_classes import _check_instance_of_generic_class_and_get_typ_vars, \
+    _is_instance_of_generic_class
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
-def for_all_methods(decorator: Callable[..., Any]) -&gt; Callable[..., Any]:
+def for_all_methods(decorator: F) -&gt; Callable[[C], C]:
     &#34;&#34;&#34;
     Example:
     &gt;&gt;&gt; @for_all_methods(pedantic)
-    ... class C(object):
+    ... class MyClass(object):
     ...     def m1(self): pass
     ...     def m2(self, x): pass
     &#34;&#34;&#34;
-    def decorate(cls: Any) -&gt; Any:
+    def decorate(cls: C) -&gt; C:
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)
 
-            if isinstance(attr_value, types.FunctionType):  # if callable(attr_value):  # does not work with Python 3.6
-                try:
-                    setattr(cls, attr, decorator(attr_value, is_class_decorator=True))
-                except TypeError:
-                    setattr(cls, attr, decorator(attr_value))
+            if isinstance(attr_value, types.FunctionType):
+                setattr(cls, attr, decorator(attr_value))
             elif isinstance(attr_value, property):
                 prop = attr_value
                 wrapped_getter = _get_wrapped(prop=prop.fget, decorator=decorator)
@@ -58,41 +57,52 @@ def for_all_methods(decorator: Callable[..., Any]) -&gt; Callable[..., Any]:
                 new_prop = property(fget=wrapped_getter, fset=wrapped_setter, fdel=wrapped_deleter)
                 setattr(cls, attr, new_prop)
 
-        _add_method_to_class(cls=cls)
+        _add_type_var_attr_and_method_to_class(cls=cls)
         return cls
     return decorate
 
 
-def pedantic_class(cls: Any) -&gt; Callable[..., Any]:
-    &#34;&#34;&#34;Shortcut for @for_all_methods(pedantic) &#34;&#34;&#34;
+def pedantic_class(cls: C) -&gt; C:
+    &#34;&#34;&#34; Shortcut for @for_all_methods(pedantic) &#34;&#34;&#34;
     return for_all_methods(decorator=pedantic)(cls=cls)
 
 
-def pedantic_class_require_docstring(cls: Any) -&gt; Callable[..., Any]:
-    &#34;&#34;&#34;Shortcut for @for_all_methods(pedantic_require_docstring) &#34;&#34;&#34;
+def pedantic_class_require_docstring(cls: C) -&gt; C:
+    &#34;&#34;&#34; Shortcut for @for_all_methods(pedantic_require_docstring) &#34;&#34;&#34;
     return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
 
 
-def trace_class(cls: Any) -&gt; Callable[..., Any]:
-    &#34;&#34;&#34;Shortcut for @for_all_methods(trace) &#34;&#34;&#34;
+def trace_class(cls: C) -&gt; C:
+    &#34;&#34;&#34; Shortcut for @for_all_methods(trace) &#34;&#34;&#34;
     return for_all_methods(decorator=trace)(cls=cls)
 
 
-def timer_class(cls: Any) -&gt; Callable[..., Any]:
-    &#34;&#34;&#34;Shortcut for @for_all_methods(timer) &#34;&#34;&#34;
+def timer_class(cls: C) -&gt; C:
+    &#34;&#34;&#34; Shortcut for @for_all_methods(timer) &#34;&#34;&#34;
     return for_all_methods(decorator=timer)(cls=cls)
 
 
-def _get_wrapped(prop: Optional[Callable[..., Any]], decorator: Callable[..., Any]) -&gt; Optional[Callable[..., Any]]:
+def _get_wrapped(prop: Optional[F], decorator: F) -&gt; Optional[F]:
     return decorator(prop) if prop is not None else None
 
 
-def _add_method_to_class(cls: Any) -&gt; None:
+def _add_type_var_attr_and_method_to_class(cls: C) -&gt; None:
     def type_vars(self) -&gt; Dict:
-        if not hasattr(self, TYPE_VAR_ATTR_NAME):
+        if _is_instance_of_generic_class(instance=self):
+            type_vars_fifo = getattr(self, TYPE_VAR_ATTR_NAME) if hasattr(self, TYPE_VAR_ATTR_NAME) else {}
+            type_vars_generics = _check_instance_of_generic_class_and_get_typ_vars(instance=self)
+            setattr(self, TYPE_VAR_ATTR_NAME, _merge_dicts(first=type_vars_generics, second=type_vars_fifo))
+        else:
             setattr(self, TYPE_VAR_ATTR_NAME, dict())
         return getattr(self, TYPE_VAR_ATTR_NAME)
-    setattr(cls, TYPE_VAR_METHOD_NAME, type_vars)</code></pre>
+    setattr(cls, TYPE_VAR_METHOD_NAME, type_vars)
+
+
+def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -&gt; Dict[Any, Any]:
+    for key in second:
+        if key not in first:
+            first[key] = second[key]
+    return first</code></pre>
 </details>
 </section>
 <section>
@@ -103,12 +113,12 @@ def _add_method_to_class(cls: Any) -&gt; None:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.class_decorators.for_all_methods"><code class="name flex">
-<span>def <span class="ident">for_all_methods</span></span>(<span>decorator: Callable[..., Any]) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">for_all_methods</span></span>(<span>decorator: Callable[..., str]) ‑> Callable[[str], str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Example:</p>
 <pre><code class="python-repl">&gt;&gt;&gt; @for_all_methods(pedantic)
-... class C(object):
+... class MyClass(object):
 ...     def m1(self): pass
 ...     def m2(self, x): pass
 </code></pre></div>
@@ -116,23 +126,20 @@ def _add_method_to_class(cls: Any) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def for_all_methods(decorator: Callable[..., Any]) -&gt; Callable[..., Any]:
+<pre><code class="python">def for_all_methods(decorator: F) -&gt; Callable[[C], C]:
     &#34;&#34;&#34;
     Example:
     &gt;&gt;&gt; @for_all_methods(pedantic)
-    ... class C(object):
+    ... class MyClass(object):
     ...     def m1(self): pass
     ...     def m2(self, x): pass
     &#34;&#34;&#34;
-    def decorate(cls: Any) -&gt; Any:
+    def decorate(cls: C) -&gt; C:
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)
 
-            if isinstance(attr_value, types.FunctionType):  # if callable(attr_value):  # does not work with Python 3.6
-                try:
-                    setattr(cls, attr, decorator(attr_value, is_class_decorator=True))
-                except TypeError:
-                    setattr(cls, attr, decorator(attr_value))
+            if isinstance(attr_value, types.FunctionType):
+                setattr(cls, attr, decorator(attr_value))
             elif isinstance(attr_value, property):
                 prop = attr_value
                 wrapped_getter = _get_wrapped(prop=prop.fget, decorator=decorator)
@@ -141,13 +148,13 @@ def _add_method_to_class(cls: Any) -&gt; None:
                 new_prop = property(fget=wrapped_getter, fset=wrapped_setter, fdel=wrapped_deleter)
                 setattr(cls, attr, new_prop)
 
-        _add_method_to_class(cls=cls)
+        _add_type_var_attr_and_method_to_class(cls=cls)
         return cls
     return decorate</code></pre>
 </details>
 </dd>
 <dt id="pedantic.class_decorators.pedantic_class"><code class="name flex">
-<span>def <span class="ident">pedantic_class</span></span>(<span>cls: Any) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">pedantic_class</span></span>(<span>cls: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(pedantic)</p></div>
@@ -155,13 +162,13 @@ def _add_method_to_class(cls: Any) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pedantic_class(cls: Any) -&gt; Callable[..., Any]:
-    &#34;&#34;&#34;Shortcut for @for_all_methods(pedantic) &#34;&#34;&#34;
+<pre><code class="python">def pedantic_class(cls: C) -&gt; C:
+    &#34;&#34;&#34; Shortcut for @for_all_methods(pedantic) &#34;&#34;&#34;
     return for_all_methods(decorator=pedantic)(cls=cls)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.class_decorators.pedantic_class_require_docstring"><code class="name flex">
-<span>def <span class="ident">pedantic_class_require_docstring</span></span>(<span>cls: Any) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">pedantic_class_require_docstring</span></span>(<span>cls: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(pedantic_require_docstring)</p></div>
@@ -169,13 +176,13 @@ def _add_method_to_class(cls: Any) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pedantic_class_require_docstring(cls: Any) -&gt; Callable[..., Any]:
-    &#34;&#34;&#34;Shortcut for @for_all_methods(pedantic_require_docstring) &#34;&#34;&#34;
+<pre><code class="python">def pedantic_class_require_docstring(cls: C) -&gt; C:
+    &#34;&#34;&#34; Shortcut for @for_all_methods(pedantic_require_docstring) &#34;&#34;&#34;
     return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.class_decorators.timer_class"><code class="name flex">
-<span>def <span class="ident">timer_class</span></span>(<span>cls: Any) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">timer_class</span></span>(<span>cls: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(timer)</p></div>
@@ -183,13 +190,13 @@ def _add_method_to_class(cls: Any) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def timer_class(cls: Any) -&gt; Callable[..., Any]:
-    &#34;&#34;&#34;Shortcut for @for_all_methods(timer) &#34;&#34;&#34;
+<pre><code class="python">def timer_class(cls: C) -&gt; C:
+    &#34;&#34;&#34; Shortcut for @for_all_methods(timer) &#34;&#34;&#34;
     return for_all_methods(decorator=timer)(cls=cls)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.class_decorators.trace_class"><code class="name flex">
-<span>def <span class="ident">trace_class</span></span>(<span>cls: Any) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">trace_class</span></span>(<span>cls: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(trace)</p></div>
@@ -197,8 +204,8 @@ def _add_method_to_class(cls: Any) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def trace_class(cls: Any) -&gt; Callable[..., Any]:
-    &#34;&#34;&#34;Shortcut for @for_all_methods(trace) &#34;&#34;&#34;
+<pre><code class="python">def trace_class(cls: C) -&gt; C:
+    &#34;&#34;&#34; Shortcut for @for_all_methods(trace) &#34;&#34;&#34;
     return for_all_methods(decorator=trace)(cls=cls)</code></pre>
 </details>
 </dd>

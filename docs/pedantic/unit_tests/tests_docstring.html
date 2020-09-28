@@ -29,6 +29,7 @@
 <pre><code class="python">from unittest import TestCase
 from typing import List, Optional
 
+from pedantic.exceptions import PedanticTypeCheckException, PedanticDocstringException
 from pedantic.method_decorators import pedantic_require_docstring, pedantic
 from pedantic.class_decorators import pedantic_class_require_docstring, pedantic_class
 
@@ -36,13 +37,13 @@ from pedantic.class_decorators import pedantic_class_require_docstring, pedantic
 class TestRequireDocstringGoogleFormat(TestCase):
 
     def test_no_docstring(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(n: int, m: int, i: int) -&gt; int:
                 return n + m + i
 
     def test_one_line_doc_string_missing_arguments_and_return(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(n: int, m: int, i: int) -&gt; int:
                 &#34;&#34;&#34;Returns the sum of the three args.&#34;&#34;&#34;
@@ -66,7 +67,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(n=42, m=40, i=38)
 
     def test_list_vs_typing_list(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -118,7 +119,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc=&#39;Hi&#39;, print_cols=False)
 
     def test_more_parameter_documented_than_the_function_takes(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -154,7 +155,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc=&#39;Hi&#39;, print_cols=False, amount=42)
 
     def test_no_args_keyword_before_documented_arguments(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; list:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -169,7 +170,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 return [file_loc, str(print_cols)]
 
     def test_google_no_return_keyword(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; list:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -192,7 +193,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc()
 
     def test_docstring_misses_argument(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(name: str) -&gt; None:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns&#34;&#34;&#34;
@@ -211,7 +212,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(name=&#39;maria&#39;)
 
     def test_undocumented_arg(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool, number: int) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -246,7 +247,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc=&#39;Hi&#39;, print_cols=False, number=42)
 
     def test_restructured_text_style_doctsring_cannot_be_parsed_yet(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -261,7 +262,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 return [file_loc, str(print_cols)]
 
     def test_return_nothing_but_document_return_value(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool):
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -274,10 +275,10 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 Returns:
                     list: a list of strings representing the header columns
                 &#34;&#34;&#34;
-                a = [file_loc, str(print_cols)]
+                print([file_loc, str(print_cols)])
 
     def test_return_nothing_but_document_return_value_2(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; None:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -290,7 +291,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 Returns:
                     list: a list of strings representing the header columns
                 &#34;&#34;&#34;
-                a = [file_loc, str(print_cols)]
+                print([file_loc, str(print_cols)])
 
     def test_return_value_1_corrected(self):
         @pedantic_require_docstring
@@ -307,7 +308,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc=&#39;Hi&#39;, print_cols=False)
 
     def test_return_value_is_not_documented(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             # the error message here is actually wrong due to the behavior of the docstring-parser package
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
@@ -340,7 +341,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc=&#39;Hi&#39;, print_cols=False)
 
     def test_return_value_is_not_documented_3(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -353,7 +354,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 return [file_loc, str(print_cols)]
 
     def test_wrong_format_1(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             class MyText:
                 text = &#39;hi&#39;
 
@@ -372,7 +373,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                     return substring in self.text
 
     def test_undocumented_arg_3(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic
             def calc(a: int, b: float, c: str) -&gt; str:
                 &#34;&#34;&#34;Returns some cool string
@@ -406,7 +407,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(a=42, b=3.14, c=&#39;hi&#39;)
 
     def test_documented_none_as_return_type(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc() -&gt; None:
                 &#34;&#34;&#34;some cool stuff
@@ -457,7 +458,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
         m = MyClass()
         m.make_element(element_type=BPMNEnum(), src_tgt_elements=[BPMNElement()])
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.make_element(element_type=BPMNElement(), src_tgt_elements=[BPMNEnum()])
 
     def test_user_class_with_typing(self):
@@ -467,7 +468,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         class BPMNElement:
             attr = &#39;BPMNElement&#39;
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_class_require_docstring
             class MyClass:
 
@@ -498,12 +499,12 @@ class TestRequireDocstringGoogleFormat(TestCase):
         get_instance()
 
     def test_pedantic_args(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic(require_docstring=True)
             def no_docstrings() -&gt; None:
                 print(&#39;.&#39;)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def no_docstrings() -&gt; None:
                 print(&#39;.&#39;)
@@ -563,13 +564,13 @@ not have a method with the specified name.</p></div>
 <pre><code class="python">class TestRequireDocstringGoogleFormat(TestCase):
 
     def test_no_docstring(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(n: int, m: int, i: int) -&gt; int:
                 return n + m + i
 
     def test_one_line_doc_string_missing_arguments_and_return(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(n: int, m: int, i: int) -&gt; int:
                 &#34;&#34;&#34;Returns the sum of the three args.&#34;&#34;&#34;
@@ -593,7 +594,7 @@ not have a method with the specified name.</p></div>
         calc(n=42, m=40, i=38)
 
     def test_list_vs_typing_list(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -645,7 +646,7 @@ not have a method with the specified name.</p></div>
         calc(file_loc=&#39;Hi&#39;, print_cols=False)
 
     def test_more_parameter_documented_than_the_function_takes(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -681,7 +682,7 @@ not have a method with the specified name.</p></div>
         calc(file_loc=&#39;Hi&#39;, print_cols=False, amount=42)
 
     def test_no_args_keyword_before_documented_arguments(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; list:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -696,7 +697,7 @@ not have a method with the specified name.</p></div>
                 return [file_loc, str(print_cols)]
 
     def test_google_no_return_keyword(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; list:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -719,7 +720,7 @@ not have a method with the specified name.</p></div>
         calc()
 
     def test_docstring_misses_argument(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(name: str) -&gt; None:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns&#34;&#34;&#34;
@@ -738,7 +739,7 @@ not have a method with the specified name.</p></div>
         calc(name=&#39;maria&#39;)
 
     def test_undocumented_arg(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool, number: int) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -773,7 +774,7 @@ not have a method with the specified name.</p></div>
         calc(file_loc=&#39;Hi&#39;, print_cols=False, number=42)
 
     def test_restructured_text_style_doctsring_cannot_be_parsed_yet(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -788,7 +789,7 @@ not have a method with the specified name.</p></div>
                 return [file_loc, str(print_cols)]
 
     def test_return_nothing_but_document_return_value(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool):
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -801,10 +802,10 @@ not have a method with the specified name.</p></div>
                 Returns:
                     list: a list of strings representing the header columns
                 &#34;&#34;&#34;
-                a = [file_loc, str(print_cols)]
+                print([file_loc, str(print_cols)])
 
     def test_return_nothing_but_document_return_value_2(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; None:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -817,7 +818,7 @@ not have a method with the specified name.</p></div>
                 Returns:
                     list: a list of strings representing the header columns
                 &#34;&#34;&#34;
-                a = [file_loc, str(print_cols)]
+                print([file_loc, str(print_cols)])
 
     def test_return_value_1_corrected(self):
         @pedantic_require_docstring
@@ -834,7 +835,7 @@ not have a method with the specified name.</p></div>
         calc(file_loc=&#39;Hi&#39;, print_cols=False)
 
     def test_return_value_is_not_documented(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             # the error message here is actually wrong due to the behavior of the docstring-parser package
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
@@ -867,7 +868,7 @@ not have a method with the specified name.</p></div>
         calc(file_loc=&#39;Hi&#39;, print_cols=False)
 
     def test_return_value_is_not_documented_3(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
                 &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -880,7 +881,7 @@ not have a method with the specified name.</p></div>
                 return [file_loc, str(print_cols)]
 
     def test_wrong_format_1(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             class MyText:
                 text = &#39;hi&#39;
 
@@ -899,7 +900,7 @@ not have a method with the specified name.</p></div>
                     return substring in self.text
 
     def test_undocumented_arg_3(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic
             def calc(a: int, b: float, c: str) -&gt; str:
                 &#34;&#34;&#34;Returns some cool string
@@ -933,7 +934,7 @@ not have a method with the specified name.</p></div>
         calc(a=42, b=3.14, c=&#39;hi&#39;)
 
     def test_documented_none_as_return_type(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc() -&gt; None:
                 &#34;&#34;&#34;some cool stuff
@@ -984,7 +985,7 @@ not have a method with the specified name.</p></div>
 
         m = MyClass()
         m.make_element(element_type=BPMNEnum(), src_tgt_elements=[BPMNElement()])
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.make_element(element_type=BPMNElement(), src_tgt_elements=[BPMNEnum()])
 
     def test_user_class_with_typing(self):
@@ -994,7 +995,7 @@ not have a method with the specified name.</p></div>
         class BPMNElement:
             attr = &#39;BPMNElement&#39;
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_class_require_docstring
             class MyClass:
 
@@ -1025,12 +1026,12 @@ not have a method with the specified name.</p></div>
         get_instance()
 
     def test_pedantic_args(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic(require_docstring=True)
             def no_docstrings() -&gt; None:
                 print(&#39;.&#39;)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def no_docstrings() -&gt; None:
                 print(&#39;.&#39;)</code></pre>
@@ -1051,7 +1052,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_docstring_misses_argument(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(name: str) -&gt; None:
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns&#34;&#34;&#34;
@@ -1068,7 +1069,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_documented_none_as_return_type(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc() -&gt; None:
             &#34;&#34;&#34;some cool stuff
@@ -1220,7 +1221,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_google_no_return_keyword(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool) -&gt; list:
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -1285,7 +1286,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_list_vs_typing_list(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -1311,7 +1312,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_more_parameter_documented_than_the_function_takes(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -1338,7 +1339,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_no_args_keyword_before_documented_arguments(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool) -&gt; list:
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -1363,7 +1364,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_no_docstring(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(n: int, m: int, i: int) -&gt; int:
             return n + m + i</code></pre>
@@ -1406,7 +1407,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_one_line_doc_string_missing_arguments_and_return(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(n: int, m: int, i: int) -&gt; int:
             &#34;&#34;&#34;Returns the sum of the three args.&#34;&#34;&#34;
@@ -1450,12 +1451,12 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_pedantic_args(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic(require_docstring=True)
         def no_docstrings() -&gt; None:
             print(&#39;.&#39;)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def no_docstrings() -&gt; None:
             print(&#39;.&#39;)</code></pre>
@@ -1471,7 +1472,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_restructured_text_style_doctsring_cannot_be_parsed_yet(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -1496,7 +1497,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_return_nothing_but_document_return_value(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool):
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -1509,7 +1510,7 @@ not have a method with the specified name.</p></div>
             Returns:
                 list: a list of strings representing the header columns
             &#34;&#34;&#34;
-            a = [file_loc, str(print_cols)]</code></pre>
+            print([file_loc, str(print_cols)])</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_return_nothing_but_document_return_value_2"><code class="name flex">
@@ -1522,7 +1523,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_return_nothing_but_document_return_value_2(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool) -&gt; None:
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -1535,7 +1536,7 @@ not have a method with the specified name.</p></div>
             Returns:
                 list: a list of strings representing the header columns
             &#34;&#34;&#34;
-            a = [file_loc, str(print_cols)]</code></pre>
+            print([file_loc, str(print_cols)])</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_docstring.TestRequireDocstringGoogleFormat.test_return_value_1_corrected"><code class="name flex">
@@ -1600,7 +1601,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_return_value_is_not_documented(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         # the error message here is actually wrong due to the behavior of the docstring-parser package
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
@@ -1625,7 +1626,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_return_value_is_not_documented_3(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool) -&gt; List[str]:
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -1648,7 +1649,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_undocumented_arg(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(file_loc: str, print_cols: bool, number: int) -&gt; List[str]:
             &#34;&#34;&#34;Gets and prints the spreadsheet&#39;s header columns
@@ -1674,7 +1675,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_undocumented_arg_3(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic
         def calc(a: int, b: float, c: str) -&gt; str:
             &#34;&#34;&#34;Returns some cool string
@@ -1755,7 +1756,7 @@ not have a method with the specified name.</p></div>
 
     m = MyClass()
     m.make_element(element_type=BPMNEnum(), src_tgt_elements=[BPMNElement()])
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.make_element(element_type=BPMNElement(), src_tgt_elements=[BPMNEnum()])</code></pre>
 </details>
 </dd>
@@ -1775,7 +1776,7 @@ not have a method with the specified name.</p></div>
     class BPMNElement:
         attr = &#39;BPMNElement&#39;
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         @pedantic_class_require_docstring
         class MyClass:
 
@@ -1805,7 +1806,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_wrong_format_1(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticDocstringException):
         class MyText:
             text = &#39;hi&#39;
 

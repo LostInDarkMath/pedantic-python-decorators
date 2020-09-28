@@ -30,6 +30,8 @@
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
 from enum import Enum
 
+from pedantic.exceptions import PedanticTypeCheckException, PedanticException, PedanticCallWithArgsException, \
+    PedanticTypeVarMismatchException
 from pedantic.method_decorators import pedantic
 
 
@@ -39,9 +41,9 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -&gt; int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             calc(42, 40, 38)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             calc(42, m=40, i=38)
         calc(n=42, m=40, i=38)
 
@@ -50,7 +52,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int) -&gt; List[List[float]]:
             return [0.0 * n]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_nested_type_hints_1_corrected(self):
@@ -66,7 +68,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int) -&gt; List[Tuple[float, str]]:
             return [(n, str(n))]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_nested_type_hints_2_corrected(self):
@@ -90,7 +92,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return n * x, str(y)
             return f
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)(x=3, y=3.14)
 
     def test_nested_type_hints_3_corrected(self):
@@ -110,7 +112,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: List[List[float]]) -&gt; int:
             return n[0][0]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=[[42.0]])
 
     def test_nested_type_hints_corrected(self):
@@ -130,7 +132,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return n * float(x), y
             return f
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_nested_type_hints_5_corrected(self):
@@ -149,7 +151,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n) -&gt; float:
             return 42.0 * n
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_missing_type_hint_1_corrected(self):
@@ -165,7 +167,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int):
             return &#39;Hi&#39; + str(n)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_missing_type_hint_2_corrected(self):
@@ -181,7 +183,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i) -&gt; int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_missing_type_hint_3_corrected(self):
@@ -253,7 +255,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -&gt; str:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_1_corrected(self):
@@ -269,7 +271,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: str) -&gt; int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_2_corrected(self):
@@ -285,7 +287,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -&gt; None:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_corrected(self):
@@ -301,7 +303,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -&gt; int:
             print(n + m + i)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_4_corrected(self):
@@ -317,7 +319,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -&gt; int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=None)
 
     def test_none_2(self):
@@ -340,7 +342,8 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: Union[int, None]) -&gt; int:
             return n + m + i if i is not None else None
 
-        with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=42)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=None)
 
     def test_none_5(self):
@@ -351,103 +354,101 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         calc(n=42, m=40, i=None)
 
     def test_inheritance_1(self):
-        class A:
+        class MyClassA:
             pass
 
-        class B(A):
+        class MyClassB(MyClassA):
             pass
 
         @pedantic
-        def calc(a: A) -&gt; str:
+        def calc(a: MyClassA) -&gt; str:
             return str(a)
 
-        calc(a=A())
-        calc(a=B())
+        calc(a=MyClassA())
+        calc(a=MyClassB())
 
     def test_inheritance_2(self):
         &#34;&#34;&#34;Problem here: A is not a subtype of B&#34;&#34;&#34;
-        class A:
+        class MyClassA:
             pass
 
-        class B(A):
+        class MyClassB(MyClassA):
             pass
 
         @pedantic
-        def calc(a: B) -&gt; str:
+        def calc(a: MyClassB) -&gt; str:
             return str(a)
 
-        calc(a=B())
-        with self.assertRaises(expected_exception=AssertionError):
-            calc(a=A())
+        calc(a=MyClassB())
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            calc(a=MyClassA())
 
     def test_instance_method_1(self):
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -&gt; str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42)
 
     def test_instance_method_2(self):
         &#34;&#34;&#34;Problem here: &#39;i&#39; has no type annotation&#34;&#34;&#34;
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i) -&gt; str:
                 return str(i)
 
-        a = A()
-        with self.assertRaises(expected_exception=AssertionError):
+        a = MyClassA()
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             a.calc(i=42)
 
     def test_instance_method_2_corrected(self):
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -&gt; str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42)
 
-    def test_instance_method_3(self):
-        &#34;&#34;&#34;Problem here: float != int&#34;&#34;&#34;
-        class A:
+    def test_instance_method_int_is_not_float(self):
+        class MyClassA:
             @pedantic
             def calc(self, i: float) -&gt; str:
                 return str(i)
 
-        a = A()
-        with self.assertRaises(expected_exception=AssertionError):
+        a = MyClassA()
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             a.calc(i=42)
 
     def test_instance_method_3_corrected(self):
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: float) -&gt; str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42.0)
 
-    def test_instance_method_4(self):
-        &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
-        class A:
+    def test_instance_method_no_kwargs(self):
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -&gt; str:
                 return str(i)
 
-        a = A()
-        with self.assertRaises(expected_exception=AssertionError):
+        a = MyClassA()
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             a.calc(42)
 
     def test_instance_method_5(self):
         &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -&gt; str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42)
 
     def test_lambda_1(self):
@@ -456,17 +457,17 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(i: float) -&gt; Callable[[float], str]:
             return lambda x: str(x * i)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(10.0)
 
     def test_lambda_2(self):
-        &#34;&#34;&#34;Even this is not expected by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
+        &#34;&#34;&#34;Even this is not accepted by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
         @pedantic
         def calc(i: float) -&gt; Callable[[float], str]:
             res: Callable[[float], str] = lambda x: str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(10.0)
 
     def test_lambda_3(self):
@@ -486,7 +487,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(x=10)
 
     def test_lambda_4_almost_corrected(self):
@@ -498,7 +499,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(x=10)
 
     def test_lambda_4_almost_corrected_2(self):
@@ -520,7 +521,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(x=10)
 
     def test_lambda_corrected(self):
@@ -534,13 +535,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         calc(i=42.0)(x=10.0)
 
-    def test_tuple_without_args(self):
-        &#34;&#34;&#34;Problem here: Tuple has no type arguments&#34;&#34;&#34;
+    def test_tuple_without_type_args(self):
         @pedantic
         def calc(i: Tuple) -&gt; str:
             return str(i)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=(42.0, 43, &#39;hi&#39;))
 
     def test_tuple_without_args_corrected(self):
@@ -550,13 +550,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         calc(i=(42.0, 43, &#39;hi&#39;))
 
-    def test_callable_without_args(self):
-        &#34;&#34;&#34;Problem here: Callable has no type arguments&#34;&#34;&#34;
+    def test_callable_without_type_args(self):
         @pedantic
         def calc(i: Callable) -&gt; str:
             return str(i(&#39; you&#39;))
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
 
     def test_callable_without_args_almost_corrected(self):
@@ -565,7 +564,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
             return str(i(x=&#39; you&#39;))
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
 
     def test_callable_without_args_corrected(self):
@@ -579,12 +578,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         calc(i=arg)
 
     def test_list_without_args(self):
-        &#34;&#34;&#34;Problem here: List has no type arguments&#34;&#34;&#34;
         @pedantic
         def calc(i: List) -&gt; Any:
             return [i]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=[42.0, 43, &#39;hi&#39;])
 
     def test_list_without_args_corrected(self):
@@ -626,7 +624,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def call(x: float, y: int) -&gt; int:
             return 42
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticException):
             calc(i=call)
 
     def test_optional_args_1(self):
@@ -656,7 +654,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(a: int = 3, b: int = 42, c: float = 5) -&gt; float:
             return a + b + c
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc()
 
     def test_optional_args_3_corrected(self):
@@ -686,7 +684,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         calc()
         calc(d={42: 3})
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(d={42: 3.14})
 
     def test_optional_args_6(self):
@@ -696,11 +694,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return int(d)
 
         calc(d=99999)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(d=&#39;999999&#39;)
 
     def test_enum_1(self):
-        &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
+        &#34;&#34;&#34;Problem here: Type hint for &#39;a&#39; should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
         class MyEnum(Enum):
             ALPHA = &#39;startEvent&#39;
             BETA = &#39;task&#39;
@@ -712,7 +710,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 print(a)
 
         m = MyClass()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.operation(a=MyEnum.GAMMA)
 
     def test_enum_1_corrected(self):
@@ -728,21 +726,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(a=MyEnum.GAMMA)
 
     def test_sloppy_types_dict(self):
-        &#34;&#34;&#34;Problem here: use typing.Dict instead of dict&#34;&#34;&#34;
         @pedantic
         def operation(d: dict) -&gt; int:
             return len(d.keys())
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1: 1, 2: 2})
 
-    def test_sloppy_types_dict_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.Dict misses type arguments&#34;&#34;&#34;
+    def test_sloppy_types_dict_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: Dict) -&gt; int:
             return len(d.keys())
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1: 1, 2: 2})
 
     def test_sloppy_types_dict_corrected(self):
@@ -753,21 +749,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(d={1: 1, 2: 2})
 
     def test_sloppy_types_list(self):
-        &#34;&#34;&#34;Problem here: use typing.List instead of list&#34;&#34;&#34;
         @pedantic
         def operation(d: list) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=[1, 2, 3, 4])
 
-    def test_sloppy_types_list_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.List misses type argument&#34;&#34;&#34;
+    def test_sloppy_types_list_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: List) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=[1, 2, 3, 4])
 
     def test_sloppy_types_list_corrected(self):
@@ -778,21 +772,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(d=[1, 2, 3, 4])
 
     def test_sloppy_types_tuple(self):
-        &#34;&#34;&#34;Problem here: use typing.Tuple instead of tuple&#34;&#34;&#34;
         @pedantic
         def operation(d: tuple) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=(1, 2, 3))
 
-    def test_sloppy_types_tuple_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.Tuple misses type arguments&#34;&#34;&#34;
+    def test_sloppy_types_tuple_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: Tuple) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=(1, 2, 3))
 
     def test_sloppy_types_tuple_corrected(self):
@@ -803,21 +795,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(d=(1, 2, 3))
 
     def test_sloppy_types_set(self):
-        &#34;&#34;&#34;Problem here: use typing.Set instead of set&#34;&#34;&#34;
         @pedantic
         def operation(d: set) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1, 2, 3})
 
-    def test_sloppy_types_set_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.Set misses type argument&#34;&#34;&#34;
+    def test_sloppy_types_set_almost_corrected_to_type_args(self):
         @pedantic
         def operation(d: Set) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1, 2, 3})
 
     def test_sloppy_types_set_corrected(self):
@@ -828,21 +818,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(d={1, 2, 3})
 
     def test_sloppy_types_frozenset(self):
-        &#34;&#34;&#34;Problem here: use typing.FrozenSet instead of frozenset&#34;&#34;&#34;
         @pedantic
         def operation(d: frozenset) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=frozenset({1, 2, 3}))
 
-    def test_sloppy_types_frozenset_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.FrozenSet misses type argument&#34;&#34;&#34;
+    def test_sloppy_types_frozenset_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: FrozenSet) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=frozenset({1, 2, 3}))
 
     def test_sloppy_types_frozenset_corrected(self):
@@ -852,13 +840,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         operation(d=frozenset({1, 2, 3}))
 
-    def test_type_list(self):
-        &#34;&#34;&#34;Problem here: tuple != list&#34;&#34;&#34;
+    def test_type_list_but_got_tuple(self):
         @pedantic
         def calc(ls: List[Any]) -&gt; int:
             return len(ls)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(ls=(1, 2, 3))
 
     def test_type_list_corrected(self):
@@ -909,7 +896,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return str(user_ids)
 
         get_user_name(user_ids=[UserId(524313), UserId(42)])
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             get_user_name(user_ids=[UserId(524313), UserId(42), 430.0])
 
     def test_callable_no_args(self):
@@ -939,7 +926,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def first(ls: List[T]) -&gt; T:
             return str(ls[0])
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             first(ls=[1, 2, 3])
 
     def test_type_var_wrong_sequence(self):
@@ -949,7 +936,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def first(ls: Sequence[T]) -&gt; T:
             return str(ls[0])
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             first(ls=[1, 2, 3])
 
     def test_double_pedantic(self):
@@ -959,9 +946,9 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return float(x), str(y)
 
         f(x=5, y=3.14)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             f(x=5.0, y=3.14)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             f(5, 3.14)
 
     def test_args_kwargs(self):
@@ -974,11 +961,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return some_method(*args, **kwargs)
 
         some_method()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             some_method(3, 3.0)
         some_method(a=3, b=3.0)
         wrapper_method()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             wrapper_method(3, 3.0)
         wrapper_method(a=3, b=3.0)
 
@@ -988,9 +975,9 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             print(args)
             print(kwargs)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             method_no_type_hint(a=3, b=3.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             method_no_type_hint()
 
     def test_args_kwargs_wrong_type_hint(self):
@@ -1003,11 +990,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         wrapper_method()
         wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;)
         wrapper_method(a=&#39;hi&#39;, b=&#39;you&#39;, c=&#39;:)&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;, 7)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             wrapper_method(3, 3.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             wrapper_method(a=3, b=3.0)
 
     def test_additional_kwargs(self):
@@ -1019,11 +1006,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         some_method(a=5, b=0.1)
         some_method(a=5, b=0.1, c=4)
         some_method(a=5, b=0.1, c=4, d=5, e=6)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method(a=5, b=0.1, c=4, d=5.0, e=6)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method(a=5.0, b=0.1, c=4, d=5, e=6)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method(a=5, b=0, c=4, d=5, e=6)
 
     def test_args_kwargs_different_types(self):
@@ -1044,7 +1031,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             MyClass()
 
     def test_is_subtype_tuple(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             @pedantic
             def foo() -&gt; Callable[[Tuple[float, str]], Tuple[int]]:
                 def bar(a: Tuple[float]) -&gt; Tuple[int]:
@@ -1063,7 +1050,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
 if __name__ == &#39;__main__&#39;:
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_type_var()</code></pre>
+    test.test_type_var_wrong_sequence()</code></pre>
 </details>
 </section>
 <section>
@@ -1118,9 +1105,9 @@ not have a method with the specified name.</p></div>
         def calc(n: int, m: int, i: int) -&gt; int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             calc(42, 40, 38)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             calc(42, m=40, i=38)
         calc(n=42, m=40, i=38)
 
@@ -1129,7 +1116,7 @@ not have a method with the specified name.</p></div>
         def calc(n: int) -&gt; List[List[float]]:
             return [0.0 * n]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_nested_type_hints_1_corrected(self):
@@ -1145,7 +1132,7 @@ not have a method with the specified name.</p></div>
         def calc(n: int) -&gt; List[Tuple[float, str]]:
             return [(n, str(n))]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_nested_type_hints_2_corrected(self):
@@ -1169,7 +1156,7 @@ not have a method with the specified name.</p></div>
                 return n * x, str(y)
             return f
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)(x=3, y=3.14)
 
     def test_nested_type_hints_3_corrected(self):
@@ -1189,7 +1176,7 @@ not have a method with the specified name.</p></div>
         def calc(n: List[List[float]]) -&gt; int:
             return n[0][0]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=[[42.0]])
 
     def test_nested_type_hints_corrected(self):
@@ -1209,7 +1196,7 @@ not have a method with the specified name.</p></div>
                 return n * float(x), y
             return f
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_nested_type_hints_5_corrected(self):
@@ -1228,7 +1215,7 @@ not have a method with the specified name.</p></div>
         def calc(n) -&gt; float:
             return 42.0 * n
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_missing_type_hint_1_corrected(self):
@@ -1244,7 +1231,7 @@ not have a method with the specified name.</p></div>
         def calc(n: int):
             return &#39;Hi&#39; + str(n)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_missing_type_hint_2_corrected(self):
@@ -1260,7 +1247,7 @@ not have a method with the specified name.</p></div>
         def calc(n: int, m: int, i) -&gt; int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_missing_type_hint_3_corrected(self):
@@ -1332,7 +1319,7 @@ not have a method with the specified name.</p></div>
         def calc(n: int, m: int, i: int) -&gt; str:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_1_corrected(self):
@@ -1348,7 +1335,7 @@ not have a method with the specified name.</p></div>
         def calc(n: int, m: int, i: str) -&gt; int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_2_corrected(self):
@@ -1364,7 +1351,7 @@ not have a method with the specified name.</p></div>
         def calc(n: int, m: int, i: int) -&gt; None:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_corrected(self):
@@ -1380,7 +1367,7 @@ not have a method with the specified name.</p></div>
         def calc(n: int, m: int, i: int) -&gt; int:
             print(n + m + i)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_4_corrected(self):
@@ -1396,7 +1383,7 @@ not have a method with the specified name.</p></div>
         def calc(n: int, m: int, i: int) -&gt; int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=None)
 
     def test_none_2(self):
@@ -1419,7 +1406,8 @@ not have a method with the specified name.</p></div>
         def calc(n: int, m: int, i: Union[int, None]) -&gt; int:
             return n + m + i if i is not None else None
 
-        with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=42)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=None)
 
     def test_none_5(self):
@@ -1430,103 +1418,101 @@ not have a method with the specified name.</p></div>
         calc(n=42, m=40, i=None)
 
     def test_inheritance_1(self):
-        class A:
+        class MyClassA:
             pass
 
-        class B(A):
+        class MyClassB(MyClassA):
             pass
 
         @pedantic
-        def calc(a: A) -&gt; str:
+        def calc(a: MyClassA) -&gt; str:
             return str(a)
 
-        calc(a=A())
-        calc(a=B())
+        calc(a=MyClassA())
+        calc(a=MyClassB())
 
     def test_inheritance_2(self):
         &#34;&#34;&#34;Problem here: A is not a subtype of B&#34;&#34;&#34;
-        class A:
+        class MyClassA:
             pass
 
-        class B(A):
+        class MyClassB(MyClassA):
             pass
 
         @pedantic
-        def calc(a: B) -&gt; str:
+        def calc(a: MyClassB) -&gt; str:
             return str(a)
 
-        calc(a=B())
-        with self.assertRaises(expected_exception=AssertionError):
-            calc(a=A())
+        calc(a=MyClassB())
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            calc(a=MyClassA())
 
     def test_instance_method_1(self):
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -&gt; str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42)
 
     def test_instance_method_2(self):
         &#34;&#34;&#34;Problem here: &#39;i&#39; has no type annotation&#34;&#34;&#34;
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i) -&gt; str:
                 return str(i)
 
-        a = A()
-        with self.assertRaises(expected_exception=AssertionError):
+        a = MyClassA()
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             a.calc(i=42)
 
     def test_instance_method_2_corrected(self):
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -&gt; str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42)
 
-    def test_instance_method_3(self):
-        &#34;&#34;&#34;Problem here: float != int&#34;&#34;&#34;
-        class A:
+    def test_instance_method_int_is_not_float(self):
+        class MyClassA:
             @pedantic
             def calc(self, i: float) -&gt; str:
                 return str(i)
 
-        a = A()
-        with self.assertRaises(expected_exception=AssertionError):
+        a = MyClassA()
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             a.calc(i=42)
 
     def test_instance_method_3_corrected(self):
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: float) -&gt; str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42.0)
 
-    def test_instance_method_4(self):
-        &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
-        class A:
+    def test_instance_method_no_kwargs(self):
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -&gt; str:
                 return str(i)
 
-        a = A()
-        with self.assertRaises(expected_exception=AssertionError):
+        a = MyClassA()
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             a.calc(42)
 
     def test_instance_method_5(self):
         &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -&gt; str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42)
 
     def test_lambda_1(self):
@@ -1535,17 +1521,17 @@ not have a method with the specified name.</p></div>
         def calc(i: float) -&gt; Callable[[float], str]:
             return lambda x: str(x * i)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(10.0)
 
     def test_lambda_2(self):
-        &#34;&#34;&#34;Even this is not expected by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
+        &#34;&#34;&#34;Even this is not accepted by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
         @pedantic
         def calc(i: float) -&gt; Callable[[float], str]:
             res: Callable[[float], str] = lambda x: str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(10.0)
 
     def test_lambda_3(self):
@@ -1565,7 +1551,7 @@ not have a method with the specified name.</p></div>
                 return str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(x=10)
 
     def test_lambda_4_almost_corrected(self):
@@ -1577,7 +1563,7 @@ not have a method with the specified name.</p></div>
                 return str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(x=10)
 
     def test_lambda_4_almost_corrected_2(self):
@@ -1599,7 +1585,7 @@ not have a method with the specified name.</p></div>
                 return str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(x=10)
 
     def test_lambda_corrected(self):
@@ -1613,13 +1599,12 @@ not have a method with the specified name.</p></div>
 
         calc(i=42.0)(x=10.0)
 
-    def test_tuple_without_args(self):
-        &#34;&#34;&#34;Problem here: Tuple has no type arguments&#34;&#34;&#34;
+    def test_tuple_without_type_args(self):
         @pedantic
         def calc(i: Tuple) -&gt; str:
             return str(i)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=(42.0, 43, &#39;hi&#39;))
 
     def test_tuple_without_args_corrected(self):
@@ -1629,13 +1614,12 @@ not have a method with the specified name.</p></div>
 
         calc(i=(42.0, 43, &#39;hi&#39;))
 
-    def test_callable_without_args(self):
-        &#34;&#34;&#34;Problem here: Callable has no type arguments&#34;&#34;&#34;
+    def test_callable_without_type_args(self):
         @pedantic
         def calc(i: Callable) -&gt; str:
             return str(i(&#39; you&#39;))
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
 
     def test_callable_without_args_almost_corrected(self):
@@ -1644,7 +1628,7 @@ not have a method with the specified name.</p></div>
         def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
             return str(i(x=&#39; you&#39;))
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
 
     def test_callable_without_args_corrected(self):
@@ -1658,12 +1642,11 @@ not have a method with the specified name.</p></div>
         calc(i=arg)
 
     def test_list_without_args(self):
-        &#34;&#34;&#34;Problem here: List has no type arguments&#34;&#34;&#34;
         @pedantic
         def calc(i: List) -&gt; Any:
             return [i]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=[42.0, 43, &#39;hi&#39;])
 
     def test_list_without_args_corrected(self):
@@ -1705,7 +1688,7 @@ not have a method with the specified name.</p></div>
         def call(x: float, y: int) -&gt; int:
             return 42
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticException):
             calc(i=call)
 
     def test_optional_args_1(self):
@@ -1735,7 +1718,7 @@ not have a method with the specified name.</p></div>
         def calc(a: int = 3, b: int = 42, c: float = 5) -&gt; float:
             return a + b + c
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc()
 
     def test_optional_args_3_corrected(self):
@@ -1765,7 +1748,7 @@ not have a method with the specified name.</p></div>
         calc()
         calc(d={42: 3})
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(d={42: 3.14})
 
     def test_optional_args_6(self):
@@ -1775,11 +1758,11 @@ not have a method with the specified name.</p></div>
             return int(d)
 
         calc(d=99999)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(d=&#39;999999&#39;)
 
     def test_enum_1(self):
-        &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
+        &#34;&#34;&#34;Problem here: Type hint for &#39;a&#39; should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
         class MyEnum(Enum):
             ALPHA = &#39;startEvent&#39;
             BETA = &#39;task&#39;
@@ -1791,7 +1774,7 @@ not have a method with the specified name.</p></div>
                 print(a)
 
         m = MyClass()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.operation(a=MyEnum.GAMMA)
 
     def test_enum_1_corrected(self):
@@ -1807,21 +1790,19 @@ not have a method with the specified name.</p></div>
         operation(a=MyEnum.GAMMA)
 
     def test_sloppy_types_dict(self):
-        &#34;&#34;&#34;Problem here: use typing.Dict instead of dict&#34;&#34;&#34;
         @pedantic
         def operation(d: dict) -&gt; int:
             return len(d.keys())
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1: 1, 2: 2})
 
-    def test_sloppy_types_dict_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.Dict misses type arguments&#34;&#34;&#34;
+    def test_sloppy_types_dict_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: Dict) -&gt; int:
             return len(d.keys())
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1: 1, 2: 2})
 
     def test_sloppy_types_dict_corrected(self):
@@ -1832,21 +1813,19 @@ not have a method with the specified name.</p></div>
         operation(d={1: 1, 2: 2})
 
     def test_sloppy_types_list(self):
-        &#34;&#34;&#34;Problem here: use typing.List instead of list&#34;&#34;&#34;
         @pedantic
         def operation(d: list) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=[1, 2, 3, 4])
 
-    def test_sloppy_types_list_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.List misses type argument&#34;&#34;&#34;
+    def test_sloppy_types_list_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: List) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=[1, 2, 3, 4])
 
     def test_sloppy_types_list_corrected(self):
@@ -1857,21 +1836,19 @@ not have a method with the specified name.</p></div>
         operation(d=[1, 2, 3, 4])
 
     def test_sloppy_types_tuple(self):
-        &#34;&#34;&#34;Problem here: use typing.Tuple instead of tuple&#34;&#34;&#34;
         @pedantic
         def operation(d: tuple) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=(1, 2, 3))
 
-    def test_sloppy_types_tuple_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.Tuple misses type arguments&#34;&#34;&#34;
+    def test_sloppy_types_tuple_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: Tuple) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=(1, 2, 3))
 
     def test_sloppy_types_tuple_corrected(self):
@@ -1882,21 +1859,19 @@ not have a method with the specified name.</p></div>
         operation(d=(1, 2, 3))
 
     def test_sloppy_types_set(self):
-        &#34;&#34;&#34;Problem here: use typing.Set instead of set&#34;&#34;&#34;
         @pedantic
         def operation(d: set) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1, 2, 3})
 
-    def test_sloppy_types_set_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.Set misses type argument&#34;&#34;&#34;
+    def test_sloppy_types_set_almost_corrected_to_type_args(self):
         @pedantic
         def operation(d: Set) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1, 2, 3})
 
     def test_sloppy_types_set_corrected(self):
@@ -1907,21 +1882,19 @@ not have a method with the specified name.</p></div>
         operation(d={1, 2, 3})
 
     def test_sloppy_types_frozenset(self):
-        &#34;&#34;&#34;Problem here: use typing.FrozenSet instead of frozenset&#34;&#34;&#34;
         @pedantic
         def operation(d: frozenset) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=frozenset({1, 2, 3}))
 
-    def test_sloppy_types_frozenset_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: typing.FrozenSet misses type argument&#34;&#34;&#34;
+    def test_sloppy_types_frozenset_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: FrozenSet) -&gt; int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=frozenset({1, 2, 3}))
 
     def test_sloppy_types_frozenset_corrected(self):
@@ -1931,13 +1904,12 @@ not have a method with the specified name.</p></div>
 
         operation(d=frozenset({1, 2, 3}))
 
-    def test_type_list(self):
-        &#34;&#34;&#34;Problem here: tuple != list&#34;&#34;&#34;
+    def test_type_list_but_got_tuple(self):
         @pedantic
         def calc(ls: List[Any]) -&gt; int:
             return len(ls)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(ls=(1, 2, 3))
 
     def test_type_list_corrected(self):
@@ -1988,7 +1960,7 @@ not have a method with the specified name.</p></div>
             return str(user_ids)
 
         get_user_name(user_ids=[UserId(524313), UserId(42)])
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             get_user_name(user_ids=[UserId(524313), UserId(42), 430.0])
 
     def test_callable_no_args(self):
@@ -2018,7 +1990,7 @@ not have a method with the specified name.</p></div>
         def first(ls: List[T]) -&gt; T:
             return str(ls[0])
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             first(ls=[1, 2, 3])
 
     def test_type_var_wrong_sequence(self):
@@ -2028,7 +2000,7 @@ not have a method with the specified name.</p></div>
         def first(ls: Sequence[T]) -&gt; T:
             return str(ls[0])
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             first(ls=[1, 2, 3])
 
     def test_double_pedantic(self):
@@ -2038,9 +2010,9 @@ not have a method with the specified name.</p></div>
             return float(x), str(y)
 
         f(x=5, y=3.14)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             f(x=5.0, y=3.14)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             f(5, 3.14)
 
     def test_args_kwargs(self):
@@ -2053,11 +2025,11 @@ not have a method with the specified name.</p></div>
             return some_method(*args, **kwargs)
 
         some_method()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             some_method(3, 3.0)
         some_method(a=3, b=3.0)
         wrapper_method()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             wrapper_method(3, 3.0)
         wrapper_method(a=3, b=3.0)
 
@@ -2067,9 +2039,9 @@ not have a method with the specified name.</p></div>
             print(args)
             print(kwargs)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             method_no_type_hint(a=3, b=3.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             method_no_type_hint()
 
     def test_args_kwargs_wrong_type_hint(self):
@@ -2082,11 +2054,11 @@ not have a method with the specified name.</p></div>
         wrapper_method()
         wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;)
         wrapper_method(a=&#39;hi&#39;, b=&#39;you&#39;, c=&#39;:)&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;, 7)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             wrapper_method(3, 3.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             wrapper_method(a=3, b=3.0)
 
     def test_additional_kwargs(self):
@@ -2098,11 +2070,11 @@ not have a method with the specified name.</p></div>
         some_method(a=5, b=0.1)
         some_method(a=5, b=0.1, c=4)
         some_method(a=5, b=0.1, c=4, d=5, e=6)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method(a=5, b=0.1, c=4, d=5.0, e=6)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method(a=5.0, b=0.1, c=4, d=5, e=6)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method(a=5, b=0, c=4, d=5, e=6)
 
     def test_args_kwargs_different_types(self):
@@ -2123,7 +2095,7 @@ not have a method with the specified name.</p></div>
             MyClass()
 
     def test_is_subtype_tuple(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             @pedantic
             def foo() -&gt; Callable[[Tuple[float, str]], Tuple[int]]:
                 def bar(a: Tuple[float]) -&gt; Tuple[int]:
@@ -2163,11 +2135,11 @@ not have a method with the specified name.</p></div>
     some_method(a=5, b=0.1)
     some_method(a=5, b=0.1, c=4)
     some_method(a=5, b=0.1, c=4, d=5, e=6)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         some_method(a=5, b=0.1, c=4, d=5.0, e=6)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         some_method(a=5.0, b=0.1, c=4, d=5, e=6)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         some_method(a=5, b=0, c=4, d=5, e=6)</code></pre>
 </details>
 </dd>
@@ -2355,11 +2327,11 @@ not have a method with the specified name.</p></div>
         return some_method(*args, **kwargs)
 
     some_method()
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         some_method(3, 3.0)
     some_method(a=3, b=3.0)
     wrapper_method()
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         wrapper_method(3, 3.0)
     wrapper_method(a=3, b=3.0)</code></pre>
 </details>
@@ -2399,9 +2371,9 @@ not have a method with the specified name.</p></div>
         print(args)
         print(kwargs)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         method_no_type_hint(a=3, b=3.0)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         method_no_type_hint()</code></pre>
 </details>
 </dd>
@@ -2424,11 +2396,11 @@ not have a method with the specified name.</p></div>
     wrapper_method()
     wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;)
     wrapper_method(a=&#39;hi&#39;, b=&#39;you&#39;, c=&#39;:)&#39;)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         wrapper_method(&#39;hi&#39;, &#39;you&#39;, &#39;:)&#39;, 7)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         wrapper_method(3, 3.0)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         wrapper_method(a=3, b=3.0)</code></pre>
 </details>
 </dd>
@@ -2453,25 +2425,6 @@ not have a method with the specified name.</p></div>
     f(g=greetings)</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args"><code class="name flex">
-<span>def <span class="ident">test_callable_without_args</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Problem here: Callable has no type arguments</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_callable_without_args(self):
-    &#34;&#34;&#34;Problem here: Callable has no type arguments&#34;&#34;&#34;
-    @pedantic
-    def calc(i: Callable) -&gt; str:
-        return str(i(&#39; you&#39;))
-
-    with self.assertRaises(expected_exception=AssertionError):
-        calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))</code></pre>
-</details>
-</dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected"><code class="name flex">
 <span>def <span class="ident">test_callable_without_args_almost_corrected</span></span>(<span>self)</span>
 </code></dt>
@@ -2487,7 +2440,7 @@ not have a method with the specified name.</p></div>
     def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
         return str(i(x=&#39; you&#39;))
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))</code></pre>
 </details>
 </dd>
@@ -2511,6 +2464,24 @@ not have a method with the specified name.</p></div>
     calc(i=arg)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_type_args"><code class="name flex">
+<span>def <span class="ident">test_callable_without_type_args</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_callable_without_type_args(self):
+    @pedantic
+    def calc(i: Callable) -&gt; str:
+        return str(i(&#39; you&#39;))
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))</code></pre>
+</details>
+</dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_double_pedantic"><code class="name flex">
 <span>def <span class="ident">test_double_pedantic</span></span>(<span>self)</span>
 </code></dt>
@@ -2527,9 +2498,9 @@ not have a method with the specified name.</p></div>
         return float(x), str(y)
 
     f(x=5, y=3.14)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         f(x=5.0, y=3.14)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         f(5, 3.14)</code></pre>
 </details>
 </dd>
@@ -2594,7 +2565,7 @@ not have a method with the specified name.</p></div>
     def call(x: float, y: int) -&gt; int:
         return 42
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticException):
         calc(i=call)</code></pre>
 </details>
 </dd>
@@ -2602,13 +2573,13 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_enum_1</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA</p></div>
+<div class="desc"><p>Problem here: Type hint for 'a' should be MyEnum instead of MyEnum.GAMMA</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_enum_1(self):
-    &#34;&#34;&#34;Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
+    &#34;&#34;&#34;Problem here: Type hint for &#39;a&#39; should be MyEnum instead of MyEnum.GAMMA&#34;&#34;&#34;
     class MyEnum(Enum):
         ALPHA = &#39;startEvent&#39;
         BETA = &#39;task&#39;
@@ -2620,7 +2591,7 @@ not have a method with the specified name.</p></div>
             print(a)
 
     m = MyClass()
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.operation(a=MyEnum.GAMMA)</code></pre>
 </details>
 </dd>
@@ -2656,18 +2627,18 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_inheritance_1(self):
-    class A:
+    class MyClassA:
         pass
 
-    class B(A):
+    class MyClassB(MyClassA):
         pass
 
     @pedantic
-    def calc(a: A) -&gt; str:
+    def calc(a: MyClassA) -&gt; str:
         return str(a)
 
-    calc(a=A())
-    calc(a=B())</code></pre>
+    calc(a=MyClassA())
+    calc(a=MyClassB())</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_2"><code class="name flex">
@@ -2681,19 +2652,19 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">def test_inheritance_2(self):
     &#34;&#34;&#34;Problem here: A is not a subtype of B&#34;&#34;&#34;
-    class A:
+    class MyClassA:
         pass
 
-    class B(A):
+    class MyClassB(MyClassA):
         pass
 
     @pedantic
-    def calc(a: B) -&gt; str:
+    def calc(a: MyClassB) -&gt; str:
         return str(a)
 
-    calc(a=B())
-    with self.assertRaises(expected_exception=AssertionError):
-        calc(a=A())</code></pre>
+    calc(a=MyClassB())
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        calc(a=MyClassA())</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_1"><code class="name flex">
@@ -2706,12 +2677,12 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_instance_method_1(self):
-    class A:
+    class MyClassA:
         @pedantic
         def calc(self, i: int) -&gt; str:
             return str(i)
 
-    a = A()
+    a = MyClassA()
     a.calc(i=42)</code></pre>
 </details>
 </dd>
@@ -2726,13 +2697,13 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">def test_instance_method_2(self):
     &#34;&#34;&#34;Problem here: &#39;i&#39; has no type annotation&#34;&#34;&#34;
-    class A:
+    class MyClassA:
         @pedantic
         def calc(self, i) -&gt; str:
             return str(i)
 
-    a = A()
-    with self.assertRaises(expected_exception=AssertionError):
+    a = MyClassA()
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         a.calc(i=42)</code></pre>
 </details>
 </dd>
@@ -2746,34 +2717,13 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_instance_method_2_corrected(self):
-    class A:
+    class MyClassA:
         @pedantic
         def calc(self, i: int) -&gt; str:
             return str(i)
 
-    a = A()
+    a = MyClassA()
     a.calc(i=42)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3"><code class="name flex">
-<span>def <span class="ident">test_instance_method_3</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Problem here: float != int</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_instance_method_3(self):
-    &#34;&#34;&#34;Problem here: float != int&#34;&#34;&#34;
-    class A:
-        @pedantic
-        def calc(self, i: float) -&gt; str:
-            return str(i)
-
-    a = A()
-    with self.assertRaises(expected_exception=AssertionError):
-        a.calc(i=42)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3_corrected"><code class="name flex">
@@ -2786,34 +2736,13 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_instance_method_3_corrected(self):
-    class A:
+    class MyClassA:
         @pedantic
         def calc(self, i: float) -&gt; str:
             return str(i)
 
-    a = A()
+    a = MyClassA()
     a.calc(i=42.0)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_4"><code class="name flex">
-<span>def <span class="ident">test_instance_method_4</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Problem here: instance methods is not called with kwargs</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_instance_method_4(self):
-    &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
-    class A:
-        @pedantic
-        def calc(self, i: int) -&gt; str:
-            return str(i)
-
-    a = A()
-    with self.assertRaises(expected_exception=AssertionError):
-        a.calc(42)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_5"><code class="name flex">
@@ -2827,13 +2756,53 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">def test_instance_method_5(self):
     &#34;&#34;&#34;Problem here: instance methods is not called with kwargs&#34;&#34;&#34;
-    class A:
+    class MyClassA:
         @pedantic
         def calc(self, i: int) -&gt; str:
             return str(i)
 
-    a = A()
+    a = MyClassA()
     a.calc(i=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_int_is_not_float"><code class="name flex">
+<span>def <span class="ident">test_instance_method_int_is_not_float</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_instance_method_int_is_not_float(self):
+    class MyClassA:
+        @pedantic
+        def calc(self, i: float) -&gt; str:
+            return str(i)
+
+    a = MyClassA()
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        a.calc(i=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_no_kwargs"><code class="name flex">
+<span>def <span class="ident">test_instance_method_no_kwargs</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_instance_method_no_kwargs(self):
+    class MyClassA:
+        @pedantic
+        def calc(self, i: int) -&gt; str:
+            return str(i)
+
+    a = MyClassA()
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
+        a.calc(42)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple"><code class="name flex">
@@ -2846,7 +2815,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_is_subtype_tuple(self):
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         @pedantic
         def foo() -&gt; Callable[[Tuple[float, str]], Tuple[int]]:
             def bar(a: Tuple[float]) -&gt; Tuple[int]:
@@ -2888,7 +2857,7 @@ not have a method with the specified name.</p></div>
     def calc(i: float) -&gt; Callable[[float], str]:
         return lambda x: str(x * i)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(i=42.0)(10.0)</code></pre>
 </details>
 </dd>
@@ -2896,19 +2865,19 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_lambda_2</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Even this is not expected by the type checker. Only test_lambda_3 has the 'correct' syntax</p></div>
+<div class="desc"><p>Even this is not accepted by the type checker. Only test_lambda_3 has the 'correct' syntax</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_lambda_2(self):
-    &#34;&#34;&#34;Even this is not expected by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
+    &#34;&#34;&#34;Even this is not accepted by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
     @pedantic
     def calc(i: float) -&gt; Callable[[float], str]:
         res: Callable[[float], str] = lambda x: str(x * i)
         return res
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(i=42.0)(10.0)</code></pre>
 </details>
 </dd>
@@ -2948,7 +2917,7 @@ not have a method with the specified name.</p></div>
             return str(x * i)
         return res
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(i=42.0)(x=10)</code></pre>
 </details>
 </dd>
@@ -2970,7 +2939,7 @@ not have a method with the specified name.</p></div>
             return str(x * i)
         return res
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(i=42.0)(x=10)</code></pre>
 </details>
 </dd>
@@ -3012,7 +2981,7 @@ not have a method with the specified name.</p></div>
             return str(x * i)
         return res
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(i=42.0)(x=10)</code></pre>
 </details>
 </dd>
@@ -3054,7 +3023,7 @@ not have a method with the specified name.</p></div>
         return str(user_ids)
 
     get_user_name(user_ids=[UserId(524313), UserId(42)])
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         get_user_name(user_ids=[UserId(524313), UserId(42), 430.0])</code></pre>
 </details>
 </dd>
@@ -3062,18 +3031,17 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_list_without_args</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: List has no type arguments</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_list_without_args(self):
-    &#34;&#34;&#34;Problem here: List has no type arguments&#34;&#34;&#34;
     @pedantic
     def calc(i: List) -&gt; Any:
         return [i]
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(i=[42.0, 43, &#39;hi&#39;])</code></pre>
 </details>
 </dd>
@@ -3109,7 +3077,7 @@ not have a method with the specified name.</p></div>
     def calc(n) -&gt; float:
         return 42.0 * n
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42)</code></pre>
 </details>
 </dd>
@@ -3145,7 +3113,7 @@ not have a method with the specified name.</p></div>
     def calc(n: int):
         return &#39;Hi&#39; + str(n)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42)</code></pre>
 </details>
 </dd>
@@ -3181,7 +3149,7 @@ not have a method with the specified name.</p></div>
     def calc(n: int, m: int, i) -&gt; int:
         return n + m + i
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42, m=40, i=38)</code></pre>
 </details>
 </dd>
@@ -3216,7 +3184,7 @@ not have a method with the specified name.</p></div>
     def calc(n: int) -&gt; List[List[float]]:
         return [0.0 * n]
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42)</code></pre>
 </details>
 </dd>
@@ -3252,7 +3220,7 @@ not have a method with the specified name.</p></div>
     def calc(n: int) -&gt; List[Tuple[float, str]]:
         return [(n, str(n))]
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42)</code></pre>
 </details>
 </dd>
@@ -3296,7 +3264,7 @@ not have a method with the specified name.</p></div>
             return n * x, str(y)
         return f
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42)(x=3, y=3.14)</code></pre>
 </details>
 </dd>
@@ -3336,7 +3304,7 @@ not have a method with the specified name.</p></div>
     def calc(n: List[List[float]]) -&gt; int:
         return n[0][0]
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=[[42.0]])</code></pre>
 </details>
 </dd>
@@ -3359,7 +3327,7 @@ not have a method with the specified name.</p></div>
             return n * float(x), y
         return f
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42)</code></pre>
 </details>
 </dd>
@@ -3434,9 +3402,9 @@ not have a method with the specified name.</p></div>
     def calc(n: int, m: int, i: int) -&gt; int:
         return n + m + i
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         calc(42, 40, 38)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         calc(42, m=40, i=38)
     calc(n=42, m=40, i=38)</code></pre>
 </details>
@@ -3456,7 +3424,7 @@ not have a method with the specified name.</p></div>
     def calc(n: int, m: int, i: int) -&gt; int:
         return n + m + i
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42, m=40, i=None)</code></pre>
 </details>
 </dd>
@@ -3509,7 +3477,8 @@ not have a method with the specified name.</p></div>
     def calc(n: int, m: int, i: Union[int, None]) -&gt; int:
         return n + m + i if i is not None else None
 
-    with self.assertRaises(expected_exception=AssertionError):
+    calc(n=42, m=40, i=42)
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42, m=40, i=None)</code></pre>
 </details>
 </dd>
@@ -3586,7 +3555,7 @@ not have a method with the specified name.</p></div>
     def calc(a: int = 3, b: int = 42, c: float = 5) -&gt; float:
         return a + b + c
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc()</code></pre>
 </details>
 </dd>
@@ -3646,7 +3615,7 @@ not have a method with the specified name.</p></div>
     calc()
     calc(d={42: 3})
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(d={42: 3.14})</code></pre>
 </details>
 </dd>
@@ -3666,7 +3635,7 @@ not have a method with the specified name.</p></div>
         return int(d)
 
     calc(d=99999)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(d=&#39;999999&#39;)</code></pre>
 </details>
 </dd>
@@ -3691,37 +3660,35 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_sloppy_types_dict</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: use typing.Dict instead of dict</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_sloppy_types_dict(self):
-    &#34;&#34;&#34;Problem here: use typing.Dict instead of dict&#34;&#34;&#34;
     @pedantic
     def operation(d: dict) -&gt; int:
         return len(d.keys())
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d={1: 1, 2: 2})</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected"><code class="name flex">
-<span>def <span class="ident">test_sloppy_types_dict_almost_corrected</span></span>(<span>self)</span>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected_no_type_args"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_dict_almost_corrected_no_type_args</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: typing.Dict misses type arguments</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_sloppy_types_dict_almost_corrected(self):
-    &#34;&#34;&#34;Problem here: typing.Dict misses type arguments&#34;&#34;&#34;
+<pre><code class="python">def test_sloppy_types_dict_almost_corrected_no_type_args(self):
     @pedantic
     def operation(d: Dict) -&gt; int:
         return len(d.keys())
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d={1: 1, 2: 2})</code></pre>
 </details>
 </dd>
@@ -3746,37 +3713,35 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_sloppy_types_frozenset</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: use typing.FrozenSet instead of frozenset</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_sloppy_types_frozenset(self):
-    &#34;&#34;&#34;Problem here: use typing.FrozenSet instead of frozenset&#34;&#34;&#34;
     @pedantic
     def operation(d: frozenset) -&gt; int:
         return len(d)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d=frozenset({1, 2, 3}))</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_almost_corrected"><code class="name flex">
-<span>def <span class="ident">test_sloppy_types_frozenset_almost_corrected</span></span>(<span>self)</span>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_almost_corrected_no_type_args"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_frozenset_almost_corrected_no_type_args</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: typing.FrozenSet misses type argument</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_sloppy_types_frozenset_almost_corrected(self):
-    &#34;&#34;&#34;Problem here: typing.FrozenSet misses type argument&#34;&#34;&#34;
+<pre><code class="python">def test_sloppy_types_frozenset_almost_corrected_no_type_args(self):
     @pedantic
     def operation(d: FrozenSet) -&gt; int:
         return len(d)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d=frozenset({1, 2, 3}))</code></pre>
 </details>
 </dd>
@@ -3801,37 +3766,35 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_sloppy_types_list</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: use typing.List instead of list</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_sloppy_types_list(self):
-    &#34;&#34;&#34;Problem here: use typing.List instead of list&#34;&#34;&#34;
     @pedantic
     def operation(d: list) -&gt; int:
         return len(d)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d=[1, 2, 3, 4])</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_almost_corrected"><code class="name flex">
-<span>def <span class="ident">test_sloppy_types_list_almost_corrected</span></span>(<span>self)</span>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_almost_corrected_no_type_args"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_list_almost_corrected_no_type_args</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: typing.List misses type argument</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_sloppy_types_list_almost_corrected(self):
-    &#34;&#34;&#34;Problem here: typing.List misses type argument&#34;&#34;&#34;
+<pre><code class="python">def test_sloppy_types_list_almost_corrected_no_type_args(self):
     @pedantic
     def operation(d: List) -&gt; int:
         return len(d)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d=[1, 2, 3, 4])</code></pre>
 </details>
 </dd>
@@ -3856,37 +3819,35 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_sloppy_types_set</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: use typing.Set instead of set</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_sloppy_types_set(self):
-    &#34;&#34;&#34;Problem here: use typing.Set instead of set&#34;&#34;&#34;
     @pedantic
     def operation(d: set) -&gt; int:
         return len(d)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d={1, 2, 3})</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_almost_corrected"><code class="name flex">
-<span>def <span class="ident">test_sloppy_types_set_almost_corrected</span></span>(<span>self)</span>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_almost_corrected_to_type_args"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_set_almost_corrected_to_type_args</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: typing.Set misses type argument</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_sloppy_types_set_almost_corrected(self):
-    &#34;&#34;&#34;Problem here: typing.Set misses type argument&#34;&#34;&#34;
+<pre><code class="python">def test_sloppy_types_set_almost_corrected_to_type_args(self):
     @pedantic
     def operation(d: Set) -&gt; int:
         return len(d)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d={1, 2, 3})</code></pre>
 </details>
 </dd>
@@ -3911,37 +3872,35 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_sloppy_types_tuple</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: use typing.Tuple instead of tuple</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_sloppy_types_tuple(self):
-    &#34;&#34;&#34;Problem here: use typing.Tuple instead of tuple&#34;&#34;&#34;
     @pedantic
     def operation(d: tuple) -&gt; int:
         return len(d)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d=(1, 2, 3))</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_almost_corrected"><code class="name flex">
-<span>def <span class="ident">test_sloppy_types_tuple_almost_corrected</span></span>(<span>self)</span>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_almost_corrected_no_type_args"><code class="name flex">
+<span>def <span class="ident">test_sloppy_types_tuple_almost_corrected_no_type_args</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: typing.Tuple misses type arguments</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_sloppy_types_tuple_almost_corrected(self):
-    &#34;&#34;&#34;Problem here: typing.Tuple misses type arguments&#34;&#34;&#34;
+<pre><code class="python">def test_sloppy_types_tuple_almost_corrected_no_type_args(self):
     @pedantic
     def operation(d: Tuple) -&gt; int:
         return len(d)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         operation(d=(1, 2, 3))</code></pre>
 </details>
 </dd>
@@ -3962,25 +3921,6 @@ not have a method with the specified name.</p></div>
     operation(d=(1, 2, 3))</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args"><code class="name flex">
-<span>def <span class="ident">test_tuple_without_args</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Problem here: Tuple has no type arguments</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_tuple_without_args(self):
-    &#34;&#34;&#34;Problem here: Tuple has no type arguments&#34;&#34;&#34;
-    @pedantic
-    def calc(i: Tuple) -&gt; str:
-        return str(i)
-
-    with self.assertRaises(expected_exception=AssertionError):
-        calc(i=(42.0, 43, &#39;hi&#39;))</code></pre>
-</details>
-</dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args_corrected"><code class="name flex">
 <span>def <span class="ident">test_tuple_without_args_corrected</span></span>(<span>self)</span>
 </code></dt>
@@ -3998,22 +3938,39 @@ not have a method with the specified name.</p></div>
     calc(i=(42.0, 43, &#39;hi&#39;))</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list"><code class="name flex">
-<span>def <span class="ident">test_type_list</span></span>(<span>self)</span>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_type_args"><code class="name flex">
+<span>def <span class="ident">test_tuple_without_type_args</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: tuple != list</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_type_list(self):
-    &#34;&#34;&#34;Problem here: tuple != list&#34;&#34;&#34;
+<pre><code class="python">def test_tuple_without_type_args(self):
+    @pedantic
+    def calc(i: Tuple) -&gt; str:
+        return str(i)
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        calc(i=(42.0, 43, &#39;hi&#39;))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list_but_got_tuple"><code class="name flex">
+<span>def <span class="ident">test_type_list_but_got_tuple</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_type_list_but_got_tuple(self):
     @pedantic
     def calc(ls: List[Any]) -&gt; int:
         return len(ls)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(ls=(1, 2, 3))</code></pre>
 </details>
 </dd>
@@ -4069,7 +4026,7 @@ not have a method with the specified name.</p></div>
     def first(ls: List[T]) -&gt; T:
         return str(ls[0])
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
         first(ls=[1, 2, 3])</code></pre>
 </details>
 </dd>
@@ -4089,7 +4046,7 @@ not have a method with the specified name.</p></div>
     def first(ls: Sequence[T]) -&gt; T:
         return str(ls[0])
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
         first(ls=[1, 2, 3])</code></pre>
 </details>
 </dd>
@@ -4108,7 +4065,7 @@ not have a method with the specified name.</p></div>
     def calc(n: int, m: int, i: int) -&gt; str:
         return n + m + i
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42, m=40, i=38)</code></pre>
 </details>
 </dd>
@@ -4144,7 +4101,7 @@ not have a method with the specified name.</p></div>
     def calc(n: int, m: int, i: str) -&gt; int:
         return n + m + i
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42, m=40, i=38)</code></pre>
 </details>
 </dd>
@@ -4180,7 +4137,7 @@ not have a method with the specified name.</p></div>
     def calc(n: int, m: int, i: int) -&gt; None:
         return n + m + i
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42, m=40, i=38)</code></pre>
 </details>
 </dd>
@@ -4199,7 +4156,7 @@ not have a method with the specified name.</p></div>
     def calc(n: int, m: int, i: int) -&gt; int:
         print(n + m + i)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         calc(n=42, m=40, i=38)</code></pre>
 </details>
 </dd>
@@ -4273,9 +4230,9 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_no_type_hint" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_no_type_hint">test_args_kwargs_no_type_hint</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_wrong_type_hint" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_wrong_type_hint">test_args_kwargs_wrong_type_hint</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args">test_callable_no_args</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args">test_callable_without_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected">test_callable_without_args_almost_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected">test_callable_without_args_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_type_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_type_args">test_callable_without_type_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_double_pedantic" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_double_pedantic">test_double_pedantic</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_1">test_ellipsis_in_callable_1</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_2">test_ellipsis_in_callable_2</a></code></li>
@@ -4287,10 +4244,10 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_1">test_instance_method_1</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2">test_instance_method_2</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_2_corrected">test_instance_method_2_corrected</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3">test_instance_method_3</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_3_corrected">test_instance_method_3_corrected</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_4">test_instance_method_4</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_5">test_instance_method_5</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_int_is_not_float" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_int_is_not_float">test_instance_method_int_is_not_float</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_no_kwargs" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_no_kwargs">test_instance_method_no_kwargs</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple">test_is_subtype_tuple</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple_corrected">test_is_subtype_tuple_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1">test_lambda_1</a></code></li>
@@ -4336,23 +4293,23 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_6" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_optional_args_6">test_optional_args_6</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_on_class" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_on_class">test_pedantic_on_class</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict">test_sloppy_types_dict</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected">test_sloppy_types_dict_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected_no_type_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_almost_corrected_no_type_args">test_sloppy_types_dict_almost_corrected_no_type_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_dict_corrected">test_sloppy_types_dict_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset">test_sloppy_types_frozenset</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_almost_corrected">test_sloppy_types_frozenset_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_almost_corrected_no_type_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_almost_corrected_no_type_args">test_sloppy_types_frozenset_almost_corrected_no_type_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_frozenset_corrected">test_sloppy_types_frozenset_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list">test_sloppy_types_list</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_almost_corrected">test_sloppy_types_list_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_almost_corrected_no_type_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_almost_corrected_no_type_args">test_sloppy_types_list_almost_corrected_no_type_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_list_corrected">test_sloppy_types_list_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set">test_sloppy_types_set</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_almost_corrected">test_sloppy_types_set_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_almost_corrected_to_type_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_almost_corrected_to_type_args">test_sloppy_types_set_almost_corrected_to_type_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_set_corrected">test_sloppy_types_set_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple">test_sloppy_types_tuple</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_almost_corrected">test_sloppy_types_tuple_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_almost_corrected_no_type_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_almost_corrected_no_type_args">test_sloppy_types_tuple_almost_corrected_no_type_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sloppy_types_tuple_corrected">test_sloppy_types_tuple_corrected</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args">test_tuple_without_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_args_corrected">test_tuple_without_args_corrected</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list">test_type_list</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_type_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_tuple_without_type_args">test_tuple_without_type_args</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list_but_got_tuple" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list_but_got_tuple">test_type_list_but_got_tuple</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_list_corrected">test_type_list_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var">test_type_var</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var_wrong" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_type_var_wrong">test_type_var_wrong</a></code></li>

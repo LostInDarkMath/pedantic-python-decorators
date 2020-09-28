@@ -28,11 +28,12 @@
 </summary>
 <pre><code class="python">import unittest
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar, Generic, Optional, List
+from typing import Any
 
-from pedantic import overrides, pedantic
+from pedantic.method_decorators import overrides, pedantic
 from pedantic.class_decorators import pedantic_class
-from pedantic.basic_helpers import TYPE_VAR_METHOD_NAME
+from pedantic.exceptions import PedanticOverrideException, PedanticTypeCheckException, \
+    PedanticCallWithArgsException
 
 
 class TestPedanticClass(unittest.TestCase):
@@ -50,7 +51,7 @@ class TestPedanticClass(unittest.TestCase):
             def __init__(self, a) -&gt; None:
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42)
 
     def test_constructor_without_return_type(self):
@@ -59,7 +60,7 @@ class TestPedanticClass(unittest.TestCase):
             def __init__(self, a: int):
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42)
 
     def test_constructor_wrong_return_type(self):
@@ -68,7 +69,7 @@ class TestPedanticClass(unittest.TestCase):
             def __init__(self, a: int) -&gt; int:
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42)
 
     def test_constructor_must_be_called_with_kwargs(self):
@@ -77,7 +78,7 @@ class TestPedanticClass(unittest.TestCase):
             def __init__(self, a: int) -&gt; None:
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
 
     def test_multiple_methods(self):
@@ -95,11 +96,11 @@ class TestPedanticClass(unittest.TestCase):
         m = MyClass(a=5)
         m.calc(b=42)
         m.print(s=&#39;Hi&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             m.calc(45)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(b=45.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             m.print(&#39;Hi&#39;)
 
     def test_multiple_methods_with_missing_and_wrong_type_hints(self):
@@ -118,11 +119,11 @@ class TestPedanticClass(unittest.TestCase):
                 print(f&#39;{self.a} and {s}&#39;)
 
         m = MyClass(a=5)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(b=42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.print(s=&#39;Hi&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.dream(b=2)
 
     def test_type_annotation_string(self):
@@ -147,7 +148,7 @@ class TestPedanticClass(unittest.TestCase):
             def generator() -&gt; &#39;MyClas&#39;:
                 return MyClass(s=&#39;generated&#39;)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.generator()
 
     def test_overriding_contains(self):
@@ -158,7 +159,7 @@ class TestPedanticClass(unittest.TestCase):
 
         m = MyClass()
         print(42 in m)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(&#39;something&#39; in m)
 
     def test_type_annotation_string_typo(self):
@@ -172,7 +173,7 @@ class TestPedanticClass(unittest.TestCase):
 
         m = MyClass()
         m.fixed_compare(other=m)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.compare(other=m)
 
     def test_docstring_not_required(self):
@@ -271,12 +272,12 @@ class TestPedanticClass(unittest.TestCase):
         f = Foo(a=42)
         f.func(b=&#39;Hi&#39;)
         f.bunk()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             f.func(&#39;Hi&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             Foo(a=3.1415)
         f.a = 3.145
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             f.bunk()
 
     def test_overrides_goes_wrong(self):
@@ -288,7 +289,7 @@ class TestPedanticClass(unittest.TestCase):
             def bunk(self) -&gt; int:
                 return 42
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticOverrideException):
             @pedantic_class
             class Foo(Parent):
                 def __init__(self, a: int) -&gt; None:
@@ -322,7 +323,7 @@ class TestPedanticClass(unittest.TestCase):
             def static_bar() -&gt; (int, int):  # this is wrong. Correct would be Tuple[int, int]
                 return 0, 1
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(MyStaticClass.double_func(a=0))
 
     def test_property(self):
@@ -342,18 +343,18 @@ class TestPedanticClass(unittest.TestCase):
             def calc(self, value: float) -&gt; float:
                 return 2 * value
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
 
         m = MyClass(some_arg=42)
         self.assertEqual(m.some_attribute, 42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_attribute = 100
         self.assertEqual(m.some_attribute, 42)
         m.some_attribute = &#39;100&#39;
         self.assertEqual(m._some_attribute, &#39;100&#39;)
         m.calc(value=42.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(m.some_attribute)
 
     def test_property_getter_and_setter_misses_type_hints(self):
@@ -373,118 +374,18 @@ class TestPedanticClass(unittest.TestCase):
             def calc(self, value: float) -&gt; float:
                 return 2 * value
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
 
         m = MyClass(some_arg=42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_attribute = 100
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(m.some_attribute)
         m.calc(value=42.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(value=42)
-
-    def test_pedantic_generic_class(self):
-        T = TypeVar(&#39;T&#39;)
-
-        @pedantic_class
-        class LoggedVar(Generic[T]):
-            def __init__(self, value: T, name: str, logger: Any) -&gt; None:
-                self.name = name
-                self.logger = logger
-                self.value = value
-
-            def set(self, new: T) -&gt; None:
-                self.log(message=&#39;Set &#39; + repr(self.value))
-                self.value = new
-
-            def get(self) -&gt; T:
-                self.log(message=&#39;Get &#39; + repr(self.value))
-                return self.value
-
-            def log(self, message: str) -&gt; None:
-                self.logger = self.name + message
-
-        o = LoggedVar(value=42, name=&#39;hi&#39;, logger=&#39;test&#39;)
-        o.set(new=57)
-        self.assertTrue(isinstance(o.get(), int))
-
-        with self.assertRaises(expected_exception=AssertionError):
-            o.set(new=3.14)
-
-    def test_stack(self):
-        T = TypeVar(&#39;T&#39;)
-
-        @pedantic_class
-        class Stack(Generic[T]):
-            def __init__(self) -&gt; None:
-                self.items: List[T] = []
-
-            def push(self, item: T) -&gt; None:
-                self.items.append(item)
-
-            def pop(self) -&gt; T:
-                return self.items.pop()
-
-            def empty(self) -&gt; bool:
-                return not self.items
-
-            def top(self) -&gt; Optional[T]:
-                if len(self.items) &gt; 0:
-                    return self.items[len(self.items) - 1]
-                else:
-                    return None
-
-        my_stack = Stack()
-        get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
-        self.assertEqual(get_type_vars(), {})
-        with self.assertRaises(expected_exception=IndexError):
-            my_stack.pop()
-        self.assertIsNone(my_stack.top())
-        self.assertIsNone(my_stack.top())
-        self.assertFalse(T in get_type_vars())
-        my_stack.push(item=&#39;hi&#39;)
-        self.assertTrue(T in get_type_vars())
-        my_stack.push(item=&#39;world&#39;)
-        self.assertTrue(T in get_type_vars())
-        self.assertTrue(len(get_type_vars()), 1)
-        self.assertEqual(my_stack.pop(), &#39;world&#39;)
-        self.assertEqual(my_stack.pop(), &#39;hi&#39;)
-        self.assertIsNone(my_stack.top())
-        with self.assertRaises(expected_exception=AssertionError):
-            my_stack.push(item=42)
-
-        my_other_stack = Stack()
-        get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
-        self.assertEqual(get_type_vars(), {})
-        with self.assertRaises(expected_exception=IndexError):
-            my_other_stack.pop()
-        self.assertIsNone(my_other_stack.top())
-        self.assertIsNone(my_other_stack.top())
-        my_other_stack.push(item=100)
-        self.assertTrue(len(get_type_vars()), 1)
-        my_other_stack.push(item=142)
-        self.assertTrue(len(get_type_vars()), 1)
-        self.assertEqual(my_other_stack.pop(), 142)
-        self.assertEqual(my_other_stack.pop(), 100)
-        self.assertIsNone(my_other_stack.top())
-        with self.assertRaises(expected_exception=AssertionError):
-            my_other_stack.push(item=&#39;42&#39;)
-
-    def test_double_pedantic(self):
-        @pedantic_class
-        class MyClass:
-            @pedantic
-            def __init__(self, a: int) -&gt; None:
-                self.a = a
-
-        MyClass(a=42)
-        with self.assertRaises(expected_exception=AssertionError):
-            MyClass(42)
-        with self.assertRaises(expected_exception=AssertionError):
-            MyClass(a=42.0)
 
     def test_default_constructor(self):
         @pedantic_class
@@ -497,7 +398,7 @@ class TestPedanticClass(unittest.TestCase):
 
 if __name__ == &#39;__main__&#39;:
     t = TestPedanticClass()
-    t.test_stack()</code></pre>
+    t.test_default_constructor()</code></pre>
 </details>
 </section>
 <section>
@@ -561,7 +462,7 @@ not have a method with the specified name.</p></div>
             def __init__(self, a) -&gt; None:
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42)
 
     def test_constructor_without_return_type(self):
@@ -570,7 +471,7 @@ not have a method with the specified name.</p></div>
             def __init__(self, a: int):
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42)
 
     def test_constructor_wrong_return_type(self):
@@ -579,7 +480,7 @@ not have a method with the specified name.</p></div>
             def __init__(self, a: int) -&gt; int:
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass(a=42)
 
     def test_constructor_must_be_called_with_kwargs(self):
@@ -588,7 +489,7 @@ not have a method with the specified name.</p></div>
             def __init__(self, a: int) -&gt; None:
                 self.a = a
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
 
     def test_multiple_methods(self):
@@ -606,11 +507,11 @@ not have a method with the specified name.</p></div>
         m = MyClass(a=5)
         m.calc(b=42)
         m.print(s=&#39;Hi&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             m.calc(45)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(b=45.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             m.print(&#39;Hi&#39;)
 
     def test_multiple_methods_with_missing_and_wrong_type_hints(self):
@@ -629,11 +530,11 @@ not have a method with the specified name.</p></div>
                 print(f&#39;{self.a} and {s}&#39;)
 
         m = MyClass(a=5)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(b=42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.print(s=&#39;Hi&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.dream(b=2)
 
     def test_type_annotation_string(self):
@@ -658,7 +559,7 @@ not have a method with the specified name.</p></div>
             def generator() -&gt; &#39;MyClas&#39;:
                 return MyClass(s=&#39;generated&#39;)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.generator()
 
     def test_overriding_contains(self):
@@ -669,7 +570,7 @@ not have a method with the specified name.</p></div>
 
         m = MyClass()
         print(42 in m)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(&#39;something&#39; in m)
 
     def test_type_annotation_string_typo(self):
@@ -683,7 +584,7 @@ not have a method with the specified name.</p></div>
 
         m = MyClass()
         m.fixed_compare(other=m)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.compare(other=m)
 
     def test_docstring_not_required(self):
@@ -782,12 +683,12 @@ not have a method with the specified name.</p></div>
         f = Foo(a=42)
         f.func(b=&#39;Hi&#39;)
         f.bunk()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             f.func(&#39;Hi&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             Foo(a=3.1415)
         f.a = 3.145
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             f.bunk()
 
     def test_overrides_goes_wrong(self):
@@ -799,7 +700,7 @@ not have a method with the specified name.</p></div>
             def bunk(self) -&gt; int:
                 return 42
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticOverrideException):
             @pedantic_class
             class Foo(Parent):
                 def __init__(self, a: int) -&gt; None:
@@ -833,7 +734,7 @@ not have a method with the specified name.</p></div>
             def static_bar() -&gt; (int, int):  # this is wrong. Correct would be Tuple[int, int]
                 return 0, 1
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(MyStaticClass.double_func(a=0))
 
     def test_property(self):
@@ -853,18 +754,18 @@ not have a method with the specified name.</p></div>
             def calc(self, value: float) -&gt; float:
                 return 2 * value
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
 
         m = MyClass(some_arg=42)
         self.assertEqual(m.some_attribute, 42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_attribute = 100
         self.assertEqual(m.some_attribute, 42)
         m.some_attribute = &#39;100&#39;
         self.assertEqual(m._some_attribute, &#39;100&#39;)
         m.calc(value=42.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(m.some_attribute)
 
     def test_property_getter_and_setter_misses_type_hints(self):
@@ -884,118 +785,18 @@ not have a method with the specified name.</p></div>
             def calc(self, value: float) -&gt; float:
                 return 2 * value
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             MyClass(42)
 
         m = MyClass(some_arg=42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_attribute = 100
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             print(m.some_attribute)
         m.calc(value=42.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(value=42)
-
-    def test_pedantic_generic_class(self):
-        T = TypeVar(&#39;T&#39;)
-
-        @pedantic_class
-        class LoggedVar(Generic[T]):
-            def __init__(self, value: T, name: str, logger: Any) -&gt; None:
-                self.name = name
-                self.logger = logger
-                self.value = value
-
-            def set(self, new: T) -&gt; None:
-                self.log(message=&#39;Set &#39; + repr(self.value))
-                self.value = new
-
-            def get(self) -&gt; T:
-                self.log(message=&#39;Get &#39; + repr(self.value))
-                return self.value
-
-            def log(self, message: str) -&gt; None:
-                self.logger = self.name + message
-
-        o = LoggedVar(value=42, name=&#39;hi&#39;, logger=&#39;test&#39;)
-        o.set(new=57)
-        self.assertTrue(isinstance(o.get(), int))
-
-        with self.assertRaises(expected_exception=AssertionError):
-            o.set(new=3.14)
-
-    def test_stack(self):
-        T = TypeVar(&#39;T&#39;)
-
-        @pedantic_class
-        class Stack(Generic[T]):
-            def __init__(self) -&gt; None:
-                self.items: List[T] = []
-
-            def push(self, item: T) -&gt; None:
-                self.items.append(item)
-
-            def pop(self) -&gt; T:
-                return self.items.pop()
-
-            def empty(self) -&gt; bool:
-                return not self.items
-
-            def top(self) -&gt; Optional[T]:
-                if len(self.items) &gt; 0:
-                    return self.items[len(self.items) - 1]
-                else:
-                    return None
-
-        my_stack = Stack()
-        get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
-        self.assertEqual(get_type_vars(), {})
-        with self.assertRaises(expected_exception=IndexError):
-            my_stack.pop()
-        self.assertIsNone(my_stack.top())
-        self.assertIsNone(my_stack.top())
-        self.assertFalse(T in get_type_vars())
-        my_stack.push(item=&#39;hi&#39;)
-        self.assertTrue(T in get_type_vars())
-        my_stack.push(item=&#39;world&#39;)
-        self.assertTrue(T in get_type_vars())
-        self.assertTrue(len(get_type_vars()), 1)
-        self.assertEqual(my_stack.pop(), &#39;world&#39;)
-        self.assertEqual(my_stack.pop(), &#39;hi&#39;)
-        self.assertIsNone(my_stack.top())
-        with self.assertRaises(expected_exception=AssertionError):
-            my_stack.push(item=42)
-
-        my_other_stack = Stack()
-        get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
-        self.assertEqual(get_type_vars(), {})
-        with self.assertRaises(expected_exception=IndexError):
-            my_other_stack.pop()
-        self.assertIsNone(my_other_stack.top())
-        self.assertIsNone(my_other_stack.top())
-        my_other_stack.push(item=100)
-        self.assertTrue(len(get_type_vars()), 1)
-        my_other_stack.push(item=142)
-        self.assertTrue(len(get_type_vars()), 1)
-        self.assertEqual(my_other_stack.pop(), 142)
-        self.assertEqual(my_other_stack.pop(), 100)
-        self.assertIsNone(my_other_stack.top())
-        with self.assertRaises(expected_exception=AssertionError):
-            my_other_stack.push(item=&#39;42&#39;)
-
-    def test_double_pedantic(self):
-        @pedantic_class
-        class MyClass:
-            @pedantic
-            def __init__(self, a: int) -&gt; None:
-                self.a = a
-
-        MyClass(a=42)
-        with self.assertRaises(expected_exception=AssertionError):
-            MyClass(42)
-        with self.assertRaises(expected_exception=AssertionError):
-            MyClass(a=42.0)
 
     def test_default_constructor(self):
         @pedantic_class
@@ -1044,7 +845,7 @@ not have a method with the specified name.</p></div>
         def __init__(self, a: int) -&gt; None:
             self.a = a
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         MyClass(42)</code></pre>
 </details>
 </dd>
@@ -1063,7 +864,7 @@ not have a method with the specified name.</p></div>
         def __init__(self, a) -&gt; None:
             self.a = a
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         MyClass(a=42)</code></pre>
 </details>
 </dd>
@@ -1082,7 +883,7 @@ not have a method with the specified name.</p></div>
         def __init__(self, a: int):
             self.a = a
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         MyClass(a=42)</code></pre>
 </details>
 </dd>
@@ -1101,7 +902,7 @@ not have a method with the specified name.</p></div>
         def __init__(self, a: int) -&gt; int:
             self.a = a
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         MyClass(a=42)</code></pre>
 </details>
 </dd>
@@ -1150,29 +951,6 @@ not have a method with the specified name.</p></div>
     foo.bunk()</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_double_pedantic"><code class="name flex">
-<span>def <span class="ident">test_double_pedantic</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_double_pedantic(self):
-    @pedantic_class
-    class MyClass:
-        @pedantic
-        def __init__(self, a: int) -&gt; None:
-            self.a = a
-
-    MyClass(a=42)
-    with self.assertRaises(expected_exception=AssertionError):
-        MyClass(42)
-    with self.assertRaises(expected_exception=AssertionError):
-        MyClass(a=42.0)</code></pre>
-</details>
-</dd>
 <dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods"><code class="name flex">
 <span>def <span class="ident">test_multiple_methods</span></span>(<span>self)</span>
 </code></dt>
@@ -1197,11 +975,11 @@ not have a method with the specified name.</p></div>
     m = MyClass(a=5)
     m.calc(b=42)
     m.print(s=&#39;Hi&#39;)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         m.calc(45)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.calc(b=45.0)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         m.print(&#39;Hi&#39;)</code></pre>
 </details>
 </dd>
@@ -1230,11 +1008,11 @@ not have a method with the specified name.</p></div>
             print(f&#39;{self.a} and {s}&#39;)
 
     m = MyClass(a=5)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.calc(b=42)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.print(s=&#39;Hi&#39;)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.dream(b=2)</code></pre>
 </details>
 </dd>
@@ -1330,7 +1108,7 @@ not have a method with the specified name.</p></div>
         def bunk(self) -&gt; int:
             return 42
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticOverrideException):
         @pedantic_class
         class Foo(Parent):
             def __init__(self, a: int) -&gt; None:
@@ -1387,12 +1165,12 @@ not have a method with the specified name.</p></div>
     f = Foo(a=42)
     f.func(b=&#39;Hi&#39;)
     f.bunk()
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         f.func(&#39;Hi&#39;)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         Foo(a=3.1415)
     f.a = 3.145
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         f.bunk()</code></pre>
 </details>
 </dd>
@@ -1413,46 +1191,8 @@ not have a method with the specified name.</p></div>
 
     m = MyClass()
     print(42 in m)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         print(&#39;something&#39; in m)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_pedantic_generic_class"><code class="name flex">
-<span>def <span class="ident">test_pedantic_generic_class</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_pedantic_generic_class(self):
-    T = TypeVar(&#39;T&#39;)
-
-    @pedantic_class
-    class LoggedVar(Generic[T]):
-        def __init__(self, value: T, name: str, logger: Any) -&gt; None:
-            self.name = name
-            self.logger = logger
-            self.value = value
-
-        def set(self, new: T) -&gt; None:
-            self.log(message=&#39;Set &#39; + repr(self.value))
-            self.value = new
-
-        def get(self) -&gt; T:
-            self.log(message=&#39;Get &#39; + repr(self.value))
-            return self.value
-
-        def log(self, message: str) -&gt; None:
-            self.logger = self.name + message
-
-    o = LoggedVar(value=42, name=&#39;hi&#39;, logger=&#39;test&#39;)
-    o.set(new=57)
-    self.assertTrue(isinstance(o.get(), int))
-
-    with self.assertRaises(expected_exception=AssertionError):
-        o.set(new=3.14)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_property"><code class="name flex">
@@ -1481,18 +1221,18 @@ not have a method with the specified name.</p></div>
         def calc(self, value: float) -&gt; float:
             return 2 * value
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         MyClass(42)
 
     m = MyClass(some_arg=42)
     self.assertEqual(m.some_attribute, 42)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.some_attribute = 100
     self.assertEqual(m.some_attribute, 42)
     m.some_attribute = &#39;100&#39;
     self.assertEqual(m._some_attribute, &#39;100&#39;)
     m.calc(value=42.0)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         print(m.some_attribute)</code></pre>
 </details>
 </dd>
@@ -1522,87 +1262,18 @@ not have a method with the specified name.</p></div>
         def calc(self, value: float) -&gt; float:
             return 2 * value
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
         MyClass(42)
 
     m = MyClass(some_arg=42)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.some_attribute = 100
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         print(m.some_attribute)
     m.calc(value=42.0)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.calc(value=42)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_stack"><code class="name flex">
-<span>def <span class="ident">test_stack</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_stack(self):
-    T = TypeVar(&#39;T&#39;)
-
-    @pedantic_class
-    class Stack(Generic[T]):
-        def __init__(self) -&gt; None:
-            self.items: List[T] = []
-
-        def push(self, item: T) -&gt; None:
-            self.items.append(item)
-
-        def pop(self) -&gt; T:
-            return self.items.pop()
-
-        def empty(self) -&gt; bool:
-            return not self.items
-
-        def top(self) -&gt; Optional[T]:
-            if len(self.items) &gt; 0:
-                return self.items[len(self.items) - 1]
-            else:
-                return None
-
-    my_stack = Stack()
-    get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
-    self.assertEqual(get_type_vars(), {})
-    with self.assertRaises(expected_exception=IndexError):
-        my_stack.pop()
-    self.assertIsNone(my_stack.top())
-    self.assertIsNone(my_stack.top())
-    self.assertFalse(T in get_type_vars())
-    my_stack.push(item=&#39;hi&#39;)
-    self.assertTrue(T in get_type_vars())
-    my_stack.push(item=&#39;world&#39;)
-    self.assertTrue(T in get_type_vars())
-    self.assertTrue(len(get_type_vars()), 1)
-    self.assertEqual(my_stack.pop(), &#39;world&#39;)
-    self.assertEqual(my_stack.pop(), &#39;hi&#39;)
-    self.assertIsNone(my_stack.top())
-    with self.assertRaises(expected_exception=AssertionError):
-        my_stack.push(item=42)
-
-    my_other_stack = Stack()
-    get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
-    self.assertEqual(get_type_vars(), {})
-    with self.assertRaises(expected_exception=IndexError):
-        my_other_stack.pop()
-    self.assertIsNone(my_other_stack.top())
-    self.assertIsNone(my_other_stack.top())
-    my_other_stack.push(item=100)
-    self.assertTrue(len(get_type_vars()), 1)
-    my_other_stack.push(item=142)
-    self.assertTrue(len(get_type_vars()), 1)
-    self.assertEqual(my_other_stack.pop(), 142)
-    self.assertEqual(my_other_stack.pop(), 100)
-    self.assertIsNone(my_other_stack.top())
-    with self.assertRaises(expected_exception=AssertionError):
-        my_other_stack.push(item=&#39;42&#39;)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_static_method_with_sloppy_type_annotation"><code class="name flex">
@@ -1626,7 +1297,7 @@ not have a method with the specified name.</p></div>
         def static_bar() -&gt; (int, int):  # this is wrong. Correct would be Tuple[int, int]
             return 0, 1
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         print(MyStaticClass.double_func(a=0))</code></pre>
 </details>
 </dd>
@@ -1672,7 +1343,7 @@ not have a method with the specified name.</p></div>
 
     m = MyClass()
     m.fixed_compare(other=m)
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         m.compare(other=m)</code></pre>
 </details>
 </dd>
@@ -1695,7 +1366,7 @@ not have a method with the specified name.</p></div>
         def generator() -&gt; &#39;MyClas&#39;:
             return MyClass(s=&#39;generated&#39;)
 
-    with self.assertRaises(expected_exception=AssertionError):
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
         MyClass.generator()</code></pre>
 </details>
 </dd>
@@ -1727,7 +1398,6 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_constructor_wrong_return_type" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_constructor_wrong_return_type">test_constructor_wrong_return_type</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_default_constructor" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_default_constructor">test_default_constructor</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_docstring_not_required" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_docstring_not_required">test_docstring_not_required</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_double_pedantic" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_double_pedantic">test_double_pedantic</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods">test_multiple_methods</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods_with_missing_and_wrong_type_hints" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_multiple_methods_with_missing_and_wrong_type_hints">test_multiple_methods_with_missing_and_wrong_type_hints</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overrides" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overrides">test_overrides</a></code></li>
@@ -1735,10 +1405,8 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overrides_goes_wrong" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overrides_goes_wrong">test_overrides_goes_wrong</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overrides_with_type_errors_and_call_by_args3" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overrides_with_type_errors_and_call_by_args3">test_overrides_with_type_errors_and_call_by_args3</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overriding_contains" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_overriding_contains">test_overriding_contains</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_pedantic_generic_class" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_pedantic_generic_class">test_pedantic_generic_class</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_property" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_property">test_property</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_property_getter_and_setter_misses_type_hints" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_property_getter_and_setter_misses_type_hints">test_property_getter_and_setter_misses_type_hints</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_stack" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_stack">test_stack</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_static_method_with_sloppy_type_annotation" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_static_method_with_sloppy_type_annotation">test_static_method_with_sloppy_type_annotation</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_type_annotation_string" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_type_annotation_string">test_type_annotation_string</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_type_annotation_string_typo" href="#pedantic.unit_tests.tests_pedantic_class.TestPedanticClass.test_type_annotation_string_typo">test_type_annotation_string_typo</a></code></li>
