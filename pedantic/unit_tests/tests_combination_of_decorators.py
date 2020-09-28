@@ -158,4 +158,4 @@ class TestCombinationOfDecorators(unittest.TestCase):
 
 if __name__ == '__main__':
     t = TestCombinationOfDecorators()
-    t.test_pedantic_class_static_method_1()
+    t.test_pedantic_validate_args_4()

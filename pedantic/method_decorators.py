@@ -1,12 +1,13 @@
 import functools
 import inspect
 import sys
-from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List, Mapping
+from typing import Callable, Any, Tuple, Dict, Type, Union, Optional, List
 from datetime import datetime
 import warnings
 
+from pedantic.models.function_call import FunctionCall
 from pedantic.set_envionment_variables import is_enabled
-from pedantic.constants import TYPE_VAR_METHOD_NAME, TypeVar, ReturnType, F
+from pedantic.constants import TypeVar, ReturnType, F
 from pedantic.exceptions import NotImplementedException, TooDirtyException, PedanticOverrideException, \
     PedanticTypeCheckException, PedanticException, PedanticDocstringException, PedanticCallWithArgsException, \
     PedanticTypeVarMismatchException
@@ -240,7 +241,7 @@ def dirty(func: F) -> F:
     return wrapper
 
 
-def require_kwargs(func: F, is_class_decorator: bool = False) -> F:
+def require_kwargs(func: F) -> F:
     """
         Checks that each passed argument is a keyword argument.
         Example:
@@ -258,12 +259,14 @@ def require_kwargs(func: F, is_class_decorator: bool = False) -> F:
 
     @functools.wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
-        _assert_uses_kwargs(func=DecoratedFunction(func=func), args=args, is_class_decorator=is_class_decorator)
+        decorated_func = DecoratedFunction(func=func)
+        call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs)
+        _assert_uses_kwargs(call=call)
         return func(*args, **kwargs)
     return wrapper
 
 
-def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]], is_class_decorator: bool = False) -> F:
+def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> F:
     """
       Validates each passed argument with the given validator.
       Example:
@@ -290,9 +293,9 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]], is_
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
-            args_without_self = _get_args_without_self(func=deco_func, args=args, is_class_decorator=is_class_decorator)
+            call = FunctionCall(func=DecoratedFunction(func=func), args=args, kwargs=kwargs)
 
-            for arg in args_without_self:
+            for arg in call.args_without_self:
                 validate(arg)
 
             for kwarg in kwargs:
@@ -303,7 +306,7 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]], is_
     return outer
 
 
-def pedantic(func: Optional[F] = None, is_class_decorator: bool = False, require_docstring: bool = False) -> F:
+def pedantic(func: Optional[F] = None, require_docstring: bool = False) -> F:
     """
         A PedanticException is raised if one of the following happened:
         - The decorated function is called with positional arguments.
@@ -339,78 +342,66 @@ def pedantic(func: Optional[F] = None, is_class_decorator: bool = False, require
         Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
    """
 
-    def decorator(func: F) -> F:
+    def decorator(f: F) -> F:
         if not is_enabled():
-            return func
+            return f
 
-        decorated_func = DecoratedFunction(func=func)
+        decorated_func = DecoratedFunction(func=f)
 
         if require_docstring or len(decorated_func.docstring.params) > 0:
-            _check_docs(decorated_func=decorated_func)
+            _check_docstring(decorated_func=decorated_func)
 
-        @functools.wraps(func)
+        @functools.wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
-            if decorated_func.is_instance_method and hasattr(args[0], TYPE_VAR_METHOD_NAME):
-                type_vars = getattr(args[0], TYPE_VAR_METHOD_NAME)()
-            else:
-                type_vars = dict()
-
-            _assert_uses_kwargs(func=decorated_func, args=args, is_class_decorator=is_class_decorator)
-            return _check_types(func=decorated_func, args=args, kwargs=kwargs, type_vars=type_vars)
+            call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs)
+            _assert_uses_kwargs(call=call)
+            return _check_types(call=call)
         return wrapper
-    return decorator if func is None else decorator(func=func)
+    return decorator if func is None else decorator(f=func)
 
 
-def pedantic_require_docstring(func: Optional[F] = None, **kwargs: Any) -> F:
+def pedantic_require_docstring(func: Optional[F] = None) -> F:
     """Shortcut for @pedantic(require_docstring=True) """
-    return pedantic(func=func, require_docstring=True, **kwargs)
+    return pedantic(func=func, require_docstring=True)
 
 
-def _check_types(func: DecoratedFunction,
-                 args: Tuple[Any, ...],
-                 kwargs: Dict[str, Any],
-                 type_vars: Dict[TypeVar, Any]) -> Any:
-    already_checked_kwargs = []
-    params_without_self = {k: v for k, v in func.signature.parameters.items() if v.name != 'self'}
-    params_without_args_kwargs = {k: v for k, v in params_without_self.items() if not str(v).startswith('*')}
+def _check_types(call: FunctionCall) -> ReturnType:
+    already_checked_kwargs = []  # TODO: mache das überflüssig
+    params_without_args_kwargs = {k: v for k, v in call.params_without_self.items() if not str(v).startswith('*')}
 
-    for key in params_without_args_kwargs:
-        param = func.signature.parameters[key]
-        expected_type = param.annotation
-
-        _check_type_of_param(expected=expected_type, func=func, name=key, type_vars=type_vars, actual=param, kwargs=kwargs, args=args)
+    for key, param in params_without_args_kwargs.items():
+        _check_type_of_param(call=call, key=key, param=param)
         already_checked_kwargs.append(key)
 
-    _check_types_args(params=params_without_self, args=args, func=func, tv=type_vars)
-    _check_types_kwargs(params=params_without_self, kwargs=kwargs, func=func, tv=type_vars,
-                        ar=already_checked_kwargs)
-    return _check_types_of_return(func=func, args=args, kwargs=kwargs, type_vars=type_vars)
+    _check_types_args(call=call)
+    _check_types_kwargs(call=call, ar=already_checked_kwargs)
+    return _check_types_return(func=call.func, args=call.args, kwargs=call.kwargs, type_vars=call.type_vars)
 
 
-def _check_types_args(params: Mapping[str, inspect.Parameter], args, func: DecoratedFunction, tv: Dict) -> None:
+def _check_types_args(call: FunctionCall) -> None:
     """
     TODO doctests
     """
 
-    params_args_only = {k: v for k, v in params.items() if str(v).startswith('*') and not str(v).startswith('**')}
+    params_args_only = {k: v for k, v in call.params_without_self.items() if str(v).startswith('*') and not str(v).startswith('**')}
     if not params_args_only:
         return
 
     expected_type = list(params_args_only.values())[0].annotation  # it's not possible to have more then 1
 
-    for arg in args:
+    for arg in call.args:
         if not _is_value_matching_type_hint(value=arg, type_hint=expected_type,
-                                            err_prefix=func.err, type_vars=tv):
+                                            err_prefix=call.func.err, type_vars=call.type_vars):
             raise PedanticTypeCheckException(
-                f'{func.err} Type hint is incorrect: Passed argument {arg} does not have type {expected_type}.')
+                f'{call.func.err} Type hint is incorrect: Passed argument {arg} does not have type {expected_type}.')
 
 
-def _check_types_kwargs(params: Mapping[str, inspect.Parameter], kwargs, func: DecoratedFunction, tv: Dict, ar) -> None:
+def _check_types_kwargs(call: FunctionCall, ar) -> None:
     """
     TODO doctests
     """
 
-    params_kwargs_only = {k: v for k, v in params.items() if str(v).startswith('**')}
+    params_kwargs_only = {k: v for k, v in call.params_without_self.items() if str(v).startswith('**')}
 
     if not params_kwargs_only:
         return
@@ -418,43 +409,44 @@ def _check_types_kwargs(params: Mapping[str, inspect.Parameter], kwargs, func: D
     expected_type = list(params_kwargs_only.values())[0].annotation  # it's not possible to have more then 1
 
     if expected_type == inspect.Parameter.empty:
-        raise PedanticTypeCheckException('TODO') #TODO
+        raise PedanticTypeCheckException('TODO')  # TODO
 
-    for kwarg in [kw for kw in kwargs if kw not in ar]:
-        actual_value = kwargs[kwarg]
+    for kwarg in [kw for kw in call.kwargs if kw not in ar]:
+        actual_value = call.kwargs[kwarg]
         if not _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
-                                            err_prefix=func.err, type_vars=tv):
+                                            err_prefix=call.func.err, type_vars=call.type_vars):
             raise PedanticTypeCheckException(
-                f'{func.err} Type hint is incorrect: Passed Argument {kwarg}={actual_value} does not have type {expected_type}.')
+                f'{call.func.err} Type hint is incorrect: Passed Argument {kwarg}={actual_value} does not have type {expected_type}.')
 
 
-def _check_type_of_param(expected, actual, name, func, type_vars, kwargs, args) -> None:
+def _check_type_of_param(call: FunctionCall, key, param) -> None:
     """
     TODO doctests
     """
-    arg_index = 1 if func.is_instance_method else 0
+    arg_index = 1 if call.func.is_instance_method else 0
+    expected = param.annotation
 
     if expected is inspect.Signature.empty:
-        raise PedanticTypeCheckException(f'{func.err} Parameter "{actual.name}" should have a type hint.')
+        raise PedanticTypeCheckException(f'{call.func.err} Parameter "{param.name}" should have a type hint.')
 
-    if actual.default is inspect.Signature.empty:
-        if func.should_have_kwargs:
-            if name not in kwargs:
-                raise PedanticException(f'{func.err} Parameter "{name}" is unfilled.')
-            actual_value = kwargs[name]
+    if param.default is inspect.Signature.empty:
+        if call.func.should_have_kwargs:
+            if key not in call.kwargs:
+                raise PedanticException(f'{call.func.err} Parameter "{key}" is unfilled.')
+            actual_value = call.kwargs[key]
         else:
-            actual_value = args[arg_index]
+            actual_value = call.args[arg_index]
             arg_index += 1
     else:
-        actual_value = kwargs[name] if name in kwargs else actual.default
+        actual_value = call.kwargs[key] if key in call.kwargs else param.default
 
     if not _is_value_matching_type_hint(value=actual_value, type_hint=expected,
-                                        err_prefix=func.err, type_vars=type_vars):
+                                        err_prefix=call.func.err, type_vars=call.type_vars):
         raise PedanticTypeCheckException(
-            f'{func.err} Type hint is incorrect: Passed Argument {name}={actual_value} does not have type {expected}.')
+            f'{call.func.err} Type hint is incorrect: Passed Argument {key}={actual_value} does not have type {expected}.')
 
 
-def _check_types_of_return(func: DecoratedFunction, args, kwargs, type_vars) -> ReturnType:
+def _check_types_return(func: DecoratedFunction, args, kwargs, type_vars) -> ReturnType:
     if func.signature.return_annotation is inspect.Signature.empty:
         raise PedanticTypeCheckException(
             f'{func.err} There should be a type hint for the return type (e.g. None if nothing is returned).')
@@ -470,7 +462,7 @@ def _check_types_of_return(func: DecoratedFunction, args, kwargs, type_vars) -> 
     return result
 
 
-def _check_docs(decorated_func: DecoratedFunction) -> None:
+def _check_docstring(decorated_func: DecoratedFunction) -> None:
     doc = decorated_func.docstring
     err = decorated_func.err
     context = {}
@@ -626,68 +618,40 @@ def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
     return context
 
 
-def _assert_uses_kwargs(func: DecoratedFunction, args: Tuple[Any, ...], is_class_decorator: bool) -> None:
+def _assert_uses_kwargs(call: FunctionCall) -> None:
     """
        >>> def f1(): pass
        >>> f1 = DecoratedFunction(f1)
-       >>> _assert_uses_kwargs(f1, (), False)
+       >>> _assert_uses_kwargs(FunctionCall(f1, args=(), kwargs={}))
        >>> def f2(a, b, c): pass
        >>> f2 = DecoratedFunction(f2)
-       >>> _assert_uses_kwargs(f2, (3, 4, 5), False)
+       >>> _assert_uses_kwargs(FunctionCall(f2, args=(3, 4, 5), kwargs={}))
        Traceback (most recent call last):
        ...
        pedantic.exceptions.PedanticCallWithArgsException: In function f2:
         Use kwargs when you call function f2. Args: (3, 4, 5)
-       >>> _assert_uses_kwargs(f2, (), False)
+       >>> _assert_uses_kwargs(FunctionCall(f2, args=(), kwargs={}))
        >>> class A:
        ...    def f(self): pass
        ...    @staticmethod
        ...    def g(arg=42): pass
        ...    def __compare__(self, other): pass
        >>> a = A()
-       >>> _assert_uses_kwargs(DecoratedFunction(A.f), (a,), False)
-       >>> _assert_uses_kwargs(DecoratedFunction(A.g), (a,), False)
-       >>> _assert_uses_kwargs(DecoratedFunction(A.g), (a, 45), False)
+       >>> _assert_uses_kwargs(FunctionCall(DecoratedFunction(A.f), args=(a,), kwargs={}))
+       >>> _assert_uses_kwargs(FunctionCall(DecoratedFunction(A.g), args=(a,), kwargs={}))
+       >>> _assert_uses_kwargs(FunctionCall(DecoratedFunction(A.g), args=(a, 45), kwargs={}))
        Traceback (most recent call last):
        ...
        pedantic.exceptions.PedanticCallWithArgsException: In function A.g:
         Use kwargs when you call function g. Args: (45,)
-       >>> _assert_uses_kwargs(DecoratedFunction(A.__compare__), (a, 'hi',), False)
-       >>> _assert_uses_kwargs(DecoratedFunction(A.__compare__), (a,), False)
+       >>> _assert_uses_kwargs(FunctionCall(DecoratedFunction(A.__compare__), args=(a, 'hi',), kwargs={}))
+       >>> _assert_uses_kwargs(FunctionCall(DecoratedFunction(A.__compare__), args=(a,), kwargs={}))
     """
-    if func.should_have_kwargs:
-        args_without_self = _get_args_without_self(func=func, args=args, is_class_decorator=is_class_decorator)
+    if call.func.should_have_kwargs:
+        args_without_self = call.args_without_self
         if args_without_self != ():
             raise PedanticCallWithArgsException(
-                f'{func.err} Use kwargs when you call function {func.name}. Args: {args_without_self}')
-
-
-def _get_args_without_self(func: DecoratedFunction, args: Tuple[Any, ...], is_class_decorator: bool) -> Tuple[Any, ...]:
-    """
-       >>> def f1(): pass
-       >>> _get_args_without_self(DecoratedFunction(f1), (), False)
-       ()
-       >>> def f2(a, b, c): pass
-       >>> _get_args_without_self(DecoratedFunction(f2), (3, 4, 5), False)
-       (3, 4, 5)
-       >>> class A:
-       ...    def f(self): pass
-       ...    @staticmethod
-       ...    def g(): pass
-       ...    def __compare__(self, other): pass
-       >>> a = A()
-       >>> _get_args_without_self(DecoratedFunction(A.f), (a,), False)
-       ()
-       >>> _get_args_without_self(DecoratedFunction(A.g), (a,), False)
-       ()
-       >>> _get_args_without_self(DecoratedFunction(A.__compare__), (a, 'hi',), False)
-       ('hi',)
-    """
-    max_allowed = 0 if is_class_decorator else 1
-    uses_multiple_decorators = func.num_of_decorators > max_allowed
-    if func.is_instance_method or func.is_static_method or uses_multiple_decorators:
-        return args[1:]  # self is always the first argument if present
-    return args
+                f'{call.func.err} Use kwargs when you call function {call.func.name}. Args: {args_without_self}')
 
 
 def _is_value_matching_type_hint(value: Any, type_hint: Any, err_prefix: str, type_vars: Dict[TypeVar, Any]) -> bool:

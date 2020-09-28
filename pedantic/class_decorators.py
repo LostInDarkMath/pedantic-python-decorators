@@ -20,10 +20,7 @@ def for_all_methods(decorator: F) -> Callable[[C], C]:
             attr_value = getattr(cls, attr)
 
             if isinstance(attr_value, types.FunctionType):
-                try:
-                    setattr(cls, attr, decorator(attr_value, is_class_decorator=True))
-                except TypeError:
-                    setattr(cls, attr, decorator(attr_value))
+                setattr(cls, attr, decorator(attr_value))
             elif isinstance(attr_value, property):
                 prop = attr_value
                 wrapped_getter = _get_wrapped(prop=prop.fget, decorator=decorator)

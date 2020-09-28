@@ -91,3 +91,7 @@ class DecoratedFunction:
     @property
     def num_of_decorators(self) -> int:
         return len(re.findall('@', self.source.split('def')[0]))
+
+    @property
+    def is_pedantic(self) -> bool:
+        return '@pedantic' in self.source or '@require_kwargs' in self.source

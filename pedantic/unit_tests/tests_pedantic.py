@@ -1022,4 +1022,4 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_additional_kwargs()
+    test.test_type_var_wrong_sequence()

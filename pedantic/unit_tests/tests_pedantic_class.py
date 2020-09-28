@@ -359,19 +359,6 @@ class TestPedanticClass(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.calc(value=42)
 
-    def test_double_pedantic(self):
-        @pedantic_class
-        class MyClass:
-            @pedantic
-            def __init__(self, a: int) -> None:
-                self.a = a
-
-        MyClass(a=42)
-        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
-            MyClass(42)
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            MyClass(a=42.0)
-
     def test_default_constructor(self):
         @pedantic_class
         class MyClass:
