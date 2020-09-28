@@ -9,6 +9,108 @@ from pedantic.constants import TypeVar as TypeVar_
 from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
 
 
+def check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar, Any]) -> bool:
+    """
+        >>> from typing import List, Union, Optional, Callable, Any
+        >>> check_type(5, int, '', {})
+        True
+        >>> check_type(5, float, '', {})
+        False
+        >>> check_type('hi', str, '', {})
+        True
+        >>> check_type(None, str, '', {})
+        False
+        >>> check_type(None, Any, '', {})
+        True
+        >>> check_type(None, None, '', {})
+        True
+        >>> check_type(5, Any, '', {})
+        True
+        >>> check_type(3.1415, float, '', {})
+        True
+        >>> check_type([1, 2, 3, 4], List[int], '', {})
+        True
+        >>> check_type([1, 2, 3.0, 4], List[int], '', {})
+        False
+        >>> check_type([1, 2, 3.0, 4], List[float], '', {})
+        False
+        >>> check_type([1, 2, 3.0, 4], List[Union[float, int]], '', {})
+        True
+        >>> check_type([[True, False], [False], [True], []], List[List[bool]], '', {})
+        True
+        >>> check_type([[True, False, 1], [False], [True], []], List[List[bool]], '', {})
+        False
+        >>> check_type(5, Union[int, float, bool], '', {})
+        True
+        >>> check_type(5.0, Union[int, float, bool], '', {})
+        True
+        >>> check_type(False, Union[int, float, bool], '', {})
+        True
+        >>> check_type('5', Union[int, float, bool], '', {})
+        False
+        >>> def f(a: int, b: bool, c: str) -> float: pass
+        >>> check_type(f, Callable[[int, bool, str], float], '', {})
+        True
+        >>> check_type(None, Optional[List[Dict[str, float]]], '', {})
+        True
+        >>> check_type([{'a': 1.2, 'b': 3.4}], Optional[List[Dict[str, float]]], '', {})
+        True
+        >>> check_type([{'a': 1.2, 'b': 3}], Optional[List[Dict[str, float]]], '', {})
+        False
+        >>> check_type({'a': 1.2, 'b': 3.4}, Optional[List[Dict[str, float]]], '', {})
+        False
+        >>> check_type([{'a': 1.2, 7: 3.4}], Optional[List[Dict[str, float]]], '', {})
+        False
+        >>> class MyClass: pass
+        >>> check_type(MyClass(), 'MyClass', '', {})
+        True
+        >>> check_type(MyClass(), 'MyClas', '', {})
+        False
+        >>> check_type([1, 2, 3], list, '', {})
+        Traceback (most recent call last):
+        ...
+        pedantic.exceptions.PedanticTypeCheckException:  Use "List[]" instead of "list" as type hint.
+        >>> check_type((1, 2, 3), tuple, '', {})
+        Traceback (most recent call last):
+        ...
+        pedantic.exceptions.PedanticTypeCheckException:  Use "Tuple[]" instead of "tuple" as type hint.
+        >>> check_type({1: 1.0, 2: 2.0, 3: 3.0}, dict, '', {})
+        Traceback (most recent call last):
+        ...
+        pedantic.exceptions.PedanticTypeCheckException:  Use "Dict[]" instead of "dict" as type hint.
+    """
+
+    if type_ is None:
+        return value == type_
+    elif isinstance(type_, str):
+        class_name = value.__class__.__name__
+        return class_name == type_
+
+    if type(type_) is tuple:
+        raise PedanticTypeCheckException(f'{err} Use "Tuple[]" instead of "{type_}" as type hint.')
+    if type_ is tuple:
+        raise PedanticTypeCheckException(f'{err} Use "Tuple[]" instead of "tuple" as type hint.')
+    if type_ is list:
+        raise PedanticTypeCheckException(f'{err} Use "List[]" instead of "list" as type hint.')
+    if type_ is dict:
+        raise PedanticTypeCheckException(f'{err} Use "Dict[]" instead of "dict" as type hint.')
+    if type_ is set:
+        raise PedanticTypeCheckException(f'{err} Use "Set[]" instead of "set" as type hint.')
+    if type_ is frozenset:
+        raise PedanticTypeCheckException(f'{err} Use "FrozenSet[]" instead of "frozenset" as type hint.')
+
+    try:
+        return _is_instance(obj=value, type_=type_, type_vars=type_vars)
+    except PedanticTypeCheckException as ex:
+        raise PedanticTypeCheckException(f'{err} {ex}')
+    except PedanticTypeVarMismatchException as ex:
+        raise PedanticTypeVarMismatchException(f'{err} {ex}')
+    except (AttributeError, Exception) as ex:
+        raise PedanticTypeCheckException(
+            f'{err} An error occurred during type hint checking. Value: {value} Annotation: '
+            f'{type_} Mostly this is caused by an incorrect type annotation. Details: {ex} ')
+
+
 def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
     if not _has_required_type_arguments(type_):
         raise PedanticTypeCheckException(
@@ -44,8 +146,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
                 raise PedanticTypeVarMismatchException(
                     f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} '
                     f'was previously matched to type {other}')
-        elif obj is not None:
-            type_vars[type_] = type(obj)
+        type_vars[type_] = type(obj)
         return True
 
     if _is_type_new_type(type_):

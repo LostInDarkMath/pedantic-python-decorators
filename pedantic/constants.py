@@ -1,4 +1,4 @@
-from typing import TypeVar as Tv, Callable
+from typing import TypeVar as Tv, Callable, Dict
 import sys
 
 
@@ -12,3 +12,9 @@ TypeVar = Tv if sys.version_info >= (3, 7) else type
 ReturnType = TypeVar('Return Type')
 F = Callable[..., ReturnType]
 C = TypeVar('Class')
+K = TypeVar('Key')
+V = TypeVar('Value')
+
+
+def filter_dict(dict_: Dict[K, V], filter_: Callable[[K, V], bool]) -> Dict[K, V]:
+    return {k: v for k, v in dict_.items() if filter_(k, v)}
