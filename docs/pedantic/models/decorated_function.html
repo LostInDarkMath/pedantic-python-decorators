@@ -54,7 +54,7 @@ class DecoratedFunction:
         try:
             self._docstring = parse(func.__doc__)
         except (Exception, TypeError) as ex:
-            raise AssertionError(f&#39;{self.err} Could not parse docstring. Please check syntax. Details: {ex}&#39;)
+            raise AssertionError(f&#39;{self.err}Could not parse docstring. Please check syntax. Details: {ex}&#39;)
 
     @property
     def func(self) -&gt; Callable[..., Any]:
@@ -159,7 +159,7 @@ class DecoratedFunction:
         try:
             self._docstring = parse(func.__doc__)
         except (Exception, TypeError) as ex:
-            raise AssertionError(f&#39;{self.err} Could not parse docstring. Please check syntax. Details: {ex}&#39;)
+            raise AssertionError(f&#39;{self.err}Could not parse docstring. Please check syntax. Details: {ex}&#39;)
 
     @property
     def func(self) -&gt; Callable[..., Any]:
