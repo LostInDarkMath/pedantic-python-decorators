@@ -17,11 +17,7 @@ class FunctionCall:
         self._params_without_self = filter_dict(dict_=self.func.signature.parameters,
                                                 filter_=lambda k, v: v.name != 'self')
         self._already_checked_kwargs = []
-
-        if self._instance and hasattr(self._instance, TYPE_VAR_METHOD_NAME):
-            self._get_type_vars = getattr(self._instance, TYPE_VAR_METHOD_NAME)
-        else:
-            self._get_type_vars = lambda: self._type_vars
+        self._get_type_vars = lambda: self._type_vars
 
     @property
     def func(self) -> DecoratedFunction:
@@ -80,7 +76,7 @@ class FunctionCall:
             if param.default is inspect.Signature.empty:
                 if self.func.should_have_kwargs:
                     if key not in self.kwargs:
-                        raise PedanticTypeCheckException(f'{self.func.err} Parameter "{key}" is unfilled.')
+                        raise PedanticTypeCheckException(f'{self.func.err}Parameter "{key}" is unfilled.')
                     actual_value = self.kwargs[key]
                 else:
                     actual_value = self.args[arg_index]

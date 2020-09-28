@@ -26,7 +26,7 @@ class DecoratedFunction:
         try:
             self._docstring = parse(func.__doc__)
         except (Exception, TypeError) as ex:
-            raise AssertionError(f'{self.err} Could not parse docstring. Please check syntax. Details: {ex}')
+            raise AssertionError(f'{self.err}Could not parse docstring. Please check syntax. Details: {ex}')
 
     @property
     def func(self) -> Callable[..., Any]:

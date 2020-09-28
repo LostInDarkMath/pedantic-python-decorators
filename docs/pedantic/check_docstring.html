@@ -143,25 +143,25 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -&gt; 
     &gt;&gt;&gt; _parse_documented_type(type_=&#39;MyClass&#39;, context={}, err=&#39;&#39;)
     Traceback (most recent call last):
     ...
-    pedantic.exceptions.PedanticDocstringException:  Documented type &#34;MyClass&#34; was not found.
+    pedantic.exceptions.PedanticDocstringException: Documented type &#34;MyClass&#34; was not found.
     &gt;&gt;&gt; class MyClass: pass
     &gt;&gt;&gt; _parse_documented_type(type_=&#39;MyClass&#39;, context={&#39;MyClass&#39;: MyClass}, err=&#39;&#39;)
     &lt;class &#39;pedantic.check_docstring.MyClass&#39;&gt;
     &gt;&gt;&gt; _parse_documented_type(type_=&#39;MyClas&#39;, context={&#39;MyClass&#39;: MyClass}, err=&#39;&#39;)
     Traceback (most recent call last):
     ...
-    pedantic.exceptions.PedanticDocstringException:  Documented type &#34;MyClas&#34; was not found. Maybe you meant &#34;MyClass&#34;
+    pedantic.exceptions.PedanticDocstringException: Documented type &#34;MyClas&#34; was not found. Maybe you meant &#34;MyClass&#34;
     &gt;&gt;&gt; class MyClub: pass
     &gt;&gt;&gt; _parse_documented_type(type_=&#39;MyClas&#39;, context={&#39;MyClass&#39;: MyClass, &#39;MyClub&#39;: MyClub}, err=&#39;&#39;)
     Traceback (most recent call last):
     ...
-    pedantic.exceptions.PedanticDocstringException:  Documented type &#34;MyClas&#34; was not found. Maybe you meant one of the following: [&#39;MyClass&#39;, &#39;MyClub&#39;]
+    pedantic.exceptions.PedanticDocstringException: Documented type &#34;MyClas&#34; was not found. Maybe you meant one of the following: [&#39;MyClass&#39;, &#39;MyClub&#39;]
     &#34;&#34;&#34;
 
     if &#39;typing.&#39; in type_:
         raise PedanticDocstringException(
-            f&#39;{err} Do not use &#34;typing.&#34; in docstring. Please replace &#34;{type_}&#34; with &#39;
-            f&#39;&#34;{type_.replace(&#34;typing.&#34;, &#34;&#34;)}&#34; in  the docstring&#39;)
+            f&#39;{err}Do not use &#34;typing.&#34; in docstring. Please replace &#34;{type_}&#34; with &#39;
+            f&#39;&#34;{type_.replace(&#34;typing.&#34;, &#34;&#34;)}&#34; in the docstring&#39;)
 
     try:
         return eval(type_, globals(), context)
@@ -173,7 +173,7 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -&gt; 
             msg = f&#39; Maybe you meant &#34;{possible_meant_types[0]}&#34;&#39;
         else:
             msg = &#39;&#39;
-        raise PedanticDocstringException(f&#39;{err} Documented type &#34;{type_}&#34; was not found.{msg}&#39;)
+        raise PedanticDocstringException(f&#39;{err}Documented type &#34;{type_}&#34; was not found.{msg}&#39;)
 
 
 def _update_context(context: Dict[str, Any], type_: Any) -&gt; Dict[str, Any]:

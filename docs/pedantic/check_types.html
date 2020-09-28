@@ -113,15 +113,15 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         &gt;&gt;&gt; _check_type([1, 2, 3], list, &#39;&#39;, {})
         Traceback (most recent call last):
         ...
-        pedantic.exceptions.PedanticTypeCheckException:  Use &#34;List[]&#34; instead of &#34;list&#34; as type hint.
+        pedantic.exceptions.PedanticTypeCheckException: Use &#34;List[]&#34; instead of &#34;list&#34; as type hint.
         &gt;&gt;&gt; _check_type((1, 2, 3), tuple, &#39;&#39;, {})
         Traceback (most recent call last):
         ...
-        pedantic.exceptions.PedanticTypeCheckException:  Use &#34;Tuple[]&#34; instead of &#34;tuple&#34; as type hint.
+        pedantic.exceptions.PedanticTypeCheckException: Use &#34;Tuple[]&#34; instead of &#34;tuple&#34; as type hint.
         &gt;&gt;&gt; _check_type({1: 1.0, 2: 2.0, 3: 3.0}, dict, &#39;&#39;, {})
         Traceback (most recent call last):
         ...
-        pedantic.exceptions.PedanticTypeCheckException:  Use &#34;Dict[]&#34; instead of &#34;dict&#34; as type hint.
+        pedantic.exceptions.PedanticTypeCheckException: Use &#34;Dict[]&#34; instead of &#34;dict&#34; as type hint.
     &#34;&#34;&#34;
 
     if type_ is None:
@@ -131,17 +131,17 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         return class_name == type_
 
     if type(type_) is tuple:
-        raise PedanticTypeCheckException(f&#39;{err} Use &#34;Tuple[]&#34; instead of &#34;{type_}&#34; as type hint.&#39;)
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;Tuple[]&#34; instead of &#34;{type_}&#34; as type hint.&#39;)
     if type_ is tuple:
-        raise PedanticTypeCheckException(f&#39;{err} Use &#34;Tuple[]&#34; instead of &#34;tuple&#34; as type hint.&#39;)
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;Tuple[]&#34; instead of &#34;tuple&#34; as type hint.&#39;)
     if type_ is list:
-        raise PedanticTypeCheckException(f&#39;{err} Use &#34;List[]&#34; instead of &#34;list&#34; as type hint.&#39;)
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;List[]&#34; instead of &#34;list&#34; as type hint.&#39;)
     if type_ is dict:
-        raise PedanticTypeCheckException(f&#39;{err} Use &#34;Dict[]&#34; instead of &#34;dict&#34; as type hint.&#39;)
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;Dict[]&#34; instead of &#34;dict&#34; as type hint.&#39;)
     if type_ is set:
-        raise PedanticTypeCheckException(f&#39;{err} Use &#34;Set[]&#34; instead of &#34;set&#34; as type hint.&#39;)
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;Set[]&#34; instead of &#34;set&#34; as type hint.&#39;)
     if type_ is frozenset:
-        raise PedanticTypeCheckException(f&#39;{err} Use &#34;FrozenSet[]&#34; instead of &#34;frozenset&#34; as type hint.&#39;)
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;FrozenSet[]&#34; instead of &#34;frozenset&#34; as type hint.&#39;)
 
     try:
         return _is_instance(obj=value, type_=type_, type_vars=type_vars)
@@ -151,7 +151,7 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         raise PedanticTypeVarMismatchException(f&#39;{err} {ex}&#39;)
     except (AttributeError, Exception) as ex:
         raise PedanticTypeCheckException(
-            f&#39;{err} An error occurred during type hint checking. Value: {value} Annotation: &#39;
+            f&#39;{err}An error occurred during type hint checking. Value: {value} Annotation: &#39;
             f&#39;{type_} Mostly this is caused by an incorrect type annotation. Details: {ex} &#39;)
 
 
