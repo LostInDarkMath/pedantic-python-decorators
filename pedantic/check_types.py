@@ -12,7 +12,7 @@ from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMisma
 def _assert_value_matches_type(value: Any,
                                type_: Any,
                                err: str,
-                               type_vars: Dict[TypeVar, Any],
+                               type_vars: Dict[TypeVar_, Any],
                                key: Optional[str] = None,
                                msg: Optional[str] = None
                                ) -> None:
@@ -24,7 +24,7 @@ def _assert_value_matches_type(value: Any,
         raise PedanticTypeCheckException(msg)
 
 
-def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar, Any]) -> bool:
+def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import List, Union, Optional, Callable, Any
         >>> _check_type(5, int, '', {})
