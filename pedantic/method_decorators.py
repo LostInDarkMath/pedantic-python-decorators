@@ -339,16 +339,16 @@ def pedantic(func: Optional[F] = None, is_class_decorator: bool = False, require
         Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
    """
 
-    def decorator(f: F) -> F:
+    def decorator(func: F) -> F:
         if not is_enabled():
-            return f
+            return func
 
-        decorated_func = DecoratedFunction(func=f)
+        decorated_func = DecoratedFunction(func=func)
 
         if require_docstring or len(decorated_func.docstring.params) > 0:
             _check_docs(decorated_func=decorated_func)
 
-        @functools.wraps(f)
+        @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
             if decorated_func.is_instance_method and hasattr(args[0], TYPE_VAR_METHOD_NAME):
                 type_vars = getattr(args[0], TYPE_VAR_METHOD_NAME)()
@@ -356,9 +356,9 @@ def pedantic(func: Optional[F] = None, is_class_decorator: bool = False, require
                 type_vars = dict()
 
             _assert_uses_kwargs(func=decorated_func, args=args, is_class_decorator=is_class_decorator)
-            return _check_types(decorated_func=decorated_func, args=args, kwargs=kwargs, type_vars=type_vars)
+            return _check_types(func=decorated_func, args=args, kwargs=kwargs, type_vars=type_vars)
         return wrapper
-    return decorator if func is None else decorator(f=func)
+    return decorator if func is None else decorator(func=func)
 
 
 def pedantic_require_docstring(func: Optional[F] = None, **kwargs: Any) -> F:
@@ -366,60 +366,25 @@ def pedantic_require_docstring(func: Optional[F] = None, **kwargs: Any) -> F:
     return pedantic(func=func, require_docstring=True, **kwargs)
 
 
-def _check_types(decorated_func: DecoratedFunction,
+def _check_types(func: DecoratedFunction,
                  args: Tuple[Any, ...],
                  kwargs: Dict[str, Any],
                  type_vars: Dict[TypeVar, Any]) -> Any:
-    func = decorated_func.func
-    params = decorated_func.signature.parameters
-    err = decorated_func.err
     already_checked_kwargs = []
-    arg_index = 1 if decorated_func.is_instance_method else 0
-    params_without_self = {k: v for k, v in params.items() if v.name != 'self'}
+    params_without_self = {k: v for k, v in func.signature.parameters.items() if v.name != 'self'}
     params_without_args_kwargs = {k: v for k, v in params_without_self.items() if not str(v).startswith('*')}
 
     for key in params_without_args_kwargs:
-        param = params[key]
+        param = func.signature.parameters[key]
         expected_type = param.annotation
 
-        if expected_type is inspect.Signature.empty:
-            raise PedanticTypeCheckException(f'{err} Parameter "{param.name}" should have a type hint.')
-
-        if param.default is inspect.Signature.empty:
-            if decorated_func.should_have_kwargs:
-                if key not in kwargs:
-                    raise PedanticException(f'{err} Parameter "{key}" is unfilled.')
-                actual_value = kwargs[key]
-            else:
-                actual_value = args[arg_index]
-                arg_index += 1
-        else:
-            actual_value = kwargs[key] if key in kwargs else param.default
-
-        if not _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
-                                            err_prefix=err, type_vars=type_vars):
-            raise PedanticTypeCheckException(f'{err} Type hint is incorrect: Passed Argument {key}={actual_value} does not have type {expected_type}.')
-
+        _check_type_of_param(expected=expected_type, func=func, name=key, type_vars=type_vars, actual=param, kwargs=kwargs, args=args)
         already_checked_kwargs.append(key)
 
-    _check_types_args(params=params_without_self, args=args, func=decorated_func, tv=type_vars)
-    _check_types_kwargs(params=params_without_self, kwargs=kwargs, func=decorated_func, tv=type_vars,
+    _check_types_args(params=params_without_self, args=args, func=func, tv=type_vars)
+    _check_types_kwargs(params=params_without_self, kwargs=kwargs, func=func, tv=type_vars,
                         ar=already_checked_kwargs)
-
-    # _assert_has_return_annotation()
-    if decorated_func.signature.return_annotation is inspect.Signature.empty:
-        raise PedanticTypeCheckException(
-            f'{err} There should be a type hint for the return type (e.g. None if nothing is returned).')
-
-    result = func(*args, **kwargs) if not decorated_func.is_static_method else func(**kwargs)
-    expected_result_type = decorated_func.annotations['return']
-
-    if not _is_value_matching_type_hint(value=result, type_hint=expected_result_type,
-                                        err_prefix=err, type_vars=type_vars):
-        raise PedanticTypeCheckException(
-            f'{err} Return type is incorrect: Expected {expected_result_type} '
-            f'but {result} was the return value which does not match.')
-    return result
+    return _check_types_of_return(func=func, args=args, kwargs=kwargs, type_vars=type_vars)
 
 
 def _check_types_args(params: Mapping[str, inspect.Parameter], args, func: DecoratedFunction, tv: Dict) -> None:
@@ -428,14 +393,16 @@ def _check_types_args(params: Mapping[str, inspect.Parameter], args, func: Decor
     """
 
     params_args_only = {k: v for k, v in params.items() if str(v).startswith('*') and not str(v).startswith('**')}
+    if not params_args_only:
+        return
 
-    for param in params_args_only:
-        expected_type = params_args_only[param].annotation
-        for arg in args:
-            if not _is_value_matching_type_hint(value=arg, type_hint=expected_type,
-                                                err_prefix=func.err, type_vars=tv):
-                raise PedanticTypeCheckException(
-                    f'{func.err} Type hint is incorrect: Passed argument {arg} does not have type {expected_type}.')
+    expected_type = list(params_args_only.values())[0].annotation  # it's not possible to have more then 1
+
+    for arg in args:
+        if not _is_value_matching_type_hint(value=arg, type_hint=expected_type,
+                                            err_prefix=func.err, type_vars=tv):
+            raise PedanticTypeCheckException(
+                f'{func.err} Type hint is incorrect: Passed argument {arg} does not have type {expected_type}.')
 
 
 def _check_types_kwargs(params: Mapping[str, inspect.Parameter], kwargs, func: DecoratedFunction, tv: Dict, ar) -> None:
@@ -444,21 +411,63 @@ def _check_types_kwargs(params: Mapping[str, inspect.Parameter], kwargs, func: D
     """
 
     params_kwargs_only = {k: v for k, v in params.items() if str(v).startswith('**')}
-    for param in params_kwargs_only:
-        expected_type = params_kwargs_only[param].annotation
 
-        if expected_type == inspect.Parameter.empty:
-            raise PedanticTypeCheckException('TODO')
+    if not params_kwargs_only:
+        return
 
-        for kwarg in kwargs:
-            if kwarg in ar:
-                continue
+    expected_type = list(params_kwargs_only.values())[0].annotation  # it's not possible to have more then 1
 
-            actual_value = kwargs[kwarg]
-            if not _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
-                                                err_prefix=func.err, type_vars=tv):
-                raise PedanticTypeCheckException(
-                    f'{func.err} Type hint is incorrect: Passed Argument {kwarg}={actual_value} does not have type {expected_type}.')
+    if expected_type == inspect.Parameter.empty:
+        raise PedanticTypeCheckException('TODO') #TODO
+
+    for kwarg in [kw for kw in kwargs if kw not in ar]:
+        actual_value = kwargs[kwarg]
+        if not _is_value_matching_type_hint(value=actual_value, type_hint=expected_type,
+                                            err_prefix=func.err, type_vars=tv):
+            raise PedanticTypeCheckException(
+                f'{func.err} Type hint is incorrect: Passed Argument {kwarg}={actual_value} does not have type {expected_type}.')
+
+
+def _check_type_of_param(expected, actual, name, func, type_vars, kwargs, args) -> None:
+    """
+    TODO doctests
+    """
+    arg_index = 1 if func.is_instance_method else 0
+
+    if expected is inspect.Signature.empty:
+        raise PedanticTypeCheckException(f'{func.err} Parameter "{actual.name}" should have a type hint.')
+
+    if actual.default is inspect.Signature.empty:
+        if func.should_have_kwargs:
+            if name not in kwargs:
+                raise PedanticException(f'{func.err} Parameter "{name}" is unfilled.')
+            actual_value = kwargs[name]
+        else:
+            actual_value = args[arg_index]
+            arg_index += 1
+    else:
+        actual_value = kwargs[name] if name in kwargs else actual.default
+
+    if not _is_value_matching_type_hint(value=actual_value, type_hint=expected,
+                                        err_prefix=func.err, type_vars=type_vars):
+        raise PedanticTypeCheckException(
+            f'{func.err} Type hint is incorrect: Passed Argument {name}={actual_value} does not have type {expected}.')
+
+
+def _check_types_of_return(func: DecoratedFunction, args, kwargs, type_vars) -> ReturnType:
+    if func.signature.return_annotation is inspect.Signature.empty:
+        raise PedanticTypeCheckException(
+            f'{func.err} There should be a type hint for the return type (e.g. None if nothing is returned).')
+
+    result = func.func(*args, **kwargs) if not func.is_static_method else func.func(**kwargs)
+    expected_result_type = func.annotations['return']
+
+    if not _is_value_matching_type_hint(value=result, type_hint=expected_result_type,
+                                        err_prefix=func.err, type_vars=type_vars):
+        raise PedanticTypeCheckException(
+            f'{func.err} Return type is incorrect: Expected {expected_result_type} '
+            f'but {result} was the return value which does not match.')
+    return result
 
 
 def _check_docs(decorated_func: DecoratedFunction) -> None:
