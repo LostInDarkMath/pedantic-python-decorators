@@ -2,53 +2,61 @@ import unittest
 import warnings
 
 # local file imports
-from pedantic.custom_exceptions import TooDirtyException, NotImplementedException
+from pedantic.exceptions import TooDirtyException, NotImplementedException, PedanticOverrideException
 from pedantic.method_decorators import overrides, deprecated, needs_refactoring, dirty, timer, count_calls, \
-    unimplemented, validate_args, require_not_none, require_not_empty_strings, trace, trace_if_returns, \
+    unimplemented, validate_args, trace, trace_if_returns, \
     does_same_as_function
 
 
 class TestSmallDecoratorMethods(unittest.TestCase):
 
-    def test_overrides(self):
-        """Problem here: parent has no such method"""
-        class A:
+    def test_overrides_parent_has_no_such_method(self):
+        class MyClassA:
             pass
 
-        with self.assertRaises(expected_exception=AssertionError):
-            class B(A):
-                @overrides(A)
+        with self.assertRaises(expected_exception=PedanticOverrideException):
+            class MyClassB(MyClassA):
+                @overrides(MyClassA)
                 def operation(self):
                     return 42
 
-    def test_overrides_corrected(self):
-        class A:
+    def test_overrides_all_good(self):
+        class MyClassA:
             def operation(self):
                 pass
 
-        class B(A):
-            @overrides(A)
+        class MyClassB(MyClassA):
+            @overrides(MyClassA)
             def operation(self):
                 return 42
 
-        b = B()
+        b = MyClassB()
         b.operation()
 
     def test_overrides_static_method(self):
-        class A:
+        class MyClassA:
             @staticmethod
             def operation():
                 pass
 
-        class B(A):
+        class MyClassB(MyClassA):
             @staticmethod
-            @overrides(A)
+            @overrides(MyClassA)
             def operation():
                 return 42
 
-        b = B()
+        b = MyClassB()
         self.assertEqual(b.operation(), 42)
-        self.assertEqual(B.operation(), 42)
+        self.assertEqual(MyClassB.operation(), 42)
+
+    def test_overrides_function(self):
+        class MyClassA:
+            pass
+
+        with self.assertRaises(expected_exception=PedanticOverrideException):
+            @overrides(MyClassA)
+            def operation():
+                return 42
 
     def test_deprecated_1(self):
         @deprecated
@@ -148,7 +156,7 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             m.some_calculation(-42)
 
     def test_require_not_none(self):
-        @require_not_none
+        @validate_args(lambda x: x is not None)
         def some_calculation(a, b, c):
             return a + b + c
 
@@ -157,7 +165,7 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             some_calculation(30, None, 50)
 
     def test_require_not_empty_strings(self):
-        @require_not_empty_strings
+        @validate_args(lambda x: x is not None and isinstance(x, str) and x.strip() != '')
         def some_calculation(a, b, c):
             return a + b + c
 

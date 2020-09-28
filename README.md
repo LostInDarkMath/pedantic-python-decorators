@@ -2,7 +2,7 @@
 These decorators will make you write cleaner and well-documented Python code. 
 
 ## Getting Started
-This package requires Python 3.6 or newer. 
+This package requires Python 3.6.1 or later. 
 There are multiple options for installing this package.
 
 ### Option 1: Installing with pip from [Pypi](https://pypi.org/)
@@ -53,7 +53,7 @@ As a consequence, the arguments are also checked for `None`, because `None` is o
 Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported.
 
 In a nutshell:
-`@pedantic` raises an `AssertionError` if one of the following happened:
+`@pedantic` raises an `PedanticException` if one of the following happened:
 - The decorated function is called with positional arguments.
 - The function has no type annotation for their return type or one or more parameters do not have type annotations.
 - A type annotation is incorrect.
@@ -73,8 +73,6 @@ In a nutshell:
 - [@pedantic_class_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.pedantic_class_require_docstring)
 - [@pedantic_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic_require_docstring)
 - [@require_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.require_kwargs)
-- [@require_not_empty_strings](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.require_not_empty_strings)
-- [@require_not_none](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.require_not_none)
 - [@timer](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.timer)
 - [@timer_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.timer_class)
 - [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.trace)

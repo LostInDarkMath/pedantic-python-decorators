@@ -1,6 +1,7 @@
 from unittest import TestCase
 from typing import List, Optional
 
+from pedantic.exceptions import PedanticTypeCheckException, PedanticDocstringException
 from pedantic.method_decorators import pedantic_require_docstring, pedantic
 from pedantic.class_decorators import pedantic_class_require_docstring, pedantic_class
 
@@ -8,13 +9,13 @@ from pedantic.class_decorators import pedantic_class_require_docstring, pedantic
 class TestRequireDocstringGoogleFormat(TestCase):
 
     def test_no_docstring(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(n: int, m: int, i: int) -> int:
                 return n + m + i
 
     def test_one_line_doc_string_missing_arguments_and_return(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(n: int, m: int, i: int) -> int:
                 """Returns the sum of the three args."""
@@ -38,7 +39,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(n=42, m=40, i=38)
 
     def test_list_vs_typing_list(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> List[str]:
                 """Gets and prints the spreadsheet's header columns
@@ -90,7 +91,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc='Hi', print_cols=False)
 
     def test_more_parameter_documented_than_the_function_takes(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> List[str]:
                 """Gets and prints the spreadsheet's header columns
@@ -126,7 +127,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc='Hi', print_cols=False, amount=42)
 
     def test_no_args_keyword_before_documented_arguments(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> list:
                 """Gets and prints the spreadsheet's header columns
@@ -141,7 +142,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 return [file_loc, str(print_cols)]
 
     def test_google_no_return_keyword(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> list:
                 """Gets and prints the spreadsheet's header columns
@@ -164,7 +165,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc()
 
     def test_docstring_misses_argument(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(name: str) -> None:
                 """Gets and prints the spreadsheet's header columns"""
@@ -183,7 +184,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(name='maria')
 
     def test_undocumented_arg(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool, number: int) -> List[str]:
                 """Gets and prints the spreadsheet's header columns
@@ -218,7 +219,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc='Hi', print_cols=False, number=42)
 
     def test_restructured_text_style_doctsring_cannot_be_parsed_yet(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> List[str]:
                 """Gets and prints the spreadsheet's header columns
@@ -233,7 +234,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 return [file_loc, str(print_cols)]
 
     def test_return_nothing_but_document_return_value(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool):
                 """Gets and prints the spreadsheet's header columns
@@ -246,10 +247,10 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 Returns:
                     list: a list of strings representing the header columns
                 """
-                a = [file_loc, str(print_cols)]
+                print([file_loc, str(print_cols)])
 
     def test_return_nothing_but_document_return_value_2(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> None:
                 """Gets and prints the spreadsheet's header columns
@@ -262,7 +263,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 Returns:
                     list: a list of strings representing the header columns
                 """
-                a = [file_loc, str(print_cols)]
+                print([file_loc, str(print_cols)])
 
     def test_return_value_1_corrected(self):
         @pedantic_require_docstring
@@ -279,7 +280,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc='Hi', print_cols=False)
 
     def test_return_value_is_not_documented(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             # the error message here is actually wrong due to the behavior of the docstring-parser package
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> List[str]:
@@ -312,7 +313,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(file_loc='Hi', print_cols=False)
 
     def test_return_value_is_not_documented_3(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc(file_loc: str, print_cols: bool) -> List[str]:
                 """Gets and prints the spreadsheet's header columns
@@ -325,7 +326,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 return [file_loc, str(print_cols)]
 
     def test_wrong_format_1(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             class MyText:
                 text = 'hi'
 
@@ -344,7 +345,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                     return substring in self.text
 
     def test_undocumented_arg_3(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic
             def calc(a: int, b: float, c: str) -> str:
                 """Returns some cool string
@@ -378,7 +379,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         calc(a=42, b=3.14, c='hi')
 
     def test_documented_none_as_return_type(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def calc() -> None:
                 """some cool stuff
@@ -429,7 +430,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
 
         m = MyClass()
         m.make_element(element_type=BPMNEnum(), src_tgt_elements=[BPMNElement()])
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.make_element(element_type=BPMNElement(), src_tgt_elements=[BPMNEnum()])
 
     def test_user_class_with_typing(self):
@@ -439,7 +440,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
         class BPMNElement:
             attr = 'BPMNElement'
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_class_require_docstring
             class MyClass:
 
@@ -470,12 +471,12 @@ class TestRequireDocstringGoogleFormat(TestCase):
         get_instance()
 
     def test_pedantic_args(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic(require_docstring=True)
             def no_docstrings() -> None:
                 print('.')
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_require_docstring
             def no_docstrings() -> None:
                 print('.')

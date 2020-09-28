@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 # local file imports
 from pedantic.class_decorators import pedantic_class, for_all_methods
+from pedantic.exceptions import PedanticException, PedanticTypeCheckException, PedanticCallWithArgsException
 from pedantic.method_decorators import overrides, validate_args, pedantic
 
 
@@ -37,7 +38,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
             some_calculation(x=0)
         with self.assertRaises(expected_exception=AssertionError):
             some_calculation(x=-42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_calculation(x=1.0)
 
     def test_pedantic_validate_args_2(self):
@@ -51,7 +52,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
             some_calculation(x=0)
         with self.assertRaises(expected_exception=AssertionError):
             some_calculation(x=-42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_calculation(x=1.0)
 
     def test_pedantic_validate_args_3(self):
@@ -67,7 +68,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
             m.some_calculation(x=0)
         with self.assertRaises(expected_exception=AssertionError):
             m.some_calculation(x=-42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_calculation(x=1.0)
 
     def test_pedantic_validate_args_4(self):
@@ -83,7 +84,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
             m.some_calculation(x=0)
         with self.assertRaises(expected_exception=AssertionError):
             m.some_calculation(x=-42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_calculation(x=1.0)
 
     def test_pedantic_validate_args_5(self):
@@ -97,7 +98,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
             some_calculation(x=0)
         with self.assertRaises(expected_exception=AssertionError):
             some_calculation(x=-42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticException):
             some_calculation(42)
 
     def test_pedantic_validate_args_6(self):
@@ -113,7 +114,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
             m.some_calculation(x=0)
         with self.assertRaises(expected_exception=AssertionError):
             m.some_calculation(x=-42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             m.some_calculation(42)
 
     def test_pedantic_class_static_method_1(self):
@@ -137,10 +138,10 @@ class TestCombinationOfDecorators(unittest.TestCase):
 
         m = MyClass()
         m.some_calculation(x=42)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_calculation(x=42.0)
         MyClass.some_calculation(x=45)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.some_calculation(x=45.0)
 
     def test_pedantic_static_method_1(self):
@@ -157,4 +158,4 @@ class TestCombinationOfDecorators(unittest.TestCase):
 
 if __name__ == '__main__':
     t = TestCombinationOfDecorators()
-    t.test_pedantic_class_static_method_1()
+    t.test_pedantic_validate_args_4()

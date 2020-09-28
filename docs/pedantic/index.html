@@ -31,11 +31,11 @@
 from pedantic.class_decorators \
     import pedantic_class, pedantic_class_require_docstring, timer_class, trace_class, for_all_methods
 
-from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer, require_not_none, \
-    require_not_empty_strings, needs_refactoring, dirty, unimplemented, deprecated, validate_args, \
+from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer, \
+    needs_refactoring, dirty, unimplemented, deprecated, validate_args, \
     require_kwargs, trace_if_returns, does_same_as_function, overrides
 
-from pedantic.custom_exceptions import NotImplementedException, TooDirtyException
+from pedantic.exceptions import NotImplementedException, TooDirtyException
 
 from pedantic.unit_tests.tests_main import run_all_tests
 
@@ -47,15 +47,27 @@ assert sys.version_info &gt;= (3, 6), f&#39;Pedantic does not work with Python v
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="pedantic.basic_helpers" href="basic_helpers.html">pedantic.basic_helpers</a></code></dt>
+<dt><code class="name"><a title="pedantic.check_docstring" href="check_docstring.html">pedantic.check_docstring</a></code></dt>
 <dd>
 <div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.check_generic_classes" href="check_generic_classes.html">pedantic.check_generic_classes</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.check_types" href="check_types.html">pedantic.check_types</a></code></dt>
+<dd>
+<div class="desc"><p>Idea is taken from: <a href="https://stackoverflow.com/a/55504010/10975692">https://stackoverflow.com/a/55504010/10975692</a></p></div>
 </dd>
 <dt><code class="name"><a title="pedantic.class_decorators" href="class_decorators.html">pedantic.class_decorators</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.custom_exceptions" href="custom_exceptions.html">pedantic.custom_exceptions</a></code></dt>
+<dt><code class="name"><a title="pedantic.constants" href="constants.html">pedantic.constants</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.exceptions" href="exceptions.html">pedantic.exceptions</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -71,15 +83,7 @@ assert sys.version_info &gt;= (3, 6), f&#39;Pedantic does not work with Python v
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.type_hint_parser" href="type_hint_parser.html">pedantic.type_hint_parser</a></code></dt>
-<dd>
-<div class="desc"><p>Idea is taken from: <a href="https://stackoverflow.com/a/55504010/10975692">https://stackoverflow.com/a/55504010/10975692</a></p></div>
-</dd>
 <dt><code class="name"><a title="pedantic.unit_tests" href="unit_tests/index.html">pedantic.unit_tests</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.wrapper_docstring" href="wrapper_docstring.html">pedantic.wrapper_docstring</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -100,15 +104,16 @@ assert sys.version_info &gt;= (3, 6), f&#39;Pedantic does not work with Python v
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="pedantic.basic_helpers" href="basic_helpers.html">pedantic.basic_helpers</a></code></li>
+<li><code><a title="pedantic.check_docstring" href="check_docstring.html">pedantic.check_docstring</a></code></li>
+<li><code><a title="pedantic.check_generic_classes" href="check_generic_classes.html">pedantic.check_generic_classes</a></code></li>
+<li><code><a title="pedantic.check_types" href="check_types.html">pedantic.check_types</a></code></li>
 <li><code><a title="pedantic.class_decorators" href="class_decorators.html">pedantic.class_decorators</a></code></li>
-<li><code><a title="pedantic.custom_exceptions" href="custom_exceptions.html">pedantic.custom_exceptions</a></code></li>
+<li><code><a title="pedantic.constants" href="constants.html">pedantic.constants</a></code></li>
+<li><code><a title="pedantic.exceptions" href="exceptions.html">pedantic.exceptions</a></code></li>
 <li><code><a title="pedantic.method_decorators" href="method_decorators.html">pedantic.method_decorators</a></code></li>
 <li><code><a title="pedantic.models" href="models/index.html">pedantic.models</a></code></li>
 <li><code><a title="pedantic.set_envionment_variables" href="set_envionment_variables.html">pedantic.set_envionment_variables</a></code></li>
-<li><code><a title="pedantic.type_hint_parser" href="type_hint_parser.html">pedantic.type_hint_parser</a></code></li>
 <li><code><a title="pedantic.unit_tests" href="unit_tests/index.html">pedantic.unit_tests</a></code></li>
-<li><code><a title="pedantic.wrapper_docstring" href="wrapper_docstring.html">pedantic.wrapper_docstring</a></code></li>
 </ul>
 </li>
 </ul>

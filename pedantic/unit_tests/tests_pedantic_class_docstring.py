@@ -1,6 +1,7 @@
 import unittest
 
 from pedantic import pedantic_class_require_docstring
+from pedantic.exceptions import PedanticDocstringException
 
 
 class TestPedanticClassDocstring(unittest.TestCase):
@@ -40,7 +41,7 @@ class TestPedanticClassDocstring(unittest.TestCase):
         m.double(b=42)
 
     def test_typo_docstring(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_class_require_docstring
             class MyClass:
                 def __init__(self, s: str) -> None:
@@ -61,7 +62,7 @@ class TestPedanticClassDocstring(unittest.TestCase):
                     return MyClass(s='generated')
 
     def test_wrong_docstring(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_class_require_docstring
             class MyClass:
                 def __init__(self, s: str) -> None:

@@ -15,6 +15,7 @@ from pedantic.unit_tests.tests_docstring import TestRequireDocstringGoogleFormat
 from pedantic.unit_tests.tests_pedantic_class_docstring import TestPedanticClassDocstring
 from pedantic.unit_tests.tests_decorated_function import TestDecoratedFunction
 from pedantic.unit_tests.tests_environment_variables import TestEnvironmentVariables
+from pedantic.unit_tests.tests_generic_classes import TestGenericClasses
 
 
 def run_all_tests() -> None:
@@ -29,6 +30,7 @@ def run_all_tests() -> None:
         TestPedanticClassDocstring,
         TestDecoratedFunction,
         TestEnvironmentVariables,
+        TestGenericClasses,
     ]
 
     loader = unittest.TestLoader()

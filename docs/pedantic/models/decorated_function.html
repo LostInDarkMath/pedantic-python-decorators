@@ -31,8 +31,7 @@ import re
 import types
 from typing import Any, Callable, Dict
 
-from pedantic.basic_helpers import get_qualified_name_for_err_msg
-from pedantic.wrapper_docstring import get_parsed_docstring, Docstring
+from docstring_parser import parse, Docstring
 
 FUNCTIONS_THAT_REQUIRE_KWARGS = [
     &#39;__new__&#39;, &#39;__init__&#39;, &#39;__str__&#39;, &#39;__del__&#39;, &#39;__int__&#39;, &#39;__float__&#39;, &#39;__complex__&#39;, &#39;__oct__&#39;, &#39;__hex__&#39;,
@@ -42,13 +41,20 @@ FUNCTIONS_THAT_REQUIRE_KWARGS = [
 
 class DecoratedFunction:
     def __init__(self, func: Callable[..., Any]) -&gt; None:
-        assert isinstance(func, (types.FunctionType, types.MethodType)), f&#39;{func} should be a method or function.&#39;
         self._func = func
+
+        if not isinstance(func, (types.FunctionType, types.MethodType)):
+            raise AssertionError(f&#39;{self.full_name} should be a method or function.&#39;)
+
         self._full_arg_spec = inspect.getfullargspec(func)
-        self._docstring = get_parsed_docstring(func=func)
         self._signature = inspect.signature(func)
-        self._err: str = get_qualified_name_for_err_msg(func=func)
+        self._err = f&#39;In function {func.__qualname__}:&#39; + &#39;\n&#39;
         self._source: str = inspect.getsource(object=func)
+
+        try:
+            self._docstring = parse(func.__doc__)
+        except (Exception, TypeError) as ex:
+            raise AssertionError(f&#39;{self.err} Could not parse docstring. Please check syntax. Details: {ex}&#39;)
 
     @property
     def func(self) -&gt; Callable[..., Any]:
@@ -61,6 +67,10 @@ class DecoratedFunction:
     @property
     def docstring(self) -&gt; Docstring:
         return self._docstring
+
+    @property
+    def raw_doc(self) -&gt; Docstring:
+        return self._func.__doc__
 
     @property
     def signature(self) -&gt; inspect.Signature:
@@ -77,6 +87,10 @@ class DecoratedFunction:
     @property
     def name(self) -&gt; str:
         return self._func.__name__
+
+    @property
+    def full_name(self) -&gt; str:
+        return self._func.__qualname__
 
     @property
     def is_static_method(self) -&gt; bool:
@@ -104,7 +118,11 @@ class DecoratedFunction:
 
     @property
     def num_of_decorators(self) -&gt; int:
-        return len(re.findall(&#39;@&#39;, self.source.split(&#39;def&#39;)[0]))</code></pre>
+        return len(re.findall(&#39;@&#39;, self.source.split(&#39;def&#39;)[0]))
+
+    @property
+    def is_pedantic(self) -&gt; bool:
+        return &#39;@pedantic&#39; in self.source or &#39;@require_kwargs&#39; in self.source</code></pre>
 </details>
 </section>
 <section>
@@ -128,13 +146,20 @@ class DecoratedFunction:
 </summary>
 <pre><code class="python">class DecoratedFunction:
     def __init__(self, func: Callable[..., Any]) -&gt; None:
-        assert isinstance(func, (types.FunctionType, types.MethodType)), f&#39;{func} should be a method or function.&#39;
         self._func = func
+
+        if not isinstance(func, (types.FunctionType, types.MethodType)):
+            raise AssertionError(f&#39;{self.full_name} should be a method or function.&#39;)
+
         self._full_arg_spec = inspect.getfullargspec(func)
-        self._docstring = get_parsed_docstring(func=func)
         self._signature = inspect.signature(func)
-        self._err: str = get_qualified_name_for_err_msg(func=func)
+        self._err = f&#39;In function {func.__qualname__}:&#39; + &#39;\n&#39;
         self._source: str = inspect.getsource(object=func)
+
+        try:
+            self._docstring = parse(func.__doc__)
+        except (Exception, TypeError) as ex:
+            raise AssertionError(f&#39;{self.err} Could not parse docstring. Please check syntax. Details: {ex}&#39;)
 
     @property
     def func(self) -&gt; Callable[..., Any]:
@@ -147,6 +172,10 @@ class DecoratedFunction:
     @property
     def docstring(self) -&gt; Docstring:
         return self._docstring
+
+    @property
+    def raw_doc(self) -&gt; Docstring:
+        return self._func.__doc__
 
     @property
     def signature(self) -&gt; inspect.Signature:
@@ -163,6 +192,10 @@ class DecoratedFunction:
     @property
     def name(self) -&gt; str:
         return self._func.__name__
+
+    @property
+    def full_name(self) -&gt; str:
+        return self._func.__qualname__
 
     @property
     def is_static_method(self) -&gt; bool:
@@ -190,7 +223,11 @@ class DecoratedFunction:
 
     @property
     def num_of_decorators(self) -&gt; int:
-        return len(re.findall(&#39;@&#39;, self.source.split(&#39;def&#39;)[0]))</code></pre>
+        return len(re.findall(&#39;@&#39;, self.source.split(&#39;def&#39;)[0]))
+
+    @property
+    def is_pedantic(self) -&gt; bool:
+        return &#39;@pedantic&#39; in self.source or &#39;@require_kwargs&#39; in self.source</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
@@ -230,6 +267,18 @@ def err(self) -&gt; str:
     return self._err</code></pre>
 </details>
 </dd>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.full_name"><code class="name">var <span class="ident">full_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def full_name(self) -&gt; str:
+    return self._func.__qualname__</code></pre>
+</details>
+</dd>
 <dt id="pedantic.models.decorated_function.DecoratedFunction.func"><code class="name">var <span class="ident">func</span> : Callable[..., Any]</code></dt>
 <dd>
 <div class="desc"></div>
@@ -252,6 +301,18 @@ def func(self) -&gt; Callable[..., Any]:
 <pre><code class="python">@property
 def is_instance_method(self) -&gt; bool:
     return self._full_arg_spec.args != [] and self._full_arg_spec.args[0] == &#39;self&#39;</code></pre>
+</details>
+</dd>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.is_pedantic"><code class="name">var <span class="ident">is_pedantic</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_pedantic(self) -&gt; bool:
+    return &#39;@pedantic&#39; in self.source or &#39;@require_kwargs&#39; in self.source</code></pre>
 </details>
 </dd>
 <dt id="pedantic.models.decorated_function.DecoratedFunction.is_property_setter"><code class="name">var <span class="ident">is_property_setter</span> : bool</code></dt>
@@ -300,6 +361,18 @@ def name(self) -&gt; str:
 <pre><code class="python">@property
 def num_of_decorators(self) -&gt; int:
     return len(re.findall(&#39;@&#39;, self.source.split(&#39;def&#39;)[0]))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.raw_doc"><code class="name">var <span class="ident">raw_doc</span> : docstring_parser.common.Docstring</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def raw_doc(self) -&gt; Docstring:
+    return self._func.__doc__</code></pre>
 </details>
 </dd>
 <dt id="pedantic.models.decorated_function.DecoratedFunction.should_have_kwargs"><code class="name">var <span class="ident">should_have_kwargs</span> : bool</code></dt>
@@ -378,12 +451,15 @@ def wants_args(self) -&gt; bool:
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.annotations" href="#pedantic.models.decorated_function.DecoratedFunction.annotations">annotations</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.docstring" href="#pedantic.models.decorated_function.DecoratedFunction.docstring">docstring</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.err" href="#pedantic.models.decorated_function.DecoratedFunction.err">err</a></code></li>
+<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.full_name" href="#pedantic.models.decorated_function.DecoratedFunction.full_name">full_name</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.func" href="#pedantic.models.decorated_function.DecoratedFunction.func">func</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.is_instance_method" href="#pedantic.models.decorated_function.DecoratedFunction.is_instance_method">is_instance_method</a></code></li>
+<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.is_pedantic" href="#pedantic.models.decorated_function.DecoratedFunction.is_pedantic">is_pedantic</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.is_property_setter" href="#pedantic.models.decorated_function.DecoratedFunction.is_property_setter">is_property_setter</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.is_static_method" href="#pedantic.models.decorated_function.DecoratedFunction.is_static_method">is_static_method</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.name" href="#pedantic.models.decorated_function.DecoratedFunction.name">name</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.num_of_decorators" href="#pedantic.models.decorated_function.DecoratedFunction.num_of_decorators">num_of_decorators</a></code></li>
+<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.raw_doc" href="#pedantic.models.decorated_function.DecoratedFunction.raw_doc">raw_doc</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.should_have_kwargs" href="#pedantic.models.decorated_function.DecoratedFunction.should_have_kwargs">should_have_kwargs</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.signature" href="#pedantic.models.decorated_function.DecoratedFunction.signature">signature</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.source" href="#pedantic.models.decorated_function.DecoratedFunction.source">source</a></code></li>

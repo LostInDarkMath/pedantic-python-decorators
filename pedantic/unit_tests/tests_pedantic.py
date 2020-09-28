@@ -2,6 +2,8 @@ import unittest
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
 from enum import Enum
 
+from pedantic.exceptions import PedanticTypeCheckException, PedanticException, PedanticCallWithArgsException, \
+    PedanticTypeVarMismatchException
 from pedantic.method_decorators import pedantic
 
 
@@ -11,9 +13,9 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -> int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             calc(42, 40, 38)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             calc(42, m=40, i=38)
         calc(n=42, m=40, i=38)
 
@@ -22,7 +24,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int) -> List[List[float]]:
             return [0.0 * n]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_nested_type_hints_1_corrected(self):
@@ -38,7 +40,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int) -> List[Tuple[float, str]]:
             return [(n, str(n))]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_nested_type_hints_2_corrected(self):
@@ -62,7 +64,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return n * x, str(y)
             return f
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)(x=3, y=3.14)
 
     def test_nested_type_hints_3_corrected(self):
@@ -82,7 +84,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: List[List[float]]) -> int:
             return n[0][0]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=[[42.0]])
 
     def test_nested_type_hints_corrected(self):
@@ -102,7 +104,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return n * float(x), y
             return f
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_nested_type_hints_5_corrected(self):
@@ -121,7 +123,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n) -> float:
             return 42.0 * n
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_missing_type_hint_1_corrected(self):
@@ -137,7 +139,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int):
             return 'Hi' + str(n)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42)
 
     def test_missing_type_hint_2_corrected(self):
@@ -153,7 +155,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i) -> int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_missing_type_hint_3_corrected(self):
@@ -225,7 +227,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -> str:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_1_corrected(self):
@@ -241,7 +243,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: str) -> int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_2_corrected(self):
@@ -257,7 +259,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -> None:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_corrected(self):
@@ -273,7 +275,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -> int:
             print(n + m + i)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=38)
 
     def test_wrong_type_hint_4_corrected(self):
@@ -289,7 +291,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: int) -> int:
             return n + m + i
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=None)
 
     def test_none_2(self):
@@ -312,7 +314,8 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(n: int, m: int, i: Union[int, None]) -> int:
             return n + m + i if i is not None else None
 
-        with self.assertRaises(expected_exception=AssertionError):
+        calc(n=42, m=40, i=42)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(n=42, m=40, i=None)
 
     def test_none_5(self):
@@ -323,103 +326,101 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         calc(n=42, m=40, i=None)
 
     def test_inheritance_1(self):
-        class A:
+        class MyClassA:
             pass
 
-        class B(A):
+        class MyClassB(MyClassA):
             pass
 
         @pedantic
-        def calc(a: A) -> str:
+        def calc(a: MyClassA) -> str:
             return str(a)
 
-        calc(a=A())
-        calc(a=B())
+        calc(a=MyClassA())
+        calc(a=MyClassB())
 
     def test_inheritance_2(self):
         """Problem here: A is not a subtype of B"""
-        class A:
+        class MyClassA:
             pass
 
-        class B(A):
+        class MyClassB(MyClassA):
             pass
 
         @pedantic
-        def calc(a: B) -> str:
+        def calc(a: MyClassB) -> str:
             return str(a)
 
-        calc(a=B())
-        with self.assertRaises(expected_exception=AssertionError):
-            calc(a=A())
+        calc(a=MyClassB())
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            calc(a=MyClassA())
 
     def test_instance_method_1(self):
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -> str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42)
 
     def test_instance_method_2(self):
         """Problem here: 'i' has no type annotation"""
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i) -> str:
                 return str(i)
 
-        a = A()
-        with self.assertRaises(expected_exception=AssertionError):
+        a = MyClassA()
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             a.calc(i=42)
 
     def test_instance_method_2_corrected(self):
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -> str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42)
 
-    def test_instance_method_3(self):
-        """Problem here: float != int"""
-        class A:
+    def test_instance_method_int_is_not_float(self):
+        class MyClassA:
             @pedantic
             def calc(self, i: float) -> str:
                 return str(i)
 
-        a = A()
-        with self.assertRaises(expected_exception=AssertionError):
+        a = MyClassA()
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             a.calc(i=42)
 
     def test_instance_method_3_corrected(self):
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: float) -> str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42.0)
 
-    def test_instance_method_4(self):
-        """Problem here: instance methods is not called with kwargs"""
-        class A:
+    def test_instance_method_no_kwargs(self):
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -> str:
                 return str(i)
 
-        a = A()
-        with self.assertRaises(expected_exception=AssertionError):
+        a = MyClassA()
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             a.calc(42)
 
     def test_instance_method_5(self):
         """Problem here: instance methods is not called with kwargs"""
-        class A:
+        class MyClassA:
             @pedantic
             def calc(self, i: int) -> str:
                 return str(i)
 
-        a = A()
+        a = MyClassA()
         a.calc(i=42)
 
     def test_lambda_1(self):
@@ -428,17 +429,17 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(i: float) -> Callable[[float], str]:
             return lambda x: str(x * i)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(10.0)
 
     def test_lambda_2(self):
-        """Even this is not expected by the type checker. Only test_lambda_3 has the 'correct' syntax"""
+        """Even this is not accepted by the type checker. Only test_lambda_3 has the 'correct' syntax"""
         @pedantic
         def calc(i: float) -> Callable[[float], str]:
             res: Callable[[float], str] = lambda x: str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(10.0)
 
     def test_lambda_3(self):
@@ -458,7 +459,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(x=10)
 
     def test_lambda_4_almost_corrected(self):
@@ -470,7 +471,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(x=10)
 
     def test_lambda_4_almost_corrected_2(self):
@@ -492,7 +493,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 return str(x * i)
             return res
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=42.0)(x=10)
 
     def test_lambda_corrected(self):
@@ -506,13 +507,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         calc(i=42.0)(x=10.0)
 
-    def test_tuple_without_args(self):
-        """Problem here: Tuple has no type arguments"""
+    def test_tuple_without_type_args(self):
         @pedantic
         def calc(i: Tuple) -> str:
             return str(i)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=(42.0, 43, 'hi'))
 
     def test_tuple_without_args_corrected(self):
@@ -522,13 +522,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         calc(i=(42.0, 43, 'hi'))
 
-    def test_callable_without_args(self):
-        """Problem here: Callable has no type arguments"""
+    def test_callable_without_type_args(self):
         @pedantic
         def calc(i: Callable) -> str:
             return str(i(' you'))
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=lambda x: (42.0, 43, 'hi', x))
 
     def test_callable_without_args_almost_corrected(self):
@@ -537,7 +536,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(i: Callable[[Any], Tuple[Any, ...]]) -> str:
             return str(i(x=' you'))
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=lambda x: (42.0, 43, 'hi', x))
 
     def test_callable_without_args_corrected(self):
@@ -551,12 +550,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         calc(i=arg)
 
     def test_list_without_args(self):
-        """Problem here: List has no type arguments"""
         @pedantic
         def calc(i: List) -> Any:
             return [i]
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=[42.0, 43, 'hi'])
 
     def test_list_without_args_corrected(self):
@@ -598,7 +596,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def call(x: float, y: int) -> int:
             return 42
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticException):
             calc(i=call)
 
     def test_optional_args_1(self):
@@ -628,7 +626,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def calc(a: int = 3, b: int = 42, c: float = 5) -> float:
             return a + b + c
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc()
 
     def test_optional_args_3_corrected(self):
@@ -658,7 +656,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         calc()
         calc(d={42: 3})
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(d={42: 3.14})
 
     def test_optional_args_6(self):
@@ -668,11 +666,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return int(d)
 
         calc(d=99999)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(d='999999')
 
     def test_enum_1(self):
-        """Problem here: Type hint for a should be MyEnum instead of MyEnum.GAMMA"""
+        """Problem here: Type hint for 'a' should be MyEnum instead of MyEnum.GAMMA"""
         class MyEnum(Enum):
             ALPHA = 'startEvent'
             BETA = 'task'
@@ -684,7 +682,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
                 print(a)
 
         m = MyClass()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.operation(a=MyEnum.GAMMA)
 
     def test_enum_1_corrected(self):
@@ -700,21 +698,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(a=MyEnum.GAMMA)
 
     def test_sloppy_types_dict(self):
-        """Problem here: use typing.Dict instead of dict"""
         @pedantic
         def operation(d: dict) -> int:
             return len(d.keys())
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1: 1, 2: 2})
 
-    def test_sloppy_types_dict_almost_corrected(self):
-        """Problem here: typing.Dict misses type arguments"""
+    def test_sloppy_types_dict_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: Dict) -> int:
             return len(d.keys())
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1: 1, 2: 2})
 
     def test_sloppy_types_dict_corrected(self):
@@ -725,21 +721,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(d={1: 1, 2: 2})
 
     def test_sloppy_types_list(self):
-        """Problem here: use typing.List instead of list"""
         @pedantic
         def operation(d: list) -> int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=[1, 2, 3, 4])
 
-    def test_sloppy_types_list_almost_corrected(self):
-        """Problem here: typing.List misses type argument"""
+    def test_sloppy_types_list_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: List) -> int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=[1, 2, 3, 4])
 
     def test_sloppy_types_list_corrected(self):
@@ -750,21 +744,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(d=[1, 2, 3, 4])
 
     def test_sloppy_types_tuple(self):
-        """Problem here: use typing.Tuple instead of tuple"""
         @pedantic
         def operation(d: tuple) -> int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=(1, 2, 3))
 
-    def test_sloppy_types_tuple_almost_corrected(self):
-        """Problem here: typing.Tuple misses type arguments"""
+    def test_sloppy_types_tuple_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: Tuple) -> int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=(1, 2, 3))
 
     def test_sloppy_types_tuple_corrected(self):
@@ -775,21 +767,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(d=(1, 2, 3))
 
     def test_sloppy_types_set(self):
-        """Problem here: use typing.Set instead of set"""
         @pedantic
         def operation(d: set) -> int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1, 2, 3})
 
-    def test_sloppy_types_set_almost_corrected(self):
-        """Problem here: typing.Set misses type argument"""
+    def test_sloppy_types_set_almost_corrected_to_type_args(self):
         @pedantic
         def operation(d: Set) -> int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d={1, 2, 3})
 
     def test_sloppy_types_set_corrected(self):
@@ -800,21 +790,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         operation(d={1, 2, 3})
 
     def test_sloppy_types_frozenset(self):
-        """Problem here: use typing.FrozenSet instead of frozenset"""
         @pedantic
         def operation(d: frozenset) -> int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=frozenset({1, 2, 3}))
 
-    def test_sloppy_types_frozenset_almost_corrected(self):
-        """Problem here: typing.FrozenSet misses type argument"""
+    def test_sloppy_types_frozenset_almost_corrected_no_type_args(self):
         @pedantic
         def operation(d: FrozenSet) -> int:
             return len(d)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             operation(d=frozenset({1, 2, 3}))
 
     def test_sloppy_types_frozenset_corrected(self):
@@ -824,13 +812,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         operation(d=frozenset({1, 2, 3}))
 
-    def test_type_list(self):
-        """Problem here: tuple != list"""
+    def test_type_list_but_got_tuple(self):
         @pedantic
         def calc(ls: List[Any]) -> int:
             return len(ls)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(ls=(1, 2, 3))
 
     def test_type_list_corrected(self):
@@ -881,7 +868,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return str(user_ids)
 
         get_user_name(user_ids=[UserId(524313), UserId(42)])
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             get_user_name(user_ids=[UserId(524313), UserId(42), 430.0])
 
     def test_callable_no_args(self):
@@ -911,7 +898,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def first(ls: List[T]) -> T:
             return str(ls[0])
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             first(ls=[1, 2, 3])
 
     def test_type_var_wrong_sequence(self):
@@ -921,7 +908,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def first(ls: Sequence[T]) -> T:
             return str(ls[0])
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             first(ls=[1, 2, 3])
 
     def test_double_pedantic(self):
@@ -931,9 +918,9 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return float(x), str(y)
 
         f(x=5, y=3.14)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             f(x=5.0, y=3.14)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             f(5, 3.14)
 
     def test_args_kwargs(self):
@@ -946,11 +933,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return some_method(*args, **kwargs)
 
         some_method()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             some_method(3, 3.0)
         some_method(a=3, b=3.0)
         wrapper_method()
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
             wrapper_method(3, 3.0)
         wrapper_method(a=3, b=3.0)
 
@@ -960,9 +947,9 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             print(args)
             print(kwargs)
 
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             method_no_type_hint(a=3, b=3.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             method_no_type_hint()
 
     def test_args_kwargs_wrong_type_hint(self):
@@ -975,11 +962,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         wrapper_method()
         wrapper_method('hi', 'you', ':)')
         wrapper_method(a='hi', b='you', c=':)')
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             wrapper_method('hi', 'you', ':)', 7)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             wrapper_method(3, 3.0)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             wrapper_method(a=3, b=3.0)
 
     def test_additional_kwargs(self):
@@ -991,11 +978,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         some_method(a=5, b=0.1)
         some_method(a=5, b=0.1, c=4)
         some_method(a=5, b=0.1, c=4, d=5, e=6)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method(a=5, b=0.1, c=4, d=5.0, e=6)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method(a=5.0, b=0.1, c=4, d=5, e=6)
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_method(a=5, b=0, c=4, d=5, e=6)
 
     def test_args_kwargs_different_types(self):
@@ -1016,7 +1003,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             MyClass()
 
     def test_is_subtype_tuple(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
             @pedantic
             def foo() -> Callable[[Tuple[float, str]], Tuple[int]]:
                 def bar(a: Tuple[float]) -> Tuple[int]:
@@ -1035,4 +1022,4 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_type_var()
+    test.test_type_var_wrong_sequence()

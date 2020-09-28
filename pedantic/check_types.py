@@ -1,15 +1,136 @@
 """Idea is taken from: https://stackoverflow.com/a/55504010/10975692"""
 import inspect
 import typing
-from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping
+from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType
 import collections
 import sys
 
+from pedantic.constants import TypeVar as TypeVar_
+from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
 
-def _is_instance(obj: Any, type_: Any, type_vars: Dict[Any, Any]) -> bool:
-    assert _has_required_type_arguments(type_), \
-        f'The type annotation "{type_}" misses some type arguments e.g. ' \
-        f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".'
+
+def _assert_value_matches_type(value: Any,
+                               type_: Any,
+                               err: str,
+                               type_vars: Dict[TypeVar_, Any],
+                               key: Optional[str] = None,
+                               msg: Optional[str] = None
+                               ) -> None:
+    if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars):
+        t = type(value)
+        value = f'{key}={value}'
+        if not msg:
+            msg = f'{err}Type hint is incorrect: Argument {value} of type {t} does not match expected type {type_}.'
+        raise PedanticTypeCheckException(msg)
+
+
+def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]) -> bool:
+    """
+        >>> from typing import List, Union, Optional, Callable, Any
+        >>> _check_type(5, int, '', {})
+        True
+        >>> _check_type(5, float, '', {})
+        False
+        >>> _check_type('hi', str, '', {})
+        True
+        >>> _check_type(None, str, '', {})
+        False
+        >>> _check_type(None, Any, '', {})
+        True
+        >>> _check_type(None, None, '', {})
+        True
+        >>> _check_type(5, Any, '', {})
+        True
+        >>> _check_type(3.1415, float, '', {})
+        True
+        >>> _check_type([1, 2, 3, 4], List[int], '', {})
+        True
+        >>> _check_type([1, 2, 3.0, 4], List[int], '', {})
+        False
+        >>> _check_type([1, 2, 3.0, 4], List[float], '', {})
+        False
+        >>> _check_type([1, 2, 3.0, 4], List[Union[float, int]], '', {})
+        True
+        >>> _check_type([[True, False], [False], [True], []], List[List[bool]], '', {})
+        True
+        >>> _check_type([[True, False, 1], [False], [True], []], List[List[bool]], '', {})
+        False
+        >>> _check_type(5, Union[int, float, bool], '', {})
+        True
+        >>> _check_type(5.0, Union[int, float, bool], '', {})
+        True
+        >>> _check_type(False, Union[int, float, bool], '', {})
+        True
+        >>> _check_type('5', Union[int, float, bool], '', {})
+        False
+        >>> def f(a: int, b: bool, c: str) -> float: pass
+        >>> _check_type(f, Callable[[int, bool, str], float], '', {})
+        True
+        >>> _check_type(None, Optional[List[Dict[str, float]]], '', {})
+        True
+        >>> _check_type([{'a': 1.2, 'b': 3.4}], Optional[List[Dict[str, float]]], '', {})
+        True
+        >>> _check_type([{'a': 1.2, 'b': 3}], Optional[List[Dict[str, float]]], '', {})
+        False
+        >>> _check_type({'a': 1.2, 'b': 3.4}, Optional[List[Dict[str, float]]], '', {})
+        False
+        >>> _check_type([{'a': 1.2, 7: 3.4}], Optional[List[Dict[str, float]]], '', {})
+        False
+        >>> class MyClass: pass
+        >>> _check_type(MyClass(), 'MyClass', '', {})
+        True
+        >>> _check_type(MyClass(), 'MyClas', '', {})
+        False
+        >>> _check_type([1, 2, 3], list, '', {})
+        Traceback (most recent call last):
+        ...
+        pedantic.exceptions.PedanticTypeCheckException:  Use "List[]" instead of "list" as type hint.
+        >>> _check_type((1, 2, 3), tuple, '', {})
+        Traceback (most recent call last):
+        ...
+        pedantic.exceptions.PedanticTypeCheckException:  Use "Tuple[]" instead of "tuple" as type hint.
+        >>> _check_type({1: 1.0, 2: 2.0, 3: 3.0}, dict, '', {})
+        Traceback (most recent call last):
+        ...
+        pedantic.exceptions.PedanticTypeCheckException:  Use "Dict[]" instead of "dict" as type hint.
+    """
+
+    if type_ is None:
+        return value == type_
+    elif isinstance(type_, str):
+        class_name = value.__class__.__name__
+        return class_name == type_
+
+    if type(type_) is tuple:
+        raise PedanticTypeCheckException(f'{err} Use "Tuple[]" instead of "{type_}" as type hint.')
+    if type_ is tuple:
+        raise PedanticTypeCheckException(f'{err} Use "Tuple[]" instead of "tuple" as type hint.')
+    if type_ is list:
+        raise PedanticTypeCheckException(f'{err} Use "List[]" instead of "list" as type hint.')
+    if type_ is dict:
+        raise PedanticTypeCheckException(f'{err} Use "Dict[]" instead of "dict" as type hint.')
+    if type_ is set:
+        raise PedanticTypeCheckException(f'{err} Use "Set[]" instead of "set" as type hint.')
+    if type_ is frozenset:
+        raise PedanticTypeCheckException(f'{err} Use "FrozenSet[]" instead of "frozenset" as type hint.')
+
+    try:
+        return _is_instance(obj=value, type_=type_, type_vars=type_vars)
+    except PedanticTypeCheckException as ex:
+        raise PedanticTypeCheckException(f'{err} {ex}')
+    except PedanticTypeVarMismatchException as ex:
+        raise PedanticTypeVarMismatchException(f'{err} {ex}')
+    except (AttributeError, Exception) as ex:
+        raise PedanticTypeCheckException(
+            f'{err} An error occurred during type hint checking. Value: {value} Annotation: '
+            f'{type_} Mostly this is caused by an incorrect type annotation. Details: {ex} ')
+
+
+def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
+    if not _has_required_type_arguments(type_):
+        raise PedanticTypeCheckException(
+            f'The type annotation "{type_}" misses some type arguments e.g. '
+            f'"typing.Tuple[Any, ...]" or "typing.Callable[..., str]".')
 
     if type_.__module__ == 'typing':
         if _is_generic(type_):
@@ -33,19 +154,18 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[Any, Any]) -> bool:
         type_args = _get_type_arguments(cls=type_)
         return validator(obj, type_args, type_vars)
 
-    if isinstance(type_, typing.TypeVar):
+    if isinstance(type_, TypeVar):
         if type_ in type_vars:
             other = type_vars[type_]
-            assert type(obj) == type(other), \
-                f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} and value ' \
-                f'{other} has type {type(other)}'
-        elif obj is not None:
-            type_vars[type_] = obj
+            if not isinstance(obj, other):
+                raise PedanticTypeVarMismatchException(
+                    f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} '
+                    f'was previously matched to type {other}')
+        type_vars[type_] = type(obj)
         return True
 
     if _is_type_new_type(type_):
         return isinstance(obj, type_.__supertype__)
-
     return isinstance(obj, type_)
 
 
@@ -58,7 +178,7 @@ def _is_type_new_type(type_: Any) -> bool:
         >>> _is_type_new_type(UserId)
         True
     """
-    return type_.__qualname__ == typing.NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
+    return type_.__qualname__ == NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
 
 
 def _get_name(cls: Any) -> str:
@@ -132,7 +252,7 @@ def _is_generic(cls: Any) -> bool:
             return True
 
         if isinstance(cls, typing._SpecialForm):
-            return cls not in {typing.Any}
+            return cls not in {Any}
     elif isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
         return True
     return False
@@ -223,7 +343,7 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         result = cls.__args__
         origin = _get_base_generic(cls=cls)
         if origin != cls and \
-                ((origin is typing.Callable) or (origin is collections.abc.Callable)) and \
+                ((origin is Callable) or (origin is collections.abc.Callable)) and \
                 result[0] is not Ellipsis:
             result = (list(result[:-1]), result[-1])
     result = result or ()
@@ -394,7 +514,7 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         return annotation
 
 
-def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import List, Any, Union
         >>> _instancecheck_iterable([1.0, -4.2, 5.4], (float,), {})
@@ -418,7 +538,7 @@ def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dic
     return all(_is_instance(val, type_, type_vars=type_vars) for val in iterable)
 
 
-def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import Any, Optional
         >>> _instancecheck_mapping({0: 1, 1: 2, 2: 3}, (int, Any), {})
@@ -439,7 +559,7 @@ def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[t
     return _instancecheck_items_view(mapping.items(), type_args, type_vars=type_vars)
 
 
-def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import Any, Optional
         >>> _instancecheck_items_view({0: 1, 1: 2, 2: 3}.items(), (int, Any), {})
@@ -463,7 +583,7 @@ def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars
                for key, val in items_view)
 
 
-def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import Any
         >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(Any, Ellipsis), type_vars={})
@@ -486,7 +606,7 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[type, Any])
     return all(_is_instance(obj=val, type_=type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
 
 
-def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> bool:
+def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import Union, TypeVar, Any
         >>> NoneType = type(None)
@@ -507,39 +627,39 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> 
         True
         >>> _instancecheck_union(None, Union[T, NoneType], {})
         True
-        >>> _instancecheck_union(None, Union[T, NoneType], {T: 42})
+        >>> _instancecheck_union(None, Union[T, NoneType], {T: int})
         True
-        >>> _instancecheck_union('None', Union[T, NoneType], {T: 42})
+        >>> _instancecheck_union('None', Union[T, NoneType], {T: int})
         False
         >>> _instancecheck_union(42, Union[T, S], {})
         True
-        >>> _instancecheck_union(42, Union[T, S], {T: 42})
+        >>> _instancecheck_union(42, Union[T, S], {T: int})
         True
-        >>> _instancecheck_union(42, Union[T, S], {T: '42'})
+        >>> _instancecheck_union(42, Union[T, S], {T: str})
         True
-        >>> _instancecheck_union(42, Union[T, S], {T: 42, S: 45.0})
+        >>> _instancecheck_union(42, Union[T, S], {T: int, S: float})
         True
-        >>> _instancecheck_union(42, Union[T, S], {T: '42', S: 45.0})
+        >>> _instancecheck_union(42, Union[T, S], {T: str, S: float})
         False
-        >>> _instancecheck_union(42.8, Union[T, S], {T: '42', S: 45.0})
+        >>> _instancecheck_union(42.8, Union[T, S], {T: str, S: float})
         True
-        >>> _instancecheck_union(None, Union[T, S], {T: '42', S: 45.0})
+        >>> _instancecheck_union(None, Union[T, S], {T: str, S: float})
         False
         >>> _instancecheck_union(None, Union[T, S], {})
         True
-        >>> _instancecheck_union(None, Union[T, NoneType], {T: 42})
+        >>> _instancecheck_union(None, Union[T, NoneType], {T: int})
         True
-        >>> _instancecheck_union('None', Union[T, NoneType, S], {T: 42})
+        >>> _instancecheck_union('None', Union[T, NoneType, S], {T: int})
         True
         >>> _instancecheck_union(42, Union[T, Any], {})
         True
-        >>> _instancecheck_union(42, Union[T, Any], {T: 75.7})
+        >>> _instancecheck_union(42, Union[T, Any], {T: float})
         True
     """
 
     type_args = _get_type_arguments(cls=type_)
-    args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, typing.TypeVar)]
-    args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, typing.TypeVar)]
+    args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, TypeVar)]
+    args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, TypeVar)]
     args_type_vars_bounded = [type_var for type_var in args_type_vars if type_var in type_vars]
     args_type_vars_unbounded = [type_var for type_var in args_type_vars if type_var not in args_type_vars_bounded]
     matches_non_type_var = any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars)
@@ -550,7 +670,7 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[type, Any]) -> 
         try:
             _is_instance(obj=value, type_=bounded_type_var, type_vars=type_vars)
             return True
-        except AssertionError:
+        except PedanticException:
             pass
 
     if not args_type_vars_unbounded:
@@ -603,9 +723,10 @@ def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
         if not _is_subtype(sub_type=sig.return_annotation, super_type=ret_type):
             return False
 
-    assert not missing_annotations, \
-        f'Parsing of type annotations failed. Maybe you are about to return a lambda expression. ' \
-        f'Try returning an inner function instead. {missing_annotations}'
+    if missing_annotations:
+        raise PedanticTypeCheckException(
+            f'Parsing of type annotations failed. Maybe you are about to return a lambda expression. '
+            f'Try returning an inner function instead. {missing_annotations}')
     return True
 
 
