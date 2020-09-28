@@ -9,72 +9,87 @@ from pedantic.constants import TypeVar as TypeVar_
 from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
 
 
-def check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar, Any]) -> bool:
+def _assert_value_matches_type(value: Any,
+                               type_: Any,
+                               err: str,
+                               type_vars: Dict[TypeVar, Any],
+                               key: Optional[str] = None,
+                               msg: Optional[str] = None
+                               ) -> None:
+    if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars):
+        t = type(value)
+        value = f'{key}={value}'
+        if not msg:
+            msg = f'{err}Type hint is incorrect: Argument {value} of type {t} does not match expected type {type_}.'
+        raise PedanticTypeCheckException(msg)
+
+
+def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar, Any]) -> bool:
     """
         >>> from typing import List, Union, Optional, Callable, Any
-        >>> check_type(5, int, '', {})
+        >>> _check_type(5, int, '', {})
         True
-        >>> check_type(5, float, '', {})
+        >>> _check_type(5, float, '', {})
         False
-        >>> check_type('hi', str, '', {})
+        >>> _check_type('hi', str, '', {})
         True
-        >>> check_type(None, str, '', {})
+        >>> _check_type(None, str, '', {})
         False
-        >>> check_type(None, Any, '', {})
+        >>> _check_type(None, Any, '', {})
         True
-        >>> check_type(None, None, '', {})
+        >>> _check_type(None, None, '', {})
         True
-        >>> check_type(5, Any, '', {})
+        >>> _check_type(5, Any, '', {})
         True
-        >>> check_type(3.1415, float, '', {})
+        >>> _check_type(3.1415, float, '', {})
         True
-        >>> check_type([1, 2, 3, 4], List[int], '', {})
+        >>> _check_type([1, 2, 3, 4], List[int], '', {})
         True
-        >>> check_type([1, 2, 3.0, 4], List[int], '', {})
+        >>> _check_type([1, 2, 3.0, 4], List[int], '', {})
         False
-        >>> check_type([1, 2, 3.0, 4], List[float], '', {})
+        >>> _check_type([1, 2, 3.0, 4], List[float], '', {})
         False
-        >>> check_type([1, 2, 3.0, 4], List[Union[float, int]], '', {})
+        >>> _check_type([1, 2, 3.0, 4], List[Union[float, int]], '', {})
         True
-        >>> check_type([[True, False], [False], [True], []], List[List[bool]], '', {})
+        >>> _check_type([[True, False], [False], [True], []], List[List[bool]], '', {})
         True
-        >>> check_type([[True, False, 1], [False], [True], []], List[List[bool]], '', {})
+        >>> _check_type([[True, False, 1], [False], [True], []], List[List[bool]], '', {})
         False
-        >>> check_type(5, Union[int, float, bool], '', {})
+        >>> _check_type(5, Union[int, float, bool], '', {})
         True
-        >>> check_type(5.0, Union[int, float, bool], '', {})
+        >>> _check_type(5.0, Union[int, float, bool], '', {})
         True
-        >>> check_type(False, Union[int, float, bool], '', {})
+        >>> _check_type(False, Union[int, float, bool], '', {})
         True
-        >>> check_type('5', Union[int, float, bool], '', {})
+        >>> _check_type('5', Union[int, float, bool], '', {})
         False
         >>> def f(a: int, b: bool, c: str) -> float: pass
-        >>> check_type(f, Callable[[int, bool, str], float], '', {})
+        >>> _check_type(f, Callable[[int, bool, str], float], '', {})
         True
-        >>> check_type(None, Optional[List[Dict[str, float]]], '', {})
+        >>> _check_type(None, Optional[List[Dict[str, float]]], '', {})
         True
-        >>> check_type([{'a': 1.2, 'b': 3.4}], Optional[List[Dict[str, float]]], '', {})
+        >>> _check_type([{'a': 1.2, 'b': 3.4}], Optional[List[Dict[str, float]]], '', {})
         True
-        >>> check_type([{'a': 1.2, 'b': 3}], Optional[List[Dict[str, float]]], '', {})
+        >>> _check_type([{'a': 1.2, 'b': 3}], Optional[List[Dict[str, float]]], '', {})
         False
-        >>> check_type({'a': 1.2, 'b': 3.4}, Optional[List[Dict[str, float]]], '', {})
+        >>> _check_type({'a': 1.2, 'b': 3.4}, Optional[List[Dict[str, float]]], '', {})
         False
-        >>> check_type([{'a': 1.2, 7: 3.4}], Optional[List[Dict[str, float]]], '', {})
+        >>> _check_type([{'a': 1.2, 7: 3.4}], Optional[List[Dict[str, float]]], '', {})
         False
         >>> class MyClass: pass
-        >>> check_type(MyClass(), 'MyClass', '', {})
+        >>> _check_type(MyClass(), 'MyClass', '', {})
         True
-        >>> check_type(MyClass(), 'MyClas', '', {})
+        >>> _check_type(MyClass(), 'MyClas', '', {})
         False
-        >>> check_type([1, 2, 3], list, '', {})
+        >>> _check_type([1, 2, 3], list, '', {})
         Traceback (most recent call last):
         ...
         pedantic.exceptions.PedanticTypeCheckException:  Use "List[]" instead of "list" as type hint.
-        >>> check_type((1, 2, 3), tuple, '', {})
+        >>> _check_type((1, 2, 3), tuple, '', {})
         Traceback (most recent call last):
         ...
         pedantic.exceptions.PedanticTypeCheckException:  Use "Tuple[]" instead of "tuple" as type hint.
-        >>> check_type({1: 1.0, 2: 2.0, 3: 3.0}, dict, '', {})
+        >>> _check_type({1: 1.0, 2: 2.0, 3: 3.0}, dict, '', {})
         Traceback (most recent call last):
         ...
         pedantic.exceptions.PedanticTypeCheckException:  Use "Dict[]" instead of "dict" as type hint.

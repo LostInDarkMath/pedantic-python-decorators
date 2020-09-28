@@ -248,7 +248,7 @@ def require_kwargs(func: F) -> F:
         Traceback (most recent call last):
         ...
         pedantic.exceptions.PedanticCallWithArgsException: In function my_function:
-         Use kwargs when you call function my_function. Args: (5, 4, 3)
+        Use kwargs when you call function my_function. Args: (5, 4, 3)
         >>> my_function(a=5, b=4, c=3)
         12
     """
@@ -273,7 +273,7 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> 
       Traceback (most recent call last):
       ...
       AssertionError: In function my_function:
-       Each argument should be greater then 42, but it was 40.
+      Each argument should be greater then 42, but it was 40.
       >>> my_function(43, 48, 50)
       141
    """
@@ -285,7 +285,7 @@ def validate_args(validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) -> 
             res = validator(obj)
             res, msg = res if type(res) is not bool else (res, 'Invalid arguments.')
             if not res:
-                raise AssertionError(f'{deco_func.err} {msg}')
+                raise AssertionError(f'{deco_func.err}{msg}')
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
@@ -316,26 +316,26 @@ def pedantic(func: Optional[F] = None, require_docstring: bool = False) -> F:
        >>> @pedantic
        ... def my_function(a: int, b: float, c: str) -> bool:
        ...     return float(a) == b and str(b) == c
-       >>> my_function(a=42.0, b=14.0, c='you')
+       >>> my_function(a=42.0, b=14.0, c='hi')
        Traceback (most recent call last):
        ...
        pedantic.exceptions.PedanticTypeCheckException: In function my_function:
-        Type hint is incorrect: Passed Argument a=42.0 does not have type <class 'int'>.
-       >>> my_function(a=42, b=None, c='you')
+       Type hint is incorrect: Argument a=42.0 of type <class 'float'> does not match expected type <class 'int'>.
+       >>> my_function(a=42, b=None, c='hi')
        Traceback (most recent call last):
        ...
        pedantic.exceptions.PedanticTypeCheckException: In function my_function:
-        Type hint is incorrect: Passed Argument b=None does not have type <class 'float'>.
-       >>> my_function(a=42, b=42, c='you')
+       Type hint is incorrect: Argument b=None of type <class 'NoneType'> does not match expected type <class 'float'>.
+       >>> my_function(a=42, b=42, c='hi')
        Traceback (most recent call last):
        ...
        pedantic.exceptions.PedanticTypeCheckException: In function my_function:
-        Type hint is incorrect: Passed Argument b=42 does not have type <class 'float'>.
+       Type hint is incorrect: Argument b=42 of type <class 'int'> does not match expected type <class 'float'>.
        >>> my_function(5, 4.0, 'hi')
        Traceback (most recent call last):
        ...
        pedantic.exceptions.PedanticCallWithArgsException: In function my_function:
-        Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
+       Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
    """
 
     def decorator(f: F) -> F:

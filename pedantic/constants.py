@@ -1,4 +1,4 @@
-from typing import TypeVar as Tv, Callable, Dict
+from typing import TypeVar as Tv, Callable, Dict, Mapping
 import sys
 
 
@@ -16,5 +16,5 @@ K = TypeVar('Key')
 V = TypeVar('Value')
 
 
-def filter_dict(dict_: Dict[K, V], filter_: Callable[[K, V], bool]) -> Dict[K, V]:
+def filter_dict(dict_: Mapping[K, V], filter_: Callable[[K, V], bool]) -> Dict[K, V]:
     return {k: v for k, v in dict_.items() if filter_(k, v)}
