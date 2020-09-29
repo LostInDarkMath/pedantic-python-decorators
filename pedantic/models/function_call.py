@@ -1,7 +1,7 @@
 import inspect
 from typing import Dict, Tuple, Any
 
-from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType, filter_dict
+from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
 from pedantic.check_types import _assert_value_matches_type
 from pedantic.models.decorated_function import DecoratedFunction
@@ -14,8 +14,7 @@ class FunctionCall:
         self._kwargs = kwargs
         self._instance = self.args[0] if self.func.is_instance_method else None
         self._type_vars = dict()
-        self._params_without_self = filter_dict(dict_=self.func.signature.parameters,
-                                                filter_=lambda k, v: v.name != 'self')
+        self._params_without_self = {k: v for k, v in self.func.signature.parameters.items() if v.name != 'self'}
         self._already_checked_kwargs = []
         self._get_type_vars = lambda: self._type_vars
 
@@ -59,11 +58,10 @@ class FunctionCall:
                 f'{self.func.err}Use kwargs when you call function {self.func.name}. Args: {self.args_without_self}')
 
     def check_types(self) -> ReturnType:
-        d = self.params_without_self
-        self._check_type_param(params=filter_dict(dict_=d, filter_=lambda k, v: not str(v).startswith('*')))
-        self._check_types_args(params=filter_dict(
-            dict_=d, filter_=lambda k, v: str(v).startswith('*') and not str(v).startswith('**')))
-        self._check_types_kwargs(params=filter_dict(dict_=d, filter_=lambda k, v: str(v).startswith('**')))
+        d = self.params_without_self.items()
+        self._check_type_param(params={k: v for k, v in d if not str(v).startswith('*')})
+        self._check_types_args(params={k: v for k, v in d if str(v).startswith('*') and not str(v).startswith('**')})
+        self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith('**')})
         return self._check_types_return()
 
     def _check_type_param(self, params: Dict[str, inspect.Parameter]) -> None:
