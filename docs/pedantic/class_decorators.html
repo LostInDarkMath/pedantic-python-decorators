@@ -113,7 +113,7 @@ def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -&gt; Dict[Any, 
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.class_decorators.for_all_methods"><code class="name flex">
-<span>def <span class="ident">for_all_methods</span></span>(<span>decorator: Callable[..., str]) ‑> Callable[[str], str]</span>
+<span>def <span class="ident">for_all_methods</span></span>(<span>decorator: Callable[..., ~Return Type]) ‑> Callable[[~Class], ~Class]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Example:</p>
@@ -154,7 +154,7 @@ def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -&gt; Dict[Any, 
 </details>
 </dd>
 <dt id="pedantic.class_decorators.pedantic_class"><code class="name flex">
-<span>def <span class="ident">pedantic_class</span></span>(<span>cls: str) ‑> str</span>
+<span>def <span class="ident">pedantic_class</span></span>(<span>cls: ~Class) ‑> ~Class</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(pedantic)</p></div>
@@ -168,7 +168,7 @@ def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -&gt; Dict[Any, 
 </details>
 </dd>
 <dt id="pedantic.class_decorators.pedantic_class_require_docstring"><code class="name flex">
-<span>def <span class="ident">pedantic_class_require_docstring</span></span>(<span>cls: str) ‑> str</span>
+<span>def <span class="ident">pedantic_class_require_docstring</span></span>(<span>cls: ~Class) ‑> ~Class</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(pedantic_require_docstring)</p></div>
@@ -182,7 +182,7 @@ def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -&gt; Dict[Any, 
 </details>
 </dd>
 <dt id="pedantic.class_decorators.timer_class"><code class="name flex">
-<span>def <span class="ident">timer_class</span></span>(<span>cls: str) ‑> str</span>
+<span>def <span class="ident">timer_class</span></span>(<span>cls: ~Class) ‑> ~Class</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(timer)</p></div>
@@ -196,7 +196,7 @@ def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -&gt; Dict[Any, 
 </details>
 </dd>
 <dt id="pedantic.class_decorators.trace_class"><code class="name flex">
-<span>def <span class="ident">trace_class</span></span>(<span>cls: str) ‑> str</span>
+<span>def <span class="ident">trace_class</span></span>(<span>cls: ~Class) ‑> ~Class</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @for_all_methods(trace)</p></div>
