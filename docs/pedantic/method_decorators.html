@@ -408,7 +408,7 @@ if __name__ == &#34;__main__&#34;:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.method_decorators.count_calls"><code class="name flex">
-<span>def <span class="ident">count_calls</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">count_calls</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prints how often the method is called during program execution.
@@ -453,7 +453,7 @@ Count Calls: Call 3 of function 'often_used_method' at ...
 </details>
 </dd>
 <dt id="pedantic.method_decorators.deprecated"><code class="name flex">
-<span>def <span class="ident">deprecated</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">deprecated</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.
@@ -485,7 +485,7 @@ Example:</p>
 </details>
 </dd>
 <dt id="pedantic.method_decorators.dirty"><code class="name flex">
-<span>def <span class="ident">dirty</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">dirty</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prevents dirty code from beeing executed.
@@ -522,7 +522,7 @@ pedantic.exceptions.TooDirtyException: Function &quot;my_function&quot; is too d
 </details>
 </dd>
 <dt id="pedantic.method_decorators.does_same_as_function"><code class="name flex">
-<span>def <span class="ident">does_same_as_function</span></span>(<span>other_func: Callable[..., str]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">does_same_as_function</span></span>(<span>other_func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Each time the decorated function is executed, the function other_func is also executed and the results
@@ -569,7 +569,7 @@ Example:</p>
 </details>
 </dd>
 <dt id="pedantic.method_decorators.needs_refactoring"><code class="name flex">
-<span>def <span class="ident">needs_refactoring</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">needs_refactoring</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Of course, you refactor immediately if you see something ugly.
@@ -606,7 +606,7 @@ Example:</p>
 </details>
 </dd>
 <dt id="pedantic.method_decorators.overrides"><code class="name flex">
-<span>def <span class="ident">overrides</span></span>(<span>base_class: Any) ‑> Callable[..., str]</span>
+<span>def <span class="ident">overrides</span></span>(<span>base_class: Any) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Example:</p>
@@ -650,7 +650,7 @@ Example:</p>
 </details>
 </dd>
 <dt id="pedantic.method_decorators.pedantic"><code class="name flex">
-<span>def <span class="ident">pedantic</span></span>(<span>func: Union[Callable[..., str], NoneType] = None, require_docstring: bool = False) ‑> Callable[..., str]</span>
+<span>def <span class="ident">pedantic</span></span>(<span>func: Union[Callable[..., ~Return Type], NoneType] = None, require_docstring: bool = False) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A PedanticException is raised if one of the following happened:
@@ -744,7 +744,7 @@ Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
 </details>
 </dd>
 <dt id="pedantic.method_decorators.pedantic_require_docstring"><code class="name flex">
-<span>def <span class="ident">pedantic_require_docstring</span></span>(<span>func: Union[Callable[..., str], NoneType] = None) ‑> Callable[..., str]</span>
+<span>def <span class="ident">pedantic_require_docstring</span></span>(<span>func: Union[Callable[..., ~Return Type], NoneType] = None) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @pedantic(require_docstring=True)</p></div>
@@ -758,7 +758,7 @@ Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
 </details>
 </dd>
 <dt id="pedantic.method_decorators.require_kwargs"><code class="name flex">
-<span>def <span class="ident">require_kwargs</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">require_kwargs</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Checks that each passed argument is a keyword argument.
@@ -804,7 +804,7 @@ Use kwargs when you call function my_function. Args: (5, 4, 3)
 </details>
 </dd>
 <dt id="pedantic.method_decorators.timer"><code class="name flex">
-<span>def <span class="ident">timer</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">timer</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prints how long the execution of the decorated function takes.
@@ -844,7 +844,7 @@ Timer: Finished function &quot;long_taking_calculation&quot; in 0:00:00...
 </details>
 </dd>
 <dt id="pedantic.method_decorators.trace"><code class="name flex">
-<span>def <span class="ident">trace</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">trace</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prints the passed arguments and the returned value on each function call.
@@ -884,7 +884,7 @@ Trace: ... my_function() returned 15
 </details>
 </dd>
 <dt id="pedantic.method_decorators.trace_if_returns"><code class="name flex">
-<span>def <span class="ident">trace_if_returns</span></span>(<span>return_value: str) ‑> Callable[..., str]</span>
+<span>def <span class="ident">trace_if_returns</span></span>(<span>return_value: ~Return Type) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prints the passed arguments if and only if the decorated function returned the given return_value.
@@ -930,7 +930,7 @@ Function my_function returned value 42 for args: (10, 8, 24) and kwargs: {}
 </details>
 </dd>
 <dt id="pedantic.method_decorators.unimplemented"><code class="name flex">
-<span>def <span class="ident">unimplemented</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">unimplemented</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>For documentation purposes. Throw NotImplementedException if the function is called.
@@ -967,7 +967,7 @@ pedantic.exceptions.NotImplementedException: Function &quot;my_function&quot; is
 </details>
 </dd>
 <dt id="pedantic.method_decorators.validate_args"><code class="name flex">
-<span>def <span class="ident">validate_args</span></span>(<span>validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) ‑> Callable[..., str]</span>
+<span>def <span class="ident">validate_args</span></span>(<span>validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) ‑> Callable[..., ~Return Type]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Validates each passed argument with the given validator.

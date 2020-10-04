@@ -29,7 +29,7 @@
 <pre><code class="python">import inspect
 from typing import Dict, Tuple, Any
 
-from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType, filter_dict
+from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
 from pedantic.check_types import _assert_value_matches_type
 from pedantic.models.decorated_function import DecoratedFunction
@@ -42,8 +42,7 @@ class FunctionCall:
         self._kwargs = kwargs
         self._instance = self.args[0] if self.func.is_instance_method else None
         self._type_vars = dict()
-        self._params_without_self = filter_dict(dict_=self.func.signature.parameters,
-                                                filter_=lambda k, v: v.name != &#39;self&#39;)
+        self._params_without_self = {k: v for k, v in self.func.signature.parameters.items() if v.name != &#39;self&#39;}
         self._already_checked_kwargs = []
         self._get_type_vars = lambda: self._type_vars
 
@@ -87,11 +86,10 @@ class FunctionCall:
                 f&#39;{self.func.err}Use kwargs when you call function {self.func.name}. Args: {self.args_without_self}&#39;)
 
     def check_types(self) -&gt; ReturnType:
-        d = self.params_without_self
-        self._check_type_param(params=filter_dict(dict_=d, filter_=lambda k, v: not str(v).startswith(&#39;*&#39;)))
-        self._check_types_args(params=filter_dict(
-            dict_=d, filter_=lambda k, v: str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)))
-        self._check_types_kwargs(params=filter_dict(dict_=d, filter_=lambda k, v: str(v).startswith(&#39;**&#39;)))
+        d = self.params_without_self.items()
+        self._check_type_param(params={k: v for k, v in d if not str(v).startswith(&#39;*&#39;)})
+        self._check_types_args(params={k: v for k, v in d if str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)})
+        self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith(&#39;**&#39;)})
         return self._check_types_return()
 
     def _check_type_param(self, params: Dict[str, inspect.Parameter]) -&gt; None:
@@ -197,8 +195,7 @@ class FunctionCall:
         self._kwargs = kwargs
         self._instance = self.args[0] if self.func.is_instance_method else None
         self._type_vars = dict()
-        self._params_without_self = filter_dict(dict_=self.func.signature.parameters,
-                                                filter_=lambda k, v: v.name != &#39;self&#39;)
+        self._params_without_self = {k: v for k, v in self.func.signature.parameters.items() if v.name != &#39;self&#39;}
         self._already_checked_kwargs = []
         self._get_type_vars = lambda: self._type_vars
 
@@ -242,11 +239,10 @@ class FunctionCall:
                 f&#39;{self.func.err}Use kwargs when you call function {self.func.name}. Args: {self.args_without_self}&#39;)
 
     def check_types(self) -&gt; ReturnType:
-        d = self.params_without_self
-        self._check_type_param(params=filter_dict(dict_=d, filter_=lambda k, v: not str(v).startswith(&#39;*&#39;)))
-        self._check_types_args(params=filter_dict(
-            dict_=d, filter_=lambda k, v: str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)))
-        self._check_types_kwargs(params=filter_dict(dict_=d, filter_=lambda k, v: str(v).startswith(&#39;**&#39;)))
+        d = self.params_without_self.items()
+        self._check_type_param(params={k: v for k, v in d if not str(v).startswith(&#39;*&#39;)})
+        self._check_types_args(params={k: v for k, v in d if str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)})
+        self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith(&#39;**&#39;)})
         return self._check_types_return()
 
     def _check_type_param(self, params: Dict[str, inspect.Parameter]) -&gt; None:
@@ -403,7 +399,7 @@ def params_without_self(self) -&gt; Dict[str, inspect.Parameter]:
     return self._params_without_self</code></pre>
 </details>
 </dd>
-<dt id="pedantic.models.function_call.FunctionCall.type_vars"><code class="name">var <span class="ident">type_vars</span> : Dict[type, Any]</code></dt>
+<dt id="pedantic.models.function_call.FunctionCall.type_vars"><code class="name">var <span class="ident">type_vars</span> : Dict[TypeVar, Any]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -436,7 +432,7 @@ def type_vars(self) -&gt; Dict[TypeVar, Any]:
 </details>
 </dd>
 <dt id="pedantic.models.function_call.FunctionCall.check_types"><code class="name flex">
-<span>def <span class="ident">check_types</span></span>(<span>self) ‑> str</span>
+<span>def <span class="ident">check_types</span></span>(<span>self) ‑> ~Return Type</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -445,11 +441,10 @@ def type_vars(self) -&gt; Dict[TypeVar, Any]:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def check_types(self) -&gt; ReturnType:
-    d = self.params_without_self
-    self._check_type_param(params=filter_dict(dict_=d, filter_=lambda k, v: not str(v).startswith(&#39;*&#39;)))
-    self._check_types_args(params=filter_dict(
-        dict_=d, filter_=lambda k, v: str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)))
-    self._check_types_kwargs(params=filter_dict(dict_=d, filter_=lambda k, v: str(v).startswith(&#39;**&#39;)))
+    d = self.params_without_self.items()
+    self._check_type_param(params={k: v for k, v in d if not str(v).startswith(&#39;*&#39;)})
+    self._check_types_args(params={k: v for k, v in d if str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)})
+    self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith(&#39;**&#39;)})
     return self._check_types_return()</code></pre>
 </details>
 </dd>

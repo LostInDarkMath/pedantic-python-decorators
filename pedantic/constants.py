@@ -14,7 +14,3 @@ F = Callable[..., ReturnType]
 C = TypeVar('Class')
 K = TypeVar('Key')
 V = TypeVar('Value')
-
-
-def filter_dict(dict_: Mapping[K, V], filter_: Callable[[K, V], bool]) -> Dict[K, V]:
-    return {k: v for k, v in dict_.items() if filter_(k, v)}
