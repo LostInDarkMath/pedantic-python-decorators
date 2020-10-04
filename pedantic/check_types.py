@@ -157,7 +157,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
     if isinstance(type_, TypeVar):
         if type_ in type_vars:
             other = type_vars[type_]
-            if not isinstance(obj, other):
+            if not _is_instance(obj=obj, type_=other, type_vars=type_vars):
                 raise PedanticTypeVarMismatchException(
                     f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} '
                     f'was previously matched to type {other}')
