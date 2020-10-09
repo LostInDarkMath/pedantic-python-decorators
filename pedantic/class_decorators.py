@@ -19,7 +19,7 @@ def for_all_methods(decorator: F) -> Callable[[C], C]:
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)
 
-            if isinstance(attr_value, types.FunctionType):
+            if isinstance(attr_value, (types.FunctionType, types.MethodType)):
                 setattr(cls, attr, decorator(attr_value))
             elif isinstance(attr_value, property):
                 prop = attr_value
