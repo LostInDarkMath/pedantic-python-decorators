@@ -725,8 +725,7 @@ def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
 
 
 def _is_lambda(obj: Any) -> bool:
-    LAMBDA = lambda: 0
-    return isinstance(obj, type(LAMBDA)) and obj.__name__ == LAMBDA.__name__
+    return callable(obj) and obj.__name__ == '<lambda>'
 
 
 _ORIGIN_TYPE_CHECKERS = {}
