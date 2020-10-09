@@ -408,12 +408,12 @@ if __name__ == &#34;__main__&#34;:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.method_decorators.count_calls"><code class="name flex">
-<span>def <span class="ident">count_calls</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">count_calls</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prints how often the method is called during program execution.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @count_calls
+<pre><code class="language-python-repl">&gt;&gt;&gt; @count_calls
 ... def often_used_method():
 ...    return 42
 &gt;&gt;&gt; often_used_method()
@@ -453,12 +453,12 @@ Count Calls: Call 3 of function 'often_used_method' at ...
 </details>
 </dd>
 <dt id="pedantic.method_decorators.deprecated"><code class="name flex">
-<span>def <span class="ident">deprecated</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">deprecated</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @deprecated
+<pre><code class="language-python-repl">&gt;&gt;&gt; @deprecated
 ... def my_function(a, b, c):
 ...     pass
 &gt;&gt;&gt; my_function(5, 4, 3)
@@ -485,12 +485,12 @@ Example:</p>
 </details>
 </dd>
 <dt id="pedantic.method_decorators.dirty"><code class="name flex">
-<span>def <span class="ident">dirty</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">dirty</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prevents dirty code from beeing executed.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @dirty
+<pre><code class="language-python-repl">&gt;&gt;&gt; @dirty
 ... def my_function(a, b, c):
 ...     return a + a + a + a + a
 &gt;&gt;&gt; my_function(5, 4, 3)
@@ -522,13 +522,13 @@ pedantic.exceptions.TooDirtyException: Function &quot;my_function&quot; is too d
 </details>
 </dd>
 <dt id="pedantic.method_decorators.does_same_as_function"><code class="name flex">
-<span>def <span class="ident">does_same_as_function</span></span>(<span>other_func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">does_same_as_function</span></span>(<span>other_func: Callable[..., str]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Each time the decorated function is executed, the function other_func is also executed and the results
 are compared. An AssertionError is raised if the results are not equal.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; def other_calculation(a, b, c):
+<pre><code class="language-python-repl">&gt;&gt;&gt; def other_calculation(a, b, c):
 ...     return c + b + a
 &gt;&gt;&gt; @does_same_as_function(other_calculation)
 ... def some_calculation(a, b, c):
@@ -569,14 +569,14 @@ Example:</p>
 </details>
 </dd>
 <dt id="pedantic.method_decorators.needs_refactoring"><code class="name flex">
-<span>def <span class="ident">needs_refactoring</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">needs_refactoring</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Of course, you refactor immediately if you see something ugly.
 However, if you don't have the time for a big refactoring use this decorator at least.
 A warning is printed everytime the decorated function is called.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @needs_refactoring
+<pre><code class="language-python-repl">&gt;&gt;&gt; @needs_refactoring
 ... def my_function(a, b, c):
 ...     pass
 &gt;&gt;&gt; my_function(5, 4, 3)
@@ -606,11 +606,11 @@ Example:</p>
 </details>
 </dd>
 <dt id="pedantic.method_decorators.overrides"><code class="name flex">
-<span>def <span class="ident">overrides</span></span>(<span>base_class: Any) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">overrides</span></span>(<span>base_class: Any) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; class Parent:
+<pre><code class="language-python-repl">&gt;&gt;&gt; class Parent:
 ...     def my_instance_method(self):
 ...         pass
 &gt;&gt;&gt; class Child(Parent):
@@ -650,7 +650,7 @@ Example:</p>
 </details>
 </dd>
 <dt id="pedantic.method_decorators.pedantic"><code class="name flex">
-<span>def <span class="ident">pedantic</span></span>(<span>func: Union[Callable[..., ~Return Type], NoneType] = None, require_docstring: bool = False) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">pedantic</span></span>(<span>func: Union[Callable[..., str], NoneType] = None, require_docstring: bool = False) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A PedanticException is raised if one of the following happened:
@@ -661,7 +661,7 @@ annotations.
 - A type annotation misses type arguments, e.g. typing.List instead of typing.List[int].
 - The documented arguments do not match the argument list or their type annotations.</p>
 <p>Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @pedantic
+<pre><code class="language-python-repl">&gt;&gt;&gt; @pedantic
 ... def my_function(a: int, b: float, c: str) -&gt; bool:
 ...     return float(a) == b and str(b) == c
 &gt;&gt;&gt; my_function(a=42.0, b=14.0, c='hi')
@@ -744,7 +744,7 @@ Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
 </details>
 </dd>
 <dt id="pedantic.method_decorators.pedantic_require_docstring"><code class="name flex">
-<span>def <span class="ident">pedantic_require_docstring</span></span>(<span>func: Union[Callable[..., ~Return Type], NoneType] = None) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">pedantic_require_docstring</span></span>(<span>func: Union[Callable[..., str], NoneType] = None) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Shortcut for @pedantic(require_docstring=True)</p></div>
@@ -758,12 +758,12 @@ Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
 </details>
 </dd>
 <dt id="pedantic.method_decorators.require_kwargs"><code class="name flex">
-<span>def <span class="ident">require_kwargs</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">require_kwargs</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Checks that each passed argument is a keyword argument.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @require_kwargs
+<pre><code class="language-python-repl">&gt;&gt;&gt; @require_kwargs
 ... def my_function(a, b, c):
 ...     return a + b + c
 &gt;&gt;&gt; my_function(5, 4, 3)
@@ -804,12 +804,12 @@ Use kwargs when you call function my_function. Args: (5, 4, 3)
 </details>
 </dd>
 <dt id="pedantic.method_decorators.timer"><code class="name flex">
-<span>def <span class="ident">timer</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">timer</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prints how long the execution of the decorated function takes.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @timer
+<pre><code class="language-python-repl">&gt;&gt;&gt; @timer
 ... def long_taking_calculation():
 ...     return 42
 &gt;&gt;&gt; long_taking_calculation()
@@ -844,12 +844,12 @@ Timer: Finished function &quot;long_taking_calculation&quot; in 0:00:00...
 </details>
 </dd>
 <dt id="pedantic.method_decorators.trace"><code class="name flex">
-<span>def <span class="ident">trace</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">trace</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prints the passed arguments and the returned value on each function call.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @trace
+<pre><code class="language-python-repl">&gt;&gt;&gt; @trace
 ... def my_function(a, b, c):
 ...     return a + b + c
 &gt;&gt;&gt; my_function(4, 5, 6)
@@ -884,13 +884,13 @@ Trace: ... my_function() returned 15
 </details>
 </dd>
 <dt id="pedantic.method_decorators.trace_if_returns"><code class="name flex">
-<span>def <span class="ident">trace_if_returns</span></span>(<span>return_value: ~Return Type) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">trace_if_returns</span></span>(<span>return_value: str) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Prints the passed arguments if and only if the decorated function returned the given return_value.
 This is useful if you want to figure out which input arguments leads to a special return value.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @trace_if_returns(42)
+<pre><code class="language-python-repl">&gt;&gt;&gt; @trace_if_returns(42)
 ... def my_function(a, b, c):
 ...     return a + b + c
 &gt;&gt;&gt; my_function(1, 2, 3)
@@ -930,12 +930,12 @@ Function my_function returned value 42 for args: (10, 8, 24) and kwargs: {}
 </details>
 </dd>
 <dt id="pedantic.method_decorators.unimplemented"><code class="name flex">
-<span>def <span class="ident">unimplemented</span></span>(<span>func: Callable[..., ~Return Type]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">unimplemented</span></span>(<span>func: Callable[..., str]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>For documentation purposes. Throw NotImplementedException if the function is called.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @unimplemented
+<pre><code class="language-python-repl">&gt;&gt;&gt; @unimplemented
 ... def my_function(a, b, c):
 ...     pass
 &gt;&gt;&gt; my_function(5, 4, 3)
@@ -967,12 +967,12 @@ pedantic.exceptions.NotImplementedException: Function &quot;my_function&quot; is
 </details>
 </dd>
 <dt id="pedantic.method_decorators.validate_args"><code class="name flex">
-<span>def <span class="ident">validate_args</span></span>(<span>validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) ‑> Callable[..., ~Return Type]</span>
+<span>def <span class="ident">validate_args</span></span>(<span>validator: Callable[[Any], Union[bool, Tuple[bool, str]]]) ‑> Callable[..., str]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Validates each passed argument with the given validator.
 Example:</p>
-<pre><code class="python-repl">&gt;&gt;&gt; @validate_args(lambda x: (x &gt; 42, f'Each argument should be greater then 42, but it was {x}.'))
+<pre><code class="language-python-repl">&gt;&gt;&gt; @validate_args(lambda x: (x &gt; 42, f'Each argument should be greater then 42, but it was {x}.'))
 ... def my_function(a, b, c):
 ...     return a + b + c
 &gt;&gt;&gt; my_function(80, 40, 50)

@@ -399,7 +399,7 @@ def params_without_self(self) -&gt; Dict[str, inspect.Parameter]:
     return self._params_without_self</code></pre>
 </details>
 </dd>
-<dt id="pedantic.models.function_call.FunctionCall.type_vars"><code class="name">var <span class="ident">type_vars</span> : Dict[TypeVar, Any]</code></dt>
+<dt id="pedantic.models.function_call.FunctionCall.type_vars"><code class="name">var <span class="ident">type_vars</span> : Dict[type, Any]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -432,7 +432,7 @@ def type_vars(self) -&gt; Dict[TypeVar, Any]:
 </details>
 </dd>
 <dt id="pedantic.models.function_call.FunctionCall.check_types"><code class="name flex">
-<span>def <span class="ident">check_types</span></span>(<span>self) ‑> ~Return Type</span>
+<span>def <span class="ident">check_types</span></span>(<span>self) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
