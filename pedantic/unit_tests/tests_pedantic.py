@@ -424,23 +424,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         a.calc(i=42)
 
     def test_lambda_1(self):
-        """Lambda expressions cannot be typed hinted. So this leads to an error."""
         @pedantic
         def calc(i: float) -> Callable[[float], str]:
             return lambda x: str(x * i)
 
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            calc(i=42.0)(10.0)
-
-    def test_lambda_2(self):
-        """Even this is not accepted by the type checker. Only test_lambda_3 has the 'correct' syntax"""
-        @pedantic
-        def calc(i: float) -> Callable[[float], str]:
-            res: Callable[[float], str] = lambda x: str(x * i)
-            return res
-
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            calc(i=42.0)(10.0)
+        calc(i=42.0)(10.0)
 
     def test_lambda_3(self):
         @pedantic
@@ -451,8 +439,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         calc(i=42.0)(10.0)
 
-    def test_lambda_4(self):
-        """Problem here: inner function: int != float"""
+    def test_lambda_int_is_not_float(self):
         @pedantic
         def calc(i: float) -> Callable[[float], str]:
             def res(x: int) -> str:
@@ -530,14 +517,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=lambda x: (42.0, 43, 'hi', x))
 
-    def test_callable_without_args_almost_corrected(self):
-        """Problem here: lambda expressions cannot be type hinted. So don't use it"""
+    def test_callable_without_args_correct_with_lambdas(self):
         @pedantic
         def calc(i: Callable[[Any], Tuple[Any, ...]]) -> str:
             return str(i(x=' you'))
 
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            calc(i=lambda x: (42.0, 43, 'hi', x))
+        calc(i=lambda x: (42.0, 43, 'hi', x))
 
     def test_callable_without_args_corrected(self):
         @pedantic

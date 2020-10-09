@@ -655,6 +655,8 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any])
         True
         >>> _instancecheck_union(42, Union[T, Any], {T: float})
         True
+        >>> _instancecheck_union(None, Optional[Callable[[float], float]], {})
+        True
     """
 
     type_args = _get_type_arguments(cls=type_)
@@ -680,7 +682,7 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any])
     return True  # it is impossible to figure out, how to bound these type variables correctly
 
 
-def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
+def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
     """
         >>> from typing import Tuple, Callable, Any
         >>> def f(x: int, y: float) -> Tuple[float, str]:
@@ -699,7 +701,13 @@ def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
         True
         >>> _instancecheck_callable(f, Callable[[int, int, int], Tuple[float, str]], {})
         False
+        >>> _instancecheck_callable(None, Callable[..., Any], {})
+        False
     """
+
+    if value is None:
+        return False
+
     param_types, ret_type = _get_type_arguments(cls=type_)
     sig = inspect.signature(obj=value)
     missing_annotations = []
@@ -723,11 +731,19 @@ def _instancecheck_callable(value: Callable, type_: Any, _) -> bool:
         if not _is_subtype(sub_type=sig.return_annotation, super_type=ret_type):
             return False
 
+    if _is_lambda(obj=value):
+        return True
+
     if missing_annotations:
-        raise PedanticTypeCheckException(
+        raise ValueError(
             f'Parsing of type annotations failed. Maybe you are about to return a lambda expression. '
             f'Try returning an inner function instead. {missing_annotations}')
     return True
+
+
+def _is_lambda(obj: Any) -> bool:
+    LAMBDA = lambda: 0
+    return isinstance(obj, type(LAMBDA)) and obj.__name__ == LAMBDA.__name__
 
 
 _ORIGIN_TYPE_CHECKERS = {}

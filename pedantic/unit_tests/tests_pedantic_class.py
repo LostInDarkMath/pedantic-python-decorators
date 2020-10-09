@@ -1,6 +1,6 @@
 import unittest
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional, Callable
 
 from pedantic.method_decorators import overrides, pedantic
 from pedantic.class_decorators import pedantic_class
@@ -367,7 +367,26 @@ class TestPedanticClass(unittest.TestCase):
         m = MyClass()
         m.fun()
 
+    def test_optional_callable(self):
+        @pedantic_class
+        class SemanticSimilarity:
+            def __init__(self, post_processing: bool = True, val: Optional[Callable[[float], float]] = None) -> None:
+                if post_processing is None:
+                    self.post_processing = val
+                else:
+                    self.post_processing = lambda x: x
+
+        SemanticSimilarity()
+
+    def test_optional_lambda(self):
+        @pedantic_class
+        class SemanticSimilarity:
+            def __init__(self, val: Callable[[float], float] = lambda x: x) -> None:
+                self.post_processing = val
+
+        SemanticSimilarity()
+
 
 if __name__ == '__main__':
     t = TestPedanticClass()
-    t.test_default_constructor()
+    t.test_optional_lambda()
