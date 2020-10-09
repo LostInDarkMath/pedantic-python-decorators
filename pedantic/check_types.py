@@ -707,38 +707,21 @@ def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
 
     if value is None:
         return False
+    if _is_lambda(obj=value):
+        return True
 
     param_types, ret_type = _get_type_arguments(cls=type_)
     sig = inspect.signature(obj=value)
-    missing_annotations = []
 
     if param_types is not ...:
         if len(param_types) != len(sig.parameters):
             return False
 
         for param, expected_type in zip(sig.parameters.values(), param_types):
-            param_type = param.annotation
-            if param_type is inspect.Parameter.empty:
-                missing_annotations.append(param)
-                continue
-
-            if not _is_subtype(sub_type=param_type, super_type=expected_type):
+            if not _is_subtype(sub_type=param.annotation, super_type=expected_type):
                 return False
 
-    if sig.return_annotation is inspect.Signature.empty:
-        missing_annotations.append('return')
-    else:
-        if not _is_subtype(sub_type=sig.return_annotation, super_type=ret_type):
-            return False
-
-    if _is_lambda(obj=value):
-        return True
-
-    if missing_annotations:
-        raise ValueError(
-            f'Parsing of type annotations failed. Maybe you are about to return a lambda expression. '
-            f'Try returning an inner function instead. {missing_annotations}')
-    return True
+    return _is_subtype(sub_type=sig.return_annotation, super_type=ret_type)
 
 
 def _is_lambda(obj: Any) -> bool:
