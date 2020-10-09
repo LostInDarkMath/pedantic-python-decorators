@@ -452,23 +452,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         a.calc(i=42)
 
     def test_lambda_1(self):
-        &#34;&#34;&#34;Lambda expressions cannot be typed hinted. So this leads to an error.&#34;&#34;&#34;
         @pedantic
         def calc(i: float) -&gt; Callable[[float], str]:
             return lambda x: str(x * i)
 
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            calc(i=42.0)(10.0)
-
-    def test_lambda_2(self):
-        &#34;&#34;&#34;Even this is not accepted by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
-        @pedantic
-        def calc(i: float) -&gt; Callable[[float], str]:
-            res: Callable[[float], str] = lambda x: str(x * i)
-            return res
-
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            calc(i=42.0)(10.0)
+        calc(i=42.0)(10.0)
 
     def test_lambda_3(self):
         @pedantic
@@ -479,8 +467,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         calc(i=42.0)(10.0)
 
-    def test_lambda_4(self):
-        &#34;&#34;&#34;Problem here: inner function: int != float&#34;&#34;&#34;
+    def test_lambda_int_is_not_float(self):
         @pedantic
         def calc(i: float) -&gt; Callable[[float], str]:
             def res(x: int) -&gt; str:
@@ -558,14 +545,12 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
 
-    def test_callable_without_args_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: lambda expressions cannot be type hinted. So don&#39;t use it&#34;&#34;&#34;
+    def test_callable_without_args_correct_with_lambdas(self):
         @pedantic
         def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
             return str(i(x=&#39; you&#39;))
 
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
+        calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
 
     def test_callable_without_args_corrected(self):
         @pedantic
@@ -1516,23 +1501,11 @@ not have a method with the specified name.</p></div>
         a.calc(i=42)
 
     def test_lambda_1(self):
-        &#34;&#34;&#34;Lambda expressions cannot be typed hinted. So this leads to an error.&#34;&#34;&#34;
         @pedantic
         def calc(i: float) -&gt; Callable[[float], str]:
             return lambda x: str(x * i)
 
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            calc(i=42.0)(10.0)
-
-    def test_lambda_2(self):
-        &#34;&#34;&#34;Even this is not accepted by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
-        @pedantic
-        def calc(i: float) -&gt; Callable[[float], str]:
-            res: Callable[[float], str] = lambda x: str(x * i)
-            return res
-
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            calc(i=42.0)(10.0)
+        calc(i=42.0)(10.0)
 
     def test_lambda_3(self):
         @pedantic
@@ -1543,8 +1516,7 @@ not have a method with the specified name.</p></div>
 
         calc(i=42.0)(10.0)
 
-    def test_lambda_4(self):
-        &#34;&#34;&#34;Problem here: inner function: int != float&#34;&#34;&#34;
+    def test_lambda_int_is_not_float(self):
         @pedantic
         def calc(i: float) -&gt; Callable[[float], str]:
             def res(x: int) -&gt; str:
@@ -1622,14 +1594,12 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
 
-    def test_callable_without_args_almost_corrected(self):
-        &#34;&#34;&#34;Problem here: lambda expressions cannot be type hinted. So don&#39;t use it&#34;&#34;&#34;
+    def test_callable_without_args_correct_with_lambdas(self):
         @pedantic
         def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
             return str(i(x=&#39; you&#39;))
 
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
+        calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))
 
     def test_callable_without_args_corrected(self):
         @pedantic
@@ -2425,23 +2395,21 @@ not have a method with the specified name.</p></div>
     f(g=greetings)</code></pre>
 </details>
 </dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected"><code class="name flex">
-<span>def <span class="ident">test_callable_without_args_almost_corrected</span></span>(<span>self)</span>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_correct_with_lambdas"><code class="name flex">
+<span>def <span class="ident">test_callable_without_args_correct_with_lambdas</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Problem here: lambda expressions cannot be type hinted. So don't use it</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_callable_without_args_almost_corrected(self):
-    &#34;&#34;&#34;Problem here: lambda expressions cannot be type hinted. So don&#39;t use it&#34;&#34;&#34;
+<pre><code class="python">def test_callable_without_args_correct_with_lambdas(self):
     @pedantic
     def calc(i: Callable[[Any], Tuple[Any, ...]]) -&gt; str:
         return str(i(x=&#39; you&#39;))
 
-    with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))</code></pre>
+    calc(i=lambda x: (42.0, 43, &#39;hi&#39;, x))</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected"><code class="name flex">
@@ -2846,39 +2814,17 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_lambda_1</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Lambda expressions cannot be typed hinted. So this leads to an error.</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_lambda_1(self):
-    &#34;&#34;&#34;Lambda expressions cannot be typed hinted. So this leads to an error.&#34;&#34;&#34;
     @pedantic
     def calc(i: float) -&gt; Callable[[float], str]:
         return lambda x: str(x * i)
 
-    with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        calc(i=42.0)(10.0)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_2"><code class="name flex">
-<span>def <span class="ident">test_lambda_2</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Even this is not accepted by the type checker. Only test_lambda_3 has the 'correct' syntax</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_lambda_2(self):
-    &#34;&#34;&#34;Even this is not accepted by the type checker. Only test_lambda_3 has the &#39;correct&#39; syntax&#34;&#34;&#34;
-    @pedantic
-    def calc(i: float) -&gt; Callable[[float], str]:
-        res: Callable[[float], str] = lambda x: str(x * i)
-        return res
-
-    with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        calc(i=42.0)(10.0)</code></pre>
+    calc(i=42.0)(10.0)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_3"><code class="name flex">
@@ -2898,27 +2844,6 @@ not have a method with the specified name.</p></div>
         return res
 
     calc(i=42.0)(10.0)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4"><code class="name flex">
-<span>def <span class="ident">test_lambda_4</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Problem here: inner function: int != float</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_lambda_4(self):
-    &#34;&#34;&#34;Problem here: inner function: int != float&#34;&#34;&#34;
-    @pedantic
-    def calc(i: float) -&gt; Callable[[float], str]:
-        def res(x: int) -&gt; str:
-            return str(x * i)
-        return res
-
-    with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        calc(i=42.0)(x=10)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected"><code class="name flex">
@@ -3004,6 +2929,26 @@ not have a method with the specified name.</p></div>
         return res
 
     calc(i=42.0)(x=10.0)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_int_is_not_float"><code class="name flex">
+<span>def <span class="ident">test_lambda_int_is_not_float</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_lambda_int_is_not_float(self):
+    @pedantic
+    def calc(i: float) -&gt; Callable[[float], str]:
+        def res(x: int) -&gt; str:
+            return str(x * i)
+        return res
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        calc(i=42.0)(x=10)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_of_new_type"><code class="name flex">
@@ -4230,7 +4175,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_no_type_hint" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_no_type_hint">test_args_kwargs_no_type_hint</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_wrong_type_hint" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_args_kwargs_wrong_type_hint">test_args_kwargs_wrong_type_hint</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_no_args">test_callable_no_args</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_almost_corrected">test_callable_without_args_almost_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_correct_with_lambdas" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_correct_with_lambdas">test_callable_without_args_correct_with_lambdas</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_args_corrected">test_callable_without_args_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_type_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_callable_without_type_args">test_callable_without_type_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_double_pedantic" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_double_pedantic">test_double_pedantic</a></code></li>
@@ -4251,13 +4196,12 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple">test_is_subtype_tuple</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_is_subtype_tuple_corrected">test_is_subtype_tuple_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_1">test_lambda_1</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_2">test_lambda_2</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_3">test_lambda_3</a></code></li>
-<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4">test_lambda_4</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected">test_lambda_4_almost_corrected</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_4_almost_corrected_2">test_lambda_4_almost_corrected_2</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_5" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_5">test_lambda_5</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_corrected">test_lambda_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_int_is_not_float" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_lambda_int_is_not_float">test_lambda_int_is_not_float</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_of_new_type" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_of_new_type">test_list_of_new_type</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args">test_list_without_args</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_without_args_corrected">test_list_without_args_corrected</a></code></li>

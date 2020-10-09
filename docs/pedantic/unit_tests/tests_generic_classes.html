@@ -288,6 +288,62 @@ class TestGenericClasses(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             s.push(item=[1, 2])
 
+    def test_inheritance(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic_class
+        class Stack(Generic[T]):
+            def __init__(self) -&gt; None:
+                self.items: List[T] = []
+
+            def len(self) -&gt; int:
+                return len(self.items)
+
+            def push(self, item: T) -&gt; None:
+                self.items.append(item)
+
+            def pop(self) -&gt; T:
+                if len(self.items) &gt; 0:
+                    return self.items.pop()
+                else:
+                    raise ValueError()
+
+            def empty(self) -&gt; bool:
+                return not self.items
+
+            def top(self) -&gt; Optional[T]:
+                if len(self.items) &gt; 0:
+                    return self.items[len(self.items) - 1]
+                else:
+                    return None
+
+            def __len__(self) -&gt; int:
+                return len(self.items)
+
+        @pedantic_class
+        class Parent:
+            pass
+
+        @pedantic_class
+        class Child1(Parent):
+            pass
+
+        @pedantic_class
+        class Child2(Parent):
+            pass
+
+        parent_stack = Stack[Parent]()
+        parent_stack.push(item=Child1())
+        parent_stack.push(item=Child2())
+        parent_stack.push(item=Parent())
+
+        child_1_stack = Stack[Child1]()
+        child_1_stack.push(item=Child1())
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+            child_1_stack.push(item=Child2())
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+            child_1_stack.push(item=Parent())
+
 
 if __name__ == &#39;__main__&#39;:
     t = TestGenericClasses()
@@ -592,7 +648,63 @@ not have a method with the specified name.</p></div>
         s.push(item=&#39;hello&#39;)
         s.push(item=3.1415)
         with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
-            s.push(item=[1, 2])</code></pre>
+            s.push(item=[1, 2])
+
+    def test_inheritance(self):
+        T = TypeVar(&#39;T&#39;)
+
+        @pedantic_class
+        class Stack(Generic[T]):
+            def __init__(self) -&gt; None:
+                self.items: List[T] = []
+
+            def len(self) -&gt; int:
+                return len(self.items)
+
+            def push(self, item: T) -&gt; None:
+                self.items.append(item)
+
+            def pop(self) -&gt; T:
+                if len(self.items) &gt; 0:
+                    return self.items.pop()
+                else:
+                    raise ValueError()
+
+            def empty(self) -&gt; bool:
+                return not self.items
+
+            def top(self) -&gt; Optional[T]:
+                if len(self.items) &gt; 0:
+                    return self.items[len(self.items) - 1]
+                else:
+                    return None
+
+            def __len__(self) -&gt; int:
+                return len(self.items)
+
+        @pedantic_class
+        class Parent:
+            pass
+
+        @pedantic_class
+        class Child1(Parent):
+            pass
+
+        @pedantic_class
+        class Child2(Parent):
+            pass
+
+        parent_stack = Stack[Parent]()
+        parent_stack.push(item=Child1())
+        parent_stack.push(item=Child2())
+        parent_stack.push(item=Parent())
+
+        child_1_stack = Stack[Child1]()
+        child_1_stack.push(item=Child1())
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+            child_1_stack.push(item=Child2())
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+            child_1_stack.push(item=Parent())</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -740,6 +852,72 @@ not have a method with the specified name.</p></div>
     s.push(item=3.1415)
     with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
         s.push(item=[1, 2])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_inheritance"><code class="name flex">
+<span>def <span class="ident">test_inheritance</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_inheritance(self):
+    T = TypeVar(&#39;T&#39;)
+
+    @pedantic_class
+    class Stack(Generic[T]):
+        def __init__(self) -&gt; None:
+            self.items: List[T] = []
+
+        def len(self) -&gt; int:
+            return len(self.items)
+
+        def push(self, item: T) -&gt; None:
+            self.items.append(item)
+
+        def pop(self) -&gt; T:
+            if len(self.items) &gt; 0:
+                return self.items.pop()
+            else:
+                raise ValueError()
+
+        def empty(self) -&gt; bool:
+            return not self.items
+
+        def top(self) -&gt; Optional[T]:
+            if len(self.items) &gt; 0:
+                return self.items[len(self.items) - 1]
+            else:
+                return None
+
+        def __len__(self) -&gt; int:
+            return len(self.items)
+
+    @pedantic_class
+    class Parent:
+        pass
+
+    @pedantic_class
+    class Child1(Parent):
+        pass
+
+    @pedantic_class
+    class Child2(Parent):
+        pass
+
+    parent_stack = Stack[Parent]()
+    parent_stack.push(item=Child1())
+    parent_stack.push(item=Child2())
+    parent_stack.push(item=Parent())
+
+    child_1_stack = Stack[Child1]()
+    child_1_stack.push(item=Child1())
+    with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+        child_1_stack.push(item=Child2())
+    with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+        child_1_stack.push(item=Parent())</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_merge_dicts"><code class="name flex">
@@ -958,6 +1136,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_generic_class_initialised_without_generics" href="#pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_generic_class_initialised_without_generics">test_generic_class_initialised_without_generics</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_generic_class_initialised_without_generics_2" href="#pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_generic_class_initialised_without_generics_2">test_generic_class_initialised_without_generics_2</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_generic_union" href="#pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_generic_union">test_generic_union</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_inheritance" href="#pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_inheritance">test_inheritance</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_merge_dicts" href="#pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_merge_dicts">test_merge_dicts</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_pedantic_generic_class" href="#pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_pedantic_generic_class">test_pedantic_generic_class</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_recursion_depth_exceeded" href="#pedantic.unit_tests.tests_generic_classes.TestGenericClasses.test_recursion_depth_exceeded">test_recursion_depth_exceeded</a></code></li>

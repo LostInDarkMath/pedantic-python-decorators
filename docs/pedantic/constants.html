@@ -26,7 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import TypeVar as Tv, Callable, Dict, Mapping
+<pre><code class="python">from typing import TypeVar as Tv, Callable
 import sys
 
 
@@ -37,11 +37,11 @@ ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED = &#39;__pedantic_g42__&#39;
 TypeVar = Tv if sys.version_info &gt;= (3, 7) else type
 # because in Python 3.6 there is a bug: https://github.com/python/typing/issues/520
 
-ReturnType = TypeVar(&#39;Return Type&#39;)
+ReturnType = TypeVar(&#39;ReturnType&#39;)
 F = Callable[..., ReturnType]
-C = TypeVar(&#39;Class&#39;)
-K = TypeVar(&#39;Key&#39;)
-V = TypeVar(&#39;Value&#39;)</code></pre>
+C = TypeVar(&#39;C&#39;)
+K = TypeVar(&#39;K&#39;)
+V = TypeVar(&#39;V&#39;)</code></pre>
 </details>
 </section>
 <section>

@@ -260,6 +260,62 @@ class TestGenericClasses(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             s.push(item=[1, 2])
 
+    def test_inheritance(self):
+        T = TypeVar('T')
+
+        @pedantic_class
+        class Stack(Generic[T]):
+            def __init__(self) -> None:
+                self.items: List[T] = []
+
+            def len(self) -> int:
+                return len(self.items)
+
+            def push(self, item: T) -> None:
+                self.items.append(item)
+
+            def pop(self) -> T:
+                if len(self.items) > 0:
+                    return self.items.pop()
+                else:
+                    raise ValueError()
+
+            def empty(self) -> bool:
+                return not self.items
+
+            def top(self) -> Optional[T]:
+                if len(self.items) > 0:
+                    return self.items[len(self.items) - 1]
+                else:
+                    return None
+
+            def __len__(self) -> int:
+                return len(self.items)
+
+        @pedantic_class
+        class Parent:
+            pass
+
+        @pedantic_class
+        class Child1(Parent):
+            pass
+
+        @pedantic_class
+        class Child2(Parent):
+            pass
+
+        parent_stack = Stack[Parent]()
+        parent_stack.push(item=Child1())
+        parent_stack.push(item=Child2())
+        parent_stack.push(item=Parent())
+
+        child_1_stack = Stack[Child1]()
+        child_1_stack.push(item=Child1())
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+            child_1_stack.push(item=Child2())
+        with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
+            child_1_stack.push(item=Parent())
+
 
 if __name__ == '__main__':
     t = TestGenericClasses()

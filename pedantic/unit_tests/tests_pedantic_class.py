@@ -1,6 +1,6 @@
 import unittest
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional, Callable, Union
 
 from pedantic.method_decorators import overrides, pedantic
 from pedantic.class_decorators import pedantic_class
@@ -367,7 +367,56 @@ class TestPedanticClass(unittest.TestCase):
         m = MyClass()
         m.fun()
 
+    def test_optional_callable(self):
+        @pedantic_class
+        class SemanticSimilarity:
+            def __init__(self, post_processing: bool = True, val: Optional[Callable[[float], float]] = None) -> None:
+                if post_processing is None:
+                    self.post_processing = val
+                else:
+                    self.post_processing = lambda x: x
+
+        SemanticSimilarity()
+
+    def test_optional_lambda(self):
+        @pedantic_class
+        class SemanticSimilarity:
+            def __init__(self, val: Callable[[float], float] = lambda x: x) -> None:
+                self.post_processing = val
+
+        SemanticSimilarity()
+
+    def test_class_method_type_annotation_missing(self):
+        @pedantic_class
+        class MyClass:
+            @classmethod
+            def do(cls):
+                print('i did something')
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            MyClass.do()
+
+    def test_class_method_type_annotation(self):
+        @pedantic_class
+        class MyClass:
+            @classmethod
+            def do(cls) -> None:
+                print('i did something')
+
+            @classmethod
+            def calc(cls, x: Union[int, float]) -> int:
+                return x * x
+
+        MyClass.do()
+        MyClass.calc(x=5)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            MyClass.calc(5)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            MyClass.calc(x=5.1)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            MyClass.calc('hi')
+
 
 if __name__ == '__main__':
     t = TestPedanticClass()
-    t.test_default_constructor()
+    t.test_class_method_type_annotation_missing()
