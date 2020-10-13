@@ -1032,10 +1032,20 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return bar
         foo()
 
+    def test_forward_ref(self):
+        class Conversation:
+            pass
+
+        @pedantic
+        def get_conversations() -&gt; List[&#39;Conversation&#39;]:
+            return [Conversation(), Conversation()]
+
+        get_conversations()
+
 
 if __name__ == &#39;__main__&#39;:
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_type_var_wrong_sequence()</code></pre>
+    test.test_forward_ref()</code></pre>
 </details>
 </section>
 <section>
@@ -2079,7 +2089,17 @@ not have a method with the specified name.</p></div>
             def bar(a: Tuple[float, str]) -&gt; Tuple[int]:
                 return len(a[1]) + int(a[0]),
             return bar
-        foo()</code></pre>
+        foo()
+
+    def test_forward_ref(self):
+        class Conversation:
+            pass
+
+        @pedantic
+        def get_conversations() -&gt; List[&#39;Conversation&#39;]:
+            return [Conversation(), Conversation()]
+
+        get_conversations()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2583,6 +2603,26 @@ not have a method with the specified name.</p></div>
         print(a)
 
     operation(a=MyEnum.GAMMA)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_forward_ref"><code class="name flex">
+<span>def <span class="ident">test_forward_ref</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_forward_ref(self):
+    class Conversation:
+        pass
+
+    @pedantic
+    def get_conversations() -&gt; List[&#39;Conversation&#39;]:
+        return [Conversation(), Conversation()]
+
+    get_conversations()</code></pre>
 </details>
 </dd>
 <dt id="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_1"><code class="name flex">
@@ -4184,6 +4224,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_3" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_ellipsis_in_callable_3">test_ellipsis_in_callable_3</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1">test_enum_1</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1_corrected" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum_1_corrected">test_enum_1_corrected</a></code></li>
+<li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_forward_ref" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_forward_ref">test_forward_ref</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_1">test_inheritance_1</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_2" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_inheritance_2">test_inheritance_2</a></code></li>
 <li><code><a title="pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_1" href="#pedantic.unit_tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_instance_method_1">test_instance_method_1</a></code></li>
