@@ -164,9 +164,17 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
         type_vars[type_] = type(obj)
         return True
 
+    if _is_forward_ref(type_=type_):
+        return type(obj).__name__ == type_.__forward_arg__
+
     if _is_type_new_type(type_):
         return isinstance(obj, type_.__supertype__)
     return isinstance(obj, type_)
+
+
+def _is_forward_ref(type_: Any) -> bool:
+    return hasattr(typing, 'ForwardRef') and isinstance(type_, typing.ForwardRef) or \
+            hasattr(typing, '_ForwardRef') and isinstance(type_, typing._ForwardRef)
 
 
 def _is_type_new_type(type_: Any) -> bool:

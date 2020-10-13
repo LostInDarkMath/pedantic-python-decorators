@@ -1004,7 +1004,17 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return bar
         foo()
 
+    def test_forward_ref(self):
+        class Conversation:
+            pass
+
+        @pedantic
+        def get_conversations() -> List['Conversation']:
+            return [Conversation(), Conversation()]
+
+        get_conversations()
+
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_type_var_wrong_sequence()
+    test.test_forward_ref()
