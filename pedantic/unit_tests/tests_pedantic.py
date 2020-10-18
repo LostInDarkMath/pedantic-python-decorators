@@ -1014,7 +1014,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         get_conversations()
 
+    def test_alternative_list_type_hint(self):
+        @pedantic
+        def _is_digit_in_int(digit: [int], num: int) -> bool:
+            num_str = str(num)
+            for i in num_str:
+                if int(i) == digit:
+                    return True
+            return False
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            _is_digit_in_int(digit=4, num=42)
+
 
 if __name__ == '__main__':
     test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_forward_ref()
+    test.test_alternative_list_type_hint()

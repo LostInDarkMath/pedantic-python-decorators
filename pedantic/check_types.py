@@ -101,8 +101,10 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         class_name = value.__class__.__name__
         return class_name == type_
 
-    if type(type_) is tuple:
+    if isinstance(type_, tuple):
         raise PedanticTypeCheckException(f'{err}Use "Tuple[]" instead of "{type_}" as type hint.')
+    if isinstance(type_, list):
+        raise PedanticTypeCheckException(f'{err}Use "List[]" instead of "{type_}" as type hint.')
     if type_ is tuple:
         raise PedanticTypeCheckException(f'{err}Use "Tuple[]" instead of "tuple" as type hint.')
     if type_ is list:
