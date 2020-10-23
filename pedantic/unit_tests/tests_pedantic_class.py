@@ -1,8 +1,9 @@
+import sys
 import unittest
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Callable, Union
 
-from pedantic.method_decorators import overrides, pedantic
+from pedantic.method_decorators import overrides
 from pedantic.class_decorators import pedantic_class
 from pedantic.exceptions import PedanticOverrideException, PedanticTypeCheckException, \
     PedanticCallWithArgsException
@@ -416,7 +417,47 @@ class TestPedanticClass(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc('hi')
 
+    def test_dataclass_inside(self):
+        """Pedantic cannot be used on dataclasses."""
+
+        if sys.version_info < (3, 7):
+            return
+
+        from dataclasses import dataclass
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            @pedantic_class
+            @dataclass
+            class MyClass:
+                name: str
+                unit_price: float
+                quantity_on_hand: int = 0
+
+    def test_dataclass_outside(self):
+        """Pedantic cannot check the constructor of dataclasses"""
+
+        if sys.version_info < (3, 7):
+            return
+
+        from dataclasses import dataclass
+
+        @dataclass
+        @pedantic_class
+        class MyClass:
+            name: str
+            unit_price: float
+            quantity_on_hand: int = 0
+
+            def total_cost(self) -> int:
+                return self.unit_price * self.quantity_on_hand
+
+        MyClass(name='name', unit_price=5.1)
+        a = MyClass(name='name', unit_price=5.0, quantity_on_hand=42)
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            a.total_cost()
+
 
 if __name__ == '__main__':
     t = TestPedanticClass()
-    t.test_class_method_type_annotation_missing()
+    t.test_dataclass_inside()

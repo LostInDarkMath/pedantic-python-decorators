@@ -1,9 +1,11 @@
+import sys
 from typing import Callable, Any, Optional, Dict
 import types
 
 from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, F, C
 from pedantic.check_generic_classes import _check_instance_of_generic_class_and_get_typ_vars, \
     _is_instance_of_generic_class
+from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer
 
 
@@ -16,6 +18,13 @@ def for_all_methods(decorator: F) -> Callable[[C], C]:
     ...     def m2(self, x): pass
     """
     def decorate(cls: C) -> C:
+        if sys.version_info >= (3, 7):
+            from dataclasses import is_dataclass
+
+            if is_dataclass(obj=cls):
+                raise PedanticTypeCheckException(f'Dataclass "{cls}" cannot be decorated with "@pedantic_class". '
+                                                 f'Try to write "@dataclass" over "@pedantic_class".')
+
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)
 
