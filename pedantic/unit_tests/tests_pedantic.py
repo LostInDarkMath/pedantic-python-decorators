@@ -1,4 +1,5 @@
 import unittest
+from functools import wraps
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
 from enum import Enum
 
@@ -1026,7 +1027,20 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             _is_digit_in_int(digit=4, num=42)
 
+    def test_callable_with_union_return(self):
+        class MyClass:
+            pass
 
-if __name__ == '__main__':
-    test = TestDecoratorRequireKwargsAndTypeCheck()
-    test.test_alternative_list_type_hint()
+        @pedantic
+        def admin_required(func: Callable[..., Union[str, MyClass]]) -> Callable[..., Union[str, MyClass]]:
+            @wraps(func)
+            def decorated_function(*args, **kwargs):
+                return func(*args, **kwargs)
+            return decorated_function
+
+        @admin_required
+        @pedantic
+        def get_server_info() -> str:
+            return 'info'
+
+        get_server_info()
