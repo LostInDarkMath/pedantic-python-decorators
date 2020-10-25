@@ -101,8 +101,10 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         class_name = value.__class__.__name__
         return class_name == type_
 
-    if type(type_) is tuple:
+    if isinstance(type_, tuple):
         raise PedanticTypeCheckException(f'{err}Use "Tuple[]" instead of "{type_}" as type hint.')
+    if isinstance(type_, list):
+        raise PedanticTypeCheckException(f'{err}Use "List[]" instead of "{type_}" as type hint.')
     if type_ is tuple:
         raise PedanticTypeCheckException(f'{err}Use "Tuple[]" instead of "tuple" as type hint.')
     if type_ is list:
@@ -439,17 +441,11 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
         >>> _is_subtype(Tuple[float, str, bool, int], Tuple[Any, ...])
         True
         >>> _is_subtype(int, Union[int, float])
-        Traceback (most recent call last):
-        ...
-        TypeError: ...
+        True
         >>> _is_subtype(int, Union[str, float])
-        Traceback (most recent call last):
-        ...
-        TypeError: ...
+        False
         >>> _is_subtype(List[int], List[Union[int, float]])
-        Traceback (most recent call last):
-        ...
-        TypeError: ...
+        True
         >>> _is_subtype(List[Union[int, float]], List[int])
         Traceback (most recent call last):
         ...
@@ -464,10 +460,17 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
         True
         >>> _is_subtype(Iterable[int], List[int])
         False
+        >>> class MyClass: pass
+        >>> _is_subtype(MyClass, Union[str, MyClass])
+        True
     """
 
     python_sub = _get_class_of_type_annotation(sub_type)
     python_super = _get_class_of_type_annotation(super_type)
+
+    if python_super == typing.Union:
+        type_args = _get_type_arguments(cls=super_type)
+        return sub_type in type_args
 
     if not _is_generic(sub_type):
         return issubclass(python_sub, python_super)
@@ -721,7 +724,7 @@ def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
     param_types, ret_type = _get_type_arguments(cls=type_)
     sig = inspect.signature(obj=value)
 
-    if param_types is not ...:
+    if param_types is not Ellipsis:
         if len(param_types) != len(sig.parameters):
             return False
 

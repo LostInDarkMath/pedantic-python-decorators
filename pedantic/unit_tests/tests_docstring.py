@@ -390,7 +390,7 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 pass
 
     def test_exception_in_docstring_parser(self):
-        with self.assertRaises(expected_exception=AssertionError):
+        with self.assertRaises(expected_exception=PedanticDocstringException):
             @pedantic_class
             class Foo:
                 def func(self, b: str) -> str:

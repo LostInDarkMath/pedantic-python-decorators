@@ -5,6 +5,8 @@ from typing import Any, Callable, Dict
 
 from docstring_parser import parse, Docstring
 
+from pedantic.exceptions import PedanticDocstringException, PedanticTypeCheckException
+
 FUNCTIONS_THAT_REQUIRE_KWARGS = [
     '__new__', '__init__', '__str__', '__del__', '__int__', '__float__', '__complex__', '__oct__', '__hex__',
     '__index__', '__trunc__', '__repr__', '__unicode__', '__hash__', '__nonzero__', '__dir__', '__sizeof__'
@@ -16,7 +18,7 @@ class DecoratedFunction:
         self._func = func
 
         if not isinstance(func, (types.FunctionType, types.MethodType)):
-            raise AssertionError(f'{self.full_name} should be a method or function.')
+            raise PedanticTypeCheckException(f'{self.full_name} should be a method or function.')
 
         self._full_arg_spec = inspect.getfullargspec(func)
         self._signature = inspect.signature(func)
@@ -26,7 +28,7 @@ class DecoratedFunction:
         try:
             self._docstring = parse(func.__doc__)
         except (Exception, TypeError) as ex:
-            raise AssertionError(f'{self.err}Could not parse docstring. Please check syntax. Details: {ex}')
+            raise PedanticDocstringException(f'{self.err}Could not parse docstring. Please check syntax. Details: {ex}')
 
     @property
     def func(self) -> Callable[..., Any]:
