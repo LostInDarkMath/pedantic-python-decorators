@@ -97,3 +97,11 @@ class DecoratedFunction:
     @property
     def is_pedantic(self) -> bool:
         return '@pedantic' in self.source or '@require_kwargs' in self.source
+
+    @property
+    def is_coroutine(self) -> bool:
+        return inspect.iscoroutinefunction(self._func)
+
+    @property
+    def is_generator(self) -> bool:
+        return inspect.isgeneratorfunction(self._func)

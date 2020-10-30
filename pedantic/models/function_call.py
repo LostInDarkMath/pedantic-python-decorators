@@ -127,13 +127,14 @@ class FunctionCall:
 
         expected_result_type = self.func.annotations['return']
 
-        msg = f'{self.func.err}Type hint of return value is incorrect: Expected type {expected_result_type} ' \
-              f'but {result} of type {type(result)} was the return value which does not match.'
-        _assert_value_matches_type(value=result,
-                                   type_=expected_result_type,
-                                   err=self.func.err,
-                                   type_vars=self.type_vars,
-                                   msg=msg)
+        if not self.func.is_coroutine and not self.func.is_generator:
+            msg = f'{self.func.err}Type hint of return value is incorrect: Expected type {expected_result_type} ' \
+                  f'but {result} of type {type(result)} was the return value which does not match.'
+            _assert_value_matches_type(value=result,
+                                       type_=expected_result_type,
+                                       err=self.func.err,
+                                       type_vars=self.type_vars,
+                                       msg=msg)
         return result
 
     def _assert_param_has_type_annotation(self, param: inspect.Parameter):
