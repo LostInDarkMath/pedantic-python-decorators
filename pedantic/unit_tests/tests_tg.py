@@ -2,7 +2,7 @@ import unittest
 import asyncio
 from typing import TypeVar, Generator, Iterator, Iterable, Coroutine, Any, List
 
-from pedantic import pedantic_class
+from pedantic.class_decorators import pedantic_class
 from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException
 from pedantic.method_decorators import pedantic
 
@@ -133,7 +133,7 @@ class TestAsyncAndIterator(unittest.TestCase):
                 num += 1
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            gen = genfunc()
+            genfunc()
 
     def test_iterable(self):
         @pedantic
