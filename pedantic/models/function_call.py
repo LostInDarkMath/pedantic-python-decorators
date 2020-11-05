@@ -1,10 +1,11 @@
 import inspect
-from typing import Dict, Tuple, Any
+from typing import Dict, Tuple, Any, Union
 
 from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
 from pedantic.check_types import _assert_value_matches_type
 from pedantic.models.decorated_function import DecoratedFunction
+from pedantic.models.generator_wrapper import GeneratorWrapper
 
 
 class FunctionCall:
@@ -62,7 +63,14 @@ class FunctionCall:
         self._check_type_param(params={k: v for k, v in d if not str(v).startswith('*')})
         self._check_types_args(params={k: v for k, v in d if str(v).startswith('*') and not str(v).startswith('**')})
         self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith('**')})
-        return self._check_types_return()
+        return self._check_types_return(result=self._get_return_value())
+
+    async def async_check_types(self) -> ReturnType:
+        d = self.params_without_self.items()
+        self._check_type_param(params={k: v for k, v in d if not str(v).startswith('*')})
+        self._check_types_args(params={k: v for k, v in d if str(v).startswith('*') and not str(v).startswith('**')})
+        self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith('**')})
+        return self._check_types_return(result=await self._async_get_return_value())
 
     def _check_type_param(self, params: Dict[str, inspect.Parameter]) -> None:
         arg_index = 1 if self.func.is_instance_method else 0
@@ -115,28 +123,38 @@ class FunctionCall:
                                        type_vars=self.type_vars,
                                        key=kwarg)
 
-    def _check_types_return(self) -> None:
+    def _check_types_return(self, result: Any) -> Union[None, GeneratorWrapper]:
         if self.func.signature.return_annotation is inspect.Signature.empty:
             raise PedanticTypeCheckException(
                 f'{self.func.err}There should be a type hint for the return type (e.g. None if nothing is returned).')
 
-        if self.func.is_static_method:
-            result = self.func.func(**self.kwargs)
-        else:
-            result = self.func.func(*self.args, **self.kwargs)
-
         expected_result_type = self.func.annotations['return']
 
-        if not self.func.is_coroutine and not self.func.is_generator:
-            msg = f'{self.func.err}Type hint of return value is incorrect: Expected type {expected_result_type} ' \
-                  f'but {result} of type {type(result)} was the return value which does not match.'
-            _assert_value_matches_type(value=result,
-                                       type_=expected_result_type,
-                                       err=self.func.err,
-                                       type_vars=self.type_vars,
-                                       msg=msg)
+        if self.func.is_generator:
+            return GeneratorWrapper(
+                wrapped=result, expected_type=expected_result_type, err_msg=self.func.err, type_vars=self.type_vars)
+
+        msg = f'{self.func.err}Type hint of return value is incorrect: Expected type {expected_result_type} ' \
+              f'but {result} of type {type(result)} was the return value which does not match.'
+        _assert_value_matches_type(value=result,
+                                   type_=expected_result_type,
+                                   err=self.func.err,
+                                   type_vars=self.type_vars,
+                                   msg=msg)
         return result
 
     def _assert_param_has_type_annotation(self, param: inspect.Parameter):
         if param.annotation == inspect.Parameter.empty:
             raise PedanticTypeCheckException(f'{self.func.err}Parameter "{param.name}" should have a type hint.')
+
+    def _get_return_value(self) -> Any:
+        if self.func.is_static_method:
+            return self.func.func(**self.kwargs)
+        else:
+            return self.func.func(*self.args, **self.kwargs)
+
+    async def _async_get_return_value(self) -> Any:
+        if self.func.is_static_method:
+            return await self.func.func(**self.kwargs)
+        else:
+            return await self.func.func(*self.args, **self.kwargs)

@@ -352,7 +352,16 @@ def pedantic(func: Optional[F] = None, require_docstring: bool = False) -> F:
             call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs)
             call.assert_uses_kwargs()
             return call.check_types()
-        return wrapper
+
+        async def async_wrapper(*args: Any, **kwargs: Any) -> ReturnType:
+            call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs)
+            call.assert_uses_kwargs()
+            return await call.async_check_types()
+
+        if decorated_func.is_coroutine:
+            return async_wrapper
+        else:
+            return wrapper
     return decorator if func is None else decorator(f=func)
 
 

@@ -2,6 +2,8 @@ import unittest
 import sys
 import os
 
+from pedantic.unit_tests.tests_tg import TestAsyncAndIterator
+
 sys.path.append(os.getcwd())
 
 from pedantic.unit_tests.tests_doctests import get_doctest_test_suite
@@ -31,6 +33,7 @@ def run_all_tests() -> None:
         TestDecoratedFunction,
         TestEnvironmentVariables,
         TestGenericClasses,
+        TestAsyncAndIterator,
     ]
 
     loader = unittest.TestLoader()

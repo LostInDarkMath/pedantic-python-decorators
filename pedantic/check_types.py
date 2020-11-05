@@ -18,7 +18,7 @@ def _assert_value_matches_type(value: Any,
                                ) -> None:
     if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars):
         t = type(value)
-        value = f'{key}={value}'
+        value = f'{key}={value}' if key is not None else str(value)
         if not msg:
             msg = f'{err}Type hint is incorrect: Argument {value} of type {t} does not match expected type {type_}.'
         raise PedanticTypeCheckException(msg)
