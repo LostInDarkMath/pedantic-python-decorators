@@ -157,6 +157,14 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
         return validator(obj, type_args, type_vars)
 
     if isinstance(type_, TypeVar):
+        constraints = type_.__constraints__
+
+        if len(constraints) > 0 and type(obj) not in constraints:
+            return False
+
+        if type_.__bound__ is not None and not isinstance(obj, type_.__bound__):
+            return False
+
         if type_ in type_vars:
             other = type_vars[type_]
             if not _is_instance(obj=obj, type_=other, type_vars=type_vars):
@@ -171,6 +179,13 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
 
     if _is_type_new_type(type_):
         return isinstance(obj, type_.__supertype__)
+
+    if hasattr(obj, '_asdict') and hasattr(type_, '_field_types'):
+        field_types = type_._field_types
+        if not obj._asdict().keys() == field_types.keys():
+            return False
+        return all([_is_instance(obj=obj._asdict()[k], type_=v, type_vars=type_vars) for k, v in field_types.items()])
+
     return isinstance(obj, type_)
 
 
@@ -723,9 +738,10 @@ def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
 
     param_types, ret_type = _get_type_arguments(cls=type_)
     sig = inspect.signature(obj=value)
+    non_optional_params = {k: v for k, v in sig.parameters.items() if v.default == sig.empty}
 
     if param_types is not Ellipsis:
-        if len(param_types) != len(sig.parameters):
+        if len(param_types) != len(non_optional_params):
             return False
 
         for param, expected_type in zip(sig.parameters.values(), param_types):

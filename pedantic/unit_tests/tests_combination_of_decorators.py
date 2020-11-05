@@ -154,8 +154,3 @@ class TestCombinationOfDecorators(unittest.TestCase):
         m = MyClass()
         m.some_calculation(x=42)
         MyClass.some_calculation(x=45)
-
-
-if __name__ == '__main__':
-    t = TestCombinationOfDecorators()
-    t.test_pedantic_validate_args_4()

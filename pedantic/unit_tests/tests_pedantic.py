@@ -1,8 +1,10 @@
 import unittest
 from functools import wraps
-from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
+from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
+    Iterator, AbstractSet, NamedTuple, Collection
 from enum import Enum
 
+from pedantic import pedantic_class
 from pedantic.exceptions import PedanticTypeCheckException, PedanticException, PedanticCallWithArgsException, \
     PedanticTypeVarMismatchException
 from pedantic.method_decorators import pedantic
@@ -1044,3 +1046,41 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return 'info'
 
         get_server_info()
+
+    def test_pedantic(self):
+        @pedantic
+        def foo(a: int, b: str) -> str:
+            return 'abc'
+
+        self.assertEqual('abc', foo(a=4, b='abc'))
+
+    def test_pedantic_always(self):
+        @pedantic
+        def foo(a: int, b: str) -> str:
+            return 'abc'
+
+        self.assertEqual('abc', foo(a=4, b='abc'))
+
+    def test_pedantic_arguments_fail(self):
+        @pedantic
+        def foo(a: int, b: str) -> str:
+            return 'abc'
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            foo(a=4, b=5)
+
+    def test_pedantic_return_type_fail(self):
+        @pedantic
+        def foo(a: int, b: str) -> str:
+            return 6
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            foo(a=4, b='abc')
+
+    def test_return_type_none(self):
+        @pedantic
+        def foo() -> None:
+            return 'a'
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            foo()
