@@ -457,7 +457,23 @@ class TestPedanticClass(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             a.total_cost()
 
+    def test_class_decorator_static_class_method(self):
+        @pedantic_class
+        class Foo:
+            @staticmethod
+            def staticmethod() -> int:
+                return 'foo'
 
-if __name__ == '__main__':
-    t = TestPedanticClass()
-    t.test_dataclass_inside()
+            @classmethod
+            def classmethod(cls) -> int:
+                return 'foo'
+
+            def method(self) -> int:
+                return 'foo'
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            Foo.staticmethod()
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            Foo.classmethod()
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            Foo().method()

@@ -480,8 +480,3 @@ class TestRequireDocstringGoogleFormat(TestCase):
             @pedantic_require_docstring
             def no_docstrings() -> None:
                 print('.')
-
-
-if __name__ == '__main__':
-    t = TestRequireDocstringGoogleFormat()
-    t.test_user_class_with_typing()

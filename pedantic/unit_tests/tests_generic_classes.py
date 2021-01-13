@@ -315,8 +315,3 @@ class TestGenericClasses(unittest.TestCase):
             child_1_stack.push(item=Child2())
         with self.assertRaises(expected_exception=PedanticTypeVarMismatchException):
             child_1_stack.push(item=Parent())
-
-
-if __name__ == '__main__':
-    t = TestGenericClasses()
-    t.test_generic_union()

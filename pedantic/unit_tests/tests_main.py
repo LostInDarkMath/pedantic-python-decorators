@@ -2,6 +2,7 @@ import unittest
 import sys
 import os
 
+
 sys.path.append(os.getcwd())
 
 from pedantic.unit_tests.tests_doctests import get_doctest_test_suite
@@ -16,6 +17,8 @@ from pedantic.unit_tests.tests_pedantic_class_docstring import TestPedanticClass
 from pedantic.unit_tests.tests_decorated_function import TestDecoratedFunction
 from pedantic.unit_tests.tests_environment_variables import TestEnvironmentVariables
 from pedantic.unit_tests.tests_generic_classes import TestGenericClasses
+from pedantic.unit_tests.tests_generator import TestGenerator
+from pedantic.unit_tests.tests_pedantic_async import TestAsyncio
 
 
 def run_all_tests() -> None:
@@ -31,6 +34,8 @@ def run_all_tests() -> None:
         TestDecoratedFunction,
         TestEnvironmentVariables,
         TestGenericClasses,
+        TestGenerator,
+        TestAsyncio,
     ]
 
     loader = unittest.TestLoader()
