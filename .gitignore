@@ -5,8 +5,12 @@
 # Virtuel environments
 venv
 venv35
+venv36
+venv37
 venv3.7
 venv38
+venv39
+venv310
 
 # Coverage
 htmlcov
