@@ -5,7 +5,7 @@ from datetime import datetime, date
 from functools import wraps
 from io import BytesIO, StringIO
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
-    AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO
+    AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO, Iterable, Container
 from enum import Enum
 
 from pedantic import pedantic_class
@@ -1594,7 +1594,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         foo()
 
-    def test_generator(self):
+    def test_generator_simple(self):
         """Test that argument type checking works in a generator function too."""
         @pedantic
         def generate(a: int) -> Generator[int, int, None]:
@@ -1762,5 +1762,406 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo_3(a: list) -> None:
             print(a)
 
+        foo_1(a=[1, 2])
+
         with self.assertRaises(PedanticTypeCheckException):
             foo_2(a=[1, 2])
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo_3(a=[1, 2])
+
+    def test_dict(self):
+        @pedantic
+        def foo_1(a: Dict[str, int]) -> None:
+            print(a)
+
+        @pedantic
+        def foo_2(a: Dict) -> None:
+            print(a)
+
+        @pedantic
+        def foo_3(a: dict) -> None:
+            print(a)
+
+        foo_1(a={'x': 2})
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo_3(a={'x': 2})
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo_3(a={'x': 2})
+
+    def test_sequence(self):
+        @pedantic
+        def foo(a: Sequence[str]) -> None:
+            print(a)
+
+        for value in [('a', 'b'), ['a', 'b'], 'abc']:
+            foo(a=value)
+
+    def test_sequence_no_type_args(self):
+        @pedantic
+        def foo(a: Sequence) -> None:
+            print(a)
+
+        for value in [('a', 'b'), ['a', 'b'], 'abc']:
+            with self.assertRaises(PedanticTypeCheckException):
+                foo(a=value)
+
+    def test_iterable(self):
+        @pedantic
+        def foo(a: Iterable[str]) -> None:
+            print(a)
+
+        for value in [('a', 'b'), ['a', 'b'], 'abc']:
+            foo(a=value)
+
+    def test_iterable_no_type_args(self):
+        @pedantic
+        def foo(a: Iterable) -> None:
+            print(a)
+
+        for value in [('a', 'b'), ['a', 'b'], 'abc']:
+            with self.assertRaises(PedanticTypeCheckException):
+                foo(a=value)
+
+    def test_container(self):
+        @pedantic
+        def foo(a: Container[str]) -> None:
+            print(a)
+
+        for value in [('a', 'b'), ['a', 'b'], 'abc']:
+            foo(a=value)
+
+    def test_container_no_type_args(self):
+        @pedantic
+        def foo(a: Container) -> None:
+            print(a)
+
+        for value in [('a', 'b'), ['a', 'b'], 'abc']:
+            with self.assertRaises(PedanticTypeCheckException):
+                foo(a=value)
+
+    def test_set(self):
+        @pedantic
+        def foo_1(a: AbstractSet[int]) -> None:
+            print(a)
+
+        @pedantic
+        def foo_2(a: Set[int]) -> None:
+            print(a)
+
+        for value in [set(), {6}]:
+            foo_1(a=value)
+            foo_2(a=value)
+
+    def test_set_no_type_args(self):
+        @pedantic
+        def foo_1(a: AbstractSet) -> None:
+            print(a)
+
+        @pedantic
+        def foo_2(a: Set) -> None:
+            print(a)
+
+        @pedantic
+        def foo_3(a: set) -> None:
+            print(a)
+
+        for value in [set(), {6}]:
+            with self.assertRaises(PedanticTypeCheckException):
+                foo_1(a=value)
+
+            with self.assertRaises(PedanticTypeCheckException):
+                foo_2(a=value)
+
+            with self.assertRaises(PedanticTypeCheckException):
+                foo_3(a=value)
+
+    def test_tuple(self):
+        @pedantic
+        def foo_1(a: Tuple[int, int]) -> None:
+            print(a)
+
+        @pedantic
+        def foo_2(a: Tuple[int, ...]) -> None:
+            print(a)
+
+        foo_1(a=(1, 2))
+        foo_2(a=(1, 2))
+
+    def test_tuple_no_type_args(self):
+        @pedantic
+        def foo_1(a: Tuple) -> None:
+            print(a)
+
+        @pedantic
+        def foo_2(a: tuple) -> None:
+            print(a)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo_1(a=(1, 2))
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo_2(a=(1, 2))
+
+    def test_empty_tuple(self):
+        @pedantic
+        def foo(a: Tuple[()]) -> None:
+            print(a)
+
+        foo(a=())
+
+    def test_class(self):
+        @pedantic
+        def foo_1(a: Type[Parent]) -> None:
+            print(a)
+
+        @pedantic
+        def foo_2(a: Type[TypeVar('UnboundType')]) -> None:
+            print(a)
+
+        @pedantic
+        def foo_3(a: Type[TypeVar('BoundType', bound=Parent)]) -> None:
+            print(a)
+
+        foo_1(a=Child)
+        foo_2(a=Child)
+        foo_3(a=Child)
+
+    def test_class_no_type_vars(self):
+        @pedantic
+        def foo_1(a: Type) -> None:
+            print(a)
+
+        @pedantic
+        def foo_2(a: type) -> None:
+            print(a)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo_1(a=Child)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo_2(a=Child)
+
+    def test_class_not_a_class(self):
+        @pedantic
+        def foo(a: Type[Parent]) -> None:
+            print(a)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=1)
+
+    def test_complex(self):
+        @pedantic
+        def foo(a: complex) -> None:
+            print(a)
+
+        foo(a=complex(1, 5))
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=1.0)
+
+    def test_float(self):
+        @pedantic
+        def foo(a: float) -> None:
+            print(a)
+
+        foo(a=1.5)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=1)
+
+    def test_coroutine_correct_return_type(self):
+        @pedantic
+        async def foo() -> str:
+            return 'foo'
+
+        coro = foo()
+
+        with self.assertRaises(StopIteration):
+            coro.send(None)
+
+    def test_coroutine_wrong_return_type(self):
+        @pedantic
+        async def foo() -> str:
+            return 1
+
+        coro = foo()
+
+        with self.assertRaises(PedanticTypeCheckException):
+            coro.send(None)
+
+    def test_bytearray_bytes(self):
+        @pedantic
+        def foo(x: bytearray) -> None:
+            pass
+
+        foo(x=bytearray([1]))
+
+    def test_class_decorator(self):
+        @pedantic_class
+        class Foo:
+            @staticmethod
+            def staticmethod() -> int:
+                return 'foo'
+
+            @classmethod
+            def classmethod(cls) -> int:
+                return 'foo'
+
+            def method(self) -> int:
+                return 'foo'
+
+        with self.assertRaises(PedanticTypeCheckException):
+            Foo.staticmethod()
+
+        with self.assertRaises(PedanticTypeCheckException):
+            Foo.classmethod()
+
+        with self.assertRaises(PedanticTypeCheckException):
+            Foo().method()
+
+    def test_generator(self):
+        @pedantic
+        def genfunc() -> Generator[int, str, List[str]]:
+            val1 = yield 2
+            val2 = yield 3
+            val3 = yield 4
+            return [val1, val2, val3]
+
+        gen = genfunc()
+
+        with self.assertRaises(StopIteration):
+            value = next(gen)
+            while True:
+                value = gen.send(str(value))
+                assert isinstance(value, int)
+
+    def test_generator_no_type_args(self):
+        @pedantic
+        def genfunc() -> Generator:
+            val1 = yield 2
+            val2 = yield 3
+            val3 = yield 4
+            return [val1, val2, val3]
+
+        with self.assertRaises(PedanticTypeCheckException):
+            genfunc()
+
+    def test_iterator(self):
+        @pedantic
+        def genfunc() -> Iterator[int]:
+            val1 = yield 2
+            val2 = yield 3
+            val3 = yield 4
+            return [val1, val2, val3]
+
+        gen = genfunc()
+
+        with self.assertRaises(PedanticTypeCheckException):
+            value = next(gen)
+            while True:
+                value = gen.send(str(value))
+                assert isinstance(value, int)
+
+    def test_iterator_no_type_args(self):
+        @pedantic
+        def genfunc() -> Iterator:
+            val1 = yield 2
+            val2 = yield 3
+            val3 = yield 4
+            return [val1, val2, val3]
+
+        with self.assertRaises(PedanticTypeCheckException):
+            genfunc()
+
+    def test_iterable_advanced(self):
+        @pedantic
+        def genfunc() -> Iterable[int]:
+            val1 = yield 2
+            val2 = yield 3
+            val3 = yield 4
+            return [val1, val2, val3]
+
+        gen = genfunc()
+
+        with self.assertRaises(PedanticTypeCheckException):
+            value = next(gen)
+            while True:
+                value = gen.send(str(value))
+                assert isinstance(value, int)
+
+    def test_iterable_advanced_no_type_args(self):
+        @pedantic
+        def genfunc() -> Iterable:
+            val1 = yield 2
+            val2 = yield 3
+            val3 = yield 4
+            return [val1, val2, val3]
+
+        with self.assertRaises(PedanticTypeCheckException):
+            genfunc()
+
+    def test_generator_bad_yield(self):
+        @pedantic
+        def genfunc_1() -> Generator[int, str, None]:
+            yield 'foo'
+
+        @pedantic
+        def genfunc_2() -> Iterable[int]:
+            yield 'foo'
+
+        @pedantic
+        def genfunc_3() -> Iterator[int]:
+            yield 'foo'
+
+        gen = genfunc_1()
+
+        with self.assertRaises(PedanticTypeCheckException):
+            next(gen)
+
+        gen = genfunc_2()
+
+        with self.assertRaises(PedanticTypeCheckException):
+            next(gen)
+
+        gen = genfunc_3()
+
+        with self.assertRaises(PedanticTypeCheckException):
+            next(gen)
+
+    def test_generator_bad_send(self):
+        @pedantic
+        def genfunc() -> Generator[int, str, None]:
+            yield 1
+            yield 2
+
+        gen = genfunc()
+        next(gen)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            gen.send(2)
+
+    def test_generator_bad_return(self):
+        @pedantic
+        def genfunc() -> Generator[int, str, str]:
+            yield 1
+            return 6
+
+        gen = genfunc()
+        next(gen)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            gen.send('foo')
+
+    def test_return_generator(self):
+        @pedantic
+        def genfunc() -> Generator[int, None, None]:
+            yield 1
+
+        @pedantic
+        def foo() -> Generator[int, None, None]:
+            return genfunc()
+
+        foo()

@@ -119,6 +119,8 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         raise PedanticTypeCheckException(f'{err}Use "Set[]" instead of "set" as type hint.')
     if type_ is frozenset:
         raise PedanticTypeCheckException(f'{err}Use "FrozenSet[]" instead of "frozenset" as type hint.')
+    if type_ is type:
+        raise PedanticTypeCheckException(f'{err}Use "Type[]" instead of "type" as type hint.')
 
     try:
         return _is_instance(obj=value, type_=type_, type_vars=type_vars)
@@ -166,6 +168,8 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
             validator = _ORIGIN_TYPE_CHECKERS[base]
         elif base.__base__ == typing.Generic:
             return isinstance(obj, base)
+        else:
+            raise AssertionError(f'Unknown: {base}')
 
         type_args = _get_type_arguments(cls=type_)
         return validator(obj, type_args, type_vars)
@@ -586,6 +590,14 @@ def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dic
     return all(_is_instance(val, type_, type_vars=type_vars) for val in iterable)
 
 
+def _instancecheck_generator(generator: typing.Generator, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
+    from pedantic.models import GeneratorWrapper
+    if isinstance(generator, GeneratorWrapper):
+        return generator._yield_type == type_args[0] and generator._send_type == type_args[1] and generator._return_type == type_args[2]
+
+    return True  # I dont now what to do here
+
+
 def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
     """
         >>> from typing import Any, Optional
@@ -647,6 +659,9 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[TypeVar_, A
     """
     if Ellipsis in type_args:
         return all(_is_instance(obj=val, type_=type_args[0], type_vars=type_vars) for val in tup)
+
+    if tup == () and type_args == ((),):
+        return True
 
     if len(tup) != len(type_args):
         return False
@@ -777,12 +792,13 @@ def _is_lambda(obj: Any) -> bool:
     return callable(obj) and obj.__name__ == '<lambda>'
 
 
-def _instancecheck_type(value: Any, type_: Any, _) -> bool:
+def _instancecheck_type(value: Any, type_: Any, type_vars: Dict) -> bool:
     type_ = type_[0]
 
-    if type_ == Any:
+    if type_ == Any or isinstance(type_, typing.TypeVar):
         return True
-    return issubclass(value, type_)
+
+    return _is_subtype(sub_type=value, super_type=type_)
 
 
 _ORIGIN_TYPE_CHECKERS = {}
@@ -792,6 +808,7 @@ for class_path, _check_func in {
     'typing.AbstractSet': _instancecheck_iterable,
     'typing.MutableSet': _instancecheck_iterable,
     'typing.Sequence': _instancecheck_iterable,
+    'typing.Iterable': _instancecheck_iterable,
     'typing.MutableSequence': _instancecheck_iterable,
     'typing.ByteString': _instancecheck_iterable,
     'typing.Deque': _instancecheck_iterable,
@@ -813,6 +830,8 @@ for class_path, _check_func in {
 
     'typing.Tuple': _instancecheck_tuple,
     'typing.Type': _instancecheck_type,
+
+    'typing.Generator': _instancecheck_generator,
 }.items():
     class_ = eval(class_path)
     _ORIGIN_TYPE_CHECKERS[class_] = _check_func

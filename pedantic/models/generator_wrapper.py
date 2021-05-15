@@ -69,5 +69,5 @@ class GeneratorWrapper:
             self._send_type = result[1]
             self._return_type = result[2]
         else:
-            raise PedanticTypeCheckException(f'{self._err}Generator should have one type argument. Got: {result}')
+            raise PedanticTypeCheckException(f'{self._err}Generator should have a type argument. Got: {result}')
         return result[0]
