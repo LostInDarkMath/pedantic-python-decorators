@@ -1,7 +1,11 @@
+import os.path
+import types
 import unittest
 from datetime import datetime, date
 from functools import wraps
-from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
+from io import BytesIO, StringIO
+from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
+    AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO
 from enum import Enum
 
 from pedantic import pedantic_class
@@ -9,8 +13,23 @@ from pedantic.exceptions import PedanticTypeCheckException, PedanticException, P
     PedanticTypeVarMismatchException
 from pedantic.decorators.fn_deco_pedantic import pedantic
 
+TEST_FILE = 'test.txt'
+
+
+class Parent:
+    pass
+
+
+class Child(Parent):
+    def method(self, a: int):
+        pass
+
 
 class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
+    def tearDown(self) -> None:
+        if os.path.isfile(TEST_FILE):
+            os.remove(TEST_FILE)
+
     def test_no_kwargs(self):
         @pedantic
         def calc(n: int, m: int, i: int) -> int:
@@ -1081,7 +1100,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         @pedantic
         def foo() -> None:
             return 'a'
-
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             foo()
 
@@ -1122,3 +1140,627 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             foo(a=date(1995, 2, 5), b=date(1987, 8, 7))
+
+    def test_any_type(self):
+        @pedantic
+        def foo(a: Any) -> None:
+            pass
+
+        foo(a='aa')
+
+    def test_callable_exact_arg_count(self):
+        @pedantic
+        def foo(a: Callable[[int, str], int]) -> None:
+            pass
+
+        def some_callable(x: int, y: str) -> int:
+            pass
+
+        foo(a=some_callable)
+
+    def test_callable_bad_type(self):
+        @pedantic
+        def foo(a: Callable[..., int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=5)
+
+    def test_callable_too_few_arguments(self):
+        @pedantic
+        def foo(a: Callable[[int, str], int]) -> None:
+            pass
+
+        def some_callable(x: int) -> int:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=some_callable)
+
+    def test_callable_mandatory_kwonlyargs(self):
+        @pedantic
+        def foo(a: Callable[[int, str], int]) -> None:
+            pass
+
+        def some_callable(x: int, y: str, *, z: float, bar: str) -> int:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=some_callable)
+
+    def test_callable_class(self):
+        """
+        Test that passing a class as a callable does not count the "self" argument "a"gainst the
+        ones declared in the Callable specification.
+
+        """
+        @pedantic
+        def foo(a: Callable[[int, str], Any]) -> None:
+            pass
+
+        class SomeClass:
+            def __init__(self, x: int, y: str):
+                pass
+
+        foo(a=SomeClass)
+
+    def test_callable_plain(self):
+        @pedantic
+        def foo(a: Callable[..., Any]) -> None:
+            pass
+
+        def callback(a):
+            pass
+
+        foo(a=callback)
+
+    def test_callable_bound_method(self):
+        @pedantic
+        def foo(callback: Callable[[int], Any]) -> None:
+            pass
+
+        foo(callback=Child().method)
+
+    def test_callable_defaults(self):
+        """
+        Test that a callable having "too many" arguments don't raise an error if the extra
+        arguments have default values.
+
+        """
+        @pedantic
+        def foo(callback: Callable[[int, str], Any]) -> None:
+            pass
+
+        def some_callable(x: int, y: str, z: float = 1.2) -> int:
+            pass
+
+        foo(callback=some_callable)
+
+    def test_callable_builtin(self):
+        @pedantic
+        def foo(callback: types.BuiltinFunctionType) -> None:
+            pass
+
+        foo(callback=[].append)
+
+    def test_dict_bad_type(self):
+        @pedantic
+        def foo(a: Dict[str, int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=5)
+
+    def test_dict_bad_key_type(self):
+        @pedantic
+        def foo(a: Dict[str, int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a={1: 2})
+
+    def test_dict_bad_value_type(self):
+        @pedantic
+        def foo(a: Dict[str, int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a={'x': 'a'})
+
+    def test_list_bad_type(self):
+        @pedantic
+        def foo(a: List[int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=5)
+
+    def test_list_bad_element(self):
+        @pedantic
+        def foo(a: List[int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=[1, 2, 'bb'])
+
+    def test_sequence_bad_type(self):
+        @pedantic
+        def foo(a: Sequence[int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=5)
+
+    def test_sequence_bad_element(self):
+        @pedantic
+        def foo(a: Sequence[int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=[1, 2, 'bb'])
+
+    def test_abstractset_custom_type(self):
+        T = TypeVar('T')
+
+        @pedantic_class
+        class DummySet(AbstractSet[T]):
+            def __contains__(self, x: object) -> bool:
+                return x == 1
+
+            def __len__(self) -> T:
+                return 1
+
+            def __iter__(self) -> Iterator[T]:
+                yield 1
+
+        @pedantic
+        def foo(a: AbstractSet[int]) -> None:
+            pass
+
+        foo(a=DummySet[int]())
+
+    def test_abstractset_bad_type(self):
+        @pedantic
+        def foo(a: AbstractSet[int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=5)
+
+    def test_set_bad_type(self):
+        @pedantic
+        def foo(a: Set[int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=5)
+
+    def test_abstractset_bad_element(self):
+        @pedantic
+        def foo(a: AbstractSet[int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a={1, 2, 'bb'})
+
+    def test_set_bad_element(self):
+        @pedantic
+        def foo(a: Set[int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a={1, 2, 'bb'})
+
+    def test_tuple_bad_type(self):
+        @pedantic
+        def foo(a: Tuple[int]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=5)
+
+    def test_tuple_too_many_elements(self):
+        @pedantic
+        def foo(a: Tuple[int, str]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=(1, 'aa', 2))
+
+    def test_tuple_too_few_elements(self):
+        @pedantic
+        def foo(a: Tuple[int, str]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=(1,))
+
+    def test_tuple_bad_element(self):
+        @pedantic
+        def foo(a: Tuple[int, str]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=(1, 2))
+
+    def test_tuple_ellipsis_bad_element(self):
+        @pedantic
+        def foo(a: Tuple[int, ...]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=(1, 2, 'blah'))
+
+    def test_namedtuple(self):
+        Employee = NamedTuple('Employee', [('name', str), ('id', int)])
+
+        @pedantic
+        def foo(bar: Employee) -> None:
+            pass
+
+        foo(bar=Employee('bob', 1))
+
+    def test_namedtuple_type_mismatch(self):
+        Employee = NamedTuple('Employee', [('name', str), ('id', int)])
+
+        @pedantic
+        def foo(bar: Employee) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(bar=('bob', 1))
+
+    def test_namedtuple_wrong_field_type(self):
+        Employee = NamedTuple('Employee', [('name', str), ('id', int)])
+
+        @pedantic
+        def foo(bar: Employee) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(bar=Employee(2, 1))
+
+    def test_union(self):
+        @pedantic
+        def foo(a: Union[str, int]) -> None:
+            pass
+
+        for value in [6, 'xa']:
+            foo(a=value)
+
+    def test_union_typing_type(self):
+        @pedantic
+        def foo(a: Union[str, Collection]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=1)
+
+    def test_union_fail(self):
+        @pedantic
+        def foo(a: Union[str, int]) -> None:
+            pass
+
+        for value in [5.6, b'xa']:
+            with self.assertRaises(PedanticTypeCheckException):
+                foo(a=value)
+
+    def test_type_var_constraints(self):
+        T = TypeVar('T', int, str)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        for values in [
+            {'a': 6, 'b': 7},
+            {'a': 'aa', 'b': "bb"},
+        ]:
+            foo(**values)
+
+    def test_type_var_constraints_fail_typing_type(self):
+        T = TypeVar('T', int, Collection)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a='aa', b='bb')
+
+    def test_typevar_constraints_fail(self):
+        T = TypeVar('T', int, str)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=2.5, b='aa')
+
+    def test_typevar_bound(self):
+        T = TypeVar('T', bound=Parent)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        foo(a=Child(), b=Child())
+
+    def test_type_var_bound_fail(self):
+        T = TypeVar('T', bound=Child)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=Parent(), b=Parent())
+
+    def test_type_var_invariant_fail(self):
+        T = TypeVar('T', int, str)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=2, b=3.6)
+
+    def test_type_var_covariant(self):
+        T = TypeVar('T', covariant=True)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        foo(a=Parent(), b=Child())
+
+    def test_type_var_covariant_fail(self):
+        T = TypeVar('T', covariant=True)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeVarMismatchException):
+            foo(a=Child(), b=Parent())
+
+    def test_type_var_contravariant(self):
+        T = TypeVar('T', contravariant=True)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        foo(a=Child(), b=Parent())
+
+    def test_type_var_contravariant_fail(self):
+        T = TypeVar('T', contravariant=True)
+
+        @pedantic
+        def foo(a: T, b: T) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeVarMismatchException):
+            foo(a=Parent(), b=Child())
+
+    def test_class_bad_subclass(self):
+        @pedantic
+        def foo(a: Type[Child]) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=Parent)
+
+    def test_class_any(self):
+        @pedantic
+        def foo(a: Type[Any]) -> None:
+            pass
+
+        foo(a=str)
+
+    def test_wrapped_function(self):
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            return wrapper
+
+        @pedantic
+        @decorator
+        def foo(a: 'Child') -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=Parent())
+
+    def test_mismatching_default_type(self):
+        @pedantic
+        def foo(a: str = 1) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo()
+
+    def test_implicit_default_none(self):
+        """
+        Test that if the default value is ``None``, a ``None`` argument can be passed.
+
+        """
+        @pedantic
+        def foo(a: Optional[str] = None) -> None:
+            pass
+
+        foo()
+
+    def test_generator(self):
+        """Test that argument type checking works in a generator function too."""
+        @pedantic
+        def generate(a: int) -> Generator[int, int, None]:
+            yield a
+            yield a + 1
+
+        gen = generate(a=1)
+        next(gen)
+
+    def test_wrapped_generator_no_return_type_annotation(self):
+        """Test that return type checking works in a generator function too."""
+        @pedantic
+        def generate(a: int) -> Generator[int, int, None]:
+            yield a
+            yield a + 1
+
+        gen = generate(a=1)
+        next(gen)
+
+    def test_varargs(self):
+        @pedantic
+        def foo(*args: int) -> None:
+            pass
+
+        foo(1, 2)
+
+    def test_varargs_fail(self):
+        @pedantic
+        def foo(*args: int) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(1, 'a')
+
+    def test_kwargs(self):
+        @pedantic
+        def foo(**kwargs: int) -> None:
+            pass
+
+        foo(a=1, b=2)
+
+    def test_kwargs_fail(self):
+        @pedantic
+        def foo(**kwargs: int) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=1, b='a')
+
+    def test_generic(self):
+        T_Foo = TypeVar('T_Foo')
+
+        class FooGeneric(Generic[T_Foo]):
+            pass
+
+        @pedantic
+        def foo(a: FooGeneric[str]) -> None:
+            pass
+
+        foo(a=FooGeneric[str]())
+
+    def test_newtype(self):
+        myint = NewType("myint", int)
+
+        @pedantic
+        def foo(a: myint) -> int:
+            return 42
+
+        assert foo(a=1) == 42
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a="a")
+
+    def test_collection(self):
+        @pedantic
+        def foo(a: Collection) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=True)
+
+    def test_binary_io(self):
+        @pedantic
+        def foo(a: BinaryIO) -> None:
+            pass
+
+        foo(a=BytesIO())
+
+    def test_text_io(self):
+        @pedantic
+        def foo(a: TextIO) -> None:
+            pass
+
+        foo(a=StringIO())
+
+    def test_binary_io_fail(self):
+        @pedantic
+        def foo(a: TextIO) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=BytesIO())
+
+    def test_text_io_fail(self):
+        @pedantic
+        def foo(a: BinaryIO) -> None:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=StringIO())
+
+    def test_binary_io_real_file(self):
+        @pedantic
+        def foo(a: BinaryIO) -> None:
+            pass
+
+        with open(file=TEST_FILE, mode='wb') as f:
+            foo(a=f)
+
+    def test_text_io_real_file(self):
+        @pedantic
+        def foo(a: TextIO) -> None:
+            pass
+
+        with open(file=TEST_FILE, mode='w') as f:
+            foo(a=f)
+
+    def test_pedantic_return_type_var_fail(self):
+        T = TypeVar('T', int, float)
+
+        @pedantic
+        def foo(a: T, b: T) -> T:
+            return 'a'
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=4, b=2)
+
+    def test_callable(self):
+        @pedantic
+        def foo_1(a: Callable[..., int]) -> None:
+            print(a)
+
+        @pedantic
+        def foo_2(a: Callable) -> None:
+            print(a)
+
+        def some_callable() -> int:
+            return 4
+
+        foo_1(a=some_callable)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo_2(a=some_callable)
+
+    def test_list(self):
+        @pedantic
+        def foo_1(a: List[int]) -> None:
+            print(a)
+
+        @pedantic
+        def foo_2(a: List) -> None:
+            print(a)
+
+        @pedantic
+        def foo_3(a: list) -> None:
+            print(a)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo_2(a=[1, 2])

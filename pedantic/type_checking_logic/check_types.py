@@ -1,6 +1,7 @@
 """Idea is taken from: https://stackoverflow.com/a/55504010/10975692"""
 import inspect
 import typing
+from io import BytesIO, StringIO, BufferedWriter, TextIOWrapper
 from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType
 import collections
 import sys
@@ -150,11 +151,21 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
 
     if _is_generic(type_):
         python_type = type_.__origin__
+
+        if type_ == typing.BinaryIO:
+            return isinstance(obj, (BytesIO, BufferedWriter))
+        elif type_ == typing.TextIO:
+            return isinstance(obj, (StringIO, TextIOWrapper))
+
         if not isinstance(obj, python_type):
             return False
 
         base = _get_base_generic(type_)
-        validator = _ORIGIN_TYPE_CHECKERS[base]
+
+        if base in _ORIGIN_TYPE_CHECKERS:
+            validator = _ORIGIN_TYPE_CHECKERS[base]
+        elif base.__base__ == typing.Generic:
+            return isinstance(obj, base)
 
         type_args = _get_type_arguments(cls=type_)
         return validator(obj, type_args, type_vars)
@@ -170,10 +181,18 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
 
         if type_ in type_vars:
             other = type_vars[type_]
-            if not _is_instance(obj=obj, type_=other, type_vars=type_vars):
-                raise PedanticTypeVarMismatchException(
-                    f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} '
-                    f'was previously matched to type {other}')
+
+            if type_.__contravariant__:
+                if not _is_subtype(sub_type=other, super_type=obj.__class__):
+                    raise PedanticTypeVarMismatchException(
+                        f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} '
+                        f'was previously matched to type {other}')
+            else:
+                if not _is_instance(obj=obj, type_=other, type_vars=type_vars):
+                    raise PedanticTypeVarMismatchException(
+                        f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} '
+                        f'was previously matched to type {other}')
+
         type_vars[type_] = type(obj)
         return True
 
