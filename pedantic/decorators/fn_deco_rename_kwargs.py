@@ -1,14 +1,13 @@
-from dataclasses import dataclass
 from functools import wraps
 from typing import Callable
 
 from pedantic.constants import F, ReturnType
 
 
-@dataclass(frozen=True)
 class Rename:
-    from_: str
-    to: str
+    def __init__(self, from_: str, to: str) -> None:
+        self.from_ = from_
+        self.to = to
 
 
 def rename_kwargs(*params: Rename) -> Callable[[F], F]:

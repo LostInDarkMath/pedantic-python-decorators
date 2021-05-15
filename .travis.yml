@@ -3,7 +3,7 @@ python: # https://docs.travis-ci.com/user/languages/python/#python-versions
   - "3.6"      # is 3.6.7 actually
   - "3.7"
   - "3.8"
-  - "3.8-dev"
+  - "3.9"
   - "3.9-dev"
   #- "3.10-dev"
   #- "nightly"  # strange this can happen
