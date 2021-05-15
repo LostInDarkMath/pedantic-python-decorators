@@ -1,8 +1,8 @@
 import unittest
 
 from pedantic.exceptions import PedanticTypeCheckException
-from pedantic.set_envionment_variables import enable_pedantic, disable_pedantic, is_enabled
-from pedantic.method_decorators import pedantic
+from pedantic.env_var_logic import enable_pedantic, disable_pedantic, is_enabled
+from pedantic.decorators.fn_deco_pedantic import pedantic
 
 
 class TestEnvironmentVariables(unittest.TestCase):
@@ -11,10 +11,7 @@ class TestEnvironmentVariables(unittest.TestCase):
         enable_pedantic()
 
     def tearDown(self) -> None:
-        if self.state:
-            enable_pedantic()
-        else:
-            disable_pedantic()
+        enable_pedantic()
 
     def test_pedantic_enabled(self):
         enable_pedantic()

@@ -2,7 +2,7 @@ import unittest
 from typing import Generator, Iterator, Iterable, List
 
 from pedantic.exceptions import PedanticTypeCheckException
-from pedantic.method_decorators import pedantic
+from pedantic.decorators.fn_deco_pedantic import pedantic
 
 
 class TestGenerator(unittest.TestCase):

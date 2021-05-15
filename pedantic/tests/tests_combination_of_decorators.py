@@ -1,10 +1,10 @@
 import unittest
 from abc import ABC, abstractmethod
 
-# local file imports
-from pedantic.class_decorators import pedantic_class, for_all_methods
+from pedantic.decorators.class_decorators import pedantic_class, for_all_methods
 from pedantic.exceptions import PedanticException, PedanticTypeCheckException, PedanticCallWithArgsException
-from pedantic.method_decorators import overrides, validate_args, pedantic
+from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic import overrides, validate_args
 
 
 class TestCombinationOfDecorators(unittest.TestCase):

@@ -2,8 +2,8 @@ import unittest
 from typing import Generic, TypeVar, Any, List, Optional, Union
 
 from pedantic.constants import TYPE_VAR_METHOD_NAME
-from pedantic.class_decorators import pedantic_class
-from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException
+from pedantic.decorators.class_decorators import pedantic_class
+from pedantic.exceptions import PedanticTypeVarMismatchException
 
 
 class TestGenericClasses(unittest.TestCase):

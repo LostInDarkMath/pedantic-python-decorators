@@ -1,15 +1,19 @@
 import sys
 import unittest
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Callable, Union
+from typing import Any, Optional, Callable, Union, Dict
 
-from pedantic.method_decorators import overrides
-from pedantic.class_decorators import pedantic_class
+from pedantic.env_var_logic import disable_pedantic, enable_pedantic
+from pedantic import overrides
+from pedantic.decorators.class_decorators import pedantic_class
 from pedantic.exceptions import PedanticOverrideException, PedanticTypeCheckException, \
     PedanticCallWithArgsException
 
 
 class TestPedanticClass(unittest.TestCase):
+    def tearDown(self) -> None:
+        enable_pedantic()
+
     def test_constructor(self):
         @pedantic_class
         class MyClass:
@@ -477,3 +481,42 @@ class TestPedanticClass(unittest.TestCase):
             Foo.classmethod()
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             Foo().method()
+
+    def test_pedantic_class_disable_pedantic(self):
+        disable_pedantic()
+
+        @pedantic_class
+        class MyClass:
+            def __init__(self, pw, **kwargs):
+                self._validate_str_len(new_values=kwargs)
+
+            @staticmethod
+            def _validate_str_len(new_values: Dict[str, Any]) -> None:
+                return 42
+
+            def method(pw, **kwargs):
+                MyClass._validate_str_len(new_values=kwargs)
+
+        MyClass._validate_str_len(None)
+        MyClass._validate_str_len(new_values={1: 1, 2: 2})
+        MyClass(name='hi', age=12, pw='123')
+
+    def test_disable_pedantic_2(self):
+        """ https://github.com/LostInDarkMath/pedantic-python-decorators/issues/37 """
+
+        disable_pedantic()
+
+        @pedantic_class
+        class Foo:
+            def __init__(self) -> None:
+                self._value = 42
+
+            def do(self) -> None:
+                print(self.bar(value=self._value))
+
+            @staticmethod
+            def bar(value: int) -> int:
+                return value + 75
+
+        f = Foo()
+        f.do()

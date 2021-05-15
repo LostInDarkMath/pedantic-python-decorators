@@ -1,6 +1,6 @@
 from typing import *  # necessary for eval
 
-from pedantic.check_types import _get_type_arguments
+from pedantic.type_checking_logic.check_types import _get_type_arguments
 from pedantic.exceptions import PedanticDocstringException
 from pedantic.models.decorated_function import DecoratedFunction
 
@@ -118,7 +118,7 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     pedantic.exceptions.PedanticDocstringException: Documented type "MyClass" was not found.
     >>> class MyClass: pass
     >>> _parse_documented_type(type_='MyClass', context={'MyClass': MyClass}, err='')
-    <class 'pedantic.check_docstring.MyClass'>
+    <class 'pedantic.type_checking_logic.check_docstring.MyClass'>
     >>> _parse_documented_type(type_='MyClas', context={'MyClass': MyClass}, err='')
     Traceback (most recent call last):
     ...

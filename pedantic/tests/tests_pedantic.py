@@ -1,13 +1,14 @@
 import unittest
+from datetime import datetime, date
 from functools import wraps
-from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
-    Iterator, AbstractSet, NamedTuple, Collection
+from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence
 from enum import Enum
 
 from pedantic import pedantic_class
 from pedantic.exceptions import PedanticTypeCheckException, PedanticException, PedanticCallWithArgsException, \
     PedanticTypeVarMismatchException
-from pedantic.method_decorators import pedantic
+from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic.tests.test_typeguard import JSONType
 
 
 class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
@@ -1084,3 +1085,41 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             foo()
+
+    def test_marco(self):
+        @pedantic_class
+        class A:
+            def __init__(self, val: int) -> None:
+                self.val = val
+
+            def __eq__(self, other: 'A') -> bool:  # other: A and all subclasses
+                return self.val == other.val
+
+        @pedantic_class
+        class B(A):
+            def __init__(self, val: int) -> None:
+                super().__init__(val=val)
+
+        @pedantic_class
+        class C(A):
+            def __init__(self, val: int) -> None:
+                super().__init__(val=val)
+
+        a = A(val=42)
+        b = B(val=42)
+        c = C(val=42)
+
+        assert a == b  # works
+        assert a == c  # works
+        assert b == c  # error
+
+    def test_date_datetime(self):
+        @pedantic
+        def foo(a: datetime, b: date) -> None:
+            pass
+
+        foo(a=datetime(1995, 2, 5), b=date(1987, 8, 7))
+        foo(a=datetime(1995, 2, 5), b=datetime(1987, 8, 7))
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            foo(a=date(1995, 2, 5), b=date(1987, 8, 7))

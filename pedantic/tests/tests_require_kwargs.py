@@ -2,7 +2,7 @@ import unittest
 
 # local file imports
 from pedantic.exceptions import PedanticCallWithArgsException
-from pedantic.method_decorators import require_kwargs
+from pedantic import require_kwargs
 
 
 class TestRequireKwargs(unittest.TestCase):

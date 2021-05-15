@@ -19,8 +19,10 @@ def _assert_value_matches_type(value: Any,
     if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars):
         t = type(value)
         value = f'{key}={value}' if key is not None else str(value)
+
         if not msg:
             msg = f'{err}Type hint is incorrect: Argument {value} of type {t} does not match expected type {type_}.'
+
         raise PedanticTypeCheckException(msg)
 
 
@@ -99,7 +101,8 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         return value == type_
     elif isinstance(type_, str):
         class_name = value.__class__.__name__
-        return class_name == type_
+        base_class_name = value.__class__.__base__.__name__
+        return class_name == type_ or base_class_name == type_
 
     if isinstance(type_, tuple):
         raise PedanticTypeCheckException(f'{err}Use "Tuple[]" instead of "{type_}" as type hint.')
@@ -690,7 +693,7 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any])
     args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, TypeVar)]
     args_type_vars_bounded = [type_var for type_var in args_type_vars if type_var in type_vars]
     args_type_vars_unbounded = [type_var for type_var in args_type_vars if type_var not in args_type_vars_bounded]
-    matches_non_type_var = any(_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars)
+    matches_non_type_var = any([_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars])
     if matches_non_type_var:
         return True
 
@@ -755,6 +758,14 @@ def _is_lambda(obj: Any) -> bool:
     return callable(obj) and obj.__name__ == '<lambda>'
 
 
+def _instancecheck_type(value: Any, type_: Any, _) -> bool:
+    type_ = type_[0]
+
+    if type_ == Any:
+        return True
+    return issubclass(value, type_)
+
+
 _ORIGIN_TYPE_CHECKERS = {}
 for class_path, _check_func in {
     'typing.Container': _instancecheck_iterable,
@@ -782,6 +793,7 @@ for class_path, _check_func in {
     'typing.ChainMap': _instancecheck_mapping,
 
     'typing.Tuple': _instancecheck_tuple,
+    'typing.Type': _instancecheck_type,
 }.items():
     class_ = eval(class_path)
     _ORIGIN_TYPE_CHECKERS[class_] = _check_func

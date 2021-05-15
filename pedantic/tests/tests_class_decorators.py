@@ -1,7 +1,7 @@
 import unittest
 
 # local file imports
-from pedantic.class_decorators import trace_class, timer_class
+from pedantic.decorators.class_decorators import trace_class, timer_class
 
 
 class TestClassDecorators(unittest.TestCase):

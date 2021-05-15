@@ -3,7 +3,7 @@ from typing import Dict, Tuple, Any, Union
 
 from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
-from pedantic.check_types import _assert_value_matches_type
+from pedantic.type_checking_logic.check_types import _assert_value_matches_type
 from pedantic.models.decorated_function import DecoratedFunction
 from pedantic.models.generator_wrapper import GeneratorWrapper
 

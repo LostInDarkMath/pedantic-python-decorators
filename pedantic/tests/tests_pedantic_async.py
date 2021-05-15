@@ -2,9 +2,9 @@ import asyncio
 import unittest
 from typing import Any, Coroutine
 
-from pedantic.class_decorators import pedantic_class
+from pedantic.decorators.class_decorators import pedantic_class
 from pedantic.exceptions import PedanticTypeCheckException
-from pedantic.method_decorators import pedantic
+from pedantic.decorators.fn_deco_pedantic import pedantic
 
 
 class TestAsyncio(unittest.TestCase):

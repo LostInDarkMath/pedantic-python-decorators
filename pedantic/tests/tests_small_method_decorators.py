@@ -1,11 +1,9 @@
 import unittest
 import warnings
 
-# local file imports
-from pedantic.exceptions import TooDirtyException, NotImplementedException, PedanticOverrideException
-from pedantic.method_decorators import overrides, deprecated, needs_refactoring, dirty, timer, count_calls, \
-    unimplemented, validate_args, trace, trace_if_returns, \
-    does_same_as_function
+from pedantic.exceptions import NotImplementedException, PedanticOverrideException
+from pedantic import overrides, timer, count_calls, trace, trace_if_returns, does_same_as_function, deprecated, \
+    unimplemented, validate_args
 
 
 class TestSmallDecoratorMethods(unittest.TestCase):
@@ -78,35 +76,6 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             warnings.simplefilter("always")
             old_method(42)
             assert not len(w) == 1
-
-    def test_needs_refactoring_1(self):
-        @needs_refactoring
-        def old_method(i: int) -> str:
-            return str(i)
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            old_method(42)
-            assert len(w) == 1
-            assert issubclass(w[-1].category, UserWarning)
-            assert "refactoring" in str(w[-1].message)
-
-    def test_needs_refactoring_2(self):
-        def old_method(i: int) -> str:
-            return str(i)
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            old_method(42)
-            assert not len(w) == 1
-
-    def test_dirty(self):
-        @dirty
-        def dirt(i: int) -> str:
-            return str(i)
-
-        with self.assertRaises(expected_exception=TooDirtyException):
-            dirt(42)
 
     def test_unimplemented(self):
         @unimplemented

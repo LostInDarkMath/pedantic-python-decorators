@@ -1,6 +1,6 @@
 from typing import Generator, Any, Dict, Iterable, Iterator
 
-from pedantic.check_types import _assert_value_matches_type, _get_type_arguments, _get_base_generic
+from pedantic.type_checking_logic.check_types import _assert_value_matches_type, _get_type_arguments, _get_base_generic
 from pedantic.exceptions import PedanticTypeCheckException
 
 
