@@ -8,7 +8,6 @@ from pedantic import pedantic_class
 from pedantic.exceptions import PedanticTypeCheckException, PedanticException, PedanticCallWithArgsException, \
     PedanticTypeVarMismatchException
 from pedantic.decorators.fn_deco_pedantic import pedantic
-from pedantic.tests.test_typeguard import JSONType
 
 
 class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
