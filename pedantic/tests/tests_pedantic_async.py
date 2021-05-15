@@ -29,6 +29,14 @@ class TestAsyncio(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             self.get_res_of_async_function(coroutine=foo())
 
+    def test_coroutine_wrong_argument_type(self):
+        @pedantic
+        async def foo(x: int) -> int:
+            return 1 + x
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            self.get_res_of_async_function(coroutine=foo(x=4.5))
+
     def test_static_async(self):
         @pedantic_class
         class Foo:
