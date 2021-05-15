@@ -1,11 +1,13 @@
 import os.path
+import sys
 import types
 import unittest
 from datetime import datetime, date
 from functools import wraps
 from io import BytesIO, StringIO
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
-    AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO, Iterable, Container
+    AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO, Iterable, Container, \
+    NoReturn
 from enum import Enum
 
 from pedantic import pedantic_class
@@ -1679,21 +1681,21 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_binary_io(self):
         @pedantic
         def foo(a: BinaryIO) -> None:
-            pass
+            print(a)
 
         foo(a=BytesIO())
 
     def test_text_io(self):
         @pedantic
         def foo(a: TextIO) -> None:
-            pass
+            print(a)
 
         foo(a=StringIO())
 
     def test_binary_io_fail(self):
         @pedantic
         def foo(a: TextIO) -> None:
-            pass
+            print(a)
 
         with self.assertRaises(PedanticTypeCheckException):
             foo(a=BytesIO())
@@ -1701,7 +1703,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_text_io_fail(self):
         @pedantic
         def foo(a: BinaryIO) -> None:
-            pass
+            print(a)
 
         with self.assertRaises(PedanticTypeCheckException):
             foo(a=StringIO())
@@ -1709,7 +1711,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_binary_io_real_file(self):
         @pedantic
         def foo(a: BinaryIO) -> None:
-            pass
+            print(a)
 
         with open(file=TEST_FILE, mode='wb') as f:
             foo(a=f)
@@ -1717,7 +1719,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
     def test_text_io_real_file(self):
         @pedantic
         def foo(a: TextIO) -> None:
-            pass
+            print(a)
 
         with open(file=TEST_FILE, mode='w') as f:
             foo(a=f)
@@ -2165,3 +2167,119 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return genfunc()
 
         foo()
+
+    def test_local_class(self):
+        @pedantic_class
+        class LocalClass:
+            class Inner:
+                pass
+
+            def create_inner(self) -> 'Inner':
+                return self.Inner()
+
+        retval = LocalClass().create_inner()
+        assert isinstance(retval, LocalClass.Inner)
+
+    def test_local_class_async(self):
+        @pedantic_class
+        class LocalClass:
+            class Inner:
+                pass
+
+            async def create_inner(self) -> 'Inner':
+                return self.Inner()
+
+        coro = LocalClass().create_inner()
+
+        with self.assertRaises(StopIteration):
+            coro.send(None)
+
+    def test_callable_nonmember(self):
+        class CallableClass:
+            def __call__(self):
+                pass
+
+        @pedantic_class
+        class LocalClass:
+            some_callable = CallableClass()
+
+    def test_inherited_class_method(self):
+        @pedantic_class
+        class Parent:
+            @classmethod
+            def foo(cls, x: str) -> str:
+                return cls.__name__
+
+        @pedantic_class
+        class Child(Parent):
+            pass
+
+        self.assertEqual('Parent', Child.foo(x='bar'))
+
+        with self.assertRaises(PedanticTypeCheckException):
+            Child.foo(x=1)
+
+    def test_type_var_forward_ref_bound(self):
+        TBound = TypeVar('TBound', bound='Parent')
+
+        @pedantic
+        def func(x: TBound) -> None:
+            pass
+
+        func(x=Parent())
+
+        with self.assertRaises(PedanticTypeCheckException):
+            func(x='foo')
+
+    def test_noreturn(self):
+        @pedantic
+        def foo() -> NoReturn:
+            pass
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo()
+
+    def test_literal(self):
+        if sys.version_info < (3, 8):
+            return
+
+        from typing import Literal
+
+        @pedantic
+        def foo(a: Literal[1, True, 'x', b'y', 404]) -> None:
+            print(a)
+
+        foo(a=404)
+        foo(a=True)
+        foo(a='x')
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=4)
+
+    def test_literal_union(self):
+        if sys.version_info < (3, 8):
+            return
+
+        from typing import Literal
+
+        @pedantic
+        def foo(a: Union[str, Literal[1, 6, 8]]) -> None:
+            print(a)
+
+        foo(a=6)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=4)
+
+    def test_literal_illegal_value(self):
+        if sys.version_info < (3, 8):
+            return
+
+        from typing import Literal
+
+        @pedantic
+        def foo(a: Literal[1, 1.1]) -> None:
+            print(a)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=4)

@@ -151,13 +151,13 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
             validator = _SPECIAL_INSTANCE_CHECKERS[name]
             return validator(obj, type_, type_vars)
 
+    if type_ == typing.BinaryIO:
+        return isinstance(obj, (BytesIO, BufferedWriter))
+    elif type_ == typing.TextIO:
+        return isinstance(obj, (StringIO, TextIOWrapper))
+
     if _is_generic(type_):
         python_type = type_.__origin__
-
-        if type_ == typing.BinaryIO:
-            return isinstance(obj, (BytesIO, BufferedWriter))
-        elif type_ == typing.TextIO:
-            return isinstance(obj, (StringIO, TextIOWrapper))
 
         if not isinstance(obj, python_type):
             return False
@@ -179,6 +179,9 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
 
         if len(constraints) > 0 and type(obj) not in constraints:
             return False
+
+        if _is_forward_ref(type_=type_.__bound__):
+            return type(obj).__name__ == type_.__bound__.__forward_arg__
 
         if type_.__bound__ is not None and not isinstance(obj, type_.__bound__):
             return False
@@ -745,6 +748,11 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any])
     return True  # it is impossible to figure out, how to bound these type variables correctly
 
 
+def _instancecheck_literal(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
+    type_args = _get_type_arguments(cls=type_)
+    return value in type_args
+
+
 def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
     """
         >>> from typing import Tuple, Callable, Any
@@ -838,6 +846,7 @@ for class_path, _check_func in {
 
 _SPECIAL_INSTANCE_CHECKERS = {
     'Union': _instancecheck_union,
+    'Literal': _instancecheck_literal,
     'Callable': _instancecheck_callable,
     'Any': lambda v, t, tv: True,
 }
