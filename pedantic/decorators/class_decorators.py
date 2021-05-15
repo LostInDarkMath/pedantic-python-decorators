@@ -53,31 +53,21 @@ def for_all_methods(decorator: F) -> Callable[[C], C]:
 
 def pedantic_class(cls: C) -> C:
     """ Shortcut for @for_all_methods(pedantic) """
-
-    if is_enabled():
-        return for_all_methods(decorator=pedantic)(cls=cls)
-    else:
-        return cls
+    return for_all_methods(decorator=pedantic)(cls=cls)
 
 
 def pedantic_class_require_docstring(cls: C) -> C:
     """ Shortcut for @for_all_methods(pedantic_require_docstring) """
-
-    if is_enabled():
-        return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
-    else:
-        return cls
+    return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
 
 
 def trace_class(cls: C) -> C:
     """ Shortcut for @for_all_methods(trace) """
-
     return for_all_methods(decorator=trace)(cls=cls)
 
 
 def timer_class(cls: C) -> C:
     """ Shortcut for @for_all_methods(timer) """
-
     return for_all_methods(decorator=timer)(cls=cls)
 
 
