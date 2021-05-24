@@ -170,8 +170,8 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
             validator = _ORIGIN_TYPE_CHECKERS[base]
             return validator(obj, type_args, type_vars)
 
-        if base.__base__ == typing.Generic:
-            return isinstance(obj, base)
+        assert base.__base__ == typing.Generic, f'Unknown base: {base}'
+        return isinstance(obj, base)
 
     if isinstance(type_, TypeVar):
         constraints = type_.__constraints__

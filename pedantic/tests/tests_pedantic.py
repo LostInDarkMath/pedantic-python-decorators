@@ -1,6 +1,7 @@
 import os.path
 import sys
 import types
+import typing
 import unittest
 from datetime import datetime, date
 from functools import wraps
@@ -1675,7 +1676,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         @pedantic
         def foo(a: FooGeneric[str]) -> None:
-            pass
+            print(a)
 
         foo(a=FooGeneric[str]())
 

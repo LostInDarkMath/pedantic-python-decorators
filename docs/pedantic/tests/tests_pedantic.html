@@ -29,6 +29,7 @@
 <pre><code class="python">import os.path
 import sys
 import types
+import typing
 import unittest
 from datetime import datetime, date
 from functools import wraps
@@ -1703,7 +1704,7 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         @pedantic
         def foo(a: FooGeneric[str]) -&gt; None:
-            pass
+            print(a)
 
         foo(a=FooGeneric[str]())
 
@@ -4143,7 +4144,7 @@ not have a method with the specified name.</p></div>
 
         @pedantic
         def foo(a: FooGeneric[str]) -&gt; None:
-            pass
+            print(a)
 
         foo(a=FooGeneric[str]())
 
@@ -6457,7 +6458,7 @@ arguments have default values.</p></div>
 
     @pedantic
     def foo(a: FooGeneric[str]) -&gt; None:
-        pass
+        print(a)
 
     foo(a=FooGeneric[str]())</code></pre>
 </details>
