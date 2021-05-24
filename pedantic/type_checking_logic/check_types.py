@@ -145,6 +145,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
             origin = _get_base_generic(type_)
         else:
             origin = type_
+
         name = _get_name(origin)
 
         if name in _SPECIAL_INSTANCE_CHECKERS:
@@ -166,10 +167,9 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
 
         if base in _ORIGIN_TYPE_CHECKERS:
             validator = _ORIGIN_TYPE_CHECKERS[base]
-        elif base.__base__ == typing.Generic:
+
+        if base.__base__ == typing.Generic:
             return isinstance(obj, base)
-        else:
-            raise AssertionError(f'Unknown: {base}')
 
         type_args = _get_type_arguments(cls=type_)
         return validator(obj, type_args, type_vars)
@@ -602,10 +602,9 @@ def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dic
 
 def _instancecheck_generator(generator: typing.Generator, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
     from pedantic.models import GeneratorWrapper
-    if isinstance(generator, GeneratorWrapper):
-        return generator._yield_type == type_args[0] and generator._send_type == type_args[1] and generator._return_type == type_args[2]
 
-    return True  # I dont now what to do here
+    assert isinstance(generator, GeneratorWrapper)
+    return generator._yield_type == type_args[0] and generator._send_type == type_args[1] and generator._return_type == type_args[2]
 
 
 def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:

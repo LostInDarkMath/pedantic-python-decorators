@@ -2,6 +2,8 @@ import unittest
 import sys
 import os
 
+from pedantic.tests.test_generator_wrapper import TestGeneratorWrapper
+from pedantic.tests.tests_mock import TestMock
 
 sys.path.append(os.getcwd())
 
@@ -36,6 +38,8 @@ def run_all_tests() -> None:
         TestGenericClasses,
         TestGenerator,
         TestAsyncio,
+        TestMock,
+        TestGeneratorWrapper,
     ]
 
     loader = unittest.TestLoader()

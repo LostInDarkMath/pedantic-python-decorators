@@ -1426,19 +1426,40 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         @pedantic
         def foo(bar: Employee) -&gt; None:
-            pass
+            print(bar)
 
         foo(bar=Employee(&#39;bob&#39;, 1))
+
+    def test_namedtuple_key_mismatch(self):
+        Employee1 = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
+        Employee2 = NamedTuple(&#39;Employee&#39;, [(&#39;firstname&#39;, str), (&#39;id&#39;, int)])
+
+        @pedantic
+        def foo(bar: Employee1) -&gt; None:
+            print(bar)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(bar=Employee2(&#39;bob&#39;, 1))
 
     def test_namedtuple_type_mismatch(self):
         Employee = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
 
         @pedantic
         def foo(bar: Employee) -&gt; None:
-            pass
+            print(bar)
 
         with self.assertRaises(PedanticTypeCheckException):
             foo(bar=(&#39;bob&#39;, 1))
+
+    def test_namedtuple_huge_type_mismatch(self):
+        Employee = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
+
+        @pedantic
+        def foo(bar: int) -&gt; None:
+            print(bar)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(bar=foo(bar=Employee(&#39;bob&#39;, 1)))
 
     def test_namedtuple_wrong_field_type(self):
         Employee = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
@@ -3845,19 +3866,40 @@ not have a method with the specified name.</p></div>
 
         @pedantic
         def foo(bar: Employee) -&gt; None:
-            pass
+            print(bar)
 
         foo(bar=Employee(&#39;bob&#39;, 1))
+
+    def test_namedtuple_key_mismatch(self):
+        Employee1 = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
+        Employee2 = NamedTuple(&#39;Employee&#39;, [(&#39;firstname&#39;, str), (&#39;id&#39;, int)])
+
+        @pedantic
+        def foo(bar: Employee1) -&gt; None:
+            print(bar)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(bar=Employee2(&#39;bob&#39;, 1))
 
     def test_namedtuple_type_mismatch(self):
         Employee = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
 
         @pedantic
         def foo(bar: Employee) -&gt; None:
-            pass
+            print(bar)
 
         with self.assertRaises(PedanticTypeCheckException):
             foo(bar=(&#39;bob&#39;, 1))
+
+    def test_namedtuple_huge_type_mismatch(self):
+        Employee = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
+
+        @pedantic
+        def foo(bar: int) -&gt; None:
+            print(bar)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(bar=foo(bar=Employee(&#39;bob&#39;, 1)))
 
     def test_namedtuple_wrong_field_type(self):
         Employee = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
@@ -7420,9 +7462,50 @@ arguments have default values.</p></div>
 
     @pedantic
     def foo(bar: Employee) -&gt; None:
-        pass
+        print(bar)
 
     foo(bar=Employee(&#39;bob&#39;, 1))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_huge_type_mismatch"><code class="name flex">
+<span>def <span class="ident">test_namedtuple_huge_type_mismatch</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_namedtuple_huge_type_mismatch(self):
+    Employee = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
+
+    @pedantic
+    def foo(bar: int) -&gt; None:
+        print(bar)
+
+    with self.assertRaises(PedanticTypeCheckException):
+        foo(bar=foo(bar=Employee(&#39;bob&#39;, 1)))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_key_mismatch"><code class="name flex">
+<span>def <span class="ident">test_namedtuple_key_mismatch</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_namedtuple_key_mismatch(self):
+    Employee1 = NamedTuple(&#39;Employee&#39;, [(&#39;name&#39;, str), (&#39;id&#39;, int)])
+    Employee2 = NamedTuple(&#39;Employee&#39;, [(&#39;firstname&#39;, str), (&#39;id&#39;, int)])
+
+    @pedantic
+    def foo(bar: Employee1) -&gt; None:
+        print(bar)
+
+    with self.assertRaises(PedanticTypeCheckException):
+        foo(bar=Employee2(&#39;bob&#39;, 1))</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_type_mismatch"><code class="name flex">
@@ -7439,7 +7522,7 @@ arguments have default values.</p></div>
 
     @pedantic
     def foo(bar: Employee) -&gt; None:
-        pass
+        print(bar)
 
     with self.assertRaises(PedanticTypeCheckException):
         foo(bar=(&#39;bob&#39;, 1))</code></pre>
@@ -9526,6 +9609,8 @@ arguments have default values.</p></div>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3">test_missing_type_hint_3</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3_corrected" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_missing_type_hint_3_corrected">test_missing_type_hint_3_corrected</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple">test_namedtuple</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_huge_type_mismatch" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_huge_type_mismatch">test_namedtuple_huge_type_mismatch</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_key_mismatch" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_key_mismatch">test_namedtuple_key_mismatch</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_type_mismatch" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_type_mismatch">test_namedtuple_type_mismatch</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_wrong_field_type" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_namedtuple_wrong_field_type">test_namedtuple_wrong_field_type</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_1" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_nested_type_hints_1">test_nested_type_hints_1</a></code></li>

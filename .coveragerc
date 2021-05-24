@@ -1,6 +1,6 @@
 [run]
 omit = 
-	*pedantic/unit_tests*
+	*pedantic/tests*
 	*/home/travis/virtualenv*
 
 [report]

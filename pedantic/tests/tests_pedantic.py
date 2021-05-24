@@ -1398,19 +1398,40 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         @pedantic
         def foo(bar: Employee) -> None:
-            pass
+            print(bar)
 
         foo(bar=Employee('bob', 1))
+
+    def test_namedtuple_key_mismatch(self):
+        Employee1 = NamedTuple('Employee', [('name', str), ('id', int)])
+        Employee2 = NamedTuple('Employee', [('firstname', str), ('id', int)])
+
+        @pedantic
+        def foo(bar: Employee1) -> None:
+            print(bar)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(bar=Employee2('bob', 1))
 
     def test_namedtuple_type_mismatch(self):
         Employee = NamedTuple('Employee', [('name', str), ('id', int)])
 
         @pedantic
         def foo(bar: Employee) -> None:
-            pass
+            print(bar)
 
         with self.assertRaises(PedanticTypeCheckException):
             foo(bar=('bob', 1))
+
+    def test_namedtuple_huge_type_mismatch(self):
+        Employee = NamedTuple('Employee', [('name', str), ('id', int)])
+
+        @pedantic
+        def foo(bar: int) -> None:
+            print(bar)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(bar=foo(bar=Employee('bob', 1)))
 
     def test_namedtuple_wrong_field_type(self):
         Employee = NamedTuple('Employee', [('name', str), ('id', int)])
