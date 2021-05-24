@@ -209,8 +209,14 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
     if _is_type_new_type(type_):
         return isinstance(obj, type_.__supertype__)
 
-    if hasattr(obj, '_asdict') and hasattr(type_, '_field_types'):
-        field_types = type_._field_types
+    if hasattr(obj, '_asdict'):
+        if hasattr(type_, '_field_types'):
+            field_types = type_._field_types
+        elif hasattr(type_, '__annotations__'):
+            field_types = type_.__annotations__
+        else:
+            return False
+
         if not obj._asdict().keys() == field_types.keys():
             return False
 
