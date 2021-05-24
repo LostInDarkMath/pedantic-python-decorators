@@ -2,11 +2,11 @@ import unittest
 import sys
 import os
 
-from pedantic.tests.test_generator_wrapper import TestGeneratorWrapper
-from pedantic.tests.tests_mock import TestMock
 
 sys.path.append(os.getcwd())
 
+from pedantic.tests.test_generator_wrapper import TestGeneratorWrapper
+from pedantic.tests.tests_mock import TestMock
 from pedantic.tests.tests_doctests import get_doctest_test_suite
 from pedantic.tests.tests_require_kwargs import TestRequireKwargs
 from pedantic.tests.tests_class_decorators import TestClassDecorators

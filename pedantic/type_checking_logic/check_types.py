@@ -164,15 +164,14 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
             return False
 
         base = _get_base_generic(type_)
+        type_args = _get_type_arguments(cls=type_)
 
         if base in _ORIGIN_TYPE_CHECKERS:
             validator = _ORIGIN_TYPE_CHECKERS[base]
+            return validator(obj, type_args, type_vars)
 
         if base.__base__ == typing.Generic:
             return isinstance(obj, base)
-
-        type_args = _get_type_arguments(cls=type_)
-        return validator(obj, type_args, type_vars)
 
     if isinstance(type_, TypeVar):
         constraints = type_.__constraints__
