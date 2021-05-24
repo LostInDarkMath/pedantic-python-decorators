@@ -213,6 +213,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
         field_types = type_._field_types
         if not obj._asdict().keys() == field_types.keys():
             return False
+
         return all([_is_instance(obj=obj._asdict()[k], type_=v, type_vars=type_vars) for k, v in field_types.items()])
 
     return isinstance(obj, type_)

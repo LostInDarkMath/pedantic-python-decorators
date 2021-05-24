@@ -65,6 +65,7 @@ In a nutshell:
 - [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.deprecated)
 - [@does_same_as_function](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.does_same_as_function)
 - [@for_all_methods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.for_all_methods)
+- [@mock](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.mock)
 - [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.overrides)
 - [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic)
 - [@pedantic_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.pedantic_class)

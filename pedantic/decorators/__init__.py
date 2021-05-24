@@ -1,6 +1,7 @@
 from .fn_deco_count_calls import count_calls
 from .fn_deco_deprecated import deprecated
 from .fn_deco_does_same_as_function import does_same_as_function
+from .fn_deco_mock import mock
 from .fn_deco_overrides import overrides
 from .fn_deco_pedantic import pedantic, pedantic_require_docstring
 from .fn_deco_rename_kwargs import rename_kwargs, Rename

@@ -7,8 +7,8 @@ from functools import wraps
 from io import BytesIO, StringIO
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
     AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO, Iterable, Container, \
-    NoReturn
-from enum import Enum
+    NoReturn, ClassVar
+from enum import Enum, IntEnum
 
 from pedantic import pedantic_class
 from pedantic.exceptions import PedanticTypeCheckException, PedanticException, PedanticCallWithArgsException, \
@@ -2283,3 +2283,67 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         with self.assertRaises(PedanticTypeCheckException):
             foo(a=4)
+
+    def test_enum(self):
+        with self.assertRaises(PedanticTypeCheckException):
+            @pedantic_class
+            class MyEnum(Enum):
+                A = 'a'
+
+    def test_enum_aggregate(self):
+        T = TypeVar('T', bound=IntEnum)
+
+        @pedantic_class
+        class EnumAggregate(Generic[T]):
+            enum: ClassVar[Type[T]]
+
+            def __init__(self, value: Union[int, str, List[T]]) -> None:
+                assert len(self.enum) < 10
+
+                if value == '':
+                    raise ValueError(f'Parameter "value" cannot be empty!')
+
+                if isinstance(value, list):
+                    self._value = ''.join([str(x.value) for x in value])
+                else:
+                    self._value = str(value)
+
+                self._value = ''.join(sorted(self._value))  # sort characters in string
+                self.to_list()  # check if is valid
+
+            def __contains__(self, item: T) -> bool:
+                return item in self.to_list()
+
+            def __eq__(self, other: Union['EnumAggregate', str]) -> bool:
+                if isinstance(other, str):
+                    return self._value == other
+
+                return self._value == other._value
+
+            def __str__(self) -> str:
+                return self._value
+
+            def to_list(self) -> List[T]:
+                return [self.enum(int(character)) for character in self._value]
+
+            @property
+            def value(self) -> str:
+                return self._value
+
+            @classmethod
+            def all(cls) -> str:
+                return ''.join([str(x.value) for x in cls.enum])
+
+        class Gender(IntEnum):
+            MALE = 1
+            FEMALE = 2
+            DIVERS = 3
+
+        @pedantic_class
+        class Genders(EnumAggregate[Gender]):
+            enum = Gender
+
+        Genders(value=12)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            Genders(value=Child())

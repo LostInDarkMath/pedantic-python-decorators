@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2" />
-<title>pedantic API documentation</title>
+<title>pedantic.decorators API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,61 +19,81 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>pedantic</code></h1>
+<h1 class="title">Module <code>pedantic.decorators</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import sys
-
-assert sys.version_info &gt;= (3, 6), f&#39;Pedantic does not work with Python versions below 3.6.&#39;
-
-from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, trace, trace_if_returns, \
-    does_same_as_function, deprecated, unimplemented, require_kwargs, validate_args, pedantic, \
-    pedantic_require_docstring, for_all_methods, trace_class, timer_class, pedantic_class, \
-    pedantic_class_require_docstring, Rename
-
-from pedantic.exceptions import NotImplementedException
-
-from pedantic.tests.tests_main import run_all_tests
-
-from pedantic.env_var_logic import disable_pedantic, enable_pedantic, is_enabled</code></pre>
+<pre><code class="python">from .fn_deco_count_calls import count_calls
+from .fn_deco_deprecated import deprecated
+from .fn_deco_does_same_as_function import does_same_as_function
+from .fn_deco_overrides import overrides
+from .fn_deco_pedantic import pedantic, pedantic_require_docstring
+from .fn_deco_rename_kwargs import rename_kwargs, Rename
+from .fn_deco_require_kwargs import require_kwargs
+from .fn_deco_timer import timer
+from .fn_deco_trace import trace
+from .fn_deco_trace_if_returns import trace_if_returns
+from .fn_deco_unimplemented import unimplemented
+from .fn_deco_validate_args import validate_args
+from .class_decorators import pedantic_class, pedantic_class_require_docstring, timer_class, trace_class, \
+    for_all_methods</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="pedantic.constants" href="constants.html">pedantic.constants</a></code></dt>
+<dt><code class="name"><a title="pedantic.decorators.class_decorators" href="class_decorators.html">pedantic.decorators.class_decorators</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.decorators" href="decorators/index.html">pedantic.decorators</a></code></dt>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_count_calls" href="fn_deco_count_calls.html">pedantic.decorators.fn_deco_count_calls</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.env_var_logic" href="env_var_logic.html">pedantic.env_var_logic</a></code></dt>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_deprecated" href="fn_deco_deprecated.html">pedantic.decorators.fn_deco_deprecated</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.exceptions" href="exceptions.html">pedantic.exceptions</a></code></dt>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_does_same_as_function" href="fn_deco_does_same_as_function.html">pedantic.decorators.fn_deco_does_same_as_function</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.helper_methods" href="helper_methods.html">pedantic.helper_methods</a></code></dt>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_overrides" href="fn_deco_overrides.html">pedantic.decorators.fn_deco_overrides</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.models" href="models/index.html">pedantic.models</a></code></dt>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_pedantic" href="fn_deco_pedantic.html">pedantic.decorators.fn_deco_pedantic</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.tests" href="tests/index.html">pedantic.tests</a></code></dt>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_rename_kwargs" href="fn_deco_rename_kwargs.html">pedantic.decorators.fn_deco_rename_kwargs</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.type_checking_logic" href="type_checking_logic/index.html">pedantic.type_checking_logic</a></code></dt>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_require_kwargs" href="fn_deco_require_kwargs.html">pedantic.decorators.fn_deco_require_kwargs</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_timer" href="fn_deco_timer.html">pedantic.decorators.fn_deco_timer</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_trace" href="fn_deco_trace.html">pedantic.decorators.fn_deco_trace</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_trace_if_returns" href="fn_deco_trace_if_returns.html">pedantic.decorators.fn_deco_trace_if_returns</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_unimplemented" href="fn_deco_unimplemented.html">pedantic.decorators.fn_deco_unimplemented</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.decorators.fn_deco_validate_args" href="fn_deco_validate_args.html">pedantic.decorators.fn_deco_validate_args</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -92,16 +112,26 @@ from pedantic.env_var_logic import disable_pedantic, enable_pedantic, is_enabled
 <ul></ul>
 </div>
 <ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pedantic" href="../index.html">pedantic</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="pedantic.constants" href="constants.html">pedantic.constants</a></code></li>
-<li><code><a title="pedantic.decorators" href="decorators/index.html">pedantic.decorators</a></code></li>
-<li><code><a title="pedantic.env_var_logic" href="env_var_logic.html">pedantic.env_var_logic</a></code></li>
-<li><code><a title="pedantic.exceptions" href="exceptions.html">pedantic.exceptions</a></code></li>
-<li><code><a title="pedantic.helper_methods" href="helper_methods.html">pedantic.helper_methods</a></code></li>
-<li><code><a title="pedantic.models" href="models/index.html">pedantic.models</a></code></li>
-<li><code><a title="pedantic.tests" href="tests/index.html">pedantic.tests</a></code></li>
-<li><code><a title="pedantic.type_checking_logic" href="type_checking_logic/index.html">pedantic.type_checking_logic</a></code></li>
+<li><code><a title="pedantic.decorators.class_decorators" href="class_decorators.html">pedantic.decorators.class_decorators</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_count_calls" href="fn_deco_count_calls.html">pedantic.decorators.fn_deco_count_calls</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_deprecated" href="fn_deco_deprecated.html">pedantic.decorators.fn_deco_deprecated</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_does_same_as_function" href="fn_deco_does_same_as_function.html">pedantic.decorators.fn_deco_does_same_as_function</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_overrides" href="fn_deco_overrides.html">pedantic.decorators.fn_deco_overrides</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_pedantic" href="fn_deco_pedantic.html">pedantic.decorators.fn_deco_pedantic</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_rename_kwargs" href="fn_deco_rename_kwargs.html">pedantic.decorators.fn_deco_rename_kwargs</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_require_kwargs" href="fn_deco_require_kwargs.html">pedantic.decorators.fn_deco_require_kwargs</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_timer" href="fn_deco_timer.html">pedantic.decorators.fn_deco_timer</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_trace" href="fn_deco_trace.html">pedantic.decorators.fn_deco_trace</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_trace_if_returns" href="fn_deco_trace_if_returns.html">pedantic.decorators.fn_deco_trace_if_returns</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_unimplemented" href="fn_deco_unimplemented.html">pedantic.decorators.fn_deco_unimplemented</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate_args" href="fn_deco_validate_args.html">pedantic.decorators.fn_deco_validate_args</a></code></li>
 </ul>
 </li>
 </ul>

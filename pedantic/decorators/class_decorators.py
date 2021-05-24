@@ -1,3 +1,4 @@
+import enum
 import sys
 from typing import Callable, Any, Optional, Dict
 import types
@@ -25,6 +26,10 @@ def for_all_methods(decorator: F) -> Callable[[C], C]:
     def decorate(cls: C) -> C:
         if not is_enabled():
             return cls
+
+        if issubclass(cls, enum.Enum):
+            raise PedanticTypeCheckException(f'Enum "{cls}" cannot be decorated with "@pedantic_class". '
+                                             f'Enums are not supported yet.')
 
         if sys.version_info >= (3, 7):
             from dataclasses import is_dataclass

@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pedantic.type_checking_logic.check_types API documentation</title>
+<meta name="description" content="Idea is taken from: https://stackoverflow.com/a/55504010/10975692" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pedantic.type_checking_logic.check_types</code></h1>
+</header>
+<section id="section-intro">
+<p>Idea is taken from: <a href="https://stackoverflow.com/a/55504010/10975692">https://stackoverflow.com/a/55504010/10975692</a></p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Idea is taken from: https://stackoverflow.com/a/55504010/10975692&#34;&#34;&#34;
+import inspect
+import typing
+from io import BytesIO, StringIO, BufferedWriter, TextIOWrapper
+from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType
+import collections
+import sys
+
+from pedantic.constants import TypeVar as TypeVar_
+from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
+
+
+def _assert_value_matches_type(value: Any,
+                               type_: Any,
+                               err: str,
+                               type_vars: Dict[TypeVar_, Any],
+                               key: Optional[str] = None,
+                               msg: Optional[str] = None
+                               ) -&gt; None:
+    if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars):
+        t = type(value)
+        value = f&#39;{key}={value}&#39; if key is not None else str(value)
+
+        if not msg:
+            msg = f&#39;{err}Type hint is incorrect: Argument {value} of type {t} does not match expected type {type_}.&#39;
+
+        raise PedanticTypeCheckException(msg)
+
+
+def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import List, Union, Optional, Callable, Any
+        &gt;&gt;&gt; _check_type(5, int, &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(5, float, &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; _check_type(&#39;hi&#39;, str, &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(None, str, &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; _check_type(None, Any, &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(None, None, &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(5, Any, &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(3.1415, float, &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type([1, 2, 3, 4], List[int], &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type([1, 2, 3.0, 4], List[int], &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; _check_type([1, 2, 3.0, 4], List[float], &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; _check_type([1, 2, 3.0, 4], List[Union[float, int]], &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type([[True, False], [False], [True], []], List[List[bool]], &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type([[True, False, 1], [False], [True], []], List[List[bool]], &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; _check_type(5, Union[int, float, bool], &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(5.0, Union[int, float, bool], &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(False, Union[int, float, bool], &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(&#39;5&#39;, Union[int, float, bool], &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; def f(a: int, b: bool, c: str) -&gt; float: pass
+        &gt;&gt;&gt; _check_type(f, Callable[[int, bool, str], float], &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(None, Optional[List[Dict[str, float]]], &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type([{&#39;a&#39;: 1.2, &#39;b&#39;: 3.4}], Optional[List[Dict[str, float]]], &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type([{&#39;a&#39;: 1.2, &#39;b&#39;: 3}], Optional[List[Dict[str, float]]], &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; _check_type({&#39;a&#39;: 1.2, &#39;b&#39;: 3.4}, Optional[List[Dict[str, float]]], &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; _check_type([{&#39;a&#39;: 1.2, 7: 3.4}], Optional[List[Dict[str, float]]], &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; class MyClass: pass
+        &gt;&gt;&gt; _check_type(MyClass(), &#39;MyClass&#39;, &#39;&#39;, {})
+        True
+        &gt;&gt;&gt; _check_type(MyClass(), &#39;MyClas&#39;, &#39;&#39;, {})
+        False
+        &gt;&gt;&gt; _check_type([1, 2, 3], list, &#39;&#39;, {})
+        Traceback (most recent call last):
+        ...
+        pedantic.exceptions.PedanticTypeCheckException: Use &#34;List[]&#34; instead of &#34;list&#34; as type hint.
+        &gt;&gt;&gt; _check_type((1, 2, 3), tuple, &#39;&#39;, {})
+        Traceback (most recent call last):
+        ...
+        pedantic.exceptions.PedanticTypeCheckException: Use &#34;Tuple[]&#34; instead of &#34;tuple&#34; as type hint.
+        &gt;&gt;&gt; _check_type({1: 1.0, 2: 2.0, 3: 3.0}, dict, &#39;&#39;, {})
+        Traceback (most recent call last):
+        ...
+        pedantic.exceptions.PedanticTypeCheckException: Use &#34;Dict[]&#34; instead of &#34;dict&#34; as type hint.
+    &#34;&#34;&#34;
+
+    if type_ is None:
+        return value == type_
+    elif isinstance(type_, str):
+        class_name = value.__class__.__name__
+        base_class_name = value.__class__.__base__.__name__
+        return class_name == type_ or base_class_name == type_
+
+    if isinstance(type_, tuple):
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;Tuple[]&#34; instead of &#34;{type_}&#34; as type hint.&#39;)
+    if isinstance(type_, list):
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;List[]&#34; instead of &#34;{type_}&#34; as type hint.&#39;)
+    if type_ is tuple:
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;Tuple[]&#34; instead of &#34;tuple&#34; as type hint.&#39;)
+    if type_ is list:
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;List[]&#34; instead of &#34;list&#34; as type hint.&#39;)
+    if type_ is dict:
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;Dict[]&#34; instead of &#34;dict&#34; as type hint.&#39;)
+    if type_ is set:
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;Set[]&#34; instead of &#34;set&#34; as type hint.&#39;)
+    if type_ is frozenset:
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;FrozenSet[]&#34; instead of &#34;frozenset&#34; as type hint.&#39;)
+    if type_ is type:
+        raise PedanticTypeCheckException(f&#39;{err}Use &#34;Type[]&#34; instead of &#34;type&#34; as type hint.&#39;)
+
+    try:
+        return _is_instance(obj=value, type_=type_, type_vars=type_vars)
+    except PedanticTypeCheckException as ex:
+        raise PedanticTypeCheckException(f&#39;{err} {ex}&#39;)
+    except PedanticTypeVarMismatchException as ex:
+        raise PedanticTypeVarMismatchException(f&#39;{err} {ex}&#39;)
+    except (AttributeError, Exception) as ex:
+        raise PedanticTypeCheckException(
+            f&#39;{err}An error occurred during type hint checking. Value: {value} Annotation: &#39;
+            f&#39;{type_} Mostly this is caused by an incorrect type annotation. Details: {ex} &#39;)
+
+
+def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
+    if not _has_required_type_arguments(type_):
+        raise PedanticTypeCheckException(
+            f&#39;The type annotation &#34;{type_}&#34; misses some type arguments e.g. &#39;
+            f&#39;&#34;typing.Tuple[Any, ...]&#34; or &#34;typing.Callable[..., str]&#34;.&#39;)
+
+    if type_.__module__ == &#39;typing&#39;:
+        if _is_generic(type_):
+            origin = _get_base_generic(type_)
+        else:
+            origin = type_
+        name = _get_name(origin)
+
+        if name in _SPECIAL_INSTANCE_CHECKERS:
+            validator = _SPECIAL_INSTANCE_CHECKERS[name]
+            return validator(obj, type_, type_vars)
+
+    if type_ == typing.BinaryIO:
+        return isinstance(obj, (BytesIO, BufferedWriter))
+    elif type_ == typing.TextIO:
+        return isinstance(obj, (StringIO, TextIOWrapper))
+
+    if _is_generic(type_):
+        python_type = type_.__origin__
+
+        if not isinstance(obj, python_type):
+            return False
+
+        base = _get_base_generic(type_)
+
+        if base in _ORIGIN_TYPE_CHECKERS:
+            validator = _ORIGIN_TYPE_CHECKERS[base]
+        elif base.__base__ == typing.Generic:
+            return isinstance(obj, base)
+        else:
+            raise AssertionError(f&#39;Unknown: {base}&#39;)
+
+        type_args = _get_type_arguments(cls=type_)
+        return validator(obj, type_args, type_vars)
+
+    if isinstance(type_, TypeVar):
+        constraints = type_.__constraints__
+
+        if len(constraints) &gt; 0 and type(obj) not in constraints:
+            return False
+
+        if _is_forward_ref(type_=type_.__bound__):
+            return type(obj).__name__ == type_.__bound__.__forward_arg__
+
+        if type_.__bound__ is not None and not isinstance(obj, type_.__bound__):
+            return False
+
+        if type_ in type_vars:
+            other = type_vars[type_]
+
+            if type_.__contravariant__:
+                if not _is_subtype(sub_type=other, super_type=obj.__class__):
+                    raise PedanticTypeVarMismatchException(
+                        f&#39;For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} &#39;
+                        f&#39;was previously matched to type {other}&#39;)
+            else:
+                if not _is_instance(obj=obj, type_=other, type_vars=type_vars):
+                    raise PedanticTypeVarMismatchException(
+                        f&#39;For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} &#39;
+                        f&#39;was previously matched to type {other}&#39;)
+
+        type_vars[type_] = type(obj)
+        return True
+
+    if _is_forward_ref(type_=type_):
+        return type(obj).__name__ == type_.__forward_arg__
+
+    if _is_type_new_type(type_):
+        return isinstance(obj, type_.__supertype__)
+
+    if hasattr(obj, &#39;_asdict&#39;) and hasattr(type_, &#39;_field_types&#39;):
+        field_types = type_._field_types
+        if not obj._asdict().keys() == field_types.keys():
+            return False
+
+        return all([_is_instance(obj=obj._asdict()[k], type_=v, type_vars=type_vars) for k, v in field_types.items()])
+
+    return isinstance(obj, type_)
+
+
+def _is_forward_ref(type_: Any) -&gt; bool:
+    return hasattr(typing, &#39;ForwardRef&#39;) and isinstance(type_, typing.ForwardRef) or \
+            hasattr(typing, &#39;_ForwardRef&#39;) and isinstance(type_, typing._ForwardRef)
+
+
+def _is_type_new_type(type_: Any) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import Tuple, Callable, Any, List, NewType
+        &gt;&gt;&gt; _is_type_new_type(int)
+        False
+        &gt;&gt;&gt; UserId = NewType(&#39;UserId&#39;, int)
+        &gt;&gt;&gt; _is_type_new_type(UserId)
+        True
+    &#34;&#34;&#34;
+    return type_.__qualname__ == NewType(&#39;name&#39;, int).__qualname__  # arguments of NewType() are arbitrary here
+
+
+def _get_name(cls: Any) -&gt; str:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import Tuple, Callable, Any, List
+        &gt;&gt;&gt; _get_name(int)
+        &#39;int&#39;
+        &gt;&gt;&gt; _get_name(Any)
+        &#39;Any&#39;
+        &gt;&gt;&gt; _get_name(List)
+        &#39;List&#39;
+        &gt;&gt;&gt; _get_name(List[int])
+        &#39;List&#39;
+        &gt;&gt;&gt; _get_name(List[Any])
+        &#39;List&#39;
+        &gt;&gt;&gt; _get_name(Tuple)
+        &#39;Tuple&#39;
+        &gt;&gt;&gt; _get_name(Tuple[int, float])
+        &#39;Tuple&#39;
+        &gt;&gt;&gt; _get_name(Tuple[Any, ...])
+        &#39;Tuple&#39;
+        &gt;&gt;&gt; _get_name(Callable)
+        &#39;Callable&#39;
+    &#34;&#34;&#34;
+    if hasattr(cls, &#39;_name&#39;):
+        return cls._name
+    elif hasattr(cls, &#39;__name__&#39;):
+        return cls.__name__
+    else:
+        return type(cls).__name__[1:]
+
+
+def _is_generic(cls: Any) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import  List, Callable, Any, Union
+        &gt;&gt;&gt; _is_generic(int)
+        False
+        &gt;&gt;&gt; _is_generic(List)
+        True
+        &gt;&gt;&gt; _is_generic(List[int])
+        True
+        &gt;&gt;&gt; _is_generic(List[Any])
+        True
+        &gt;&gt;&gt; _is_generic(List[List[int]])
+        True
+        &gt;&gt;&gt; _is_generic(Any)
+        False
+        &gt;&gt;&gt; _is_generic(Tuple)
+        True
+        &gt;&gt;&gt; _is_generic(Tuple[Any, ...])
+        True
+        &gt;&gt;&gt; _is_generic(Tuple[str, float, int])
+        True
+        &gt;&gt;&gt; _is_generic(Callable)
+        True
+        &gt;&gt;&gt; _is_generic(Callable[[int], int])
+        True
+        &gt;&gt;&gt; _is_generic(Union)
+        True
+        &gt;&gt;&gt; _is_generic(Union[int, float, str])
+        True
+        &gt;&gt;&gt; _is_generic(Dict)
+        True
+        &gt;&gt;&gt; _is_generic(Dict[str, str])
+        True
+    &#34;&#34;&#34;
+    if hasattr(typing, &#39;_SpecialGenericAlias&#39;) and isinstance(cls, typing._SpecialGenericAlias):
+        return True
+    elif hasattr(typing, &#39;_GenericAlias&#39;):
+        if isinstance(cls, typing._GenericAlias):
+            return True
+
+        if isinstance(cls, typing._SpecialForm):
+            return cls not in {Any}
+    elif isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
+        return True
+    return False
+
+
+def _has_required_type_arguments(cls: Any) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import List, Callable, Tuple, Any
+        &gt;&gt;&gt; _has_required_type_arguments(int)
+        True
+        &gt;&gt;&gt; _has_required_type_arguments(List)
+        False
+        &gt;&gt;&gt; _has_required_type_arguments(List[int])
+        True
+        &gt;&gt;&gt; _has_required_type_arguments(List[List[int]])
+        True
+        &gt;&gt;&gt; _has_required_type_arguments(Tuple)
+        False
+        &gt;&gt;&gt; _has_required_type_arguments(Tuple[int])
+        True
+        &gt;&gt;&gt; _has_required_type_arguments(Tuple[int, float, str])
+        True
+        &gt;&gt;&gt; _has_required_type_arguments(Callable)
+        False
+        &gt;&gt;&gt; _has_required_type_arguments(Callable[[int, float], Tuple[float, str]])
+        True
+        &gt;&gt;&gt; _has_required_type_arguments(Callable[..., Any])
+        True
+        &gt;&gt;&gt; _has_required_type_arguments(Callable[[typing.Any], Tuple[typing.Any, ...]],)
+        True
+    &#34;&#34;&#34;
+
+    base: str = _get_name(cls=cls)
+    num_type_args = len(_get_type_arguments(cls=cls))
+
+    if base in NUM_OF_REQUIRED_TYPE_ARGS_EXACT:
+        return NUM_OF_REQUIRED_TYPE_ARGS_EXACT[base] == num_type_args
+    elif base in NUM_OF_REQUIRED_TYPE_ARGS_MIN:
+        return NUM_OF_REQUIRED_TYPE_ARGS_MIN[base] &lt;= num_type_args
+    return True
+
+
+def _get_type_arguments(cls: Any) -&gt; Tuple[Any, ...]:
+    &#34;&#34;&#34; Works similar to typing.args()
+        &gt;&gt;&gt; from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar, Optional
+        &gt;&gt;&gt; _get_type_arguments(int)
+        ()
+        &gt;&gt;&gt; _get_type_arguments(List[float])
+        (&lt;class &#39;float&#39;&gt;,)
+        &gt;&gt;&gt; _get_type_arguments(List[int])
+        (&lt;class &#39;int&#39;&gt;,)
+        &gt;&gt;&gt; UserId = NewType(&#39;UserId&#39;, int)
+        &gt;&gt;&gt; _get_type_arguments(List[UserId])
+        (&lt;function NewType.&lt;locals&gt;.new_type at ...,)
+        &gt;&gt;&gt; _get_type_arguments(List)
+        ()
+        &gt;&gt;&gt; T = TypeVar(&#39;T&#39;)
+        &gt;&gt;&gt; _get_type_arguments(List[T])
+        (~T,)
+        &gt;&gt;&gt; _get_type_arguments(List[List[int]])
+        (typing.List[int],)
+        &gt;&gt;&gt; _get_type_arguments(List[List[List[int]]])
+        (typing.List[typing.List[int]],)
+        &gt;&gt;&gt; _get_type_arguments(List[Tuple[float, str]])
+        (typing.Tuple[float, str],)
+        &gt;&gt;&gt; _get_type_arguments(List[Tuple[Any, ...]])
+        (typing.Tuple[typing.Any, ...],)
+        &gt;&gt;&gt; Union[bool, int, float] if sys.version_info &gt;= (3, 7) else \
+            print(&#34;typing.Union[bool, int, float]&#34;) # in Python 3.6 is bool an subtype of int, WTF!?
+        typing.Union[bool, int, float]
+        &gt;&gt;&gt; _get_type_arguments(Union[str, float, int])
+        (&lt;class &#39;str&#39;&gt;, &lt;class &#39;float&#39;&gt;, &lt;class &#39;int&#39;&gt;)
+        &gt;&gt;&gt; _get_type_arguments(Union[str, float, List[int], int])
+        (&lt;class &#39;str&#39;&gt;, &lt;class &#39;float&#39;&gt;, typing.List[int], &lt;class &#39;int&#39;&gt;)
+        &gt;&gt;&gt; _get_type_arguments(Callable)
+        ()
+        &gt;&gt;&gt; _get_type_arguments(Callable[[int, float], Tuple[float, str]])
+        ([&lt;class &#39;int&#39;&gt;, &lt;class &#39;float&#39;&gt;], typing.Tuple[float, str])
+        &gt;&gt;&gt; _get_type_arguments(Callable[..., str])
+        (Ellipsis, &lt;class &#39;str&#39;&gt;)
+        &gt;&gt;&gt; _get_type_arguments(Optional[int])
+        (&lt;class &#39;int&#39;&gt;, &lt;class &#39;NoneType&#39;&gt;)
+    &#34;&#34;&#34;
+
+    result = ()
+
+    if hasattr(cls, &#39;__args__&#39;):
+        result = cls.__args__
+        origin = _get_base_generic(cls=cls)
+        if origin != cls and \
+                ((origin is Callable) or (origin is collections.abc.Callable)) and \
+                result[0] is not Ellipsis:
+            result = (list(result[:-1]), result[-1])
+    result = result or ()
+    return result if &#39;[&#39; in str(cls) else ()
+
+
+def _get_base_generic(cls: Any) -&gt; Any:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import List, Union, Tuple, Callable, Dict, Set
+        &gt;&gt;&gt; _get_base_generic(List)
+        typing.List
+        &gt;&gt;&gt; _get_base_generic(List[float])
+        typing.List
+        &gt;&gt;&gt; _get_base_generic(List[List[float]])
+        typing.List
+        &gt;&gt;&gt; _get_base_generic(List[Union[int, float]])
+        typing.List
+        &gt;&gt;&gt; _get_base_generic(Tuple)
+        typing.Tuple
+        &gt;&gt;&gt; _get_base_generic(Tuple[float, int])
+        typing.Tuple
+        &gt;&gt;&gt; _get_base_generic(Tuple[Union[int, float], str])
+        typing.Tuple
+        &gt;&gt;&gt; _get_base_generic(Callable[..., int])
+        typing.Callable
+        &gt;&gt;&gt; _get_base_generic(Callable[[Union[int, str], float], int])
+        typing.Callable
+        &gt;&gt;&gt; _get_base_generic(Dict)
+        typing.Dict
+        &gt;&gt;&gt; _get_base_generic(Dict[str, str])
+        typing.Dict
+        &gt;&gt;&gt; _get_base_generic(Union)
+        typing.Union
+        &gt;&gt;&gt; _get_base_generic(Union[float, int, str])
+        typing.Union
+        &gt;&gt;&gt; _get_base_generic(Set)
+        typing.Set
+        &gt;&gt;&gt; _get_base_generic(Set[int])
+        typing.Set
+    &#34;&#34;&#34;
+
+    origin = cls.__origin__ if hasattr(cls, &#39;__origin__&#39;) else None
+    name = cls._name if hasattr(cls, &#39;_name&#39;) else None
+
+    if name is not None:
+        return getattr(typing, name)
+    elif origin is not None:
+        return origin
+    return cls
+
+
+def _is_subtype(sub_type: Any, super_type: Any) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import Any, List, Callable, Tuple, Union, Optional, Iterable
+        &gt;&gt;&gt; _is_subtype(float, float)
+        True
+        &gt;&gt;&gt; _is_subtype(int, float)
+        False
+        &gt;&gt;&gt; _is_subtype(float, int)
+        False
+        &gt;&gt;&gt; _is_subtype(int, Any)
+        True
+        &gt;&gt;&gt; _is_subtype(Any, int)
+        False
+        &gt;&gt;&gt; _is_subtype(Any, Any)
+        True
+        &gt;&gt;&gt; _is_subtype(Ellipsis, Ellipsis)
+        True
+        &gt;&gt;&gt; _is_subtype(Tuple[float, str], Tuple[float, str])
+        True
+        &gt;&gt;&gt; _is_subtype(Tuple[float], Tuple[float, str])
+        False
+        &gt;&gt;&gt; _is_subtype(Tuple[float, str], Tuple[str])
+        False
+        &gt;&gt;&gt; _is_subtype(Tuple[float, str], Tuple[Any, ...])
+        True
+        &gt;&gt;&gt; _is_subtype(Tuple[Any, ...], Tuple[float, str])
+        False
+        &gt;&gt;&gt; _is_subtype(Tuple[float, str], Tuple[int, ...])
+        False
+        &gt;&gt;&gt; _is_subtype(Tuple[int, str], Tuple[int, ...])
+        True
+        &gt;&gt;&gt; _is_subtype(Tuple[int, ...], Tuple[int, str])
+        False
+        &gt;&gt;&gt; _is_subtype(Tuple[float, str, bool, int], Tuple[Any, ...])
+        True
+        &gt;&gt;&gt; _is_subtype(int, Union[int, float])
+        True
+        &gt;&gt;&gt; _is_subtype(int, Union[str, float])
+        False
+        &gt;&gt;&gt; _is_subtype(List[int], List[Union[int, float]])
+        True
+        &gt;&gt;&gt; _is_subtype(List[Union[int, float]], List[int])
+        Traceback (most recent call last):
+        ...
+        TypeError: issubclass() arg 1 must be a class
+        &gt;&gt;&gt; class Parent: pass
+        &gt;&gt;&gt; class Child(Parent): pass
+        &gt;&gt;&gt; _is_subtype(List[Child], List[Parent])
+        True
+        &gt;&gt;&gt; _is_subtype(List[Parent], List[Child])
+        False
+        &gt;&gt;&gt; _is_subtype(List[int], Iterable[int])
+        True
+        &gt;&gt;&gt; _is_subtype(Iterable[int], List[int])
+        False
+        &gt;&gt;&gt; class MyClass: pass
+        &gt;&gt;&gt; _is_subtype(MyClass, Union[str, MyClass])
+        True
+    &#34;&#34;&#34;
+
+    python_sub = _get_class_of_type_annotation(sub_type)
+    python_super = _get_class_of_type_annotation(super_type)
+
+    if python_super == typing.Union:
+        type_args = _get_type_arguments(cls=super_type)
+        return sub_type in type_args
+
+    if not _is_generic(sub_type):
+        return issubclass(python_sub, python_super)
+
+    if not issubclass(python_sub, python_super):
+        return False
+
+    if not _is_generic(super_type):
+        return True
+
+    sub_args = _get_type_arguments(cls=sub_type)
+    super_args = _get_type_arguments(cls=super_type)
+
+    if len(sub_args) != len(super_args) and Ellipsis not in sub_args + super_args:
+        return False
+    return all(_is_subtype(sub_type=sub_arg, super_type=super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
+
+
+def _get_class_of_type_annotation(annotation: Any) -&gt; Any:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import Dict, List, Any, Tuple, Callable, Union
+        &gt;&gt;&gt; _get_class_of_type_annotation(int)
+        &lt;class &#39;int&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(Any)
+        &lt;class &#39;object&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(Ellipsis)
+        &lt;class &#39;object&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(Dict)
+        &lt;class &#39;dict&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(Dict[str, int])
+        &lt;class &#39;dict&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(List)
+        &lt;class &#39;list&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(List[int])
+        &lt;class &#39;list&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(Tuple)
+        &lt;class &#39;tuple&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(Tuple[int, int])
+        &lt;class &#39;tuple&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(Callable[[int], int])
+        &lt;class &#39;collections.abc.Callable&#39;&gt;
+        &gt;&gt;&gt; _get_class_of_type_annotation(Callable)
+        &lt;class &#39;collections.abc.Callable&#39;&gt;
+    &#34;&#34;&#34;
+    if annotation in [Any, Ellipsis]:
+        return object
+    elif hasattr(annotation, &#39;__extra__&#39;):
+        return annotation.__extra__
+    elif annotation.__module__ == &#39;typing&#39; and annotation.__origin__ is not None:
+        return annotation.__origin__
+    else:
+        return annotation
+
+
+def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import List, Any, Union
+        &gt;&gt;&gt; _instancecheck_iterable([1.0, -4.2, 5.4], (float,), {})
+        True
+        &gt;&gt;&gt; _instancecheck_iterable([1.0, -4.2, 5], (float,), {})
+        False
+        &gt;&gt;&gt; _instancecheck_iterable([&#39;1.0&#39;, -4.2, 5], (Any,), {})
+        True
+        &gt;&gt;&gt; _instancecheck_iterable([&#39;1.0&#39;, -4.2, 5], (Union[int, float],), {})
+        False
+        &gt;&gt;&gt; _instancecheck_iterable([&#39;1.0&#39;, -4.2, 5], (Union[int, float, str],), {})
+        True
+        &gt;&gt;&gt; _instancecheck_iterable([[], [], [[42]], [[]]], (List[int],), {})
+        False
+        &gt;&gt;&gt; _instancecheck_iterable([[], [], [[42]], [[]]], (List[List[int]],), {})
+        True
+        &gt;&gt;&gt; _instancecheck_iterable([[], [], [[42]], [[]]], (List[List[float]],), {})
+        False
+    &#34;&#34;&#34;
+    type_ = type_args[0]
+    return all(_is_instance(val, type_, type_vars=type_vars) for val in iterable)
+
+
+def _instancecheck_generator(generator: typing.Generator, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
+    from pedantic.models import GeneratorWrapper
+    if isinstance(generator, GeneratorWrapper):
+        return generator._yield_type == type_args[0] and generator._send_type == type_args[1] and generator._return_type == type_args[2]
+
+    return True  # I dont now what to do here
+
+
+def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import Any, Optional
+        &gt;&gt;&gt; _instancecheck_mapping({0: 1, 1: 2, 2: 3}, (int, Any), {})
+        True
+        &gt;&gt;&gt; _instancecheck_mapping({0: 1, 1: 2, 2: 3}, (int, int), {})
+        True
+        &gt;&gt;&gt; _instancecheck_mapping({0: 1, 1: 2, 2: 3.0}, (int, int), {})
+        False
+        &gt;&gt;&gt; _instancecheck_mapping({0: 1, 1.0: 2, 2: 3}, (int, int), {})
+        False
+        &gt;&gt;&gt; _instancecheck_mapping({0: &#39;1&#39;, 1: 2, 2: 3}, (int, int), {})
+        False
+        &gt;&gt;&gt; _instancecheck_mapping({0: 1, 1: 2, None: 3.0}, (int, int), {})
+        False
+        &gt;&gt;&gt; _instancecheck_mapping({0: 1, 1: 2, None: 3.0}, (int, Optional[int]), {})
+        False
+    &#34;&#34;&#34;
+    return _instancecheck_items_view(mapping.items(), type_args, type_vars=type_vars)
+
+
+def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import Any, Optional
+        &gt;&gt;&gt; _instancecheck_items_view({0: 1, 1: 2, 2: 3}.items(), (int, Any), {})
+        True
+        &gt;&gt;&gt; _instancecheck_items_view({0: 1, 1: 2, 2: 3}.items(), (int, int), {})
+        True
+        &gt;&gt;&gt; _instancecheck_items_view({0: 1, 1: 2, 2: 3.0}.items(), (int, int), {})
+        False
+        &gt;&gt;&gt; _instancecheck_items_view({0: 1, 1.0: 2, 2: 3}.items(), (int, int), {})
+        False
+        &gt;&gt;&gt; _instancecheck_items_view({0: &#39;1&#39;, 1: 2, 2: 3}.items(), (int, int), {})
+        False
+        &gt;&gt;&gt; _instancecheck_items_view({0: 1, 1: 2, None: 3.0}.items(), (int, int), {})
+        False
+        &gt;&gt;&gt; _instancecheck_items_view({0: 1, 1: 2, None: 3.0}.items(), (int, Optional[int]), {})
+        False
+    &#34;&#34;&#34;
+    key_type, value_type = type_args
+    return all(_is_instance(obj=key, type_=key_type, type_vars=type_vars) and
+               _is_instance(obj=val, type_=value_type, type_vars=type_vars)
+               for key, val in items_view)
+
+
+def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import Any
+        &gt;&gt;&gt; _instancecheck_tuple(tup=(42.0, 43, &#39;hi&#39;, &#39;you&#39;), type_args=(Any, Ellipsis), type_vars={})
+        True
+        &gt;&gt;&gt; _instancecheck_tuple(tup=(42.0, 43, &#39;hi&#39;, &#39;you&#39;), type_args=(Any,), type_vars={})
+        False
+        &gt;&gt;&gt; _instancecheck_tuple(tup=(42.0, 43, &#39;hi&#39;, &#39;you&#39;), type_args=(float, int, str, str), type_vars={})
+        True
+        &gt;&gt;&gt; _instancecheck_tuple(tup=(42.0, 43, &#39;hi&#39;, &#39;you&#39;), type_args=(float, float, str, str), type_vars={})
+        False
+        &gt;&gt;&gt; _instancecheck_tuple(tup=(42.0, 43, &#39;hi&#39;, &#39;you&#39;), type_args=(float, int, str, int), type_vars={})
+        False
+    &#34;&#34;&#34;
+    if Ellipsis in type_args:
+        return all(_is_instance(obj=val, type_=type_args[0], type_vars=type_vars) for val in tup)
+
+    if tup == () and type_args == ((),):
+        return True
+
+    if len(tup) != len(type_args):
+        return False
+
+    return all(_is_instance(obj=val, type_=type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
+
+
+def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import Union, TypeVar, Any
+        &gt;&gt;&gt; NoneType = type(None)
+        &gt;&gt;&gt; _instancecheck_union(3.0, Union[int, float], {})
+        True
+        &gt;&gt;&gt; _instancecheck_union(3, Union[int, float], {})
+        True
+        &gt;&gt;&gt; _instancecheck_union(&#39;3&#39;, Union[int, float], {})
+        False
+        &gt;&gt;&gt; _instancecheck_union(None, Union[int, NoneType], {})
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, Union[float, NoneType], {})
+        True
+        &gt;&gt;&gt; S = TypeVar(&#39;S&#39;)
+        &gt;&gt;&gt; T = TypeVar(&#39;T&#39;)
+        &gt;&gt;&gt; U = TypeVar(&#39;U&#39;)
+        &gt;&gt;&gt; _instancecheck_union(42, Union[T, NoneType], {})
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, Union[T, NoneType], {})
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, Union[T, NoneType], {T: int})
+        True
+        &gt;&gt;&gt; _instancecheck_union(&#39;None&#39;, Union[T, NoneType], {T: int})
+        False
+        &gt;&gt;&gt; _instancecheck_union(42, Union[T, S], {})
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, Union[T, S], {T: int})
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, Union[T, S], {T: str})
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, Union[T, S], {T: int, S: float})
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, Union[T, S], {T: str, S: float})
+        False
+        &gt;&gt;&gt; _instancecheck_union(42.8, Union[T, S], {T: str, S: float})
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, Union[T, S], {T: str, S: float})
+        False
+        &gt;&gt;&gt; _instancecheck_union(None, Union[T, S], {})
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, Union[T, NoneType], {T: int})
+        True
+        &gt;&gt;&gt; _instancecheck_union(&#39;None&#39;, Union[T, NoneType, S], {T: int})
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, Union[T, Any], {})
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, Union[T, Any], {T: float})
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, Optional[Callable[[float], float]], {})
+        True
+    &#34;&#34;&#34;
+
+    type_args = _get_type_arguments(cls=type_)
+    args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, TypeVar)]
+    args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, TypeVar)]
+    args_type_vars_bounded = [type_var for type_var in args_type_vars if type_var in type_vars]
+    args_type_vars_unbounded = [type_var for type_var in args_type_vars if type_var not in args_type_vars_bounded]
+    matches_non_type_var = any([_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars])
+    if matches_non_type_var:
+        return True
+
+    for bounded_type_var in args_type_vars_bounded:
+        try:
+            _is_instance(obj=value, type_=bounded_type_var, type_vars=type_vars)
+            return True
+        except PedanticException:
+            pass
+
+    if not args_type_vars_unbounded:
+        return False
+    if len(args_type_vars_unbounded) == 1:
+        return _is_instance(obj=value, type_=args_type_vars_unbounded[0], type_vars=type_vars)
+    return True  # it is impossible to figure out, how to bound these type variables correctly
+
+
+def _instancecheck_literal(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
+    type_args = _get_type_arguments(cls=type_)
+    return value in type_args
+
+
+def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; from typing import Tuple, Callable, Any
+        &gt;&gt;&gt; def f(x: int, y: float) -&gt; Tuple[float, str]:
+        ...       return float(x), str(y)
+        &gt;&gt;&gt; _instancecheck_callable(f, Callable[[int, float], Tuple[float, str]], {})
+        True
+        &gt;&gt;&gt; _instancecheck_callable(f, Callable[[int, float], Tuple[int, str]], {})
+        False
+        &gt;&gt;&gt; _instancecheck_callable(f, Callable[[int, int], Tuple[float, str]], {})
+        False
+        &gt;&gt;&gt; _instancecheck_callable(f, Callable[..., Tuple[float, str]], {})
+        True
+        &gt;&gt;&gt; _instancecheck_callable(f, Callable[..., Tuple[int, str]], {})
+        False
+        &gt;&gt;&gt; _instancecheck_callable(f, Callable[..., Any], {})
+        True
+        &gt;&gt;&gt; _instancecheck_callable(f, Callable[[int, int, int], Tuple[float, str]], {})
+        False
+        &gt;&gt;&gt; _instancecheck_callable(None, Callable[..., Any], {})
+        False
+    &#34;&#34;&#34;
+
+    if value is None:
+        return False
+    if _is_lambda(obj=value):
+        return True
+
+    param_types, ret_type = _get_type_arguments(cls=type_)
+    sig = inspect.signature(obj=value)
+    non_optional_params = {k: v for k, v in sig.parameters.items() if v.default == sig.empty}
+
+    if param_types is not Ellipsis:
+        if len(param_types) != len(non_optional_params):
+            return False
+
+        for param, expected_type in zip(sig.parameters.values(), param_types):
+            if not _is_subtype(sub_type=param.annotation, super_type=expected_type):
+                return False
+
+    return _is_subtype(sub_type=sig.return_annotation, super_type=ret_type)
+
+
+def _is_lambda(obj: Any) -&gt; bool:
+    return callable(obj) and obj.__name__ == &#39;&lt;lambda&gt;&#39;
+
+
+def _instancecheck_type(value: Any, type_: Any, type_vars: Dict) -&gt; bool:
+    type_ = type_[0]
+
+    if type_ == Any or isinstance(type_, typing.TypeVar):
+        return True
+
+    return _is_subtype(sub_type=value, super_type=type_)
+
+
+_ORIGIN_TYPE_CHECKERS = {}
+for class_path, _check_func in {
+    &#39;typing.Container&#39;: _instancecheck_iterable,
+    &#39;typing.Collection&#39;: _instancecheck_iterable,
+    &#39;typing.AbstractSet&#39;: _instancecheck_iterable,
+    &#39;typing.MutableSet&#39;: _instancecheck_iterable,
+    &#39;typing.Sequence&#39;: _instancecheck_iterable,
+    &#39;typing.Iterable&#39;: _instancecheck_iterable,
+    &#39;typing.MutableSequence&#39;: _instancecheck_iterable,
+    &#39;typing.ByteString&#39;: _instancecheck_iterable,
+    &#39;typing.Deque&#39;: _instancecheck_iterable,
+    &#39;typing.List&#39;: _instancecheck_iterable,
+    &#39;typing.Set&#39;: _instancecheck_iterable,
+    &#39;typing.FrozenSet&#39;: _instancecheck_iterable,
+    &#39;typing.KeysView&#39;: _instancecheck_iterable,
+    &#39;typing.ValuesView&#39;: _instancecheck_iterable,
+    &#39;typing.AsyncIterable&#39;: _instancecheck_iterable,
+
+    &#39;typing.Mapping&#39;: _instancecheck_mapping,
+    &#39;typing.MutableMapping&#39;: _instancecheck_mapping,
+    &#39;typing.MappingView&#39;: _instancecheck_mapping,
+    &#39;typing.ItemsView&#39;: _instancecheck_items_view,
+    &#39;typing.Dict&#39;: _instancecheck_mapping,
+    &#39;typing.DefaultDict&#39;: _instancecheck_mapping,
+    &#39;typing.Counter&#39;: _instancecheck_mapping,
+    &#39;typing.ChainMap&#39;: _instancecheck_mapping,
+
+    &#39;typing.Tuple&#39;: _instancecheck_tuple,
+    &#39;typing.Type&#39;: _instancecheck_type,
+
+    &#39;typing.Generator&#39;: _instancecheck_generator,
+}.items():
+    class_ = eval(class_path)
+    _ORIGIN_TYPE_CHECKERS[class_] = _check_func
+
+_SPECIAL_INSTANCE_CHECKERS = {
+    &#39;Union&#39;: _instancecheck_union,
+    &#39;Literal&#39;: _instancecheck_literal,
+    &#39;Callable&#39;: _instancecheck_callable,
+    &#39;Any&#39;: lambda v, t, tv: True,
+}
+
+NUM_OF_REQUIRED_TYPE_ARGS_EXACT = {
+    &#39;Callable&#39;: 2,
+    &#39;List&#39;: 1,
+    &#39;Set&#39;: 1,
+    &#39;FrozenSet&#39;: 1,
+    &#39;Iterable&#39;: 1,
+    &#39;Sequence&#39;: 1,
+    &#39;Dict&#39;: 2,
+    &#39;Optional&#39;: 2,  # because _get_type_arguments(Optional[int]) returns (int, None)
+}
+NUM_OF_REQUIRED_TYPE_ARGS_MIN = {
+    &#39;Tuple&#39;: 1,
+    &#39;Union&#39;: 2,
+}
+
+
+if __name__ == &#34;__main__&#34;:
+    import doctest
+    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pedantic.type_checking_logic" href="index.html">pedantic.type_checking_logic</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
