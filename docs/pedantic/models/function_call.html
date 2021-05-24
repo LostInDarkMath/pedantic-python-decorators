@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>pedantic.models.function_call API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -27,12 +27,13 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import inspect
-from typing import Dict, Tuple, Any
+from typing import Dict, Tuple, Any, Union
 
 from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
-from pedantic.check_types import _assert_value_matches_type
+from pedantic.type_checking_logic.check_types import _assert_value_matches_type
 from pedantic.models.decorated_function import DecoratedFunction
+from pedantic.models.generator_wrapper import GeneratorWrapper
 
 
 class FunctionCall:
@@ -90,7 +91,14 @@ class FunctionCall:
         self._check_type_param(params={k: v for k, v in d if not str(v).startswith(&#39;*&#39;)})
         self._check_types_args(params={k: v for k, v in d if str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)})
         self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith(&#39;**&#39;)})
-        return self._check_types_return()
+        return self._check_types_return(result=self._get_return_value())
+
+    async def async_check_types(self) -&gt; ReturnType:
+        d = self.params_without_self.items()
+        self._check_type_param(params={k: v for k, v in d if not str(v).startswith(&#39;*&#39;)})
+        self._check_types_args(params={k: v for k, v in d if str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)})
+        self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith(&#39;**&#39;)})
+        return self._check_types_return(result=await self._async_get_return_value())
 
     def _check_type_param(self, params: Dict[str, inspect.Parameter]) -&gt; None:
         arg_index = 1 if self.func.is_instance_method else 0
@@ -143,17 +151,16 @@ class FunctionCall:
                                        type_vars=self.type_vars,
                                        key=kwarg)
 
-    def _check_types_return(self) -&gt; None:
+    def _check_types_return(self, result: Any) -&gt; Union[None, GeneratorWrapper]:
         if self.func.signature.return_annotation is inspect.Signature.empty:
             raise PedanticTypeCheckException(
                 f&#39;{self.func.err}There should be a type hint for the return type (e.g. None if nothing is returned).&#39;)
 
-        if self.func.is_static_method:
-            result = self.func.func(**self.kwargs)
-        else:
-            result = self.func.func(*self.args, **self.kwargs)
-
         expected_result_type = self.func.annotations[&#39;return&#39;]
+
+        if self.func.is_generator:
+            return GeneratorWrapper(
+                wrapped=result, expected_type=expected_result_type, err_msg=self.func.err, type_vars=self.type_vars)
 
         msg = f&#39;{self.func.err}Type hint of return value is incorrect: Expected type {expected_result_type} &#39; \
               f&#39;but {result} of type {type(result)} was the return value which does not match.&#39;
@@ -166,7 +173,19 @@ class FunctionCall:
 
     def _assert_param_has_type_annotation(self, param: inspect.Parameter):
         if param.annotation == inspect.Parameter.empty:
-            raise PedanticTypeCheckException(f&#39;{self.func.err}Parameter &#34;{param.name}&#34; should have a type hint.&#39;)</code></pre>
+            raise PedanticTypeCheckException(f&#39;{self.func.err}Parameter &#34;{param.name}&#34; should have a type hint.&#39;)
+
+    def _get_return_value(self) -&gt; Any:
+        if self.func.is_static_method:
+            return self.func.func(**self.kwargs)
+        else:
+            return self.func.func(*self.args, **self.kwargs)
+
+    async def _async_get_return_value(self) -&gt; Any:
+        if self.func.is_static_method:
+            return await self.func.func(**self.kwargs)
+        else:
+            return await self.func.func(*self.args, **self.kwargs)</code></pre>
 </details>
 </section>
 <section>
@@ -243,7 +262,14 @@ class FunctionCall:
         self._check_type_param(params={k: v for k, v in d if not str(v).startswith(&#39;*&#39;)})
         self._check_types_args(params={k: v for k, v in d if str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)})
         self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith(&#39;**&#39;)})
-        return self._check_types_return()
+        return self._check_types_return(result=self._get_return_value())
+
+    async def async_check_types(self) -&gt; ReturnType:
+        d = self.params_without_self.items()
+        self._check_type_param(params={k: v for k, v in d if not str(v).startswith(&#39;*&#39;)})
+        self._check_types_args(params={k: v for k, v in d if str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)})
+        self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith(&#39;**&#39;)})
+        return self._check_types_return(result=await self._async_get_return_value())
 
     def _check_type_param(self, params: Dict[str, inspect.Parameter]) -&gt; None:
         arg_index = 1 if self.func.is_instance_method else 0
@@ -296,17 +322,16 @@ class FunctionCall:
                                        type_vars=self.type_vars,
                                        key=kwarg)
 
-    def _check_types_return(self) -&gt; None:
+    def _check_types_return(self, result: Any) -&gt; Union[None, GeneratorWrapper]:
         if self.func.signature.return_annotation is inspect.Signature.empty:
             raise PedanticTypeCheckException(
                 f&#39;{self.func.err}There should be a type hint for the return type (e.g. None if nothing is returned).&#39;)
 
-        if self.func.is_static_method:
-            result = self.func.func(**self.kwargs)
-        else:
-            result = self.func.func(*self.args, **self.kwargs)
-
         expected_result_type = self.func.annotations[&#39;return&#39;]
+
+        if self.func.is_generator:
+            return GeneratorWrapper(
+                wrapped=result, expected_type=expected_result_type, err_msg=self.func.err, type_vars=self.type_vars)
 
         msg = f&#39;{self.func.err}Type hint of return value is incorrect: Expected type {expected_result_type} &#39; \
               f&#39;but {result} of type {type(result)} was the return value which does not match.&#39;
@@ -319,7 +344,19 @@ class FunctionCall:
 
     def _assert_param_has_type_annotation(self, param: inspect.Parameter):
         if param.annotation == inspect.Parameter.empty:
-            raise PedanticTypeCheckException(f&#39;{self.func.err}Parameter &#34;{param.name}&#34; should have a type hint.&#39;)</code></pre>
+            raise PedanticTypeCheckException(f&#39;{self.func.err}Parameter &#34;{param.name}&#34; should have a type hint.&#39;)
+
+    def _get_return_value(self) -&gt; Any:
+        if self.func.is_static_method:
+            return self.func.func(**self.kwargs)
+        else:
+            return self.func.func(*self.args, **self.kwargs)
+
+    async def _async_get_return_value(self) -&gt; Any:
+        if self.func.is_static_method:
+            return await self.func.func(**self.kwargs)
+        else:
+            return await self.func.func(*self.args, **self.kwargs)</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
@@ -399,7 +436,7 @@ def params_without_self(self) -&gt; Dict[str, inspect.Parameter]:
     return self._params_without_self</code></pre>
 </details>
 </dd>
-<dt id="pedantic.models.function_call.FunctionCall.type_vars"><code class="name">var <span class="ident">type_vars</span> : Dict[type, Any]</code></dt>
+<dt id="pedantic.models.function_call.FunctionCall.type_vars"><code class="name">var <span class="ident">type_vars</span> : Dict[TypeVar, Any]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -431,8 +468,25 @@ def type_vars(self) -&gt; Dict[TypeVar, Any]:
             f&#39;{self.func.err}Use kwargs when you call function {self.func.name}. Args: {self.args_without_self}&#39;)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.models.function_call.FunctionCall.async_check_types"><code class="name flex">
+<span>async def <span class="ident">async_check_types</span></span>(<span>self) ‑> ~ReturnType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def async_check_types(self) -&gt; ReturnType:
+    d = self.params_without_self.items()
+    self._check_type_param(params={k: v for k, v in d if not str(v).startswith(&#39;*&#39;)})
+    self._check_types_args(params={k: v for k, v in d if str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)})
+    self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith(&#39;**&#39;)})
+    return self._check_types_return(result=await self._async_get_return_value())</code></pre>
+</details>
+</dd>
 <dt id="pedantic.models.function_call.FunctionCall.check_types"><code class="name flex">
-<span>def <span class="ident">check_types</span></span>(<span>self) ‑> str</span>
+<span>def <span class="ident">check_types</span></span>(<span>self) ‑> ~ReturnType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -445,7 +499,7 @@ def type_vars(self) -&gt; Dict[TypeVar, Any]:
     self._check_type_param(params={k: v for k, v in d if not str(v).startswith(&#39;*&#39;)})
     self._check_types_args(params={k: v for k, v in d if str(v).startswith(&#39;*&#39;) and not str(v).startswith(&#39;**&#39;)})
     self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith(&#39;**&#39;)})
-    return self._check_types_return()</code></pre>
+    return self._check_types_return(result=self._get_return_value())</code></pre>
 </details>
 </dd>
 </dl>
@@ -472,6 +526,7 @@ def type_vars(self) -&gt; Dict[TypeVar, Any]:
 <li><code><a title="pedantic.models.function_call.FunctionCall.args" href="#pedantic.models.function_call.FunctionCall.args">args</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.args_without_self" href="#pedantic.models.function_call.FunctionCall.args_without_self">args_without_self</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.assert_uses_kwargs" href="#pedantic.models.function_call.FunctionCall.assert_uses_kwargs">assert_uses_kwargs</a></code></li>
+<li><code><a title="pedantic.models.function_call.FunctionCall.async_check_types" href="#pedantic.models.function_call.FunctionCall.async_check_types">async_check_types</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.check_types" href="#pedantic.models.function_call.FunctionCall.check_types">check_types</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.func" href="#pedantic.models.function_call.FunctionCall.func">func</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.kwargs" href="#pedantic.models.function_call.FunctionCall.kwargs">kwargs</a></code></li>
@@ -486,7 +541,7 @@ def type_vars(self) -&gt; Dict[TypeVar, Any]:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>

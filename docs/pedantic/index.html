@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.1" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>pedantic API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -28,42 +28,32 @@
 </summary>
 <pre><code class="python">import sys
 
-from pedantic.class_decorators \
-    import pedantic_class, pedantic_class_require_docstring, timer_class, trace_class, for_all_methods
+assert sys.version_info &gt;= (3, 6), f&#39;Pedantic does not work with Python versions below 3.6.&#39;
 
-from pedantic.method_decorators import pedantic, pedantic_require_docstring, trace, timer, \
-    needs_refactoring, dirty, unimplemented, deprecated, validate_args, \
-    require_kwargs, trace_if_returns, does_same_as_function, overrides
+from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, trace, trace_if_returns, \
+    does_same_as_function, deprecated, unimplemented, require_kwargs, validate_args, pedantic, \
+    pedantic_require_docstring, for_all_methods, trace_class, timer_class, pedantic_class, \
+    pedantic_class_require_docstring, Rename, mock
 
-from pedantic.exceptions import NotImplementedException, TooDirtyException
+from pedantic.exceptions import NotImplementedException
 
-from pedantic.unit_tests.tests_main import run_all_tests
+from pedantic.tests.tests_main import run_all_tests
 
-from pedantic.set_envionment_variables import disable_pedantic, enable_pedantic, is_enabled
-
-assert sys.version_info &gt;= (3, 6), f&#39;Pedantic does not work with Python versions below 3.6.&#39;</code></pre>
+from pedantic.env_var_logic import disable_pedantic, enable_pedantic, is_enabled</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="pedantic.check_docstring" href="check_docstring.html">pedantic.check_docstring</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.check_generic_classes" href="check_generic_classes.html">pedantic.check_generic_classes</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.check_types" href="check_types.html">pedantic.check_types</a></code></dt>
-<dd>
-<div class="desc"><p>Idea is taken from: <a href="https://stackoverflow.com/a/55504010/10975692">https://stackoverflow.com/a/55504010/10975692</a></p></div>
-</dd>
-<dt><code class="name"><a title="pedantic.class_decorators" href="class_decorators.html">pedantic.class_decorators</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt><code class="name"><a title="pedantic.constants" href="constants.html">pedantic.constants</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.decorators" href="decorators/index.html">pedantic.decorators</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="pedantic.env_var_logic" href="env_var_logic.html">pedantic.env_var_logic</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -71,7 +61,7 @@ assert sys.version_info &gt;= (3, 6), f&#39;Pedantic does not work with Python v
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.method_decorators" href="method_decorators.html">pedantic.method_decorators</a></code></dt>
+<dt><code class="name"><a title="pedantic.helper_methods" href="helper_methods.html">pedantic.helper_methods</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -79,11 +69,11 @@ assert sys.version_info &gt;= (3, 6), f&#39;Pedantic does not work with Python v
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.set_envionment_variables" href="set_envionment_variables.html">pedantic.set_envionment_variables</a></code></dt>
+<dt><code class="name"><a title="pedantic.tests" href="tests/index.html">pedantic.tests</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="pedantic.unit_tests" href="unit_tests/index.html">pedantic.unit_tests</a></code></dt>
+<dt><code class="name"><a title="pedantic.type_checking_logic" href="type_checking_logic/index.html">pedantic.type_checking_logic</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -104,23 +94,21 @@ assert sys.version_info &gt;= (3, 6), f&#39;Pedantic does not work with Python v
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="pedantic.check_docstring" href="check_docstring.html">pedantic.check_docstring</a></code></li>
-<li><code><a title="pedantic.check_generic_classes" href="check_generic_classes.html">pedantic.check_generic_classes</a></code></li>
-<li><code><a title="pedantic.check_types" href="check_types.html">pedantic.check_types</a></code></li>
-<li><code><a title="pedantic.class_decorators" href="class_decorators.html">pedantic.class_decorators</a></code></li>
 <li><code><a title="pedantic.constants" href="constants.html">pedantic.constants</a></code></li>
+<li><code><a title="pedantic.decorators" href="decorators/index.html">pedantic.decorators</a></code></li>
+<li><code><a title="pedantic.env_var_logic" href="env_var_logic.html">pedantic.env_var_logic</a></code></li>
 <li><code><a title="pedantic.exceptions" href="exceptions.html">pedantic.exceptions</a></code></li>
-<li><code><a title="pedantic.method_decorators" href="method_decorators.html">pedantic.method_decorators</a></code></li>
+<li><code><a title="pedantic.helper_methods" href="helper_methods.html">pedantic.helper_methods</a></code></li>
 <li><code><a title="pedantic.models" href="models/index.html">pedantic.models</a></code></li>
-<li><code><a title="pedantic.set_envionment_variables" href="set_envionment_variables.html">pedantic.set_envionment_variables</a></code></li>
-<li><code><a title="pedantic.unit_tests" href="unit_tests/index.html">pedantic.unit_tests</a></code></li>
+<li><code><a title="pedantic.tests" href="tests/index.html">pedantic.tests</a></code></li>
+<li><code><a title="pedantic.type_checking_logic" href="type_checking_logic/index.html">pedantic.type_checking_logic</a></code></li>
 </ul>
 </li>
 </ul>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>
