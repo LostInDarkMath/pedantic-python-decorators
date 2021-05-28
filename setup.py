@@ -4,6 +4,7 @@ from os import path
 
 def get_content_from_readme(file_name: str = 'README.md') -> str:
     this_directory = path.abspath(path.dirname(__file__))
+
     with open(path.join(this_directory, file_name), encoding='utf-8') as file:
         return file.read()
 
@@ -13,7 +14,7 @@ author = "Willi Sontopski"
 
 setup(
     name="pedantic",
-    version="1.3.0",
+    version="1.3.1",
     python_requires='>=3.6.1',
     packages=find_packages(),
     install_requires=['docstring_parser'],

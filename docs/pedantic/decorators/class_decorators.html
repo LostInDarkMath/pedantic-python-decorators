@@ -120,7 +120,7 @@ def _add_type_var_attr_and_method_to_class(cls: C) -&gt; None:
     setattr(cls, TYPE_VAR_METHOD_NAME, type_vars)
 
 
-def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -&gt; Dict[Any, Any]:  # TODO replace
+def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -&gt; Dict[Any, Any]:
     for key in second:
         if key not in first:
             first[key] = second[key]

@@ -33,7 +33,7 @@ from typing import Any, Callable, Dict
 
 from docstring_parser import parse, Docstring
 
-from pedantic.exceptions import PedanticDocstringException, PedanticTypeCheckException
+from pedantic.exceptions import PedanticTypeCheckException
 
 FUNCTIONS_THAT_REQUIRE_KWARGS = [
     &#39;__new__&#39;, &#39;__init__&#39;, &#39;__str__&#39;, &#39;__del__&#39;, &#39;__int__&#39;, &#39;__float__&#39;, &#39;__complex__&#39;, &#39;__oct__&#39;, &#39;__hex__&#39;,
@@ -52,11 +52,7 @@ class DecoratedFunction:
         self._signature = inspect.signature(func)
         self._err = f&#39;In function {func.__qualname__}:&#39; + &#39;\n&#39;
         self._source: str = inspect.getsource(object=func)
-
-        try:
-            self._docstring = parse(func.__doc__)
-        except (Exception, TypeError) as ex:
-            raise PedanticDocstringException(f&#39;{self.err}Could not parse docstring. Please check syntax. Details: {ex}&#39;)
+        self._docstring = parse(func.__doc__)
 
     @property
     def func(self) -&gt; Callable[..., Any]:
@@ -165,11 +161,7 @@ class DecoratedFunction:
         self._signature = inspect.signature(func)
         self._err = f&#39;In function {func.__qualname__}:&#39; + &#39;\n&#39;
         self._source: str = inspect.getsource(object=func)
-
-        try:
-            self._docstring = parse(func.__doc__)
-        except (Exception, TypeError) as ex:
-            raise PedanticDocstringException(f&#39;{self.err}Could not parse docstring. Please check syntax. Details: {ex}&#39;)
+        self._docstring = parse(func.__doc__)
 
     @property
     def func(self) -&gt; Callable[..., Any]:
