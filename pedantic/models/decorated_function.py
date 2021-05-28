@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict
 
 from docstring_parser import parse, Docstring
 
-from pedantic.exceptions import PedanticDocstringException, PedanticTypeCheckException
+from pedantic.exceptions import PedanticTypeCheckException
 
 FUNCTIONS_THAT_REQUIRE_KWARGS = [
     '__new__', '__init__', '__str__', '__del__', '__int__', '__float__', '__complex__', '__oct__', '__hex__',
@@ -24,11 +24,7 @@ class DecoratedFunction:
         self._signature = inspect.signature(func)
         self._err = f'In function {func.__qualname__}:' + '\n'
         self._source: str = inspect.getsource(object=func)
-
-        try:
-            self._docstring = parse(func.__doc__)
-        except (Exception, TypeError) as ex:
-            raise PedanticDocstringException(f'{self.err}Could not parse docstring. Please check syntax. Details: {ex}')
+        self._docstring = parse(func.__doc__)
 
     @property
     def func(self) -> Callable[..., Any]:

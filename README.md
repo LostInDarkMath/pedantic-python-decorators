@@ -61,25 +61,25 @@ In a nutshell:
 - The documented arguments do not match the argument list or their type annotations.
 
 ## List of all decorators in this package
-- [@count_calls](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.count_calls)
-- [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.deprecated)
-- [@does_same_as_function](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.does_same_as_function)
-- [@for_all_methods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.for_all_methods)
-- [@mock](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.mock)
-- [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.overrides)
-- [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic)
-- [@pedantic_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.pedantic_class)
-- [@pedantic_class_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.pedantic_class_require_docstring)
-- [@pedantic_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic_require_docstring)
-- [@rename_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.rename_kwargs)
-- [@require_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.require_kwargs)
-- [@timer](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.timer)
-- [@timer_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.timer_class)
-- [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.trace)
-- [@trace_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/class_decorators.html#pedantic.class_decorators.trace_class)
-- [@trace_if_returns](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.trace_if_returns)
-- [@unimplemented](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.unimplemented)
-- [@validate_args](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.validate_args)
+- [@count_calls](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_count_calls.html)
+- [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_deprecated.html)
+- [@does_same_as_function](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_does_same_as_function.html)
+- [@for_all_methods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.for_all_methods)
+- [@mock](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_mock.html)
+- [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_overrides.html)
+- [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_pedantic.html#pedantic.decorators.fn_deco_pedantic.pedantic)
+- [@pedantic_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_pedantic.html#pedantic.decorators.fn_deco_pedantic.pedantic_require_docstring)
+- [@pedantic_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.pedantic_class)
+- [@pedantic_class_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.pedantic_class_require_docstring)
+- [@rename_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_rename_kwargs.html)
+- [@require_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_require_kwargs.html)
+- [@timer](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_timer.html)
+- [@timer_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.timer_class)
+- [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_trace.html)
+- [@trace_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.trace_class)
+- [@trace_if_returns](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_trace_if_returns.html)
+- [@unimplemented](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_unimplemented.html)
+- [@validate_args](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate_args.html)
 
 ## Dependencies
 Outside the Python standard library, the following dependencies are used:
@@ -100,7 +100,7 @@ You can disable `pedantic` by set an environment variable:
 ```
 export ENABLE_PEDANTIC=0
 ```
-You can also disable or enable the environment variables in your Python project by calling a method:
+You can also disable or enable the environment variables in your project by calling a method:
 ```python
 from pedantic import enable_pedantic, disable_pedantic
 enable_pedantic()

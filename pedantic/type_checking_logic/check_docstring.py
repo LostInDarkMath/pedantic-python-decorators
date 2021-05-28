@@ -1,4 +1,4 @@
-from typing import *  # necessary for eval
+from typing import *  # necessary for eval()
 
 from pedantic.type_checking_logic.check_types import _get_type_arguments
 from pedantic.exceptions import PedanticDocstringException

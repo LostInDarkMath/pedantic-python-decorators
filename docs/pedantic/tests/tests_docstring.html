@@ -418,19 +418,18 @@ class TestRequireDocstringGoogleFormat(TestCase):
                 pass
 
     def test_exception_in_docstring_parser(self):
-        with self.assertRaises(expected_exception=PedanticDocstringException):
-            @pedantic_class
-            class Foo:
-                def func(self, b: str) -&gt; str:
-                    &#34;&#34;&#34;
-                    Function with docstring syntax error below.
-                    Args:
-                        b (str):
-                        simple string
-                    Returns:
-                        str: simple string
-                    &#34;&#34;&#34;
-                    return b
+        @pedantic_class
+        class Foo:
+            def func(self, b: str) -&gt; str:
+                &#34;&#34;&#34;
+                Function with docstring syntax error below.
+                Args:
+                    b (str):
+                    simple string
+                Returns:
+                    str: simple string
+                &#34;&#34;&#34;
+                return b
 
     def test_user_class(self):
         class BPMNEnum:
@@ -940,19 +939,18 @@ not have a method with the specified name.</p></div>
                 pass
 
     def test_exception_in_docstring_parser(self):
-        with self.assertRaises(expected_exception=PedanticDocstringException):
-            @pedantic_class
-            class Foo:
-                def func(self, b: str) -&gt; str:
-                    &#34;&#34;&#34;
-                    Function with docstring syntax error below.
-                    Args:
-                        b (str):
-                        simple string
-                    Returns:
-                        str: simple string
-                    &#34;&#34;&#34;
-                    return b
+        @pedantic_class
+        class Foo:
+            def func(self, b: str) -&gt; str:
+                &#34;&#34;&#34;
+                Function with docstring syntax error below.
+                Args:
+                    b (str):
+                    simple string
+                Returns:
+                    str: simple string
+                &#34;&#34;&#34;
+                return b
 
     def test_user_class(self):
         class BPMNEnum:
@@ -1085,19 +1083,18 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_exception_in_docstring_parser(self):
-    with self.assertRaises(expected_exception=PedanticDocstringException):
-        @pedantic_class
-        class Foo:
-            def func(self, b: str) -&gt; str:
-                &#34;&#34;&#34;
-                Function with docstring syntax error below.
-                Args:
-                    b (str):
-                    simple string
-                Returns:
-                    str: simple string
-                &#34;&#34;&#34;
-                return b</code></pre>
+    @pedantic_class
+    class Foo:
+        def func(self, b: str) -&gt; str:
+            &#34;&#34;&#34;
+            Function with docstring syntax error below.
+            Args:
+                b (str):
+                simple string
+            Returns:
+                str: simple string
+            &#34;&#34;&#34;
+            return b</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.tests_docstring.TestRequireDocstringGoogleFormat.test_factory"><code class="name flex">
