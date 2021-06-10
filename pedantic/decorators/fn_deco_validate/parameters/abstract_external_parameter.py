@@ -8,4 +8,3 @@ class ExternalParameter(Parameter, ABC):
     @abstractmethod
     def load_value(self) -> Any:
         """Loads a value and returns it."""
-        pass

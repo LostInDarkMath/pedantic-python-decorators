@@ -1,0 +1,136 @@
+import json
+from unittest import TestCase
+
+from flask import Flask, Response, jsonify
+
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
+from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter
+from pedantic.decorators.fn_deco_validate.validators import NotEmpty
+
+
+JSON = 'application/json'
+OK = 200
+INVALID = 422
+
+
+class TestFlaskParameters(TestCase):
+    def test_validator_flask_json(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(
+            FlaskJsonParameter(name='key', validators=[NotEmpty()]),
+        )
+        def hello_world(
+                key: str,
+        ) -> Response:
+            return jsonify(key)
+
+        @app.route('/required')
+        @validate(
+            FlaskJsonParameter(name='required', required=True),
+            FlaskJsonParameter(name='not_required', required=False),
+            FlaskJsonParameter(name='not_required_with_default', required=False, default=42),
+        )
+        def required_params(required, not_required, not_required_with_default) -> Response:
+            return jsonify({
+                'required': required,
+                'not_required': not_required,
+                'not_required_with_default': not_required_with_default,
+            })
+
+        @app.route('/types')
+        @validate(
+            FlaskJsonParameter(name='bool_param', value_type=bool),
+            FlaskJsonParameter(name='int_param', value_type=int),
+            FlaskJsonParameter(name='float_param', value_type=float),
+            FlaskJsonParameter(name='str_param', value_type=str),
+            FlaskJsonParameter(name='list_param', value_type=list),
+            FlaskJsonParameter(name='dict_param', value_type=dict),
+        )
+        def different_types(
+                bool_param,
+                int_param,
+                float_param,
+                str_param,
+                list_param,
+                dict_param,
+        ) -> Response:
+            return jsonify({
+                'bool_param': bool_param,
+                'int_param': int_param,
+                'float_param': float_param,
+                'str_param': str_param,
+                'list_param': list_param,
+                'dict_param': dict_param,
+            })
+
+        @app.route('/args')
+        @validate(
+            FlaskJsonParameter(name='a', validators=[NotEmpty()]),
+            FlaskJsonParameter(name='b', validators=[NotEmpty()]),
+            return_as=ReturnAs.ARGS,
+        )
+        def names_do_not_need_to_match(my_key: str, another: str) -> Response:
+            return jsonify({
+                'my_key': my_key,
+                'another': another,
+            })
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get('/', data=json.dumps({'key': '  hello world  '}), content_type=JSON)
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('hello world', res.json)
+
+            res = client.get('/', data=json.dumps({'key': '  '}), content_type=JSON)
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                'rule': 'NotEmpty',
+                'value': '  ',
+                'message': 'Got empty String which is invalid.',
+            }
+            self.assertEqual(expected, res.json)
+
+            data = {  # TODO
+                'key': '  hello world  ',
+                'required': '1',
+            }
+            res = client.get('/', data=json.dumps(data), content_type=JSON)
+            self.assertEqual(OK, res.status_code)
+
+    def test_validator_flask_form_data(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskFormParameter(name='key', validators=[NotEmpty()]))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get('/', data={'key': '  hello world  '})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('hello world', res.json)
+
+            res = client.get('/', data={'key': '  '})
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                'rule': 'NotEmpty',
+                'value': '  ',
+                'message': 'Got empty String which is invalid.',
+            }
+            self.assertEqual(expected, res.json)

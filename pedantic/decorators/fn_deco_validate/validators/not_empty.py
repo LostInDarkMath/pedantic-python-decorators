@@ -19,13 +19,13 @@ class NotEmpty(Validator):
 
         if isinstance(value, str):
             if not value.strip():
-                raise ValidationError(validator_name=self.name, value=value, message=f'Got empty String which is invalid.')
+                raise ValidationError(f'Got empty String which is invalid.')
 
             return value.strip() if self.strip else value
-        elif isinstance(value, collections.Sequence):
+        elif isinstance(value, collections.abc.Sequence):
             if len(value) == 0:
-                raise ValidationError(validator_name=self.name, value=value, message=f'Got empty  which is invalid.')
+                raise ValidationError(f'Got empty  which is invalid.')
 
             return value
 
-        raise ValidationError(validator_name=self.name, value=value, message=f'Got {type(value)} which is not a Sequence.')
+        raise ValidationError(f'Got {type(value)} which is not a Sequence.')

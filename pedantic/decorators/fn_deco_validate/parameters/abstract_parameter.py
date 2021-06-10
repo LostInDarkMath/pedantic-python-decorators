@@ -13,15 +13,13 @@ class Parameter:
         """ Apply all validators to the given value and collect all ValidationErrors. """
 
         result_value = value
-        errors = []
 
         for validator in self.validators:
             try:
                 result_value = validator.validate(value=result_value)
             except ValidationError as e:
-                errors.append(e)
-
-        if errors:
-            raise ValidationError(errors=errors)
+                e.validator_name = validator.name
+                e.value = value
+                raise e
 
         return result_value

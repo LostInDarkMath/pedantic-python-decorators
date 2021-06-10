@@ -9,7 +9,6 @@ class Validator(ABC):
             Validates and convert the value.
             Raises an ValidationError in case of an invalid value.
         """
-        pass
 
     @property
     def name(self) -> str:

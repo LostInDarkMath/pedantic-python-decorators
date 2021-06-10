@@ -7,12 +7,18 @@ from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
 class IsEnum(Validator):
-    def __init__(self, enum: EnumMeta) -> None:
+    def __init__(self, enum: EnumMeta, convert: bool = True) -> None:
         self._enum = enum
+        self._convert = convert
 
     @overrides(Validator)
     def validate(self, value: Any) -> Any:
         try:
-            return self._enum(value)
+            enum_value = self._enum(value)
         except (ValueError, TypeError):
             raise ValidationError(f'Incorrect value {value} for enum {self._enum}.')
+
+        if self._convert:
+            return enum_value
+
+        return value
