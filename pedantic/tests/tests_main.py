@@ -2,6 +2,8 @@ import unittest
 import sys
 import os
 
+sys.path.append(os.getcwd())
+
 from pedantic.tests.test_rename_kwargs import TestRenameKwargs
 from pedantic.tests.validate.test_datetime_isoformat import TestValidatorDatetimeIsoformat
 from pedantic.tests.validate.test_flask_parameters import TestFlaskParameters
@@ -20,9 +22,6 @@ from pedantic.tests.validate.test_validator_min import TestValidatorMin
 from pedantic.tests.validate.test_validator_min_length import TestValidatorMinLength
 from pedantic.tests.validate.test_validator_not_empty import TestValidatorNotEmpty
 from pedantic.tests.validate.test_validator_not_none import TestValidatorNotNone
-
-sys.path.append(os.getcwd())
-
 from pedantic.tests.test_generator_wrapper import TestGeneratorWrapper
 from pedantic.tests.tests_mock import TestMock
 from pedantic.tests.tests_doctests import get_doctest_test_suite

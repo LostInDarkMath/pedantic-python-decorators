@@ -13,4 +13,6 @@ from pedantic.tests.tests_main import run_all_tests
 
 from pedantic.env_var_logic import disable_pedantic, enable_pedantic, is_enabled
 
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, Parameter
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ValidationError
+from pedantic.decorators.fn_deco_validate.parameters import *
+from pedantic.decorators.fn_deco_validate.validators import *
