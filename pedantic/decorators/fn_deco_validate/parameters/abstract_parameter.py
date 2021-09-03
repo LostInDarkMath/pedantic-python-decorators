@@ -23,3 +23,6 @@ class Parameter:
                 raise e
 
         return result_value
+
+    def __str__(self) -> str:
+        return self.__class__.__name__ + ' name=' + self.name

@@ -1,7 +1,7 @@
 import inspect
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable
+from typing import Any, Callable, List
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalParameter
@@ -32,13 +32,13 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
         def wrapper(*args, **kwargs) -> Any:
             result = {}
             parameter_dict = {parameter.name: parameter for parameter in parameters}
-            used_parameters = []
+            used_parameter_names: List[str] = []
 
             for k, v in kwargs.items():
                 if k in parameter_dict:
                     parameter = parameter_dict[k]
                     result[k] = parameter.validate(value=v)
-                    used_parameters.append(parameter.name)
+                    used_parameter_names.append(parameter.name)
                 else:
                     if strict:
                         raise ValidationError(f'Got more arguments expected: No parameter found for argument {k}')
@@ -46,6 +46,8 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                         result[k] = v
 
             signature = inspect.signature(func)
+            wants_args = '*args' in str(signature)
+            wants_kwargs = '**kwargs' in str(signature)
 
             try:
                 bound_args = signature.bind_partial(*args).arguments
@@ -53,17 +55,27 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                 raise ValidationError(message=str(ex))
 
             for k in bound_args:
-                if k in parameter_dict:
+                if k == 'args' and wants_args:
+                    for parameter in parameters:
+                        i = 0
+
+                        if parameter in used_parameter_names:
+                            continue
+
+                        result[parameter.name] = parameter.validate(args[i])
+                        used_parameter_names.append(parameter.name)
+                        i += 1
+                elif k in parameter_dict:
                     parameter = parameter_dict[k]
                     result[k] = parameter.validate(value=bound_args[k])
-                    used_parameters.append(parameter.name)
+                    used_parameter_names.append(parameter.name)
                 else:
                     if strict and k != 'self':
                         raise ValidationError(f'Got more arguments expected: No parameter found for argument {k}')
                     else:
                         result[k] = bound_args[k]
 
-            unused_parameters = [parameter for parameter in parameters if parameter.name not in used_parameters]
+            unused_parameters = [parameter for parameter in parameters if parameter.name not in used_parameter_names]
 
             for parameter in unused_parameters:
                 if not isinstance(parameter, ExternalParameter):

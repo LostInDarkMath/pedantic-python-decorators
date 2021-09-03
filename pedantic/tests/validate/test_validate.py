@@ -217,5 +217,27 @@ class TestValidate(TestCase):
         def bar(*args, **kwargs):
             return args, kwargs
 
-        self.assertEqual(42, bar(42))
-        self.assertEqual(42, bar(x=42))
+        self.assertEqual(((42,), {}), bar(42))
+        self.assertEqual(((42,), {}), bar(x=42))
+
+    def test_return_as_kwargs(self) -> None:
+        @validate(Parameter(name='x'), return_as=ReturnAs.KWARGS)
+        def bar(*args, **kwargs):
+            return args, kwargs
+
+        self.assertEqual(((), {'x': 42}), bar(42))
+        self.assertEqual(((), {'x': 42}), bar(x=42))
+
+    def test_return_as_args_advanced(self) -> None:
+        @validate(
+            Parameter(name='a'),
+            Parameter(name='b'),
+            Parameter(name='c'),
+            return_as=ReturnAs.ARGS,
+        )
+        def bar(a, b, *args, **kwargs):
+            return a, b, args, kwargs
+
+        # bar(a=1, b=3, c=42)
+        bar(1, 3, 4)
+        # bar(1, 3, c=4)
