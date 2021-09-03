@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
 from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, NotNone
 
@@ -171,3 +171,51 @@ class TestValidate(TestCase):
 
         with self.assertRaises(expected_exception=ValidationError):
             bar(42, 43)
+
+    def test_unexpected_parameter_strict(self) -> None:
+        @validate(Parameter(name='y'))
+        def bar(x):
+            return x
+
+        with self.assertRaises(expected_exception=ValidationError):
+            bar(42)
+        with self.assertRaises(expected_exception=ValidationError):
+            bar(x=42)
+
+    def test_unexpected_parameter_not_strict(self) -> None:
+        @validate(Parameter(name='y'), strict=False)
+        def bar(x):
+            return x
+
+        with self.assertRaises(expected_exception=ValidationError):
+            self.assertEqual(42, bar(42))
+
+        with self.assertRaises(expected_exception=ValidationError):
+            self.assertEqual(42, bar(x=42))
+
+    def test_unexpected_parameter_not_strict_external(self) -> None:
+        @validate(EnvironmentVariableParameter(name='foo'))
+        def bar(x):
+            return x
+
+        with self.assertRaises(expected_exception=ValidationError):
+            self.assertEqual(42, bar(42))
+
+        with self.assertRaises(expected_exception=ValidationError):
+            self.assertEqual(42, bar(x=42))
+
+    def test_return_as_simple(self) -> None:
+        @validate(Parameter(name='x'), return_as=ReturnAs.ARGS)
+        def bar(x):
+            return x
+
+        self.assertEqual(42, bar(42))
+        self.assertEqual(42, bar(x=42))
+
+    def test_return_as_args(self) -> None:
+        @validate(Parameter(name='x'), return_as=ReturnAs.ARGS)
+        def bar(*args, **kwargs):
+            return args, kwargs
+
+        self.assertEqual(42, bar(42))
+        self.assertEqual(42, bar(x=42))

@@ -45,8 +45,10 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                     else:
                         result[k] = v
 
+            signature = inspect.signature(func)
+
             try:
-                bound_args = inspect.signature(func).bind_partial(*args).arguments
+                bound_args = signature.bind_partial(*args).arguments
             except TypeError as ex:
                 raise ValidationError(message=str(ex))
 
@@ -76,6 +78,6 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                 else:
                     return func(**result)
             else:
-                return func(*result.values())  # TODO bug
+                return func(*result.values())
         return wrapper
     return validator
