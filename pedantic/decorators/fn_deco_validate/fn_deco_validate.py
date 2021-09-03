@@ -47,7 +47,7 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
 
             signature = inspect.signature(func)
             wants_args = '*args' in str(signature)
-            wants_kwargs = '**kwargs' in str(signature)
+            used_args = []
 
             try:
                 bound_args = signature.bind_partial(*args).arguments
@@ -56,19 +56,18 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
 
             for k in bound_args:
                 if k == 'args' and wants_args:
-                    for parameter in parameters:
-                        i = 0
-
-                        if parameter in used_parameter_names:
-                            continue
-
-                        result[parameter.name] = parameter.validate(args[i])
+                    for arg, parameter in zip(
+                            [a for a in args if a not in used_args],
+                            [p for p in parameters if p.name not in used_parameter_names]
+                    ):
+                        print(f'Validate value {arg} with {parameter}')
+                        result[parameter.name] = parameter.validate(arg)
                         used_parameter_names.append(parameter.name)
-                        i += 1
                 elif k in parameter_dict:
                     parameter = parameter_dict[k]
                     result[k] = parameter.validate(value=bound_args[k])
                     used_parameter_names.append(parameter.name)
+                    used_args.append(bound_args[k])
                 else:
                     if strict and k != 'self':
                         raise ValidationError(f'Got more arguments expected: No parameter found for argument {k}')

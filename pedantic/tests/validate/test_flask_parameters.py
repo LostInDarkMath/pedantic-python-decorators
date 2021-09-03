@@ -100,7 +100,7 @@ class TestFlaskParameters(TestCase):
             }
             self.assertEqual(expected, res.json)
 
-            data = {  # TODO
+            data = {
                 'key': '  hello world  ',
                 'required': '1',
             }

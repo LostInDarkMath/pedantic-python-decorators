@@ -238,6 +238,33 @@ class TestValidate(TestCase):
         def bar(a, b, *args, **kwargs):
             return a, b, args, kwargs
 
-        # bar(a=1, b=3, c=42)
+        bar(a=1, b=3, c=42)
         bar(1, 3, 4)
-        # bar(1, 3, c=4)
+        bar(1, 3, c=4)
+
+    def test_return_as_args_advanced_different_order(self) -> None:
+        @validate(
+            Parameter(name='c'),
+            Parameter(name='a'),
+            Parameter(name='b'),
+            return_as=ReturnAs.ARGS,
+        )
+        def bar(a, b, *args, **kwargs):
+            return a, b, args, kwargs
+
+        self.assertEqual((1, 3, (42,), {}), bar(a=1, b=3, c=42))
+        self.assertEqual((1, 3, (42,), {}), bar(1, 3, 42))
+        self.assertEqual((42, 1, (3,), {}), bar(1, 3, c=42))
+
+    def test_return_multiple_args(self) -> None:
+        @validate(
+            Parameter(name='c'),
+            Parameter(name='a'),
+            Parameter(name='b'),
+        )
+        def bar(*args, **kwargs):
+            return args, kwargs
+
+        self.assertEqual(((), {'a': 1, 'b': 3, 'c': 42}), bar(a=1, b=3, c=42))
+        self.assertEqual(((), {'a': 3, 'b': 42, 'c': 1}), bar(1, 3, 42))
+        self.assertEqual(((), {'a': 1, 'b': 3, 'c': 42}), bar(1, 3, c=42))
