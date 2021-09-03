@@ -72,6 +72,26 @@ class TestValidate(TestCase):
         with self.assertRaises(expected_exception=ValidationError):
             m.some_calculation(-42)
 
+    def test_validate_static_method(self):
+        """ The @staticmethod decorator have to be ABOVE the @validate decorator. """
+
+        class MyClass:
+            @staticmethod
+            @validate(
+                Parameter(name='x', validators=[Min(1)]),
+            )
+            def some_calculation(x: int) -> int:
+                return x
+
+        m = MyClass()
+        m.some_calculation(1)
+        m.some_calculation(42)
+
+        with self.assertRaises(expected_exception=ValidationError):
+            m.some_calculation(0)
+        with self.assertRaises(expected_exception=ValidationError):
+            m.some_calculation(-42)
+
     def test_less_parameter_than_arguments(self):
         @validate(
             Parameter(name='b', validators=[NotNone()]),
@@ -140,4 +160,14 @@ class TestValidate(TestCase):
         os.environ['foo'] = '42'
         self.assertEqual(('42', 3), bar(footer=3))
 
+    def test_too_many_arguments(self) -> None:
+        @validate(
+            Parameter(name='x'),
+        )
+        def bar(x):
+            return x
 
+        self.assertEqual(42, bar(42))
+
+        with self.assertRaises(expected_exception=ValidationError):
+            bar(42, 43)

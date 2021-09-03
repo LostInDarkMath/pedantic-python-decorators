@@ -79,7 +79,7 @@ In a nutshell:
 - [@trace_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.trace_class)
 - [@trace_if_returns](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_trace_if_returns.html)
 - [@unimplemented](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_unimplemented.html)
-- [@validate_args](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate_args.html)
+- [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate_args.html)
 
 ## Dependencies
 Outside the Python standard library, the following dependencies are used:

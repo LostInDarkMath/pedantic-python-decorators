@@ -45,7 +45,10 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                     else:
                         result[k] = v
 
-            bound_args = inspect.signature(func).bind_partial(*args).arguments
+            try:
+                bound_args = inspect.signature(func).bind_partial(*args).arguments
+            except TypeError as ex:
+                raise ValidationError(message=str(ex))
 
             for k in bound_args:
                 if k in parameter_dict:

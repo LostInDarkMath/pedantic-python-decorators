@@ -3,7 +3,7 @@ from typing import Any, Type, List, Dict
 
 from flask import request
 
-from pedantic import overrides
+from pedantic import overrides, Parameter
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter
 from pedantic.decorators.fn_deco_validate.validators import Validator
@@ -28,8 +28,8 @@ class FlaskParameter(ExternalParameter, ABC):
         self._default = default
 
     @abstractmethod
-    def get_dict(self) -> Dict:
-        pass
+    def get_dict(self) -> Dict[str, Any]:
+        """ Returns the actual values as a dictionary. """
 
     @overrides(ExternalParameter)
     def load_value(self) -> Any:
@@ -40,6 +40,7 @@ class FlaskParameter(ExternalParameter, ABC):
 
     def _load_value(self) -> Any:
         dict_ = self.get_dict()
+
         if self.name in dict_ and dict_[self.name] is not None:
             return dict_[self.name]
 
@@ -64,10 +65,11 @@ class FlaskFormParameter(FlaskParameter):
         return request.form
 
 
-class FlaskPathParameter(FlaskParameter):
-    @overrides(FlaskParameter)
-    def get_dict(self) -> Dict:
-        return request.path
+class FlaskPathParameter(Parameter):
+    """
+    This is a special case because Flask passes path parameter as kwargs to validate().
+    Therefore, this doesn't need to be an ExternalParameter.
+    """
 
 
 class FlaskGetParameter(FlaskParameter):
@@ -79,4 +81,4 @@ class FlaskGetParameter(FlaskParameter):
 class FlaskHeaderParameter(FlaskParameter):
     @overrides(FlaskParameter)
     def get_dict(self) -> Dict:
-        return request.view_args
+        return request.headers

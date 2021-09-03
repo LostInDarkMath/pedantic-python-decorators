@@ -61,3 +61,9 @@ class TestParameterEnvironmentVariable(TestCase):
 
         with self.assertRaises(expected_exception=ValidationError):
             bar()
+
+    def test_invalid_value_type(self) -> None:
+        with self.assertRaises(expected_exception=AssertionError):
+            @validate(EnvironmentVariableParameter(name='foo', value_type=dict))
+            def bar(foo):
+                return foo

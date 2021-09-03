@@ -5,7 +5,8 @@ from flask import Flask, Response, jsonify
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
-from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter
+from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
+    FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
 from pedantic.decorators.fn_deco_validate.validators import NotEmpty
 
 
@@ -134,3 +135,162 @@ class TestFlaskParameters(TestCase):
                 'message': 'Got empty String which is invalid.',
             }
             self.assertEqual(expected, res.json)
+
+    def test_validator_flask_header(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskHeaderParameter(name='key', validators=[NotEmpty()]))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get('/', headers={'key': '  hello world  '}, data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('hello world', res.json)
+
+            res = client.get('/', headers={'key': '  '}, data={})
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                'rule': 'NotEmpty',
+                'value': '  ',
+                'message': 'Got empty String which is invalid.',
+            }
+            self.assertEqual(expected, res.json)
+
+    def test_validator_flask_get(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskGetParameter(name='key', validators=[NotEmpty()]))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get('/?key=hello_world', data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('hello_world', res.json)
+
+            res = client.get('/?key=hello world', data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('hello world', res.json)
+
+            res = client.get('/?key= ', data={})
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                'rule': 'NotEmpty',
+                'value': ' ',
+                'message': 'Got empty String which is invalid.',
+            }
+            self.assertEqual(expected, res.json)
+
+    def test_validator_flask_path(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/<string:key>')
+        @validate(FlaskPathParameter(name='key', validators=[NotEmpty()]))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get('/hello_world', data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('hello_world', res.json)
+
+            res = client.get('/hello world', data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('hello world', res.json)
+
+            res = client.get('/   ', data={})
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                'rule': 'NotEmpty',
+                'value': '   ',
+                'message': 'Got empty String which is invalid.',
+            }
+            self.assertEqual(expected, res.json)
+
+    def test_invalid_value_type(self) -> None:
+        app = Flask(__name__)
+
+        with self.assertRaises(expected_exception=AssertionError):
+            @app.route('/')
+            @validate(FlaskFormParameter(name='key', value_type=tuple))
+            def hello_world(key: str) -> Response:
+                return jsonify(key)
+
+    def test_wrong_name(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskFormParameter(name='k', value_type=str))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get(data={'key': 'k'})
+            self.assertEqual(INVALID, res.status_code)
+            expected = {'message': 'Value for key k is required.', 'rule': '', 'value': 'None'}
+            self.assertEqual(expected, res.json)
+
+    def test_default_value(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskFormParameter(name='key', value_type=str, default='42'))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get(data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('42', res.json)
+
+    def test_not_required_allows_none(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskFormParameter(name='key', value_type=str, required=False))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        with app.test_client() as client:
+            res = client.get(data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual(None, res.json)
+
