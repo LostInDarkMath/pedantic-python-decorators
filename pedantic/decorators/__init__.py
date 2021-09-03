@@ -10,6 +10,5 @@ from .fn_deco_timer import timer
 from .fn_deco_trace import trace
 from .fn_deco_trace_if_returns import trace_if_returns
 from .fn_deco_unimplemented import unimplemented
-from .fn_deco_validate_args import validate_args
 from .class_decorators import pedantic_class, pedantic_class_require_docstring, timer_class, trace_class, \
     for_all_methods

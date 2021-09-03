@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pedantic.tests.tests_small_method_decorators API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -31,11 +31,10 @@ import warnings
 
 from pedantic.exceptions import NotImplementedException, PedanticOverrideException
 from pedantic import overrides, timer, count_calls, trace, trace_if_returns, does_same_as_function, deprecated, \
-    unimplemented, validate_args
+    unimplemented
 
 
 class TestSmallDecoratorMethods(unittest.TestCase):
-
     def test_overrides_parent_has_no_such_method(self):
         class MyClassA:
             pass
@@ -126,53 +125,6 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             return str(i)
 
         operation(42)
-
-    def test_validate_args(self):
-        @validate_args(lambda x: (x &gt; 42, f&#39;Each arg should be &gt; 42, but it was {x}.&#39;))
-        def some_calculation(a, b, c):
-            return a + b + c
-
-        some_calculation(43, 45, 50)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(30, 40, 50)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(c=30, a=40, b=50)
-
-    def test_validate_args_instance_method(self):
-        class MyClass:
-            @validate_args(lambda x: (x &gt; 0, f&#39;Argument should be greater then 0, but it was {x}.&#39;))
-            def some_calculation(self, x: int) -&gt; int:
-                return x
-
-        m = MyClass()
-        m.some_calculation(1)
-        m.some_calculation(42)
-        with self.assertRaises(expected_exception=AssertionError):
-            m.some_calculation(0)
-        with self.assertRaises(expected_exception=AssertionError):
-            m.some_calculation(-42)
-
-    def test_require_not_none(self):
-        @validate_args(lambda x: x is not None)
-        def some_calculation(a, b, c):
-            return a + b + c
-
-        some_calculation(43, 0, -50)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(30, None, 50)
-
-    def test_require_not_empty_strings(self):
-        @validate_args(lambda x: x is not None and isinstance(x, str) and x.strip() != &#39;&#39;)
-        def some_calculation(a, b, c):
-            return a + b + c
-
-        some_calculation(&#39;Hello&#39;, &#39;My&#39;, &#39;World   !&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(&#39;Hello&#39;, &#39;   &#39;, &#39;World&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(&#39;Hello&#39;, 4, &#39;World&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(&#39;Hello&#39;, &#39;4&#39;, None)
 
     def test_trace(self):
         def some_method(x, y):
@@ -258,7 +210,6 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TestSmallDecoratorMethods(unittest.TestCase):
-
     def test_overrides_parent_has_no_such_method(self):
         class MyClassA:
             pass
@@ -349,53 +300,6 @@ not have a method with the specified name.</p></div>
             return str(i)
 
         operation(42)
-
-    def test_validate_args(self):
-        @validate_args(lambda x: (x &gt; 42, f&#39;Each arg should be &gt; 42, but it was {x}.&#39;))
-        def some_calculation(a, b, c):
-            return a + b + c
-
-        some_calculation(43, 45, 50)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(30, 40, 50)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(c=30, a=40, b=50)
-
-    def test_validate_args_instance_method(self):
-        class MyClass:
-            @validate_args(lambda x: (x &gt; 0, f&#39;Argument should be greater then 0, but it was {x}.&#39;))
-            def some_calculation(self, x: int) -&gt; int:
-                return x
-
-        m = MyClass()
-        m.some_calculation(1)
-        m.some_calculation(42)
-        with self.assertRaises(expected_exception=AssertionError):
-            m.some_calculation(0)
-        with self.assertRaises(expected_exception=AssertionError):
-            m.some_calculation(-42)
-
-    def test_require_not_none(self):
-        @validate_args(lambda x: x is not None)
-        def some_calculation(a, b, c):
-            return a + b + c
-
-        some_calculation(43, 0, -50)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(30, None, 50)
-
-    def test_require_not_empty_strings(self):
-        @validate_args(lambda x: x is not None and isinstance(x, str) and x.strip() != &#39;&#39;)
-        def some_calculation(a, b, c):
-            return a + b + c
-
-        some_calculation(&#39;Hello&#39;, &#39;My&#39;, &#39;World   !&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(&#39;Hello&#39;, &#39;   &#39;, &#39;World&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(&#39;Hello&#39;, 4, &#39;World&#39;)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(&#39;Hello&#39;, &#39;4&#39;, None)
 
     def test_trace(self):
         def some_method(x, y):
@@ -628,48 +532,6 @@ not have a method with the specified name.</p></div>
     self.assertEqual(MyClassB.operation(), 42)</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_require_not_empty_strings"><code class="name flex">
-<span>def <span class="ident">test_require_not_empty_strings</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_require_not_empty_strings(self):
-    @validate_args(lambda x: x is not None and isinstance(x, str) and x.strip() != &#39;&#39;)
-    def some_calculation(a, b, c):
-        return a + b + c
-
-    some_calculation(&#39;Hello&#39;, &#39;My&#39;, &#39;World   !&#39;)
-    with self.assertRaises(expected_exception=AssertionError):
-        some_calculation(&#39;Hello&#39;, &#39;   &#39;, &#39;World&#39;)
-    with self.assertRaises(expected_exception=AssertionError):
-        some_calculation(&#39;Hello&#39;, 4, &#39;World&#39;)
-    with self.assertRaises(expected_exception=AssertionError):
-        some_calculation(&#39;Hello&#39;, &#39;4&#39;, None)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_require_not_none"><code class="name flex">
-<span>def <span class="ident">test_require_not_none</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_require_not_none(self):
-    @validate_args(lambda x: x is not None)
-    def some_calculation(a, b, c):
-        return a + b + c
-
-    some_calculation(43, 0, -50)
-    with self.assertRaises(expected_exception=AssertionError):
-        some_calculation(30, None, 50)</code></pre>
-</details>
-</dd>
 <dt id="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_timer"><code class="name flex">
 <span>def <span class="ident">test_timer</span></span>(<span>self)</span>
 </code></dt>
@@ -738,51 +600,6 @@ not have a method with the specified name.</p></div>
         dirt(42)</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_validate_args"><code class="name flex">
-<span>def <span class="ident">test_validate_args</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_validate_args(self):
-    @validate_args(lambda x: (x &gt; 42, f&#39;Each arg should be &gt; 42, but it was {x}.&#39;))
-    def some_calculation(a, b, c):
-        return a + b + c
-
-    some_calculation(43, 45, 50)
-    with self.assertRaises(expected_exception=AssertionError):
-        some_calculation(30, 40, 50)
-    with self.assertRaises(expected_exception=AssertionError):
-        some_calculation(c=30, a=40, b=50)</code></pre>
-</details>
-</dd>
-<dt id="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_validate_args_instance_method"><code class="name flex">
-<span>def <span class="ident">test_validate_args_instance_method</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_validate_args_instance_method(self):
-    class MyClass:
-        @validate_args(lambda x: (x &gt; 0, f&#39;Argument should be greater then 0, but it was {x}.&#39;))
-        def some_calculation(self, x: int) -&gt; int:
-            return x
-
-    m = MyClass()
-    m.some_calculation(1)
-    m.some_calculation(42)
-    with self.assertRaises(expected_exception=AssertionError):
-        m.some_calculation(0)
-    with self.assertRaises(expected_exception=AssertionError):
-        m.some_calculation(-42)</code></pre>
-</details>
-</dd>
 </dl>
 </dd>
 </dl>
@@ -813,14 +630,10 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_function" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_function">test_overrides_function</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_parent_has_no_such_method" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_parent_has_no_such_method">test_overrides_parent_has_no_such_method</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_static_method" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_static_method">test_overrides_static_method</a></code></li>
-<li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_require_not_empty_strings" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_require_not_empty_strings">test_require_not_empty_strings</a></code></li>
-<li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_require_not_none" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_require_not_none">test_require_not_none</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_timer" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_timer">test_timer</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_trace" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_trace">test_trace</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_trace_if_returns" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_trace_if_returns">test_trace_if_returns</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_unimplemented" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_unimplemented">test_unimplemented</a></code></li>
-<li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_validate_args" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_validate_args">test_validate_args</a></code></li>
-<li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_validate_args_instance_method" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_validate_args_instance_method">test_validate_args_instance_method</a></code></li>
 </ul>
 </li>
 </ul>
@@ -829,7 +642,7 @@ not have a method with the specified name.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

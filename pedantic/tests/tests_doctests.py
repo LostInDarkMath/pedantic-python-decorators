@@ -19,7 +19,6 @@ def get_doctest_test_suite() -> unittest.TestSuite:
         parent_module.decorators.fn_deco_trace,
         parent_module.decorators.fn_deco_trace_if_returns,
         parent_module.decorators.fn_deco_unimplemented,
-        parent_module.decorators.fn_deco_validate_args,
         parent_module.type_checking_logic.check_types,
         parent_module.type_checking_logic.check_generic_classes,
         parent_module.type_checking_logic.check_docstring,
