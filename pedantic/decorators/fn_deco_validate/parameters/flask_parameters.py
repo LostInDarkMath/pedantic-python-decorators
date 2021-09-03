@@ -3,7 +3,8 @@ from typing import Any, Type, List, Dict
 
 from flask import request
 
-from pedantic import overrides, Parameter
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import Parameter
+from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter
 from pedantic.decorators.fn_deco_validate.validators import Validator

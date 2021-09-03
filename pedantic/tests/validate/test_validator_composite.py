@@ -6,7 +6,7 @@ from pedantic.decorators.fn_deco_validate.parameters import Parameter
 from pedantic.decorators.fn_deco_validate.validators import Composite, Max, Min
 
 
-class TestValidatorMin(TestCase):
+class TestValidatorComposite(TestCase):
     def test_validator_composite(self) -> None:
         @validate(Parameter(name='x', validators=[Composite([Min(3), Max(5)])]))
         def foo(x):

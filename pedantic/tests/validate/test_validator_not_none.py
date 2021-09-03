@@ -6,7 +6,7 @@ from pedantic.decorators.fn_deco_validate.parameters import Parameter
 from pedantic.decorators.fn_deco_validate.validators import NotNone
 
 
-class TestValidatorNotEmpty(TestCase):
+class TestValidatorNotNone(TestCase):
     def test_validator_not_none(self) -> None:
         @validate(Parameter(name='x', validators=[NotNone()]))
         def foo(x):

@@ -2,6 +2,24 @@ import unittest
 import sys
 import os
 
+from pedantic.tests.test_rename_kwargs import TestRenameKwargs
+from pedantic.tests.validate.test_datetime_isoformat import TestValidatorDatetimeIsoformat
+from pedantic.tests.validate.test_flask_parameters import TestFlaskParameters
+from pedantic.tests.validate.test_parameter_environment_variable import TestParameterEnvironmentVariable
+from pedantic.tests.validate.test_validate import TestValidate
+from pedantic.tests.validate.test_validator_composite import TestValidatorComposite
+from pedantic.tests.validate.test_validator_datetime_unix_timestamp import TestValidatorDatetimeUnixTimestamp
+from pedantic.tests.validate.test_validator_email import TestValidatorEmail
+from pedantic.tests.validate.test_validator_for_each import TestValidatorForEach
+from pedantic.tests.validate.test_validator_is_enum import TestValidatorIsEnum
+from pedantic.tests.validate.test_validator_is_uuid import TestValidatorIsUUID
+from pedantic.tests.validate.test_validator_match_pattern import TestValidatorMatchPattern
+from pedantic.tests.validate.test_validator_max import TestValidatorMax
+from pedantic.tests.validate.test_validator_max_length import TestValidatorMaxLength
+from pedantic.tests.validate.test_validator_min import TestValidatorMin
+from pedantic.tests.validate.test_validator_min_length import TestValidatorMinLength
+from pedantic.tests.validate.test_validator_not_empty import TestValidatorNotEmpty
+from pedantic.tests.validate.test_validator_not_none import TestValidatorNotNone
 
 sys.path.append(os.getcwd())
 
@@ -40,6 +58,25 @@ def run_all_tests() -> None:
         TestAsyncio,
         TestMock,
         TestGeneratorWrapper,
+        TestRenameKwargs,
+        # validate
+        TestValidatorDatetimeIsoformat,
+        TestFlaskParameters,
+        TestParameterEnvironmentVariable,
+        TestValidate,
+        TestValidatorComposite,
+        TestValidatorDatetimeUnixTimestamp,
+        TestValidatorEmail,
+        TestValidatorForEach,
+        TestValidatorIsEnum,
+        TestValidatorIsUUID,
+        TestValidatorMatchPattern,
+        TestValidatorMax,
+        TestValidatorMaxLength,
+        TestValidatorMin,
+        TestValidatorMinLength,
+        TestValidatorNotEmpty,
+        TestValidatorNotNone,
     ]
 
     loader = unittest.TestLoader()
