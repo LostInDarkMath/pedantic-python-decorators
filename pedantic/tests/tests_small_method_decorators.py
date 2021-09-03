@@ -3,11 +3,10 @@ import warnings
 
 from pedantic.exceptions import NotImplementedException, PedanticOverrideException
 from pedantic import overrides, timer, count_calls, trace, trace_if_returns, does_same_as_function, deprecated, \
-    unimplemented, validate_args
+    unimplemented
 
 
 class TestSmallDecoratorMethods(unittest.TestCase):
-
     def test_overrides_parent_has_no_such_method(self):
         class MyClassA:
             pass
@@ -98,53 +97,6 @@ class TestSmallDecoratorMethods(unittest.TestCase):
             return str(i)
 
         operation(42)
-
-    def test_validate_args(self):
-        @validate_args(lambda x: (x > 42, f'Each arg should be > 42, but it was {x}.'))
-        def some_calculation(a, b, c):
-            return a + b + c
-
-        some_calculation(43, 45, 50)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(30, 40, 50)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(c=30, a=40, b=50)
-
-    def test_validate_args_instance_method(self):
-        class MyClass:
-            @validate_args(lambda x: (x > 0, f'Argument should be greater then 0, but it was {x}.'))
-            def some_calculation(self, x: int) -> int:
-                return x
-
-        m = MyClass()
-        m.some_calculation(1)
-        m.some_calculation(42)
-        with self.assertRaises(expected_exception=AssertionError):
-            m.some_calculation(0)
-        with self.assertRaises(expected_exception=AssertionError):
-            m.some_calculation(-42)
-
-    def test_require_not_none(self):
-        @validate_args(lambda x: x is not None)
-        def some_calculation(a, b, c):
-            return a + b + c
-
-        some_calculation(43, 0, -50)
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation(30, None, 50)
-
-    def test_require_not_empty_strings(self):
-        @validate_args(lambda x: x is not None and isinstance(x, str) and x.strip() != '')
-        def some_calculation(a, b, c):
-            return a + b + c
-
-        some_calculation('Hello', 'My', 'World   !')
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation('Hello', '   ', 'World')
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation('Hello', 4, 'World')
-        with self.assertRaises(expected_exception=AssertionError):
-            some_calculation('Hello', '4', None)
 
     def test_trace(self):
         def some_method(x, y):

@@ -13,6 +13,20 @@ class ReturnAs(Enum):
 
 
 def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, strict: bool = True) -> Callable:
+    """
+        Validates the values that are passed to the function by using the validators in the passed parameters.
+
+        Args:
+            parameters (multiple Parameter): The parameters that will be validated.
+            return_as (ReturnAs): Pass the arguments as kwargs to the decorated function if ReturnAs.KWARGS.
+                Positional arguments are used otherwise.
+            strict (bool): If strict is true, you have to define a Parameter for each of the
+                arguments the decorated function takes.
+
+        Returns:
+            Callable: The decorated function.
+    """
+
     def validator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs) -> Any:
@@ -39,7 +53,7 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                     result[k] = parameter.validate(value=bound_args[k])
                     used_parameters.append(parameter.name)
                 else:
-                    if strict:
+                    if strict and k != 'self':
                         raise ValidationError(f'Got more arguments expected: No parameter found for argument {k}')
                     else:
                         result[k] = bound_args[k]
@@ -54,7 +68,10 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                 result[parameter.name] = parameter.validate(value=value)
 
             if return_as == ReturnAs.KWARGS:
-                return func(**result)
+                if 'self' in result:
+                    return func(result.pop('self'), **result)
+                else:
+                    return func(**result)
             else:
                 return func(*result.values())  # TODO bug
         return wrapper

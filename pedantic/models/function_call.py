@@ -49,6 +49,7 @@ class FunctionCall:
     def args_without_self(self) -> Tuple[Any, ...]:
         max_allowed = 0 if not self.func.is_pedantic else 1
         uses_multiple_decorators = self.func.num_of_decorators > max_allowed
+
         if self.func.is_instance_method or self.func.is_static_method or uses_multiple_decorators:
             return self.args[1:]  # self is always the first argument if present
         return self.args

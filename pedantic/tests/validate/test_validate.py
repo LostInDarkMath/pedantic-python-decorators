@@ -4,7 +4,7 @@ from unittest import TestCase
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
-from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max
+from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, NotNone
 
 
 class TestValidate(TestCase):
@@ -39,6 +39,85 @@ class TestValidate(TestCase):
 
         self.assertEqual(11, bar(3, 3, 5))
         self.assertEqual(11, bar(a=3, b=3, c=5))
+
+    def test_validate_args(self):
+        @validate(
+            Parameter(name='a', validators=[Min(42, include_boundary=False)]),
+            Parameter(name='b', validators=[Min(42, include_boundary=False)]),
+            Parameter(name='c', validators=[Min(42, include_boundary=False)]),
+        )
+        def some_calculation(a, b, c):
+            return a + b + c
+
+        some_calculation(43, 45, 50)
+        with self.assertRaises(expected_exception=ValidationError):
+            some_calculation(30, 40, 50)
+        with self.assertRaises(expected_exception=ValidationError):
+            some_calculation(c=30, a=40, b=50)
+
+    def test_validate_instance_method(self):
+        class MyClass:
+            @validate(
+                Parameter(name='x', validators=[Min(1)]),
+            )
+            def some_calculation(self, x: int) -> int:
+                return x
+
+        m = MyClass()
+        m.some_calculation(1)
+        m.some_calculation(42)
+
+        with self.assertRaises(expected_exception=ValidationError):
+            m.some_calculation(0)
+        with self.assertRaises(expected_exception=ValidationError):
+            m.some_calculation(-42)
+
+    def test_less_parameter_than_arguments(self):
+        @validate(
+            Parameter(name='b', validators=[NotNone()]),
+            strict=False,
+        )
+        def some_calculation(a, b, c):
+            return a + b + c
+
+        some_calculation(43, 0, -50)
+
+        with self.assertRaises(expected_exception=ValidationError):
+            some_calculation(30, None, 50)
+
+    def test_empty_parameter(self):
+        @validate(
+            Parameter(name='a'),
+            Parameter(name='b', validators=[NotNone()]),
+            Parameter(name='c'),
+        )
+        def some_calculation(a, b, c):
+            return str(a) + str(b) + str(c)
+
+        some_calculation(43, 0, -50)
+        some_calculation(None, 0, None)
+
+    def test_require_not_none(self):
+        @validate(
+            Parameter(name='a', validators=[NotNone()]),
+            Parameter(name='b', validators=[NotNone()]),
+            Parameter(name='c', validators=[NotNone()]),
+        )
+        def some_calculation(a, b, c):
+            return a + b + c
+
+        some_calculation(43, 0, -50)
+        with self.assertRaises(expected_exception=ValidationError):
+            some_calculation(30, None, 50)
+
+    def test_call_with_args(self):
+        @validate(
+            Parameter(name='x', validators=[Min(1)]),
+        )
+        def some_calculation(x: int) -> int:
+            return x
+
+        some_calculation(42)
 
     def test_external_parameter_accepts_value_when_given(self) -> None:
         @validate(EnvironmentVariableParameter(name='foo'))
