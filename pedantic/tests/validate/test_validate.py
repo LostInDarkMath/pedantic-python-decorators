@@ -1,10 +1,11 @@
 import os
+from typing import Optional
 from unittest import TestCase
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
-from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max
+from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email
 
 
 class TestValidate(TestCase):
@@ -269,3 +270,14 @@ class TestValidate(TestCase):
         self.assertEqual(((), {'a': 1, 'b': 3, 'c': 42}), bar(a=1, b=3, c=42))
         self.assertEqual(((), {'a': 3, 'b': 42, 'c': 1}), bar(1, 3, 42))
         self.assertEqual(((), {'a': 1, 'b': 3, 'c': 42}), bar(1, 3, c=42))
+
+    def test_none_is_not_validated_if_not_required(self) -> None:
+        @validate(Parameter(name='a', validators=[Email()], required=False))
+        def bar(a: Optional[str]):
+            return a
+
+        self.assertIsNone(bar(a=None))
+        self.assertIsNone(bar(None))
+
+        with self.assertRaises(expected_exception=ValidationError):
+            bar('no_email')

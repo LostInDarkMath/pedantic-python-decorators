@@ -53,10 +53,13 @@ class Parameter:
     def validate(self, value: Any) -&gt; Any:
         &#34;&#34;&#34; Apply all validators to the given value and collect all ValidationErrors. &#34;&#34;&#34;
 
-        if self.is_required and value is None:
-            raise ValidationError(f&#39;Value for key {self.name} is required.&#39;)
+        if value is None:
+            if self.is_required:
+                raise ValidationError(f&#39;Value for key {self.name} is required.&#39;)
 
-        if self.value_type is not None and value is not None:
+            return None
+
+        if self.value_type is not None:
             result_value = convert_value(value=value, target_type=self.value_type)
         else:
             result_value = value
@@ -114,10 +117,13 @@ class Parameter:
     def validate(self, value: Any) -&gt; Any:
         &#34;&#34;&#34; Apply all validators to the given value and collect all ValidationErrors. &#34;&#34;&#34;
 
-        if self.is_required and value is None:
-            raise ValidationError(f&#39;Value for key {self.name} is required.&#39;)
+        if value is None:
+            if self.is_required:
+                raise ValidationError(f&#39;Value for key {self.name} is required.&#39;)
 
-        if self.value_type is not None and value is not None:
+            return None
+
+        if self.value_type is not None:
             result_value = convert_value(value=value, target_type=self.value_type)
         else:
             result_value = value
@@ -154,10 +160,13 @@ class Parameter:
 <pre><code class="python">def validate(self, value: Any) -&gt; Any:
     &#34;&#34;&#34; Apply all validators to the given value and collect all ValidationErrors. &#34;&#34;&#34;
 
-    if self.is_required and value is None:
-        raise ValidationError(f&#39;Value for key {self.name} is required.&#39;)
+    if value is None:
+        if self.is_required:
+            raise ValidationError(f&#39;Value for key {self.name} is required.&#39;)
 
-    if self.value_type is not None and value is not None:
+        return None
+
+    if self.value_type is not None:
         result_value = convert_value(value=value, target_type=self.value_type)
     else:
         result_value = value

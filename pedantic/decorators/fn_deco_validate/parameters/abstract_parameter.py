@@ -25,10 +25,13 @@ class Parameter:
     def validate(self, value: Any) -> Any:
         """ Apply all validators to the given value and collect all ValidationErrors. """
 
-        if self.is_required and value is None:
-            raise ValidationError(f'Value for key {self.name} is required.')
+        if value is None:
+            if self.is_required:
+                raise ValidationError(f'Value for key {self.name} is required.')
 
-        if self.value_type is not None and value is not None:
+            return None
+
+        if self.value_type is not None:
             result_value = convert_value(value=value, target_type=self.value_type)
         else:
             result_value = value
