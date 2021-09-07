@@ -27,12 +27,13 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import os
+from typing import Optional
 from unittest import TestCase
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
-from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max
+from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email
 
 
 class TestValidate(TestCase):
@@ -296,7 +297,18 @@ class TestValidate(TestCase):
 
         self.assertEqual(((), {&#39;a&#39;: 1, &#39;b&#39;: 3, &#39;c&#39;: 42}), bar(a=1, b=3, c=42))
         self.assertEqual(((), {&#39;a&#39;: 3, &#39;b&#39;: 42, &#39;c&#39;: 1}), bar(1, 3, 42))
-        self.assertEqual(((), {&#39;a&#39;: 1, &#39;b&#39;: 3, &#39;c&#39;: 42}), bar(1, 3, c=42))</code></pre>
+        self.assertEqual(((), {&#39;a&#39;: 1, &#39;b&#39;: 3, &#39;c&#39;: 42}), bar(1, 3, c=42))
+
+    def test_none_is_not_validated_if_not_required(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False))
+        def bar(a: Optional[str]):
+            return a
+
+        self.assertIsNone(bar(a=None))
+        self.assertIsNone(bar(None))
+
+        with self.assertRaises(expected_exception=ValidationError):
+            bar(&#39;no_email&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -606,7 +618,18 @@ not have a method with the specified name.</p></div>
 
         self.assertEqual(((), {&#39;a&#39;: 1, &#39;b&#39;: 3, &#39;c&#39;: 42}), bar(a=1, b=3, c=42))
         self.assertEqual(((), {&#39;a&#39;: 3, &#39;b&#39;: 42, &#39;c&#39;: 1}), bar(1, 3, 42))
-        self.assertEqual(((), {&#39;a&#39;: 1, &#39;b&#39;: 3, &#39;c&#39;: 42}), bar(1, 3, c=42))</code></pre>
+        self.assertEqual(((), {&#39;a&#39;: 1, &#39;b&#39;: 3, &#39;c&#39;: 42}), bar(1, 3, c=42))
+
+    def test_none_is_not_validated_if_not_required(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False))
+        def bar(a: Optional[str]):
+            return a
+
+        self.assertIsNone(bar(a=None))
+        self.assertIsNone(bar(None))
+
+        with self.assertRaises(expected_exception=ValidationError):
+            bar(&#39;no_email&#39;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -753,6 +776,27 @@ not have a method with the specified name.</p></div>
 
     self.assertEqual(11, bar(3, 3, 5))
     self.assertEqual(11, bar(a=3, b=3, c=5))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required"><code class="name flex">
+<span>def <span class="ident">test_none_is_not_validated_if_not_required</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_none_is_not_validated_if_not_required(self) -&gt; None:
+    @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False))
+    def bar(a: Optional[str]):
+        return a
+
+    self.assertIsNone(bar(a=None))
+    self.assertIsNone(bar(None))
+
+    with self.assertRaises(expected_exception=ValidationError):
+        bar(&#39;no_email&#39;)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_validate.TestValidate.test_required"><code class="name flex">
@@ -1134,6 +1178,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter">test_external_parameter_mixed_with_normal_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments" href="#pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments">test_less_parameter_than_arguments</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters" href="#pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters">test_multiple_parameters</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required">test_none_is_not_validated_if_not_required</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_required" href="#pedantic.tests.validate.test_validate.TestValidate.test_required">test_required</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args">test_return_as_args</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced">test_return_as_args_advanced</a></code></li>

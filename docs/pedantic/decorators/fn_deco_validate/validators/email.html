@@ -36,9 +36,12 @@ REGEX_EMAIL = r&#34;[^@\s]+@[^@\s]+\.[a-zA-Z0-9]+$&#34;
 
 
 class Email(Validator):
+    def __init__(self, email_pattern: str = REGEX_EMAIL) -&gt; None:
+        self._pattern = email_pattern
+
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
-        if not re.fullmatch(pattern=REGEX_EMAIL, string=value):
+        if not re.fullmatch(pattern=self._pattern, string=value):
             raise ValidationError(f&#39;invalid email address: {value}&#39;)
 
         return value</code></pre>
@@ -55,6 +58,7 @@ class Email(Validator):
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.validators.email.Email"><code class="flex name class">
 <span>class <span class="ident">Email</span></span>
+<span>(</span><span>email_pattern: str = '[^@\\s]+@[^@\\s]+\\.[a-zA-Z0-9]+$')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -64,9 +68,12 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Email(Validator):
+    def __init__(self, email_pattern: str = REGEX_EMAIL) -&gt; None:
+        self._pattern = email_pattern
+
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
-        if not re.fullmatch(pattern=REGEX_EMAIL, string=value):
+        if not re.fullmatch(pattern=self._pattern, string=value):
             raise ValidationError(f&#39;invalid email address: {value}&#39;)
 
         return value</code></pre>
