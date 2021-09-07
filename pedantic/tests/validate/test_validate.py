@@ -1,11 +1,11 @@
 import os
-from typing import Optional
+from typing import Optional, Any
 from unittest import TestCase
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
-from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email
+from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email, Validator
 
 
 class TestValidate(TestCase):
@@ -281,3 +281,15 @@ class TestValidate(TestCase):
 
         with self.assertRaises(expected_exception=ValidationError):
             bar('no_email')
+
+    def test_allow_renaming_of_parameter_of_custom_validator(self) -> None:
+        class MyCustomValidator(Validator):
+            def validate(self, i_renamed_this_arg: Any) -> Any:
+                return i_renamed_this_arg
+
+        @validate(Parameter(name='a', validators=[MyCustomValidator()]))
+        def bar(a: int):
+            return a
+
+        self.assertEqual(42, bar(42))
+        self.assertEqual(42, bar(a=42))

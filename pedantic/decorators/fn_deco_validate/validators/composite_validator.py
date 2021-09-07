@@ -15,6 +15,6 @@ class Composite(Validator):
     @overrides(Validator)
     def validate(self, value: Any) -> Any:
         for validator in self:
-            validator.validate(value=value)
+            validator.validate(value)
 
         return value

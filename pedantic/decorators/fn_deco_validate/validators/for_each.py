@@ -22,7 +22,7 @@ class ForEach(Validator):
 
         for item in value:
             for validator in self._validators:
-                item = validator.validate(value=item)
+                item = validator.validate(item)
 
             results.append(item)
 

@@ -27,13 +27,13 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import os
-from typing import Optional
+from typing import Optional, Any
 from unittest import TestCase
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
-from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email
+from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email, Validator
 
 
 class TestValidate(TestCase):
@@ -308,7 +308,19 @@ class TestValidate(TestCase):
         self.assertIsNone(bar(None))
 
         with self.assertRaises(expected_exception=ValidationError):
-            bar(&#39;no_email&#39;)</code></pre>
+            bar(&#39;no_email&#39;)
+
+    def test_allow_renaming_of_parameter_of_custom_validator(self) -&gt; None:
+        class MyCustomValidator(Validator):
+            def validate(self, i_renamed_this_arg: Any) -&gt; Any:
+                return i_renamed_this_arg
+
+        @validate(Parameter(name=&#39;a&#39;, validators=[MyCustomValidator()]))
+        def bar(a: int):
+            return a
+
+        self.assertEqual(42, bar(42))
+        self.assertEqual(42, bar(a=42))</code></pre>
 </details>
 </section>
 <section>
@@ -629,7 +641,19 @@ not have a method with the specified name.</p></div>
         self.assertIsNone(bar(None))
 
         with self.assertRaises(expected_exception=ValidationError):
-            bar(&#39;no_email&#39;)</code></pre>
+            bar(&#39;no_email&#39;)
+
+    def test_allow_renaming_of_parameter_of_custom_validator(self) -&gt; None:
+        class MyCustomValidator(Validator):
+            def validate(self, i_renamed_this_arg: Any) -&gt; Any:
+                return i_renamed_this_arg
+
+        @validate(Parameter(name=&#39;a&#39;, validators=[MyCustomValidator()]))
+        def bar(a: int):
+            return a
+
+        self.assertEqual(42, bar(42))
+        self.assertEqual(42, bar(a=42))</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -649,6 +673,28 @@ not have a method with the specified name.</p></div>
 <pre><code class="python">def setUp(self) -&gt; None:
     if &#39;foo&#39; in os.environ:
         del os.environ[&#39;foo&#39;]</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_allow_renaming_of_parameter_of_custom_validator"><code class="name flex">
+<span>def <span class="ident">test_allow_renaming_of_parameter_of_custom_validator</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_allow_renaming_of_parameter_of_custom_validator(self) -&gt; None:
+    class MyCustomValidator(Validator):
+        def validate(self, i_renamed_this_arg: Any) -&gt; Any:
+            return i_renamed_this_arg
+
+    @validate(Parameter(name=&#39;a&#39;, validators=[MyCustomValidator()]))
+    def bar(a: int):
+        return a
+
+    self.assertEqual(42, bar(42))
+    self.assertEqual(42, bar(a=42))</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_validate.TestValidate.test_call_with_args"><code class="name flex">
@@ -1172,6 +1218,7 @@ not have a method with the specified name.</p></div>
 <h4><code><a title="pedantic.tests.validate.test_validate.TestValidate" href="#pedantic.tests.validate.test_validate.TestValidate">TestValidate</a></code></h4>
 <ul class="">
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.setUp" href="#pedantic.tests.validate.test_validate.TestValidate.setUp">setUp</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_allow_renaming_of_parameter_of_custom_validator" href="#pedantic.tests.validate.test_validate.TestValidate.test_allow_renaming_of_parameter_of_custom_validator">test_allow_renaming_of_parameter_of_custom_validator</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_call_with_args" href="#pedantic.tests.validate.test_validate.TestValidate.test_call_with_args">test_call_with_args</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter">test_empty_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given">test_external_parameter_accepts_value_when_given</a></code></li>

@@ -38,7 +38,7 @@ class Parameter:
 
         for validator in self.validators:
             try:
-                result_value = validator.validate(value=result_value)
+                result_value = validator.validate(result_value)
             except ValidationError as e:
                 e.validator_name = validator.name
                 e.value = value

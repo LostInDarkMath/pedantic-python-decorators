@@ -43,7 +43,7 @@ class Composite(Validator):
     @overrides(Validator)
     def validate(self, value: Any) -&gt; Any:
         for validator in self:
-            validator.validate(value=value)
+            validator.validate(value)
 
         return value</code></pre>
 </details>
@@ -79,7 +79,7 @@ inheritance.</p></div>
     @overrides(Validator)
     def validate(self, value: Any) -&gt; Any:
         for validator in self:
-            validator.validate(value=value)
+            validator.validate(value)
 
         return value</code></pre>
 </details>
