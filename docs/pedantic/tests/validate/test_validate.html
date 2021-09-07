@@ -32,7 +32,7 @@ from unittest import TestCase
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
-from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, NotNone
+from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max
 
 
 class TestValidate(TestCase):
@@ -122,7 +122,7 @@ class TestValidate(TestCase):
 
     def test_less_parameter_than_arguments(self):
         @validate(
-            Parameter(name=&#39;b&#39;, validators=[NotNone()]),
+            Parameter(name=&#39;b&#39;),
             strict=False,
         )
         def some_calculation(a, b, c):
@@ -135,9 +135,9 @@ class TestValidate(TestCase):
 
     def test_empty_parameter(self):
         @validate(
-            Parameter(name=&#39;a&#39;),
-            Parameter(name=&#39;b&#39;, validators=[NotNone()]),
-            Parameter(name=&#39;c&#39;),
+            Parameter(name=&#39;a&#39;, required=False),
+            Parameter(name=&#39;b&#39;, required=True),
+            Parameter(name=&#39;c&#39;, required=False),
         )
         def some_calculation(a, b, c):
             return str(a) + str(b) + str(c)
@@ -145,16 +145,17 @@ class TestValidate(TestCase):
         some_calculation(43, 0, -50)
         some_calculation(None, 0, None)
 
-    def test_require_not_none(self):
+    def test_required(self):
         @validate(
-            Parameter(name=&#39;a&#39;, validators=[NotNone()]),
-            Parameter(name=&#39;b&#39;, validators=[NotNone()]),
-            Parameter(name=&#39;c&#39;, validators=[NotNone()]),
+            Parameter(name=&#39;a&#39;, required=True),
+            Parameter(name=&#39;b&#39;, required=True),
+            Parameter(name=&#39;c&#39;, required=True),
         )
         def some_calculation(a, b, c):
             return a + b + c
 
         some_calculation(43, 0, -50)
+
         with self.assertRaises(expected_exception=ValidationError):
             some_calculation(30, None, 50)
 
@@ -431,7 +432,7 @@ not have a method with the specified name.</p></div>
 
     def test_less_parameter_than_arguments(self):
         @validate(
-            Parameter(name=&#39;b&#39;, validators=[NotNone()]),
+            Parameter(name=&#39;b&#39;),
             strict=False,
         )
         def some_calculation(a, b, c):
@@ -444,9 +445,9 @@ not have a method with the specified name.</p></div>
 
     def test_empty_parameter(self):
         @validate(
-            Parameter(name=&#39;a&#39;),
-            Parameter(name=&#39;b&#39;, validators=[NotNone()]),
-            Parameter(name=&#39;c&#39;),
+            Parameter(name=&#39;a&#39;, required=False),
+            Parameter(name=&#39;b&#39;, required=True),
+            Parameter(name=&#39;c&#39;, required=False),
         )
         def some_calculation(a, b, c):
             return str(a) + str(b) + str(c)
@@ -454,16 +455,17 @@ not have a method with the specified name.</p></div>
         some_calculation(43, 0, -50)
         some_calculation(None, 0, None)
 
-    def test_require_not_none(self):
+    def test_required(self):
         @validate(
-            Parameter(name=&#39;a&#39;, validators=[NotNone()]),
-            Parameter(name=&#39;b&#39;, validators=[NotNone()]),
-            Parameter(name=&#39;c&#39;, validators=[NotNone()]),
+            Parameter(name=&#39;a&#39;, required=True),
+            Parameter(name=&#39;b&#39;, required=True),
+            Parameter(name=&#39;c&#39;, required=True),
         )
         def some_calculation(a, b, c):
             return a + b + c
 
         some_calculation(43, 0, -50)
+
         with self.assertRaises(expected_exception=ValidationError):
             some_calculation(30, None, 50)
 
@@ -656,9 +658,9 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">def test_empty_parameter(self):
     @validate(
-        Parameter(name=&#39;a&#39;),
-        Parameter(name=&#39;b&#39;, validators=[NotNone()]),
-        Parameter(name=&#39;c&#39;),
+        Parameter(name=&#39;a&#39;, required=False),
+        Parameter(name=&#39;b&#39;, required=True),
+        Parameter(name=&#39;c&#39;, required=False),
     )
     def some_calculation(a, b, c):
         return str(a) + str(b) + str(c)
@@ -719,7 +721,7 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">def test_less_parameter_than_arguments(self):
     @validate(
-        Parameter(name=&#39;b&#39;, validators=[NotNone()]),
+        Parameter(name=&#39;b&#39;),
         strict=False,
     )
     def some_calculation(a, b, c):
@@ -753,8 +755,8 @@ not have a method with the specified name.</p></div>
     self.assertEqual(11, bar(a=3, b=3, c=5))</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.validate.test_validate.TestValidate.test_require_not_none"><code class="name flex">
-<span>def <span class="ident">test_require_not_none</span></span>(<span>self)</span>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_required"><code class="name flex">
+<span>def <span class="ident">test_required</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -762,16 +764,17 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_require_not_none(self):
+<pre><code class="python">def test_required(self):
     @validate(
-        Parameter(name=&#39;a&#39;, validators=[NotNone()]),
-        Parameter(name=&#39;b&#39;, validators=[NotNone()]),
-        Parameter(name=&#39;c&#39;, validators=[NotNone()]),
+        Parameter(name=&#39;a&#39;, required=True),
+        Parameter(name=&#39;b&#39;, required=True),
+        Parameter(name=&#39;c&#39;, required=True),
     )
     def some_calculation(a, b, c):
         return a + b + c
 
     some_calculation(43, 0, -50)
+
     with self.assertRaises(expected_exception=ValidationError):
         some_calculation(30, None, 50)</code></pre>
 </details>
@@ -1131,7 +1134,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter">test_external_parameter_mixed_with_normal_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments" href="#pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments">test_less_parameter_than_arguments</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters" href="#pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters">test_multiple_parameters</a></code></li>
-<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_require_not_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_require_not_none">test_require_not_none</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_required" href="#pedantic.tests.validate.test_validate.TestValidate.test_required">test_required</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args">test_return_as_args</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced">test_return_as_args_advanced</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced_different_order" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced_different_order">test_return_as_args_advanced_different_order</a></code></li>

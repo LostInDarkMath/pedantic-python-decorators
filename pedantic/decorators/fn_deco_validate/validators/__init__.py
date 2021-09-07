@@ -12,4 +12,3 @@ from .max_length import MaxLength
 from .min import Min
 from .min_length import MinLength
 from .not_empty import NotEmpty
-from .not_none import NotNone

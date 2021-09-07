@@ -49,7 +49,7 @@ class ExternalParameter(Parameter, ABC):
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter"><code class="flex name class">
 <span>class <span class="ident">ExternalParameter</span></span>
-<span>(</span><span>name: str, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -72,6 +72,8 @@ inheritance.</p></div>
 <ul class="hlist">
 <li><a title="pedantic.decorators.fn_deco_validate.parameters.environment_variable_parameter.EnvironmentVariableParameter" href="environment_variable_parameter.html#pedantic.decorators.fn_deco_validate.parameters.environment_variable_parameter.EnvironmentVariableParameter">EnvironmentVariableParameter</a></li>
 <li><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter" href="flask_parameters.html#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter">FlaskParameter</a></li>
+<li><a title="pedantic.examples.validate.ConfigFromEnvVar" href="../../../examples/validate.html#pedantic.examples.validate.ConfigFromEnvVar">ConfigFromEnvVar</a></li>
+<li><a title="pedantic.examples.validate.ConfigFromFile" href="../../../examples/validate.html#pedantic.examples.validate.ConfigFromFile">ConfigFromFile</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>

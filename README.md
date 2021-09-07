@@ -1,4 +1,4 @@
-# pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators.svg?branch=master)](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators)  [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic) [![Requirements Status](https://requires.io/github/LostInDarkMath/pedantic-python-decorators/requirements.svg?branch=master)](https://requires.io/github/LostInDarkMath/pedantic-python-decorators/requirements/?branch=master)
+# pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators.svg?branch=master)](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators)  [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic)
 These decorators will make you write cleaner and well-documented Python code. 
 
 ## Getting Started
@@ -60,6 +60,90 @@ In a nutshell:
 - A type annotation misses type arguments, e.g. `typing.List` instead of `typing.List[int]`.
 - The documented arguments do not match the argument list or their type annotations.
 
+## The [@validate]() decorator
+As the name suggests, with `@validate` you are able to validate the values that are passed to your function.
+That is done in a highly customizable way. 
+But the highest benefit of this decorator the opportunity to decouple your code easily and make easy testable, maintainable and scalable.
+The following example shows the decoupled implementation of a configurable algorithm with the help of `@decorate`:
+```python
+import os
+from dataclasses import dataclass
+
+from pedantic import validate, ExternalParameter, overrides, Validator, ValidationError
+
+
+@dataclass(frozen=True)
+class Configuration:
+    iterations: int
+    max_error: float
+
+
+class ConfigurationValidator(Validator):
+    @overrides(Validator)
+    def validate(self, value: Configuration) -> Configuration:
+        if value.iterations < 1 or value.max_error < 0:
+            raise ValidationError(f'Invalid configuration: {value}')
+
+        return value
+
+
+class ConfigFromEnvVar(ExternalParameter):
+    """ Reads the configuration from environment variables. """
+
+    @overrides(ExternalParameter)
+    def load_value(self) -> Configuration:
+        return Configuration(
+            iterations=int(os.environ['iterations']),
+            max_error=float(os.environ['max_error']),
+        )
+
+
+class ConfigFromFile(ExternalParameter):
+    """ Reads the configuration from a config file. """
+
+    @overrides(ExternalParameter)
+    def load_value(self) -> Configuration:
+        with open(file='config.csv', mode='r') as file:
+            content = file.readlines()
+            return Configuration(
+                iterations=int(content[0].strip('\n')),
+                max_error=float(content[1]),
+            )
+
+
+# choose your configuration source here:
+@validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False)
+# @validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=False)
+
+# with strict_mode = True (which is the default) 
+# you need to pass a Parameter for each parameter of the decorated function 
+# @validate(Parameter(name='value') ConfigFromFile(name='config', validators=[ConfigurationValidator()]))
+def my_algorithm(value: float, config: Configuration) -> float:
+    """
+        This method calculates something that depends on the given value with considering the configuration.
+        Note how well this small piece of code is designed:
+            - Fhe function my_algorithm() need a Configuration but has no knowledge where this come from.
+            - Furthermore, it need does not care about parameter validation.
+            - The ConfigurationValidator doesn't now anything about the creation of the data.
+            - The @validate decorator is the only you need to change, if you want a different configuration source.
+    """
+    print(value)
+    print(config)
+    return value
+
+
+if __name__ == '__main__':
+    # we can call the function with a config like there is no decorator.
+    # This makes testing extremely easy: no config files, no environment variables or stuff like that
+    print(my_algorithm(value=2, config=Configuration(iterations=3, max_error=4.4)))
+
+    os.environ['iterations'] = '12'
+    os.environ['max_error'] = '3.1415'
+
+    # but we also can omit the config and load it implicitly by our custom Parameters
+    print(my_algorithm(value=42.0))
+```
+
 ## List of all decorators in this package
 - [@count_calls](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_count_calls.html)
 - [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_deprecated.html)
@@ -79,11 +163,13 @@ In a nutshell:
 - [@trace_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.trace_class)
 - [@trace_if_returns](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_trace_if_returns.html)
 - [@unimplemented](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_unimplemented.html)
-- [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate_args.html)
+- [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate/fn_deco_validate.html)
 
 ## Dependencies
 Outside the Python standard library, the following dependencies are used:
 - [Docstring-Parser](https://github.com/rr-/docstring_parser) 
+
+To use the `FlaskParameter` class or subclasses, you obviously need to have `Flask` installed. 
 
 ## Contributing
 Feel free to contribute by submitting a pull request :)

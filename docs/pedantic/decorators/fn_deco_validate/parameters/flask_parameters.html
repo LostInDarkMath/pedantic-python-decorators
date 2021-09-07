@@ -27,56 +27,28 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from abc import ABC, abstractmethod
-from typing import Any, Type, List, Dict
+from typing import Any, Dict
 
 from flask import request
 
 from pedantic.decorators.fn_deco_overrides import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter, Parameter
-from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
 class FlaskParameter(ExternalParameter, ABC):
-    def __init__(
-            self,
-            name: str,
-            validators: List[Validator] = None,
-            value_type: Type = None,
-            required: bool = True,
-            default: Any = None,
-    ):
-        super().__init__(name, validators)
-
-        if value_type not in [str, bool, int, float, dict, list, None]:
-            raise AssertionError(f&#39;value_type needs to be one of these: str, bool, int, float, dict &amp; list&#39;)
-
-        self._value_type = value_type
-        self._required = required
-        self._default = default
-
     @abstractmethod
     def get_dict(self) -&gt; Dict[str, Any]:
         &#34;&#34;&#34; Returns the actual values as a dictionary. &#34;&#34;&#34;
 
     @overrides(ExternalParameter)
     def load_value(self) -&gt; Any:
-        value = self._load_value()
-
-        if self._value_type is None or isinstance(value, self._value_type):
-            return value
-
-    def _load_value(self) -&gt; Any:
         dict_ = self.get_dict()
 
         if self.name in dict_ and dict_[self.name] is not None:
             return dict_[self.name]
 
-        if self._default is not None:
-            return self._default
-
-        if self._required:
-            raise ValidationError(f&#39;Value for key {self.name} is required.&#39;)
+        if self.default_value is not None:
+            return self.default_value
 
         return None
 
@@ -123,7 +95,7 @@ class FlaskHeaderParameter(FlaskParameter):
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskFormParameter"><code class="flex name class">
 <span>class <span class="ident">FlaskFormParameter</span></span>
-<span>(</span><span>name: str, validators: List[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, value_type: Type[+CT_co] = None, required: bool = True, default: Any = None)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -157,7 +129,7 @@ inheritance.</p></div>
 </dd>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskGetParameter"><code class="flex name class">
 <span>class <span class="ident">FlaskGetParameter</span></span>
-<span>(</span><span>name: str, validators: List[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, value_type: Type[+CT_co] = None, required: bool = True, default: Any = None)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -191,7 +163,7 @@ inheritance.</p></div>
 </dd>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskHeaderParameter"><code class="flex name class">
 <span>class <span class="ident">FlaskHeaderParameter</span></span>
-<span>(</span><span>name: str, validators: List[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, value_type: Type[+CT_co] = None, required: bool = True, default: Any = None)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -225,7 +197,7 @@ inheritance.</p></div>
 </dd>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskJsonParameter"><code class="flex name class">
 <span>class <span class="ident">FlaskJsonParameter</span></span>
-<span>(</span><span>name: str, validators: List[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, value_type: Type[+CT_co] = None, required: bool = True, default: Any = None)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -259,7 +231,7 @@ inheritance.</p></div>
 </dd>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter"><code class="flex name class">
 <span>class <span class="ident">FlaskParameter</span></span>
-<span>(</span><span>name: str, validators: List[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, value_type: Type[+CT_co] = None, required: bool = True, default: Any = None)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -269,45 +241,19 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FlaskParameter(ExternalParameter, ABC):
-    def __init__(
-            self,
-            name: str,
-            validators: List[Validator] = None,
-            value_type: Type = None,
-            required: bool = True,
-            default: Any = None,
-    ):
-        super().__init__(name, validators)
-
-        if value_type not in [str, bool, int, float, dict, list, None]:
-            raise AssertionError(f&#39;value_type needs to be one of these: str, bool, int, float, dict &amp; list&#39;)
-
-        self._value_type = value_type
-        self._required = required
-        self._default = default
-
     @abstractmethod
     def get_dict(self) -&gt; Dict[str, Any]:
         &#34;&#34;&#34; Returns the actual values as a dictionary. &#34;&#34;&#34;
 
     @overrides(ExternalParameter)
     def load_value(self) -&gt; Any:
-        value = self._load_value()
-
-        if self._value_type is None or isinstance(value, self._value_type):
-            return value
-
-    def _load_value(self) -&gt; Any:
         dict_ = self.get_dict()
 
         if self.name in dict_ and dict_[self.name] is not None:
             return dict_[self.name]
 
-        if self._default is not None:
-            return self._default
-
-        if self._required:
-            raise ValidationError(f&#39;Value for key {self.name} is required.&#39;)
+        if self.default_value is not None:
+            return self.default_value
 
         return None</code></pre>
 </details>
@@ -353,7 +299,7 @@ def get_dict(self) -&gt; Dict[str, Any]:
 </dd>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskPathParameter"><code class="flex name class">
 <span>class <span class="ident">FlaskPathParameter</span></span>
-<span>(</span><span>name: str, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This is a special case because Flask passes path parameter as kwargs to validate().

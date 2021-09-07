@@ -4,7 +4,7 @@ from unittest import TestCase
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
-from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, NotNone
+from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max
 
 
 class TestValidate(TestCase):
@@ -94,7 +94,7 @@ class TestValidate(TestCase):
 
     def test_less_parameter_than_arguments(self):
         @validate(
-            Parameter(name='b', validators=[NotNone()]),
+            Parameter(name='b'),
             strict=False,
         )
         def some_calculation(a, b, c):
@@ -107,9 +107,9 @@ class TestValidate(TestCase):
 
     def test_empty_parameter(self):
         @validate(
-            Parameter(name='a'),
-            Parameter(name='b', validators=[NotNone()]),
-            Parameter(name='c'),
+            Parameter(name='a', required=False),
+            Parameter(name='b', required=True),
+            Parameter(name='c', required=False),
         )
         def some_calculation(a, b, c):
             return str(a) + str(b) + str(c)
@@ -117,16 +117,17 @@ class TestValidate(TestCase):
         some_calculation(43, 0, -50)
         some_calculation(None, 0, None)
 
-    def test_require_not_none(self):
+    def test_required(self):
         @validate(
-            Parameter(name='a', validators=[NotNone()]),
-            Parameter(name='b', validators=[NotNone()]),
-            Parameter(name='c', validators=[NotNone()]),
+            Parameter(name='a', required=True),
+            Parameter(name='b', required=True),
+            Parameter(name='c', required=True),
         )
         def some_calculation(a, b, c):
             return a + b + c
 
         some_calculation(43, 0, -50)
+
         with self.assertRaises(expected_exception=ValidationError):
             some_calculation(30, None, 50)
 

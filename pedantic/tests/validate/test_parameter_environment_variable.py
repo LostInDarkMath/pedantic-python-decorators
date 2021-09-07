@@ -67,3 +67,19 @@ class TestParameterEnvironmentVariable(TestCase):
             @validate(EnvironmentVariableParameter(name='foo', value_type=dict))
             def bar(foo):
                 return foo
+
+    def test_parameter_environment_variable_different_name(self) -> None:
+        @validate(EnvironmentVariableParameter(name='foo', env_var_name='fuu', value_type=str))
+        def bar(foo):
+            return foo
+
+        os.environ['fuu'] = '42'
+        self.assertEqual('42', bar())
+
+    def test_two_parameters(self) -> None:
+        @validate(EnvironmentVariableParameter(name='a'), strict=False)
+        def foo(a: float, b: int):
+            print(f'{a} and {b}')
+
+        os.environ['a'] = '42'
+        foo(b=42)

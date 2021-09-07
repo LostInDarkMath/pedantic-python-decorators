@@ -7,7 +7,7 @@ from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
     FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
-from pedantic.decorators.fn_deco_validate.validators import NotEmpty
+from pedantic.decorators.fn_deco_validate.validators import NotEmpty, Min
 
 
 JSON = 'application/json'
@@ -294,3 +294,22 @@ class TestFlaskParameters(TestCase):
             self.assertEqual(OK, res.status_code)
             self.assertEqual(None, res.json)
 
+    def test_validator_flask_path_type_conversion(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/<string:key>')
+        @validate(FlaskPathParameter(name='key', value_type=int, validators=[Min(42)]))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get('/42', data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual(42, res.json)

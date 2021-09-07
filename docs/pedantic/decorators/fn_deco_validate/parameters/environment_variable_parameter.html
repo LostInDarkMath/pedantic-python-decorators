@@ -27,33 +27,47 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import os
-from typing import Any, Type
+from typing import Any, Type, Iterable
 
-from pedantic import overrides
+from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter
+from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
 class EnvironmentVariableParameter(ExternalParameter):
-    def __init__(self, name: str, value_type: Type = str) -&gt; None:
-        super().__init__(name)
+    def __init__(self,
+                 name: str,
+                 env_var_name: str = None,
+                 value_type: Type = str,
+                 validators: Iterable[Validator] = None,
+                 default: Any = None,
+                 ) -&gt; None:
+        super().__init__(name=name, validators=validators, default=default)
 
         if value_type not in [str, bool, int, float]:
             raise AssertionError(f&#39;value_type needs to be one of these: str, bool, int &amp; float&#39;)
 
         self._value_type = value_type
 
+        if env_var_name is None:
+            self._env_var_name = name
+        else:
+            self._env_var_name = env_var_name
+
     @overrides(ExternalParameter)
     def load_value(self) -&gt; Any:
-        if self.name not in os.environ:
-            raise ValidationError(f&#39;Environment variable {self.name} was not set.&#39;)
+        if self._env_var_name not in os.environ:
+            raise ValidationError(f&#39;Environment variable {self._env_var_name} was not set.&#39;)
 
-        value = os.environ[self.name].strip()
+        value = os.environ[self._env_var_name].strip()
 
         if self._value_type == bool:
             value = value.lower()
+
             if value not in [&#39;true&#39;, &#39;false&#39;]:
-                raise ValidationError(f&#39;Cannot convert {value} to true or false for environment variable {self.name}&#39;)
+                raise ValidationError(f&#39;Cannot convert {value} to true or false for environment variable &#39;
+                                      f&#39;{self._env_var_name}&#39;)
 
             return value.lower() == &#39;true&#39;
 
@@ -71,7 +85,7 @@ class EnvironmentVariableParameter(ExternalParameter):
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.environment_variable_parameter.EnvironmentVariableParameter"><code class="flex name class">
 <span>class <span class="ident">EnvironmentVariableParameter</span></span>
-<span>(</span><span>name: str, value_type: Type[+CT_co] = builtins.str)</span>
+<span>(</span><span>name: str, env_var_name: str = None, value_type: Type[+CT_co] = builtins.str, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -81,25 +95,38 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class EnvironmentVariableParameter(ExternalParameter):
-    def __init__(self, name: str, value_type: Type = str) -&gt; None:
-        super().__init__(name)
+    def __init__(self,
+                 name: str,
+                 env_var_name: str = None,
+                 value_type: Type = str,
+                 validators: Iterable[Validator] = None,
+                 default: Any = None,
+                 ) -&gt; None:
+        super().__init__(name=name, validators=validators, default=default)
 
         if value_type not in [str, bool, int, float]:
             raise AssertionError(f&#39;value_type needs to be one of these: str, bool, int &amp; float&#39;)
 
         self._value_type = value_type
 
+        if env_var_name is None:
+            self._env_var_name = name
+        else:
+            self._env_var_name = env_var_name
+
     @overrides(ExternalParameter)
     def load_value(self) -&gt; Any:
-        if self.name not in os.environ:
-            raise ValidationError(f&#39;Environment variable {self.name} was not set.&#39;)
+        if self._env_var_name not in os.environ:
+            raise ValidationError(f&#39;Environment variable {self._env_var_name} was not set.&#39;)
 
-        value = os.environ[self.name].strip()
+        value = os.environ[self._env_var_name].strip()
 
         if self._value_type == bool:
             value = value.lower()
+
             if value not in [&#39;true&#39;, &#39;false&#39;]:
-                raise ValidationError(f&#39;Cannot convert {value} to true or false for environment variable {self.name}&#39;)
+                raise ValidationError(f&#39;Cannot convert {value} to true or false for environment variable &#39;
+                                      f&#39;{self._env_var_name}&#39;)
 
             return value.lower() == &#39;true&#39;
 

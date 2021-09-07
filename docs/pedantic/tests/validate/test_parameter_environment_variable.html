@@ -94,7 +94,23 @@ class TestParameterEnvironmentVariable(TestCase):
         with self.assertRaises(expected_exception=AssertionError):
             @validate(EnvironmentVariableParameter(name=&#39;foo&#39;, value_type=dict))
             def bar(foo):
-                return foo</code></pre>
+                return foo
+
+    def test_parameter_environment_variable_different_name(self) -&gt; None:
+        @validate(EnvironmentVariableParameter(name=&#39;foo&#39;, env_var_name=&#39;fuu&#39;, value_type=str))
+        def bar(foo):
+            return foo
+
+        os.environ[&#39;fuu&#39;] = &#39;42&#39;
+        self.assertEqual(&#39;42&#39;, bar())
+
+    def test_two_parameters(self) -&gt; None:
+        @validate(EnvironmentVariableParameter(name=&#39;a&#39;), strict=False)
+        def foo(a: float, b: int):
+            print(f&#39;{a} and {b}&#39;)
+
+        os.environ[&#39;a&#39;] = &#39;42&#39;
+        foo(b=42)</code></pre>
 </details>
 </section>
 <section>
@@ -203,7 +219,23 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=AssertionError):
             @validate(EnvironmentVariableParameter(name=&#39;foo&#39;, value_type=dict))
             def bar(foo):
-                return foo</code></pre>
+                return foo
+
+    def test_parameter_environment_variable_different_name(self) -&gt; None:
+        @validate(EnvironmentVariableParameter(name=&#39;foo&#39;, env_var_name=&#39;fuu&#39;, value_type=str))
+        def bar(foo):
+            return foo
+
+        os.environ[&#39;fuu&#39;] = &#39;42&#39;
+        self.assertEqual(&#39;42&#39;, bar())
+
+    def test_two_parameters(self) -&gt; None:
+        @validate(EnvironmentVariableParameter(name=&#39;a&#39;), strict=False)
+        def foo(a: float, b: int):
+            print(f&#39;{a} and {b}&#39;)
+
+        os.environ[&#39;a&#39;] = &#39;42&#39;
+        foo(b=42)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -268,6 +300,24 @@ not have a method with the specified name.</p></div>
 
         with self.assertRaises(expected_exception=ValidationError):
             bar()</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_different_name"><code class="name flex">
+<span>def <span class="ident">test_parameter_environment_variable_different_name</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_parameter_environment_variable_different_name(self) -&gt; None:
+    @validate(EnvironmentVariableParameter(name=&#39;foo&#39;, env_var_name=&#39;fuu&#39;, value_type=str))
+    def bar(foo):
+        return foo
+
+    os.environ[&#39;fuu&#39;] = &#39;42&#39;
+    self.assertEqual(&#39;42&#39;, bar())</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_float"><code class="name flex">
@@ -342,6 +392,24 @@ not have a method with the specified name.</p></div>
     self.assertEqual(&#39;42&#39;, bar())</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_two_parameters"><code class="name flex">
+<span>def <span class="ident">test_two_parameters</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_two_parameters(self) -&gt; None:
+    @validate(EnvironmentVariableParameter(name=&#39;a&#39;), strict=False)
+    def foo(a: float, b: int):
+        print(f&#39;{a} and {b}&#39;)
+
+    os.environ[&#39;a&#39;] = &#39;42&#39;
+    foo(b=42)</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -366,10 +434,12 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.setUp" href="#pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.setUp">setUp</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_invalid_value_type" href="#pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_invalid_value_type">test_invalid_value_type</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_bool" href="#pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_bool">test_parameter_environment_variable_bool</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_different_name" href="#pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_different_name">test_parameter_environment_variable_different_name</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_float" href="#pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_float">test_parameter_environment_variable_float</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_int" href="#pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_int">test_parameter_environment_variable_int</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_not_set" href="#pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_not_set">test_parameter_environment_variable_not_set</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_str" href="#pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_parameter_environment_variable_str">test_parameter_environment_variable_str</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_two_parameters" href="#pedantic.tests.validate.test_parameter_environment_variable.TestParameterEnvironmentVariable.test_two_parameters">test_two_parameters</a></code></li>
 </ul>
 </li>
 </ul>
