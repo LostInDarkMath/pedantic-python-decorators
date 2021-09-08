@@ -29,3 +29,7 @@ class ValidationError(ValidateException):
 
 class InvalidHeader(ValidateException):
     """ Is raised if there is a validation error in a FlaskHeaderParameter. """
+
+
+class TooManyArguments(ValidateException):
+    """ Is raised if function got more arguments then expected. """

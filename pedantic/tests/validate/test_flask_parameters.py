@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from flask import Flask, Response, jsonify
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException, TooManyArguments
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
     FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
@@ -13,6 +13,7 @@ from pedantic.decorators.fn_deco_validate.validators import NotEmpty, Min
 JSON = 'application/json'
 OK = 200
 INVALID = 422
+TOO_MANY_ARGS = 400
 
 
 class TestFlaskParameters(TestCase):
@@ -86,6 +87,13 @@ class TestFlaskParameters(TestCase):
             response.status_code = INVALID
             return response
 
+        @app.errorhandler(TooManyArguments)
+        def handle_validation_error(exception: TooManyArguments) -> Response:
+            print(str(exception))
+            response = jsonify(str(exception))
+            response.status_code = TOO_MANY_ARGS
+            return response
+
         with app.test_client() as client:
             res = client.get('/', data=json.dumps({'key': '  hello world  '}), content_type=JSON)
             self.assertEqual(OK, res.status_code)
@@ -105,7 +113,8 @@ class TestFlaskParameters(TestCase):
                 'required': '1',
             }
             res = client.get('/', data=json.dumps(data), content_type=JSON)
-            self.assertEqual(OK, res.status_code)
+            self.assertEqual(TOO_MANY_ARGS, res.status_code)
+            self.assertEqual("Got unexpected arguments: ['required']", res.json)
 
     def test_validator_flask_form_data(self) -> None:
         app = Flask(__name__)
@@ -388,3 +397,23 @@ class TestFlaskParameters(TestCase):
                 'message': 'Data is not in JSON format.',
             }
             self.assertEqual(expected, res.json)
+
+    def test_too_many_arguments(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskJsonParameter(name='k', value_type=str))
+        def hello_world(**kwargs) -> Response:
+            return jsonify(str(kwargs))
+
+        @app.errorhandler(TooManyArguments)
+        def handle_validation_error(exception: TooManyArguments) -> Response:
+            print(str(exception))
+            response = jsonify(str(exception))
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get(data=json.dumps({'k': 'k', 'a': 1}), content_type=JSON)
+            self.assertEqual(INVALID, res.status_code)
+            self.assertEqual("Got unexpected arguments: ['a']", res.json)

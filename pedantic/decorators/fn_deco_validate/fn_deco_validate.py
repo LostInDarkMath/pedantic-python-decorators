@@ -3,8 +3,15 @@ from enum import Enum
 from functools import wraps
 from typing import Any, Callable, List
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
+from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalParameter
+
+try:
+    from flask import request
+    from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter
+    IS_FLASK_INSTALLED = True
+except ImportError:
+    IS_FLASK_INSTALLED = False
 
 
 class ReturnAs(Enum):
@@ -46,7 +53,7 @@ def validate(
                     used_parameter_names.append(parameter.name)
                 else:
                     if strict:
-                        raise ValidateException(f'Got more arguments expected: No parameter found for argument {k}')
+                        raise TooManyArguments(f'Got more arguments expected: No parameter found for argument {k}')
                     else:
                         result[k] = v
 
@@ -75,7 +82,7 @@ def validate(
                     used_args.append(bound_args[k])
                 else:
                     if strict and k != 'self':
-                        raise ValidateException(f'Got more arguments expected: No parameter found for argument {k}')
+                        raise TooManyArguments(f'Got more arguments expected: No parameter found for argument {k}')
                     else:
                         result[k] = bound_args[k]
 
@@ -91,6 +98,14 @@ def validate(
                 value = parameter.load_value()
                 validated_value = parameter.validate(value=value)
                 result[parameter.name] = validated_value
+
+            # this is ugly, but i really want this behavior
+            if strict and IS_FLASK_INSTALLED:
+                if all([isinstance(p, FlaskJsonParameter) for p in parameter_dict.values()]):
+                    unexpected_args = [k for k in request.json if k not in parameter_dict]
+
+                    if unexpected_args:
+                        raise TooManyArguments(f'Got unexpected arguments: {unexpected_args}')
 
             if return_as == ReturnAs.ARGS:
                 return func(*result.values())
