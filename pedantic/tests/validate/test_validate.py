@@ -293,3 +293,12 @@ class TestValidate(TestCase):
 
         self.assertEqual(42, bar(42))
         self.assertEqual(42, bar(a=42))
+
+    def test_none_is_removed_for_not_required_parameter(self) -> None:
+        @validate(Parameter(name='a', required=False))
+        def bar(a: int = 42):
+            return a
+
+        self.assertEqual(42, bar())
+        self.assertEqual(2, bar(a=2))
+        self.assertEqual(2, bar(2))

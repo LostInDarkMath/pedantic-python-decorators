@@ -77,6 +77,9 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
             unused_parameters = [parameter for parameter in parameters if parameter.name not in used_parameter_names]
 
             for parameter in unused_parameters:
+                if not parameter.is_required:
+                    continue
+
                 if not isinstance(parameter, ExternalParameter):
                     raise ValidationError(f'Got no value for parameter {parameter.name}')
 

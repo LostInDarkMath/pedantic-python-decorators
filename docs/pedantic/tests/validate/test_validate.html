@@ -320,7 +320,16 @@ class TestValidate(TestCase):
             return a
 
         self.assertEqual(42, bar(42))
-        self.assertEqual(42, bar(a=42))</code></pre>
+        self.assertEqual(42, bar(a=42))
+
+    def test_none_is_removed_for_not_required_parameter(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, required=False))
+        def bar(a: int = 42):
+            return a
+
+        self.assertEqual(42, bar())
+        self.assertEqual(2, bar(a=2))
+        self.assertEqual(2, bar(2))</code></pre>
 </details>
 </section>
 <section>
@@ -653,7 +662,16 @@ not have a method with the specified name.</p></div>
             return a
 
         self.assertEqual(42, bar(42))
-        self.assertEqual(42, bar(a=42))</code></pre>
+        self.assertEqual(42, bar(a=42))
+
+    def test_none_is_removed_for_not_required_parameter(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, required=False))
+        def bar(a: int = 42):
+            return a
+
+        self.assertEqual(42, bar())
+        self.assertEqual(2, bar(a=2))
+        self.assertEqual(2, bar(2))</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -843,6 +861,25 @@ not have a method with the specified name.</p></div>
 
     with self.assertRaises(expected_exception=ValidationError):
         bar(&#39;no_email&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_none_is_removed_for_not_required_parameter"><code class="name flex">
+<span>def <span class="ident">test_none_is_removed_for_not_required_parameter</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_none_is_removed_for_not_required_parameter(self) -&gt; None:
+    @validate(Parameter(name=&#39;a&#39;, required=False))
+    def bar(a: int = 42):
+        return a
+
+    self.assertEqual(42, bar())
+    self.assertEqual(2, bar(a=2))
+    self.assertEqual(2, bar(2))</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_validate.TestValidate.test_required"><code class="name flex">
@@ -1226,6 +1263,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments" href="#pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments">test_less_parameter_than_arguments</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters" href="#pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters">test_multiple_parameters</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required">test_none_is_not_validated_if_not_required</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_removed_for_not_required_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_removed_for_not_required_parameter">test_none_is_removed_for_not_required_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_required" href="#pedantic.tests.validate.test_validate.TestValidate.test_required">test_required</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args">test_return_as_args</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced">test_return_as_args_advanced</a></code></li>

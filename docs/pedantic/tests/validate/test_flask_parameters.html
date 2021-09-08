@@ -314,13 +314,13 @@ class TestFlaskParameters(TestCase):
 
         @app.route(&#39;/&#39;)
         @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False))
-        def hello_world(key: str) -&gt; Response:
+        def hello_world(key: str = &#39;hi&#39;) -&gt; Response:
             return jsonify(key)
 
         with app.test_client() as client:
             res = client.get(data={})
             self.assertEqual(OK, res.status_code)
-            self.assertEqual(None, res.json)
+            self.assertEqual(&#39;hi&#39;, res.json)
 
     def test_validator_flask_path_type_conversion(self) -&gt; None:
         app = Flask(__name__)
@@ -660,13 +660,13 @@ not have a method with the specified name.</p></div>
 
         @app.route(&#39;/&#39;)
         @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False))
-        def hello_world(key: str) -&gt; Response:
+        def hello_world(key: str = &#39;hi&#39;) -&gt; Response:
             return jsonify(key)
 
         with app.test_client() as client:
             res = client.get(data={})
             self.assertEqual(OK, res.status_code)
-            self.assertEqual(None, res.json)
+            self.assertEqual(&#39;hi&#39;, res.json)
 
     def test_validator_flask_path_type_conversion(self) -&gt; None:
         app = Flask(__name__)
@@ -757,13 +757,13 @@ not have a method with the specified name.</p></div>
 
     @app.route(&#39;/&#39;)
     @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False))
-    def hello_world(key: str) -&gt; Response:
+    def hello_world(key: str = &#39;hi&#39;) -&gt; Response:
         return jsonify(key)
 
     with app.test_client() as client:
         res = client.get(data={})
         self.assertEqual(OK, res.status_code)
-        self.assertEqual(None, res.json)</code></pre>
+        self.assertEqual(&#39;hi&#39;, res.json)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_form_data"><code class="name flex">

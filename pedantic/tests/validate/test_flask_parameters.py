@@ -286,13 +286,13 @@ class TestFlaskParameters(TestCase):
 
         @app.route('/')
         @validate(FlaskFormParameter(name='key', value_type=str, required=False))
-        def hello_world(key: str) -> Response:
+        def hello_world(key: str = 'hi') -> Response:
             return jsonify(key)
 
         with app.test_client() as client:
             res = client.get(data={})
             self.assertEqual(OK, res.status_code)
-            self.assertEqual(None, res.json)
+            self.assertEqual('hi', res.json)
 
     def test_validator_flask_path_type_conversion(self) -> None:
         app = Flask(__name__)
