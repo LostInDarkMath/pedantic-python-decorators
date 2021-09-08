@@ -48,12 +48,10 @@ class TestConvertValue(TestCase):
         for value in range(-4, 4):
             self.assertEqual(value, convert_value(value=value, target_type=int))
 
-        self.assertEqual(0, convert_value(value=0.2, target_type=int))
-        self.assertEqual(0, convert_value(value=&#39;0.2&#39;, target_type=int))
         self.assertEqual(42, convert_value(value=&#39;42&#39;, target_type=int))
         self.assertEqual(0, convert_value(value=&#39;  0000 &#39;, target_type=int))
 
-        for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;]:
+        for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;, 0.2, &#39;0.2&#39;]:
             with self.assertRaises(expected_exception=ValidationError):
                 self.assertFalse(convert_value(value=value, target_type=int))
 
@@ -145,12 +143,10 @@ not have a method with the specified name.</p></div>
         for value in range(-4, 4):
             self.assertEqual(value, convert_value(value=value, target_type=int))
 
-        self.assertEqual(0, convert_value(value=0.2, target_type=int))
-        self.assertEqual(0, convert_value(value=&#39;0.2&#39;, target_type=int))
         self.assertEqual(42, convert_value(value=&#39;42&#39;, target_type=int))
         self.assertEqual(0, convert_value(value=&#39;  0000 &#39;, target_type=int))
 
-        for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;]:
+        for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;, 0.2, &#39;0.2&#39;]:
             with self.assertRaises(expected_exception=ValidationError):
                 self.assertFalse(convert_value(value=value, target_type=int))
 
@@ -258,12 +254,10 @@ not have a method with the specified name.</p></div>
     for value in range(-4, 4):
         self.assertEqual(value, convert_value(value=value, target_type=int))
 
-    self.assertEqual(0, convert_value(value=0.2, target_type=int))
-    self.assertEqual(0, convert_value(value=&#39;0.2&#39;, target_type=int))
     self.assertEqual(42, convert_value(value=&#39;42&#39;, target_type=int))
     self.assertEqual(0, convert_value(value=&#39;  0000 &#39;, target_type=int))
 
-    for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;]:
+    for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;, 0.2, &#39;0.2&#39;]:
         with self.assertRaises(expected_exception=ValidationError):
             self.assertFalse(convert_value(value=value, target_type=int))</code></pre>
 </details>

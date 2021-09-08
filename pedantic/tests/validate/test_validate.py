@@ -163,6 +163,16 @@ class TestValidate(TestCase):
         self.assertEqual('42', bar('42'))
         self.assertEqual('42', bar(foo='42'))
 
+    def test_external_parameter_ignores_value_when_given(self) -> None:
+        @validate(EnvironmentVariableParameter(name='foo'), ignore_input=True)
+        def bar(foo):
+            return foo
+
+        os.environ['foo'] = '1'
+
+        self.assertEqual('1', bar('42'))
+        self.assertEqual('1', bar(foo='42'))
+
     def test_external_parameter_mixed_with_normal_parameter(self) -> None:
         @validate(
             EnvironmentVariableParameter(name='foo'),

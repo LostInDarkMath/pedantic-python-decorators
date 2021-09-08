@@ -191,6 +191,16 @@ class TestValidate(TestCase):
         self.assertEqual(&#39;42&#39;, bar(&#39;42&#39;))
         self.assertEqual(&#39;42&#39;, bar(foo=&#39;42&#39;))
 
+    def test_external_parameter_ignores_value_when_given(self) -&gt; None:
+        @validate(EnvironmentVariableParameter(name=&#39;foo&#39;), ignore_input=True)
+        def bar(foo):
+            return foo
+
+        os.environ[&#39;foo&#39;] = &#39;1&#39;
+
+        self.assertEqual(&#39;1&#39;, bar(&#39;42&#39;))
+        self.assertEqual(&#39;1&#39;, bar(foo=&#39;42&#39;))
+
     def test_external_parameter_mixed_with_normal_parameter(self) -&gt; None:
         @validate(
             EnvironmentVariableParameter(name=&#39;foo&#39;),
@@ -566,6 +576,16 @@ not have a method with the specified name.</p></div>
         self.assertEqual(&#39;42&#39;, bar(&#39;42&#39;))
         self.assertEqual(&#39;42&#39;, bar(foo=&#39;42&#39;))
 
+    def test_external_parameter_ignores_value_when_given(self) -&gt; None:
+        @validate(EnvironmentVariableParameter(name=&#39;foo&#39;), ignore_input=True)
+        def bar(foo):
+            return foo
+
+        os.environ[&#39;foo&#39;] = &#39;1&#39;
+
+        self.assertEqual(&#39;1&#39;, bar(&#39;42&#39;))
+        self.assertEqual(&#39;1&#39;, bar(foo=&#39;42&#39;))
+
     def test_external_parameter_mixed_with_normal_parameter(self) -&gt; None:
         @validate(
             EnvironmentVariableParameter(name=&#39;foo&#39;),
@@ -862,6 +882,26 @@ not have a method with the specified name.</p></div>
 
     self.assertEqual(&#39;42&#39;, bar(&#39;42&#39;))
     self.assertEqual(&#39;42&#39;, bar(foo=&#39;42&#39;))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_ignores_value_when_given"><code class="name flex">
+<span>def <span class="ident">test_external_parameter_ignores_value_when_given</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_external_parameter_ignores_value_when_given(self) -&gt; None:
+    @validate(EnvironmentVariableParameter(name=&#39;foo&#39;), ignore_input=True)
+    def bar(foo):
+        return foo
+
+    os.environ[&#39;foo&#39;] = &#39;1&#39;
+
+    self.assertEqual(&#39;1&#39;, bar(&#39;42&#39;))
+    self.assertEqual(&#39;1&#39;, bar(foo=&#39;42&#39;))</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter"><code class="name flex">
@@ -1389,6 +1429,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none">test_empty_parameter_kwargs_with_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_without_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_without_none">test_empty_parameter_kwargs_without_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given">test_external_parameter_accepts_value_when_given</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_ignores_value_when_given" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_ignores_value_when_given">test_external_parameter_ignores_value_when_given</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter">test_external_parameter_mixed_with_normal_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments" href="#pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments">test_less_parameter_than_arguments</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters" href="#pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters">test_multiple_parameters</a></code></li>

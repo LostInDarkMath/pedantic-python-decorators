@@ -426,6 +426,19 @@ class TestFlaskParameters(TestCase):
             }
             self.assertEqual(expected, res.json)
 
+    def test_validator_flask_json_parameter_does_not_get_json_but_default(self) -&gt; None:
+        app = Flask(__name__)
+
+        @app.route(&#39;/&#39;)
+        @validate(FlaskJsonParameter(name=&#39;key&#39;, default=&#39;42&#39;))
+        def hello_world(key: str) -&gt; Response:
+            return jsonify(key)
+
+        with app.test_client() as client:
+            res = client.get(&#39;/&#39;, data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual(&#39;42&#39;, res.json)
+
     def test_too_many_arguments(self) -&gt; None:
         app = Flask(__name__)
 
@@ -874,6 +887,19 @@ not have a method with the specified name.</p></div>
                 &#39;message&#39;: &#39;Data is not in JSON format.&#39;,
             }
             self.assertEqual(expected, res.json)
+
+    def test_validator_flask_json_parameter_does_not_get_json_but_default(self) -&gt; None:
+        app = Flask(__name__)
+
+        @app.route(&#39;/&#39;)
+        @validate(FlaskJsonParameter(name=&#39;key&#39;, default=&#39;42&#39;))
+        def hello_world(key: str) -&gt; Response:
+            return jsonify(key)
+
+        with app.test_client() as client:
+            res = client.get(&#39;/&#39;, data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual(&#39;42&#39;, res.json)
 
     def test_too_many_arguments(self) -&gt; None:
         app = Flask(__name__)
@@ -1349,6 +1375,29 @@ not have a method with the specified name.</p></div>
         self.assertEqual(expected, res.json)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_json_parameter_does_not_get_json_but_default"><code class="name flex">
+<span>def <span class="ident">test_validator_flask_json_parameter_does_not_get_json_but_default</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_validator_flask_json_parameter_does_not_get_json_but_default(self) -&gt; None:
+    app = Flask(__name__)
+
+    @app.route(&#39;/&#39;)
+    @validate(FlaskJsonParameter(name=&#39;key&#39;, default=&#39;42&#39;))
+    def hello_world(key: str) -&gt; Response:
+        return jsonify(key)
+
+    with app.test_client() as client:
+        res = client.get(&#39;/&#39;, data={})
+        self.assertEqual(OK, res.status_code)
+        self.assertEqual(&#39;42&#39;, res.json)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_path"><code class="name flex">
 <span>def <span class="ident">test_validator_flask_path</span></span>(<span>self) ‑> None</span>
 </code></dt>
@@ -1485,6 +1534,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_header_optional_parameter" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_header_optional_parameter">test_validator_flask_header_optional_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_json" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_json">test_validator_flask_json</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_json_parameter_does_not_get_json" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_json_parameter_does_not_get_json">test_validator_flask_json_parameter_does_not_get_json</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_json_parameter_does_not_get_json_but_default" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_json_parameter_does_not_get_json_but_default">test_validator_flask_json_parameter_does_not_get_json_but_default</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_path" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_path">test_validator_flask_path</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_path_type_conversion" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_path_type_conversion">test_validator_flask_path_type_conversion</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_wrong_name" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_wrong_name">test_wrong_name</a></code></li>

@@ -24,8 +24,6 @@ def convert_value(value: Any, target_type: Type[T]) -> T:
             return [item.strip() for item in value.split(',')]
         elif target_type == dict:
             value = {item.split(':')[0].strip(): item.partition(':')[-1].strip() for item in value.split(',')}
-        elif target_type == int:
-            return int(float(value))
 
         return target_type(value)
     except ValueError:

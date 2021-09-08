@@ -24,6 +24,7 @@ def validate(
         *parameters: Parameter,
         return_as: ReturnAs = ReturnAs.KWARGS_WITHOUT_NONE,
         strict: bool = True,
+        ignore_input: bool = False,
 ) -> Callable:
     """
         Validates the values that are passed to the function by using the validators in the passed parameters.
@@ -34,6 +35,8 @@ def validate(
                 Positional arguments are used otherwise.
             strict (bool): If strict is true, you have to define a Parameter for each of the
                 arguments the decorated function takes.
+            ignore_input (bool): If True, all given arguments passed to this decorator are ignored.
+                This can be useful if you use only ExternalParameters.
 
         Returns:
             Callable: The decorated function.
@@ -46,45 +49,46 @@ def validate(
             parameter_dict = {parameter.name: parameter for parameter in parameters}
             used_parameter_names: List[str] = []
 
-            for k, v in kwargs.items():
-                if k in parameter_dict:
-                    parameter = parameter_dict[k]
-                    result[k] = parameter.validate(value=v)
-                    used_parameter_names.append(parameter.name)
-                else:
-                    if strict:
-                        raise TooManyArguments(f'Got more arguments expected: No parameter found for argument {k}')
-                    else:
-                        result[k] = v
-
-            signature = inspect.signature(func)
-            wants_args = '*args' in str(signature)
-            used_args = []
-
-            try:
-                bound_args = signature.bind_partial(*args).arguments
-            except TypeError as ex:
-                raise ValidateException(str(ex))
-
-            for k in bound_args:
-                if k == 'args' and wants_args:
-                    for arg, parameter in zip(
-                            [a for a in args if a not in used_args],
-                            [p for p in parameters if p.name not in used_parameter_names]
-                    ):
-                        print(f'Validate value {arg} with {parameter}')
-                        result[parameter.name] = parameter.validate(arg)
+            if not ignore_input:
+                for k, v in kwargs.items():
+                    if k in parameter_dict:
+                        parameter = parameter_dict[k]
+                        result[k] = parameter.validate(value=v)
                         used_parameter_names.append(parameter.name)
-                elif k in parameter_dict:
-                    parameter = parameter_dict[k]
-                    result[k] = parameter.validate(value=bound_args[k])
-                    used_parameter_names.append(parameter.name)
-                    used_args.append(bound_args[k])
-                else:
-                    if strict and k != 'self':
-                        raise TooManyArguments(f'Got more arguments expected: No parameter found for argument {k}')
                     else:
-                        result[k] = bound_args[k]
+                        if strict:
+                            raise TooManyArguments(f'Got more arguments expected: No parameter found for argument {k}')
+                        else:
+                            result[k] = v
+
+                signature = inspect.signature(func)
+                wants_args = '*args' in str(signature)
+                used_args = []
+
+                try:
+                    bound_args = signature.bind_partial(*args).arguments
+                except TypeError as ex:
+                    raise ValidateException(str(ex))
+
+                for k in bound_args:
+                    if k == 'args' and wants_args:
+                        for arg, parameter in zip(
+                                [a for a in args if a not in used_args],
+                                [p for p in parameters if p.name not in used_parameter_names]
+                        ):
+                            print(f'Validate value {arg} with {parameter}')
+                            result[parameter.name] = parameter.validate(arg)
+                            used_parameter_names.append(parameter.name)
+                    elif k in parameter_dict:
+                        parameter = parameter_dict[k]
+                        result[k] = parameter.validate(value=bound_args[k])
+                        used_parameter_names.append(parameter.name)
+                        used_args.append(bound_args[k])
+                    else:
+                        if strict and k != 'self':
+                            raise TooManyArguments(f'Got more arguments expected: No parameter found for argument {k}')
+                        else:
+                            result[k] = bound_args[k]
 
             unused_parameters = [parameter for parameter in parameters if parameter.name not in used_parameter_names]
 
@@ -101,7 +105,7 @@ def validate(
 
             # this is ugly, but i really want this behavior
             if strict and IS_FLASK_INSTALLED:
-                if all([isinstance(p, FlaskJsonParameter) for p in parameter_dict.values()]):
+                if all([isinstance(p, FlaskJsonParameter) for p in parameter_dict.values()]) and request.is_json:
                     unexpected_args = [k for k in request.json if k not in parameter_dict]
 
                     if unexpected_args:

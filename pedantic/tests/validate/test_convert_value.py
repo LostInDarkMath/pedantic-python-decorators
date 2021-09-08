@@ -20,12 +20,10 @@ class TestConvertValue(TestCase):
         for value in range(-4, 4):
             self.assertEqual(value, convert_value(value=value, target_type=int))
 
-        self.assertEqual(0, convert_value(value=0.2, target_type=int))
-        self.assertEqual(0, convert_value(value='0.2', target_type=int))
         self.assertEqual(42, convert_value(value='42', target_type=int))
         self.assertEqual(0, convert_value(value='  0000 ', target_type=int))
 
-        for value in ['alse', 'Talse', 'Frue']:
+        for value in ['alse', 'Talse', 'Frue', 0.2, '0.2']:
             with self.assertRaises(expected_exception=ValidationError):
                 self.assertFalse(convert_value(value=value, target_type=int))
 

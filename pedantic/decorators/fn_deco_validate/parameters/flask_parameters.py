@@ -18,6 +18,9 @@ class FlaskParameter(ExternalParameter, ABC):
         dict_ = self.get_dict()
 
         if dict_ is None:
+            if self.default_value is not None:
+                return self.default_value
+
             raise ValidationError(message=f'Data is not in JSON format.')
 
         if self.name in dict_ and dict_[self.name] is not None:

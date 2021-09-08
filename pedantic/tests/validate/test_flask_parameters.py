@@ -398,6 +398,19 @@ class TestFlaskParameters(TestCase):
             }
             self.assertEqual(expected, res.json)
 
+    def test_validator_flask_json_parameter_does_not_get_json_but_default(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskJsonParameter(name='key', default='42'))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        with app.test_client() as client:
+            res = client.get('/', data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('42', res.json)
+
     def test_too_many_arguments(self) -> None:
         app = Flask(__name__)
 
