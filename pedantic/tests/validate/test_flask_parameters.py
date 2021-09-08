@@ -310,13 +310,26 @@ class TestFlaskParameters(TestCase):
 
         @app.route('/')
         @validate(FlaskFormParameter(name='key', value_type=str, required=False))
-        def hello_world(key: str = 'hi') -> Response:
+        def hello_world(key: str) -> Response:
             return jsonify(key)
 
         with app.test_client() as client:
             res = client.get(data={})
             self.assertEqual(OK, res.status_code)
-            self.assertEqual('hi', res.json)
+            self.assertEqual(None, res.json)
+
+    def test_not_required_with_default(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskFormParameter(name='key', value_type=str, required=False, default='42'))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        with app.test_client() as client:
+            res = client.get(data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('42', res.json)
 
     def test_validator_flask_path_type_conversion(self) -> None:
         app = Flask(__name__)

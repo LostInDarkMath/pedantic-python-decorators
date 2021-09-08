@@ -84,11 +84,8 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                     raise ValidationError(f'Got no value for parameter {parameter.name}')
 
                 value = parameter.load_value()
-
                 validated_value = parameter.validate(value=value)
-
-                if validated_value is not None:
-                    result[parameter.name] = validated_value
+                result[parameter.name] = validated_value
 
             if return_as == ReturnAs.KWARGS:
                 if 'self' in result:
