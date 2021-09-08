@@ -31,6 +31,7 @@ from typing import Any, Dict
 
 from flask import request
 
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, InvalidHeader
 from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter, Parameter
 
@@ -43,6 +44,9 @@ class FlaskParameter(ExternalParameter, ABC):
     @overrides(ExternalParameter)
     def load_value(self) -&gt; Any:
         dict_ = self.get_dict()
+
+        if dict_ is None:
+            raise ValidationError(message=f&#39;Data is not in JSON format.&#39;)
 
         if self.name in dict_ and dict_[self.name] is not None:
             return dict_[self.name]
@@ -79,6 +83,8 @@ class FlaskGetParameter(FlaskParameter):
 
 
 class FlaskHeaderParameter(FlaskParameter):
+    exception_type = InvalidHeader
+
     @overrides(FlaskParameter)
     def get_dict(self) -&gt; Dict:
         return request.headers</code></pre>
@@ -120,6 +126,7 @@ inheritance.</p></div>
 <ul class="hlist">
 <li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter">FlaskParameter</a></b></code>:
 <ul class="hlist">
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.exception_type" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.get_dict" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.get_dict">get_dict</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.load_value" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value">load_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.validate" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
@@ -154,6 +161,7 @@ inheritance.</p></div>
 <ul class="hlist">
 <li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter">FlaskParameter</a></b></code>:
 <ul class="hlist">
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.exception_type" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.get_dict" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.get_dict">get_dict</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.load_value" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value">load_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.validate" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
@@ -173,6 +181,8 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FlaskHeaderParameter(FlaskParameter):
+    exception_type = InvalidHeader
+
     @overrides(FlaskParameter)
     def get_dict(self) -&gt; Dict:
         return request.headers</code></pre>
@@ -188,6 +198,7 @@ inheritance.</p></div>
 <ul class="hlist">
 <li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter">FlaskParameter</a></b></code>:
 <ul class="hlist">
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.exception_type" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.get_dict" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.get_dict">get_dict</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.load_value" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value">load_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.validate" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
@@ -222,6 +233,7 @@ inheritance.</p></div>
 <ul class="hlist">
 <li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter">FlaskParameter</a></b></code>:
 <ul class="hlist">
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.exception_type" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.get_dict" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.get_dict">get_dict</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.load_value" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value">load_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskParameter.validate" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
@@ -248,6 +260,9 @@ inheritance.</p></div>
     @overrides(ExternalParameter)
     def load_value(self) -&gt; Any:
         dict_ = self.get_dict()
+
+        if dict_ is None:
+            raise ValidationError(message=f&#39;Data is not in JSON format.&#39;)
 
         if self.name in dict_ and dict_[self.name] is not None:
             return dict_[self.name]
@@ -291,6 +306,7 @@ def get_dict(self) -&gt; Dict[str, Any]:
 <ul class="hlist">
 <li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter">ExternalParameter</a></b></code>:
 <ul class="hlist">
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.exception_type" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value">load_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.validate" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
 </ul>
@@ -322,6 +338,7 @@ Therefore, this doesn't need to be an ExternalParameter.</p></div>
 <ul class="hlist">
 <li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter">Parameter</a></b></code>:
 <ul class="hlist">
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
 </ul>
 </li>

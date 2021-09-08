@@ -1,7 +1,11 @@
 from typing import Any, Dict
 
 
-class ValidationError(Exception):
+class ValidateException(Exception):
+    """ The base class for all exception thrown by the validate decorator. """
+
+
+class ValidationError(ValidateException):
     def __init__(self,
                  message: str = 'invalid parameter',
                  validator_name: str = '',
@@ -21,3 +25,7 @@ class ValidationError(Exception):
             'value': str(self.value),
             'message': self.message,
         }
+
+
+class InvalidHeader(ValidateException):
+    """ Is raised if there is a validation error in a FlaskHeaderParameter. """

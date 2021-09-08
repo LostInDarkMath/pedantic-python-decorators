@@ -2,7 +2,7 @@ import os
 from typing import Optional, Any
 from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
 from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email, Validator
@@ -103,7 +103,7 @@ class TestValidate(TestCase):
 
         some_calculation(43, 0, -50)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidateException):
             some_calculation(30, None, 50)
 
     def test_empty_parameter_kwargs_with_none(self):
@@ -143,7 +143,7 @@ class TestValidate(TestCase):
 
         some_calculation(43, 0, -50)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidateException):
             some_calculation(30, None, 50)
 
     def test_call_with_args(self):
@@ -185,7 +185,7 @@ class TestValidate(TestCase):
 
         self.assertEqual(42, bar(42))
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidateException):
             bar(42, 43)
 
     def test_unexpected_parameter_strict(self) -> None:
@@ -193,9 +193,9 @@ class TestValidate(TestCase):
         def bar(x):
             return x
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidateException):
             bar(42)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidateException):
             bar(x=42)
 
     def test_unexpected_parameter_not_strict(self) -> None:
@@ -203,10 +203,10 @@ class TestValidate(TestCase):
         def bar(x):
             return x
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidateException):
             self.assertEqual(42, bar(42))
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidateException):
             self.assertEqual(42, bar(x=42))
 
     def test_unexpected_parameter_not_strict_external(self) -> None:
@@ -214,10 +214,10 @@ class TestValidate(TestCase):
         def bar(x):
             return x
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidateException):
             self.assertEqual(42, bar(42))
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidateException):
             self.assertEqual(42, bar(x=42))
 
     def test_return_as_simple(self) -> None:

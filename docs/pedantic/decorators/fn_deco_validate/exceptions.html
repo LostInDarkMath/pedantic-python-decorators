@@ -29,7 +29,11 @@
 <pre><code class="python">from typing import Any, Dict
 
 
-class ValidationError(Exception):
+class ValidateException(Exception):
+    &#34;&#34;&#34; The base class for all exception thrown by the validate decorator. &#34;&#34;&#34;
+
+
+class ValidationError(ValidateException):
     def __init__(self,
                  message: str = &#39;invalid parameter&#39;,
                  validator_name: str = &#39;&#39;,
@@ -48,7 +52,11 @@ class ValidationError(Exception):
             &#39;rule&#39;: self.validator_name,
             &#39;value&#39;: str(self.value),
             &#39;message&#39;: self.message,
-        }</code></pre>
+        }
+
+
+class InvalidHeader(ValidateException):
+    &#34;&#34;&#34; Is raised if there is a validation error in a FlaskHeaderParameter. &#34;&#34;&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -60,17 +68,61 @@ class ValidationError(Exception):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="pedantic.decorators.fn_deco_validate.exceptions.InvalidHeader"><code class="flex name class">
+<span>class <span class="ident">InvalidHeader</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Is raised if there is a validation error in a FlaskHeaderParameter.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class InvalidHeader(ValidateException):
+    &#34;&#34;&#34; Is raised if there is a validation error in a FlaskHeaderParameter. &#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pedantic.decorators.fn_deco_validate.exceptions.ValidateException" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidateException">ValidateException</a></li>
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+<dt id="pedantic.decorators.fn_deco_validate.exceptions.ValidateException"><code class="flex name class">
+<span>class <span class="ident">ValidateException</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The base class for all exception thrown by the validate decorator.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ValidateException(Exception):
+    &#34;&#34;&#34; The base class for all exception thrown by the validate decorator. &#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pedantic.decorators.fn_deco_validate.exceptions.InvalidHeader" href="#pedantic.decorators.fn_deco_validate.exceptions.InvalidHeader">InvalidHeader</a></li>
+<li><a title="pedantic.decorators.fn_deco_validate.exceptions.ValidationError" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidationError">ValidationError</a></li>
+</ul>
+</dd>
 <dt id="pedantic.decorators.fn_deco_validate.exceptions.ValidationError"><code class="flex name class">
 <span>class <span class="ident">ValidationError</span></span>
 <span>(</span><span>message: str = 'invalid parameter', validator_name: str = '', value: Any = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<div class="desc"><p>The base class for all exception thrown by the validate decorator.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class ValidationError(Exception):
+<pre><code class="python">class ValidationError(ValidateException):
     def __init__(self,
                  message: str = &#39;invalid parameter&#39;,
                  validator_name: str = &#39;&#39;,
@@ -93,6 +145,7 @@ class ValidationError(Exception):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="pedantic.decorators.fn_deco_validate.exceptions.ValidateException" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidateException">ValidateException</a></li>
 <li>builtins.Exception</li>
 <li>builtins.BaseException</li>
 </ul>
@@ -132,6 +185,12 @@ def to_dict(self) -&gt; Dict[str, str]:
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="pedantic.decorators.fn_deco_validate.exceptions.InvalidHeader" href="#pedantic.decorators.fn_deco_validate.exceptions.InvalidHeader">InvalidHeader</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pedantic.decorators.fn_deco_validate.exceptions.ValidateException" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidateException">ValidateException</a></code></h4>
+</li>
 <li>
 <h4><code><a title="pedantic.decorators.fn_deco_validate.exceptions.ValidationError" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidationError">ValidationError</a></code></h4>
 <ul class="">

@@ -1,11 +1,13 @@
 from typing import Iterable, Any, Type, Union
 
 from pedantic.decorators.fn_deco_validate.convert_value import convert_value
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
 from pedantic.decorators.fn_deco_validate.validators.abstract_validator import Validator
 
 
 class Parameter:
+    exception_type: Type[Exception] = ValidateException
+
     def __init__(self,
                  name: str,
                  value_type: Type[Union[bool, int, float, str, dict, list]] = None,
@@ -27,7 +29,7 @@ class Parameter:
 
         if value is None:
             if self.is_required:
-                raise ValidationError(f'Value for key {self.name} is required.')
+                raise self.exception_type(f'Value for key {self.name} is required.')
 
             return None
 

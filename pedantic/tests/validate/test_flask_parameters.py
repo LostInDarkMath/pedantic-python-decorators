@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from flask import Flask, Response, jsonify
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
     FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
@@ -272,18 +272,17 @@ class TestFlaskParameters(TestCase):
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
+        @app.errorhandler(ValidateException)
+        def handle_validation_error(exception: ValidateException) -> Response:
             print(str(exception))
-            response = jsonify(exception.to_dict)
+            response = jsonify(str(exception))
             response.status_code = INVALID
             return response
 
         with app.test_client() as client:
             res = client.get(data={'key': 'k'})
             self.assertEqual(INVALID, res.status_code)
-            expected = {'message': 'Value for key k is required.', 'rule': '', 'value': 'None'}
-            self.assertEqual(expected, res.json)
+            self.assertEqual('Value for key k is required.', res.json)
 
     def test_default_value(self) -> None:
         app = Flask(__name__)
@@ -364,3 +363,28 @@ class TestFlaskParameters(TestCase):
             res = client.get('/42', data={})
             self.assertEqual(OK, res.status_code)
             self.assertEqual(42, res.json)
+
+    def test_validator_flask_json_parameter_does_not_get_json(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskJsonParameter(name='key'))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get('/', data={})
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                'rule': '',
+                'value': 'None',
+                'message': 'Data is not in JSON format.',
+            }
+            self.assertEqual(expected, res.json)

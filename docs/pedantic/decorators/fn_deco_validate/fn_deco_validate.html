@@ -31,7 +31,7 @@ from enum import Enum
 from functools import wraps
 from typing import Any, Callable, List
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalParameter
 
 
@@ -74,7 +74,7 @@ def validate(
                     used_parameter_names.append(parameter.name)
                 else:
                     if strict:
-                        raise ValidationError(f&#39;Got more arguments expected: No parameter found for argument {k}&#39;)
+                        raise ValidateException(f&#39;Got more arguments expected: No parameter found for argument {k}&#39;)
                     else:
                         result[k] = v
 
@@ -85,7 +85,7 @@ def validate(
             try:
                 bound_args = signature.bind_partial(*args).arguments
             except TypeError as ex:
-                raise ValidationError(message=str(ex))
+                raise ValidateException(str(ex))
 
             for k in bound_args:
                 if k == &#39;args&#39; and wants_args:
@@ -103,7 +103,7 @@ def validate(
                     used_args.append(bound_args[k])
                 else:
                     if strict and k != &#39;self&#39;:
-                        raise ValidationError(f&#39;Got more arguments expected: No parameter found for argument {k}&#39;)
+                        raise ValidateException(f&#39;Got more arguments expected: No parameter found for argument {k}&#39;)
                     else:
                         result[k] = bound_args[k]
 
@@ -114,7 +114,7 @@ def validate(
                     if not parameter.is_required:
                         continue
 
-                    raise ValidationError(f&#39;Got no value for parameter {parameter.name}&#39;)
+                    raise ValidateException(f&#39;Got no value for parameter {parameter.name}&#39;)
 
                 value = parameter.load_value()
                 validated_value = parameter.validate(value=value)
@@ -199,7 +199,7 @@ arguments the decorated function takes.</dd>
                     used_parameter_names.append(parameter.name)
                 else:
                     if strict:
-                        raise ValidationError(f&#39;Got more arguments expected: No parameter found for argument {k}&#39;)
+                        raise ValidateException(f&#39;Got more arguments expected: No parameter found for argument {k}&#39;)
                     else:
                         result[k] = v
 
@@ -210,7 +210,7 @@ arguments the decorated function takes.</dd>
             try:
                 bound_args = signature.bind_partial(*args).arguments
             except TypeError as ex:
-                raise ValidationError(message=str(ex))
+                raise ValidateException(str(ex))
 
             for k in bound_args:
                 if k == &#39;args&#39; and wants_args:
@@ -228,7 +228,7 @@ arguments the decorated function takes.</dd>
                     used_args.append(bound_args[k])
                 else:
                     if strict and k != &#39;self&#39;:
-                        raise ValidationError(f&#39;Got more arguments expected: No parameter found for argument {k}&#39;)
+                        raise ValidateException(f&#39;Got more arguments expected: No parameter found for argument {k}&#39;)
                     else:
                         result[k] = bound_args[k]
 
@@ -239,7 +239,7 @@ arguments the decorated function takes.</dd>
                     if not parameter.is_required:
                         continue
 
-                    raise ValidationError(f&#39;Got no value for parameter {parameter.name}&#39;)
+                    raise ValidateException(f&#39;Got no value for parameter {parameter.name}&#39;)
 
                 value = parameter.load_value()
                 validated_value = parameter.validate(value=value)

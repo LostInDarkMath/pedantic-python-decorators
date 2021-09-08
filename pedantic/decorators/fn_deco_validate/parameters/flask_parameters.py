@@ -3,6 +3,7 @@ from typing import Any, Dict
 
 from flask import request
 
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, InvalidHeader
 from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter, Parameter
 
@@ -15,6 +16,9 @@ class FlaskParameter(ExternalParameter, ABC):
     @overrides(ExternalParameter)
     def load_value(self) -> Any:
         dict_ = self.get_dict()
+
+        if dict_ is None:
+            raise ValidationError(message=f'Data is not in JSON format.')
 
         if self.name in dict_ and dict_[self.name] is not None:
             return dict_[self.name]
@@ -51,6 +55,8 @@ class FlaskGetParameter(FlaskParameter):
 
 
 class FlaskHeaderParameter(FlaskParameter):
+    exception_type = InvalidHeader
+
     @overrides(FlaskParameter)
     def get_dict(self) -> Dict:
         return request.headers

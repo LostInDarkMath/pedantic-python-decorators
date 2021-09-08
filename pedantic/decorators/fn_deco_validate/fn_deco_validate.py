@@ -3,7 +3,7 @@ from enum import Enum
 from functools import wraps
 from typing import Any, Callable, List
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalParameter
 
 
@@ -46,7 +46,7 @@ def validate(
                     used_parameter_names.append(parameter.name)
                 else:
                     if strict:
-                        raise ValidationError(f'Got more arguments expected: No parameter found for argument {k}')
+                        raise ValidateException(f'Got more arguments expected: No parameter found for argument {k}')
                     else:
                         result[k] = v
 
@@ -57,7 +57,7 @@ def validate(
             try:
                 bound_args = signature.bind_partial(*args).arguments
             except TypeError as ex:
-                raise ValidationError(message=str(ex))
+                raise ValidateException(str(ex))
 
             for k in bound_args:
                 if k == 'args' and wants_args:
@@ -75,7 +75,7 @@ def validate(
                     used_args.append(bound_args[k])
                 else:
                     if strict and k != 'self':
-                        raise ValidationError(f'Got more arguments expected: No parameter found for argument {k}')
+                        raise ValidateException(f'Got more arguments expected: No parameter found for argument {k}')
                     else:
                         result[k] = bound_args[k]
 
@@ -86,7 +86,7 @@ def validate(
                     if not parameter.is_required:
                         continue
 
-                    raise ValidationError(f'Got no value for parameter {parameter.name}')
+                    raise ValidateException(f'Got no value for parameter {parameter.name}')
 
                 value = parameter.load_value()
                 validated_value = parameter.validate(value=value)
