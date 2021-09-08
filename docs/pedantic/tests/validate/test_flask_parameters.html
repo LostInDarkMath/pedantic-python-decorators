@@ -333,11 +333,25 @@ class TestFlaskParameters(TestCase):
             self.assertEqual(OK, res.status_code)
             self.assertEqual(&#39;42&#39;, res.json)
 
-    def test_not_required_allows_none(self) -&gt; None:
+    def test_not_required_allows_none_kwargs_without_none(self) -&gt; None:
         app = Flask(__name__)
 
         @app.route(&#39;/&#39;)
-        @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False))
+        @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False),
+                  return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+        def hello_world(key: str = &#39;it works&#39;) -&gt; Response:
+            return jsonify(key)
+
+        with app.test_client() as client:
+            res = client.get(data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual(&#39;it works&#39;, res.json)
+
+    def test_not_required_allows_none_kwargs_with_none(self) -&gt; None:
+        app = Flask(__name__)
+
+        @app.route(&#39;/&#39;)
+        @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
         def hello_world(key: str) -&gt; Response:
             return jsonify(key)
 
@@ -716,11 +730,25 @@ not have a method with the specified name.</p></div>
             self.assertEqual(OK, res.status_code)
             self.assertEqual(&#39;42&#39;, res.json)
 
-    def test_not_required_allows_none(self) -&gt; None:
+    def test_not_required_allows_none_kwargs_without_none(self) -&gt; None:
         app = Flask(__name__)
 
         @app.route(&#39;/&#39;)
-        @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False))
+        @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False),
+                  return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+        def hello_world(key: str = &#39;it works&#39;) -&gt; Response:
+            return jsonify(key)
+
+        with app.test_client() as client:
+            res = client.get(data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual(&#39;it works&#39;, res.json)
+
+    def test_not_required_allows_none_kwargs_with_none(self) -&gt; None:
+        app = Flask(__name__)
+
+        @app.route(&#39;/&#39;)
+        @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
         def hello_world(key: str) -&gt; Response:
             return jsonify(key)
 
@@ -817,8 +845,8 @@ not have a method with the specified name.</p></div>
             return jsonify(key)</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none"><code class="name flex">
-<span>def <span class="ident">test_not_required_allows_none</span></span>(<span>self) ‑> None</span>
+<dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_with_none"><code class="name flex">
+<span>def <span class="ident">test_not_required_allows_none_kwargs_with_none</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -826,11 +854,11 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_not_required_allows_none(self) -&gt; None:
+<pre><code class="python">def test_not_required_allows_none_kwargs_with_none(self) -&gt; None:
     app = Flask(__name__)
 
     @app.route(&#39;/&#39;)
-    @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False))
+    @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
     def hello_world(key: str) -&gt; Response:
         return jsonify(key)
 
@@ -838,6 +866,30 @@ not have a method with the specified name.</p></div>
         res = client.get(data={})
         self.assertEqual(OK, res.status_code)
         self.assertEqual(None, res.json)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_without_none"><code class="name flex">
+<span>def <span class="ident">test_not_required_allows_none_kwargs_without_none</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_not_required_allows_none_kwargs_without_none(self) -&gt; None:
+    app = Flask(__name__)
+
+    @app.route(&#39;/&#39;)
+    @validate(FlaskFormParameter(name=&#39;key&#39;, value_type=str, required=False),
+              return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+    def hello_world(key: str = &#39;it works&#39;) -&gt; Response:
+        return jsonify(key)
+
+    with app.test_client() as client:
+        res = client.get(data={})
+        self.assertEqual(OK, res.status_code)
+        self.assertEqual(&#39;it works&#39;, res.json)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_with_default"><code class="name flex">
@@ -1246,7 +1298,8 @@ not have a method with the specified name.</p></div>
 <ul class="">
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_default_value" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_default_value">test_default_value</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_invalid_value_type" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_invalid_value_type">test_invalid_value_type</a></code></li>
-<li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none">test_not_required_allows_none</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_with_none" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_with_none">test_not_required_allows_none_kwargs_with_none</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_without_none" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_without_none">test_not_required_allows_none_kwargs_without_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_with_default" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_with_default">test_not_required_with_default</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_form_data" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_form_data">test_validator_flask_form_data</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_get" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_get">test_validator_flask_get</a></code></li>

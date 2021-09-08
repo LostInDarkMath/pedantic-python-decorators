@@ -134,17 +134,31 @@ class TestValidate(TestCase):
         with self.assertRaises(expected_exception=ValidationError):
             some_calculation(30, None, 50)
 
-    def test_empty_parameter(self):
+    def test_empty_parameter_kwargs_with_none(self):
         @validate(
             Parameter(name=&#39;a&#39;, required=False),
             Parameter(name=&#39;b&#39;, required=True),
             Parameter(name=&#39;c&#39;, required=False),
+            return_as=ReturnAs.KWARGS_WITH_NONE
         )
         def some_calculation(a, b, c):
             return str(a) + str(b) + str(c)
 
-        some_calculation(43, 0, -50)
-        some_calculation(None, 0, None)
+        self.assertEqual(&#39;430-50&#39;, some_calculation(43, 0, -50))
+        self.assertEqual(&#39;None0None&#39;, some_calculation(None, 0, None))
+
+    def test_empty_parameter_kwargs_without_none(self):
+        @validate(
+            Parameter(name=&#39;a&#39;, required=False),
+            Parameter(name=&#39;b&#39;, required=True),
+            Parameter(name=&#39;c&#39;, required=False),
+            return_as=ReturnAs.KWARGS_WITHOUT_NONE
+        )
+        def some_calculation(a: Optional[int] = 1, b: Optional[int] = 2, c:  Optional[int] = 3):
+            return str(a) + str(b) + str(c)
+
+        self.assertEqual(&#39;430-50&#39;, some_calculation(43, 0, -50))
+        self.assertEqual(&#39;103&#39;, some_calculation(None, 0, None))
 
     def test_required(self):
         @validate(
@@ -250,8 +264,16 @@ class TestValidate(TestCase):
         self.assertEqual(((42,), {}), bar(42))
         self.assertEqual(((42,), {}), bar(x=42))
 
-    def test_return_as_kwargs(self) -&gt; None:
-        @validate(Parameter(name=&#39;x&#39;), return_as=ReturnAs.KWARGS)
+    def test_return_as_kwargs_with_none(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;), return_as=ReturnAs.KWARGS_WITH_NONE)
+        def bar(*args, **kwargs):
+            return args, kwargs
+
+        self.assertEqual(((), {&#39;x&#39;: 42}), bar(42))
+        self.assertEqual(((), {&#39;x&#39;: 42}), bar(x=42))
+
+    def test_return_as_kwargs_without_none(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;), return_as=ReturnAs.KWARGS_WITHOUT_NONE)
         def bar(*args, **kwargs):
             return args, kwargs
 
@@ -299,9 +321,20 @@ class TestValidate(TestCase):
         self.assertEqual(((), {&#39;a&#39;: 3, &#39;b&#39;: 42, &#39;c&#39;: 1}), bar(1, 3, 42))
         self.assertEqual(((), {&#39;a&#39;: 1, &#39;b&#39;: 3, &#39;c&#39;: 42}), bar(1, 3, c=42))
 
-    def test_none_is_not_validated_if_not_required(self) -&gt; None:
-        @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False))
+    def test_none_is_not_validated_if_not_required_kwargs_with_none(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
         def bar(a: Optional[str]):
+            return a
+
+        self.assertIsNone(bar(a=None))
+        self.assertIsNone(bar(None))
+
+        with self.assertRaises(expected_exception=ValidationError):
+            bar(&#39;no_email&#39;)
+
+    def test_none_is_not_validated_if_not_required_kwargs_without_none(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+        def bar(a: Optional[str] = None):
             return a
 
         self.assertIsNone(bar(a=None))
@@ -476,17 +509,31 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=ValidationError):
             some_calculation(30, None, 50)
 
-    def test_empty_parameter(self):
+    def test_empty_parameter_kwargs_with_none(self):
         @validate(
             Parameter(name=&#39;a&#39;, required=False),
             Parameter(name=&#39;b&#39;, required=True),
             Parameter(name=&#39;c&#39;, required=False),
+            return_as=ReturnAs.KWARGS_WITH_NONE
         )
         def some_calculation(a, b, c):
             return str(a) + str(b) + str(c)
 
-        some_calculation(43, 0, -50)
-        some_calculation(None, 0, None)
+        self.assertEqual(&#39;430-50&#39;, some_calculation(43, 0, -50))
+        self.assertEqual(&#39;None0None&#39;, some_calculation(None, 0, None))
+
+    def test_empty_parameter_kwargs_without_none(self):
+        @validate(
+            Parameter(name=&#39;a&#39;, required=False),
+            Parameter(name=&#39;b&#39;, required=True),
+            Parameter(name=&#39;c&#39;, required=False),
+            return_as=ReturnAs.KWARGS_WITHOUT_NONE
+        )
+        def some_calculation(a: Optional[int] = 1, b: Optional[int] = 2, c:  Optional[int] = 3):
+            return str(a) + str(b) + str(c)
+
+        self.assertEqual(&#39;430-50&#39;, some_calculation(43, 0, -50))
+        self.assertEqual(&#39;103&#39;, some_calculation(None, 0, None))
 
     def test_required(self):
         @validate(
@@ -592,8 +639,16 @@ not have a method with the specified name.</p></div>
         self.assertEqual(((42,), {}), bar(42))
         self.assertEqual(((42,), {}), bar(x=42))
 
-    def test_return_as_kwargs(self) -&gt; None:
-        @validate(Parameter(name=&#39;x&#39;), return_as=ReturnAs.KWARGS)
+    def test_return_as_kwargs_with_none(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;), return_as=ReturnAs.KWARGS_WITH_NONE)
+        def bar(*args, **kwargs):
+            return args, kwargs
+
+        self.assertEqual(((), {&#39;x&#39;: 42}), bar(42))
+        self.assertEqual(((), {&#39;x&#39;: 42}), bar(x=42))
+
+    def test_return_as_kwargs_without_none(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;), return_as=ReturnAs.KWARGS_WITHOUT_NONE)
         def bar(*args, **kwargs):
             return args, kwargs
 
@@ -641,9 +696,20 @@ not have a method with the specified name.</p></div>
         self.assertEqual(((), {&#39;a&#39;: 3, &#39;b&#39;: 42, &#39;c&#39;: 1}), bar(1, 3, 42))
         self.assertEqual(((), {&#39;a&#39;: 1, &#39;b&#39;: 3, &#39;c&#39;: 42}), bar(1, 3, c=42))
 
-    def test_none_is_not_validated_if_not_required(self) -&gt; None:
-        @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False))
+    def test_none_is_not_validated_if_not_required_kwargs_with_none(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
         def bar(a: Optional[str]):
+            return a
+
+        self.assertIsNone(bar(a=None))
+        self.assertIsNone(bar(None))
+
+        with self.assertRaises(expected_exception=ValidationError):
+            bar(&#39;no_email&#39;)
+
+    def test_none_is_not_validated_if_not_required_kwargs_without_none(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+        def bar(a: Optional[str] = None):
             return a
 
         self.assertIsNone(bar(a=None))
@@ -734,8 +800,8 @@ not have a method with the specified name.</p></div>
     some_calculation(42)</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter"><code class="name flex">
-<span>def <span class="ident">test_empty_parameter</span></span>(<span>self)</span>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none"><code class="name flex">
+<span>def <span class="ident">test_empty_parameter_kwargs_with_none</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -743,17 +809,41 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_empty_parameter(self):
+<pre><code class="python">def test_empty_parameter_kwargs_with_none(self):
     @validate(
         Parameter(name=&#39;a&#39;, required=False),
         Parameter(name=&#39;b&#39;, required=True),
         Parameter(name=&#39;c&#39;, required=False),
+        return_as=ReturnAs.KWARGS_WITH_NONE
     )
     def some_calculation(a, b, c):
         return str(a) + str(b) + str(c)
 
-    some_calculation(43, 0, -50)
-    some_calculation(None, 0, None)</code></pre>
+    self.assertEqual(&#39;430-50&#39;, some_calculation(43, 0, -50))
+    self.assertEqual(&#39;None0None&#39;, some_calculation(None, 0, None))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_without_none"><code class="name flex">
+<span>def <span class="ident">test_empty_parameter_kwargs_without_none</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_empty_parameter_kwargs_without_none(self):
+    @validate(
+        Parameter(name=&#39;a&#39;, required=False),
+        Parameter(name=&#39;b&#39;, required=True),
+        Parameter(name=&#39;c&#39;, required=False),
+        return_as=ReturnAs.KWARGS_WITHOUT_NONE
+    )
+    def some_calculation(a: Optional[int] = 1, b: Optional[int] = 2, c:  Optional[int] = 3):
+        return str(a) + str(b) + str(c)
+
+    self.assertEqual(&#39;430-50&#39;, some_calculation(43, 0, -50))
+    self.assertEqual(&#39;103&#39;, some_calculation(None, 0, None))</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given"><code class="name flex">
@@ -842,8 +932,8 @@ not have a method with the specified name.</p></div>
     self.assertEqual(11, bar(a=3, b=3, c=5))</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required"><code class="name flex">
-<span>def <span class="ident">test_none_is_not_validated_if_not_required</span></span>(<span>self) ‑> None</span>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_with_none"><code class="name flex">
+<span>def <span class="ident">test_none_is_not_validated_if_not_required_kwargs_with_none</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -851,9 +941,30 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_none_is_not_validated_if_not_required(self) -&gt; None:
-    @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False))
+<pre><code class="python">def test_none_is_not_validated_if_not_required_kwargs_with_none(self) -&gt; None:
+    @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
     def bar(a: Optional[str]):
+        return a
+
+    self.assertIsNone(bar(a=None))
+    self.assertIsNone(bar(None))
+
+    with self.assertRaises(expected_exception=ValidationError):
+        bar(&#39;no_email&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_without_none"><code class="name flex">
+<span>def <span class="ident">test_none_is_not_validated_if_not_required_kwargs_without_none</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_none_is_not_validated_if_not_required_kwargs_without_none(self) -&gt; None:
+    @validate(Parameter(name=&#39;a&#39;, validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+    def bar(a: Optional[str] = None):
         return a
 
     self.assertIsNone(bar(a=None))
@@ -972,8 +1083,8 @@ not have a method with the specified name.</p></div>
     self.assertEqual((42, 1, (3,), {}), bar(1, 3, c=42))</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.validate.test_validate.TestValidate.test_return_as_kwargs"><code class="name flex">
-<span>def <span class="ident">test_return_as_kwargs</span></span>(<span>self) ‑> None</span>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_return_as_kwargs_with_none"><code class="name flex">
+<span>def <span class="ident">test_return_as_kwargs_with_none</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -981,8 +1092,26 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_return_as_kwargs(self) -&gt; None:
-    @validate(Parameter(name=&#39;x&#39;), return_as=ReturnAs.KWARGS)
+<pre><code class="python">def test_return_as_kwargs_with_none(self) -&gt; None:
+    @validate(Parameter(name=&#39;x&#39;), return_as=ReturnAs.KWARGS_WITH_NONE)
+    def bar(*args, **kwargs):
+        return args, kwargs
+
+    self.assertEqual(((), {&#39;x&#39;: 42}), bar(42))
+    self.assertEqual(((), {&#39;x&#39;: 42}), bar(x=42))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_return_as_kwargs_without_none"><code class="name flex">
+<span>def <span class="ident">test_return_as_kwargs_without_none</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_return_as_kwargs_without_none(self) -&gt; None:
+    @validate(Parameter(name=&#39;x&#39;), return_as=ReturnAs.KWARGS_WITHOUT_NONE)
     def bar(*args, **kwargs):
         return args, kwargs
 
@@ -1257,18 +1386,21 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.setUp" href="#pedantic.tests.validate.test_validate.TestValidate.setUp">setUp</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_allow_renaming_of_parameter_of_custom_validator" href="#pedantic.tests.validate.test_validate.TestValidate.test_allow_renaming_of_parameter_of_custom_validator">test_allow_renaming_of_parameter_of_custom_validator</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_call_with_args" href="#pedantic.tests.validate.test_validate.TestValidate.test_call_with_args">test_call_with_args</a></code></li>
-<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter">test_empty_parameter</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none">test_empty_parameter_kwargs_with_none</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_without_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_without_none">test_empty_parameter_kwargs_without_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given">test_external_parameter_accepts_value_when_given</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter">test_external_parameter_mixed_with_normal_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments" href="#pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments">test_less_parameter_than_arguments</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters" href="#pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters">test_multiple_parameters</a></code></li>
-<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required">test_none_is_not_validated_if_not_required</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_with_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_with_none">test_none_is_not_validated_if_not_required_kwargs_with_none</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_without_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_without_none">test_none_is_not_validated_if_not_required_kwargs_without_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_removed_for_not_required_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_removed_for_not_required_parameter">test_none_is_removed_for_not_required_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_required" href="#pedantic.tests.validate.test_validate.TestValidate.test_required">test_required</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args">test_return_as_args</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced">test_return_as_args_advanced</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced_different_order" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_args_advanced_different_order">test_return_as_args_advanced_different_order</a></code></li>
-<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_kwargs" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_kwargs">test_return_as_kwargs</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_kwargs_with_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_kwargs_with_none">test_return_as_kwargs_with_none</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_kwargs_without_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_kwargs_without_none">test_return_as_kwargs_without_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_as_simple" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_as_simple">test_return_as_simple</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_return_multiple_args" href="#pedantic.tests.validate.test_validate.TestValidate.test_return_multiple_args">test_return_multiple_args</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_single_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_single_parameter">test_single_parameter</a></code></li>

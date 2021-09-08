@@ -36,11 +36,16 @@ from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalP
 
 
 class ReturnAs(Enum):
-    KWARGS = &#39;KWARGS&#39;
     ARGS = &#39;ARGS&#39;
+    KWARGS_WITH_NONE = &#39;KWARGS_WITH_NONE&#39;
+    KWARGS_WITHOUT_NONE = &#39;KWARGS_WITHOUT_NONE&#39;
 
 
-def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, strict: bool = True) -&gt; Callable:
+def validate(
+        *parameters: Parameter,
+        return_as: ReturnAs = ReturnAs.KWARGS_WITHOUT_NONE,
+        strict: bool = True,
+) -&gt; Callable:
     &#34;&#34;&#34;
         Validates the values that are passed to the function by using the validators in the passed parameters.
 
@@ -115,13 +120,16 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                 validated_value = parameter.validate(value=value)
                 result[parameter.name] = validated_value
 
-            if return_as == ReturnAs.KWARGS:
-                if &#39;self&#39; in result:
-                    return func(result.pop(&#39;self&#39;), **result)
-                else:
-                    return func(**result)
-            else:
+            if return_as == ReturnAs.ARGS:
                 return func(*result.values())
+
+            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
+                result = {k: v for k, v in result.items() if v is not None and &#39;self&#39;}
+
+            if &#39;self&#39; in result:
+                return func(result.pop(&#39;self&#39;), **result)
+
+            return func(**result)
         return wrapper
     return validator</code></pre>
 </details>
@@ -134,7 +142,7 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.fn_deco_validate.validate"><code class="name flex">
-<span>def <span class="ident">validate</span></span>(<span>*parameters: <a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter" href="parameters/abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter">Parameter</a>, return_as: <a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs">ReturnAs</a> = ReturnAs.KWARGS, strict: bool = True) ‑> Callable</span>
+<span>def <span class="ident">validate</span></span>(<span>*parameters: <a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter" href="parameters/abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter">Parameter</a>, return_as: <a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs">ReturnAs</a> = ReturnAs.KWARGS_WITHOUT_NONE, strict: bool = True) ‑> Callable</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Validates the values that are passed to the function by using the validators in the passed parameters.</p>
@@ -158,7 +166,11 @@ arguments the decorated function takes.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, strict: bool = True) -&gt; Callable:
+<pre><code class="python">def validate(
+        *parameters: Parameter,
+        return_as: ReturnAs = ReturnAs.KWARGS_WITHOUT_NONE,
+        strict: bool = True,
+) -&gt; Callable:
     &#34;&#34;&#34;
         Validates the values that are passed to the function by using the validators in the passed parameters.
 
@@ -233,13 +245,16 @@ arguments the decorated function takes.</dd>
                 validated_value = parameter.validate(value=value)
                 result[parameter.name] = validated_value
 
-            if return_as == ReturnAs.KWARGS:
-                if &#39;self&#39; in result:
-                    return func(result.pop(&#39;self&#39;), **result)
-                else:
-                    return func(**result)
-            else:
+            if return_as == ReturnAs.ARGS:
                 return func(*result.values())
+
+            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
+                result = {k: v for k, v in result.items() if v is not None and &#39;self&#39;}
+
+            if &#39;self&#39; in result:
+                return func(result.pop(&#39;self&#39;), **result)
+
+            return func(**result)
         return wrapper
     return validator</code></pre>
 </details>
@@ -260,8 +275,9 @@ arguments the decorated function takes.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ReturnAs(Enum):
-    KWARGS = &#39;KWARGS&#39;
-    ARGS = &#39;ARGS&#39;</code></pre>
+    ARGS = &#39;ARGS&#39;
+    KWARGS_WITH_NONE = &#39;KWARGS_WITH_NONE&#39;
+    KWARGS_WITHOUT_NONE = &#39;KWARGS_WITHOUT_NONE&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -273,7 +289,11 @@ arguments the decorated function takes.</dd>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.KWARGS"><code class="name">var <span class="ident">KWARGS</span></code></dt>
+<dt id="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.KWARGS_WITHOUT_NONE"><code class="name">var <span class="ident">KWARGS_WITHOUT_NONE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.KWARGS_WITH_NONE"><code class="name">var <span class="ident">KWARGS_WITH_NONE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -304,7 +324,8 @@ arguments the decorated function takes.</dd>
 <h4><code><a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs">ReturnAs</a></code></h4>
 <ul class="">
 <li><code><a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.ARGS" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.ARGS">ARGS</a></code></li>
-<li><code><a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.KWARGS" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.KWARGS">KWARGS</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.KWARGS_WITHOUT_NONE" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.KWARGS_WITHOUT_NONE">KWARGS_WITHOUT_NONE</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.KWARGS_WITH_NONE" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs.KWARGS_WITH_NONE">KWARGS_WITH_NONE</a></code></li>
 </ul>
 </li>
 </ul>

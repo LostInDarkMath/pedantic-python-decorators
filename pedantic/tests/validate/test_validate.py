@@ -106,17 +106,31 @@ class TestValidate(TestCase):
         with self.assertRaises(expected_exception=ValidationError):
             some_calculation(30, None, 50)
 
-    def test_empty_parameter(self):
+    def test_empty_parameter_kwargs_with_none(self):
         @validate(
             Parameter(name='a', required=False),
             Parameter(name='b', required=True),
             Parameter(name='c', required=False),
+            return_as=ReturnAs.KWARGS_WITH_NONE
         )
         def some_calculation(a, b, c):
             return str(a) + str(b) + str(c)
 
-        some_calculation(43, 0, -50)
-        some_calculation(None, 0, None)
+        self.assertEqual('430-50', some_calculation(43, 0, -50))
+        self.assertEqual('None0None', some_calculation(None, 0, None))
+
+    def test_empty_parameter_kwargs_without_none(self):
+        @validate(
+            Parameter(name='a', required=False),
+            Parameter(name='b', required=True),
+            Parameter(name='c', required=False),
+            return_as=ReturnAs.KWARGS_WITHOUT_NONE
+        )
+        def some_calculation(a: Optional[int] = 1, b: Optional[int] = 2, c:  Optional[int] = 3):
+            return str(a) + str(b) + str(c)
+
+        self.assertEqual('430-50', some_calculation(43, 0, -50))
+        self.assertEqual('103', some_calculation(None, 0, None))
 
     def test_required(self):
         @validate(
@@ -222,8 +236,16 @@ class TestValidate(TestCase):
         self.assertEqual(((42,), {}), bar(42))
         self.assertEqual(((42,), {}), bar(x=42))
 
-    def test_return_as_kwargs(self) -> None:
-        @validate(Parameter(name='x'), return_as=ReturnAs.KWARGS)
+    def test_return_as_kwargs_with_none(self) -> None:
+        @validate(Parameter(name='x'), return_as=ReturnAs.KWARGS_WITH_NONE)
+        def bar(*args, **kwargs):
+            return args, kwargs
+
+        self.assertEqual(((), {'x': 42}), bar(42))
+        self.assertEqual(((), {'x': 42}), bar(x=42))
+
+    def test_return_as_kwargs_without_none(self) -> None:
+        @validate(Parameter(name='x'), return_as=ReturnAs.KWARGS_WITHOUT_NONE)
         def bar(*args, **kwargs):
             return args, kwargs
 
@@ -271,9 +293,20 @@ class TestValidate(TestCase):
         self.assertEqual(((), {'a': 3, 'b': 42, 'c': 1}), bar(1, 3, 42))
         self.assertEqual(((), {'a': 1, 'b': 3, 'c': 42}), bar(1, 3, c=42))
 
-    def test_none_is_not_validated_if_not_required(self) -> None:
-        @validate(Parameter(name='a', validators=[Email()], required=False))
+    def test_none_is_not_validated_if_not_required_kwargs_with_none(self) -> None:
+        @validate(Parameter(name='a', validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
         def bar(a: Optional[str]):
+            return a
+
+        self.assertIsNone(bar(a=None))
+        self.assertIsNone(bar(None))
+
+        with self.assertRaises(expected_exception=ValidationError):
+            bar('no_email')
+
+    def test_none_is_not_validated_if_not_required_kwargs_without_none(self) -> None:
+        @validate(Parameter(name='a', validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+        def bar(a: Optional[str] = None):
             return a
 
         self.assertIsNone(bar(a=None))

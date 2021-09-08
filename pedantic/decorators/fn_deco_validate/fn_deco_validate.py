@@ -8,11 +8,16 @@ from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalP
 
 
 class ReturnAs(Enum):
-    KWARGS = 'KWARGS'
     ARGS = 'ARGS'
+    KWARGS_WITH_NONE = 'KWARGS_WITH_NONE'
+    KWARGS_WITHOUT_NONE = 'KWARGS_WITHOUT_NONE'
 
 
-def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, strict: bool = True) -> Callable:
+def validate(
+        *parameters: Parameter,
+        return_as: ReturnAs = ReturnAs.KWARGS_WITHOUT_NONE,
+        strict: bool = True,
+) -> Callable:
     """
         Validates the values that are passed to the function by using the validators in the passed parameters.
 
@@ -87,12 +92,15 @@ def validate(*parameters: Parameter, return_as: ReturnAs = ReturnAs.KWARGS, stri
                 validated_value = parameter.validate(value=value)
                 result[parameter.name] = validated_value
 
-            if return_as == ReturnAs.KWARGS:
-                if 'self' in result:
-                    return func(result.pop('self'), **result)
-                else:
-                    return func(**result)
-            else:
+            if return_as == ReturnAs.ARGS:
                 return func(*result.values())
+
+            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
+                result = {k: v for k, v in result.items() if v is not None and 'self'}
+
+            if 'self' in result:
+                return func(result.pop('self'), **result)
+
+            return func(**result)
         return wrapper
     return validator

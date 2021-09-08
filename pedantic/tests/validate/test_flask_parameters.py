@@ -305,11 +305,25 @@ class TestFlaskParameters(TestCase):
             self.assertEqual(OK, res.status_code)
             self.assertEqual('42', res.json)
 
-    def test_not_required_allows_none(self) -> None:
+    def test_not_required_allows_none_kwargs_without_none(self) -> None:
         app = Flask(__name__)
 
         @app.route('/')
-        @validate(FlaskFormParameter(name='key', value_type=str, required=False))
+        @validate(FlaskFormParameter(name='key', value_type=str, required=False),
+                  return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+        def hello_world(key: str = 'it works') -> Response:
+            return jsonify(key)
+
+        with app.test_client() as client:
+            res = client.get(data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('it works', res.json)
+
+    def test_not_required_allows_none_kwargs_with_none(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskFormParameter(name='key', value_type=str, required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
