@@ -16,10 +16,22 @@ Run `pip install pedantic`.
 1. Download the [latest release here](https://github.com/LostInDarkMath/PythonHelpers/releases/latest) by clicking on `pedantic-python-decorators-x.y.z-py-none-any.whl`.
 2. Execute `pip install pedantic-python-decorators-x.y.z-py3-none-any.whl`.
 
-### Usage
-Use `from pedantic import pedantic, pedantic_class` to import the pedantic decorators for example. Of course you could import whatever decorator you want to use as well.
-Don't forget to check out the [documentation](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic).
-Happy coding!
+## The [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic) decorator
+The `@pedantic` decorator does the following things:
+- The decorated function can only be called by using keyword arguments. Positional arguments are not accepted.
+- The decorated function must have [Type annotations](https://docs.python.org/3/library/typing.html).
+- Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
+As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
+- If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
+Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported.
+
+In a nutshell:
+`@pedantic` raises an `PedanticException` if one of the following happened:
+- The decorated function is called with positional arguments.
+- The function has no type annotation for their return type or one or more parameters do not have type annotations.
+- A type annotation is incorrect.
+- A type annotation misses type arguments, e.g. `typing.List` instead of `typing.List[int]`.
+- The documented arguments do not match the argument list or their type annotations.
 
 ### Minimal example
 ```python
@@ -43,22 +55,6 @@ m = MyClass(x=3.14, y=2)
 m.print_sum()
 ```
 
-## The [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic) decorator
-The `@pedantic` decorator does the following things:
-- The decorated function can only be called by using keyword arguments. Positional arguments are not accepted.
-- The decorated function must have [Type annotations](https://docs.python.org/3/library/typing.html).
-- Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
-As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
-- If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
-Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported.
-
-In a nutshell:
-`@pedantic` raises an `PedanticException` if one of the following happened:
-- The decorated function is called with positional arguments.
-- The function has no type annotation for their return type or one or more parameters do not have type annotations.
-- A type annotation is incorrect.
-- A type annotation misses type arguments, e.g. `typing.List` instead of `typing.List[int]`.
-- The documented arguments do not match the argument list or their type annotations.
 
 ## The [@validate]() decorator
 As the name suggests, with `@validate` you are able to validate the values that are passed to your function.
@@ -191,3 +187,6 @@ You can also disable or enable the environment variables in your project by call
 from pedantic import enable_pedantic, disable_pedantic
 enable_pedantic()
 ```
+
+Don't forget to check out the [documentation](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic).
+Happy coding!

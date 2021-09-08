@@ -56,7 +56,11 @@ class ValidationError(ValidateException):
 
 
 class InvalidHeader(ValidateException):
-    &#34;&#34;&#34; Is raised if there is a validation error in a FlaskHeaderParameter. &#34;&#34;&#34;</code></pre>
+    &#34;&#34;&#34; Is raised if there is a validation error in a FlaskHeaderParameter. &#34;&#34;&#34;
+
+
+class TooManyArguments(ValidateException):
+    &#34;&#34;&#34; Is raised if function got more arguments then expected. &#34;&#34;&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -88,6 +92,26 @@ class InvalidHeader(ValidateException):
 <li>builtins.BaseException</li>
 </ul>
 </dd>
+<dt id="pedantic.decorators.fn_deco_validate.exceptions.TooManyArguments"><code class="flex name class">
+<span>class <span class="ident">TooManyArguments</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Is raised if function got more arguments then expected.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TooManyArguments(ValidateException):
+    &#34;&#34;&#34; Is raised if function got more arguments then expected. &#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pedantic.decorators.fn_deco_validate.exceptions.ValidateException" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidateException">ValidateException</a></li>
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
 <dt id="pedantic.decorators.fn_deco_validate.exceptions.ValidateException"><code class="flex name class">
 <span>class <span class="ident">ValidateException</span></span>
 <span>(</span><span>*args, **kwargs)</span>
@@ -109,6 +133,7 @@ class InvalidHeader(ValidateException):
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="pedantic.decorators.fn_deco_validate.exceptions.InvalidHeader" href="#pedantic.decorators.fn_deco_validate.exceptions.InvalidHeader">InvalidHeader</a></li>
+<li><a title="pedantic.decorators.fn_deco_validate.exceptions.TooManyArguments" href="#pedantic.decorators.fn_deco_validate.exceptions.TooManyArguments">TooManyArguments</a></li>
 <li><a title="pedantic.decorators.fn_deco_validate.exceptions.ValidationError" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidationError">ValidationError</a></li>
 </ul>
 </dd>
@@ -187,6 +212,9 @@ def to_dict(self) -&gt; Dict[str, str]:
 <ul>
 <li>
 <h4><code><a title="pedantic.decorators.fn_deco_validate.exceptions.InvalidHeader" href="#pedantic.decorators.fn_deco_validate.exceptions.InvalidHeader">InvalidHeader</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pedantic.decorators.fn_deco_validate.exceptions.TooManyArguments" href="#pedantic.decorators.fn_deco_validate.exceptions.TooManyArguments">TooManyArguments</a></code></h4>
 </li>
 <li>
 <h4><code><a title="pedantic.decorators.fn_deco_validate.exceptions.ValidateException" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidateException">ValidateException</a></code></h4>

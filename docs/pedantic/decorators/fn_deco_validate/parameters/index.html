@@ -29,8 +29,12 @@
 <pre><code class="python">from .abstract_parameter import Parameter
 from .abstract_external_parameter import ExternalParameter
 from .environment_variable_parameter import EnvironmentVariableParameter
-from .flask_parameters import FlaskJsonParameter, FlaskFormParameter, FlaskParameter, FlaskGetParameter, \
-    FlaskPathParameter, FlaskHeaderParameter</code></pre>
+
+try:
+    from .flask_parameters import FlaskJsonParameter, FlaskFormParameter, FlaskParameter, FlaskGetParameter, \
+        FlaskPathParameter, FlaskHeaderParameter
+except ImportError:
+    pass</code></pre>
 </details>
 </section>
 <section>

@@ -31,7 +31,7 @@ from unittest import TestCase
 
 from flask import Flask, Response, jsonify
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
+from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException, TooManyArguments
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
     FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
@@ -41,6 +41,7 @@ from pedantic.decorators.fn_deco_validate.validators import NotEmpty, Min
 JSON = &#39;application/json&#39;
 OK = 200
 INVALID = 422
+TOO_MANY_ARGS = 400
 
 
 class TestFlaskParameters(TestCase):
@@ -114,6 +115,13 @@ class TestFlaskParameters(TestCase):
             response.status_code = INVALID
             return response
 
+        @app.errorhandler(TooManyArguments)
+        def handle_validation_error(exception: TooManyArguments) -&gt; Response:
+            print(str(exception))
+            response = jsonify(str(exception))
+            response.status_code = TOO_MANY_ARGS
+            return response
+
         with app.test_client() as client:
             res = client.get(&#39;/&#39;, data=json.dumps({&#39;key&#39;: &#39;  hello world  &#39;}), content_type=JSON)
             self.assertEqual(OK, res.status_code)
@@ -133,7 +141,8 @@ class TestFlaskParameters(TestCase):
                 &#39;required&#39;: &#39;1&#39;,
             }
             res = client.get(&#39;/&#39;, data=json.dumps(data), content_type=JSON)
-            self.assertEqual(OK, res.status_code)
+            self.assertEqual(TOO_MANY_ARGS, res.status_code)
+            self.assertEqual(&#34;Got unexpected arguments: [&#39;required&#39;]&#34;, res.json)
 
     def test_validator_flask_form_data(self) -&gt; None:
         app = Flask(__name__)
@@ -415,7 +424,27 @@ class TestFlaskParameters(TestCase):
                 &#39;value&#39;: &#39;None&#39;,
                 &#39;message&#39;: &#39;Data is not in JSON format.&#39;,
             }
-            self.assertEqual(expected, res.json)</code></pre>
+            self.assertEqual(expected, res.json)
+
+    def test_too_many_arguments(self) -&gt; None:
+        app = Flask(__name__)
+
+        @app.route(&#39;/&#39;)
+        @validate(FlaskJsonParameter(name=&#39;k&#39;, value_type=str))
+        def hello_world(**kwargs) -&gt; Response:
+            return jsonify(str(kwargs))
+
+        @app.errorhandler(TooManyArguments)
+        def handle_validation_error(exception: TooManyArguments) -&gt; Response:
+            print(str(exception))
+            response = jsonify(str(exception))
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get(data=json.dumps({&#39;k&#39;: &#39;k&#39;, &#39;a&#39;: 1}), content_type=JSON)
+            self.assertEqual(INVALID, res.status_code)
+            self.assertEqual(&#34;Got unexpected arguments: [&#39;a&#39;]&#34;, res.json)</code></pre>
 </details>
 </section>
 <section>
@@ -535,6 +564,13 @@ not have a method with the specified name.</p></div>
             response.status_code = INVALID
             return response
 
+        @app.errorhandler(TooManyArguments)
+        def handle_validation_error(exception: TooManyArguments) -&gt; Response:
+            print(str(exception))
+            response = jsonify(str(exception))
+            response.status_code = TOO_MANY_ARGS
+            return response
+
         with app.test_client() as client:
             res = client.get(&#39;/&#39;, data=json.dumps({&#39;key&#39;: &#39;  hello world  &#39;}), content_type=JSON)
             self.assertEqual(OK, res.status_code)
@@ -554,7 +590,8 @@ not have a method with the specified name.</p></div>
                 &#39;required&#39;: &#39;1&#39;,
             }
             res = client.get(&#39;/&#39;, data=json.dumps(data), content_type=JSON)
-            self.assertEqual(OK, res.status_code)
+            self.assertEqual(TOO_MANY_ARGS, res.status_code)
+            self.assertEqual(&#34;Got unexpected arguments: [&#39;required&#39;]&#34;, res.json)
 
     def test_validator_flask_form_data(self) -&gt; None:
         app = Flask(__name__)
@@ -836,7 +873,27 @@ not have a method with the specified name.</p></div>
                 &#39;value&#39;: &#39;None&#39;,
                 &#39;message&#39;: &#39;Data is not in JSON format.&#39;,
             }
-            self.assertEqual(expected, res.json)</code></pre>
+            self.assertEqual(expected, res.json)
+
+    def test_too_many_arguments(self) -&gt; None:
+        app = Flask(__name__)
+
+        @app.route(&#39;/&#39;)
+        @validate(FlaskJsonParameter(name=&#39;k&#39;, value_type=str))
+        def hello_world(**kwargs) -&gt; Response:
+            return jsonify(str(kwargs))
+
+        @app.errorhandler(TooManyArguments)
+        def handle_validation_error(exception: TooManyArguments) -&gt; Response:
+            print(str(exception))
+            response = jsonify(str(exception))
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get(data=json.dumps({&#39;k&#39;: &#39;k&#39;, &#39;a&#39;: 1}), content_type=JSON)
+            self.assertEqual(INVALID, res.status_code)
+            self.assertEqual(&#34;Got unexpected arguments: [&#39;a&#39;]&#34;, res.json)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -961,6 +1018,36 @@ not have a method with the specified name.</p></div>
         res = client.get(data={})
         self.assertEqual(OK, res.status_code)
         self.assertEqual(&#39;42&#39;, res.json)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_too_many_arguments"><code class="name flex">
+<span>def <span class="ident">test_too_many_arguments</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_too_many_arguments(self) -&gt; None:
+    app = Flask(__name__)
+
+    @app.route(&#39;/&#39;)
+    @validate(FlaskJsonParameter(name=&#39;k&#39;, value_type=str))
+    def hello_world(**kwargs) -&gt; Response:
+        return jsonify(str(kwargs))
+
+    @app.errorhandler(TooManyArguments)
+    def handle_validation_error(exception: TooManyArguments) -&gt; Response:
+        print(str(exception))
+        response = jsonify(str(exception))
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get(data=json.dumps({&#39;k&#39;: &#39;k&#39;, &#39;a&#39;: 1}), content_type=JSON)
+        self.assertEqual(INVALID, res.status_code)
+        self.assertEqual(&#34;Got unexpected arguments: [&#39;a&#39;]&#34;, res.json)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_form_data"><code class="name flex">
@@ -1197,6 +1284,13 @@ not have a method with the specified name.</p></div>
         response.status_code = INVALID
         return response
 
+    @app.errorhandler(TooManyArguments)
+    def handle_validation_error(exception: TooManyArguments) -&gt; Response:
+        print(str(exception))
+        response = jsonify(str(exception))
+        response.status_code = TOO_MANY_ARGS
+        return response
+
     with app.test_client() as client:
         res = client.get(&#39;/&#39;, data=json.dumps({&#39;key&#39;: &#39;  hello world  &#39;}), content_type=JSON)
         self.assertEqual(OK, res.status_code)
@@ -1216,7 +1310,8 @@ not have a method with the specified name.</p></div>
             &#39;required&#39;: &#39;1&#39;,
         }
         res = client.get(&#39;/&#39;, data=json.dumps(data), content_type=JSON)
-        self.assertEqual(OK, res.status_code)</code></pre>
+        self.assertEqual(TOO_MANY_ARGS, res.status_code)
+        self.assertEqual(&#34;Got unexpected arguments: [&#39;required&#39;]&#34;, res.json)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_json_parameter_does_not_get_json"><code class="name flex">
@@ -1383,6 +1478,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_with_none" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_with_none">test_not_required_allows_none_kwargs_with_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_without_none" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_without_none">test_not_required_allows_none_kwargs_without_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_with_default" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_with_default">test_not_required_with_default</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_too_many_arguments" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_too_many_arguments">test_too_many_arguments</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_form_data" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_form_data">test_validator_flask_form_data</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_get" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_get">test_validator_flask_get</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_header" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_validator_flask_header">test_validator_flask_header</a></code></li>
