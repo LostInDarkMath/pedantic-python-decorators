@@ -165,6 +165,30 @@ class TestFlaskParameters(TestCase):
             }
             self.assertEqual(expected, res.json)
 
+    def test_validator_flask_header_optional_parameter(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskHeaderParameter(name='key', validators=[NotEmpty()], required=False))
+        def hello_world(key: str = None) -> Response:
+            return jsonify(key)
+
+        @app.errorhandler(ValidationError)
+        def handle_validation_error(exception: ValidationError) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get('/', headers={'key': '  hello world  '}, data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('hello world', res.json)
+
+            res = client.get('/', headers={}, data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual(None, res.json)
+
     def test_validator_flask_get(self) -> None:
         app = Flask(__name__)
 
