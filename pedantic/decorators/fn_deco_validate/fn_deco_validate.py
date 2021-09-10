@@ -115,7 +115,7 @@ def validate(
                 return func(*result.values())
 
             if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
-                result = {k: v for k, v in result.items() if v is not None and 'self'}
+                result = {k: v for k, v in result.items() if v is not None}
 
             if 'self' in result:
                 return func(result.pop('self'), **result)
