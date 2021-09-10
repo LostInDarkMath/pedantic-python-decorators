@@ -1,7 +1,8 @@
 import os
 from dataclasses import dataclass
 
-from pedantic import validate, ExternalParameter, overrides, Validator, ValidationError
+from pedantic import validate, ExternalParameter, overrides, Validator, ValidationError, Parameter
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import ReturnAs
 
 
 @dataclass(frozen=True)
@@ -44,13 +45,13 @@ class ConfigFromFile(ExternalParameter):
 
 
 # choose your configuration source here:
-@validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False)
-# @validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=False)
+@validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False, return_as=ReturnAs.KW)
+# @validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=True)
 
 # with strict_mode = True (which is the default)
 # you need to pass a Parameter for each parameter of the decorated function
-# @validate(Parameter(name='value') ConfigFromFile(name='config', validators=[ConfigurationValidator()]))
-def my_algorithm(value: float, config: Configuration) -> float:
+# @validate(Parameter(name='value'), ConfigFromFile(name='config', validators=[ConfigurationValidator()]))
+def my_algorithm(value: float, config: Configuration, *args) -> float:
     """
         This method calculates something that depends on the given value with considering the configuration.
         Note how well this small piece of code is designed:
@@ -67,7 +68,7 @@ def my_algorithm(value: float, config: Configuration) -> float:
 if __name__ == '__main__':
     # we can call the function with a config like there is no decorator.
     # This makes testing extremely easy: no config files, no environment variables or stuff like that
-    print(my_algorithm(value=2, config=Configuration(iterations=3, max_error=4.4)))
+    print(my_algorithm(value=2, config=Configuration(iterations=3, max_error=4.4), foo='bar'))
 
     os.environ['iterations'] = '12'
     os.environ['max_error'] = '3.1415'
