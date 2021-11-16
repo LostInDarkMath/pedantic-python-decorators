@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 
-from pedantic import validate, ExternalParameter, overrides, Validator, ValidationError, Parameter
+from pedantic import validate, ExternalParameter, overrides, Validator, ValidationError, Parameter, Min
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import ReturnAs
 
 
@@ -46,11 +46,14 @@ class ConfigFromFile(ExternalParameter):
 
 # choose your configuration source here:
 @validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False, return_as=ReturnAs.KW)
-# @validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=True)
+@validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=True)
 
 # with strict_mode = True (which is the default)
 # you need to pass a Parameter for each parameter of the decorated function
-# @validate(Parameter(name='value'), ConfigFromFile(name='config', validators=[ConfigurationValidator()]))
+@validate(
+    Parameter(name='value', validators=[Min(5, include_boundary=False)]),
+    ConfigFromFile(name='config', validators=[ConfigurationValidator()]),
+)
 def my_algorithm(value: float, config: Configuration, *args) -> float:
     """
         This method calculates something that depends on the given value with considering the configuration.

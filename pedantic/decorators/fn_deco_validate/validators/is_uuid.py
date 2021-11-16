@@ -5,7 +5,7 @@ from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
-class IsUUid(Validator):
+class IsUuid(Validator):
     def __init__(self, convert: bool = False) -> None:
         self._convert = convert
 
