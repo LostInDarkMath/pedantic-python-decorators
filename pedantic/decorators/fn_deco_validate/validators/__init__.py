@@ -5,7 +5,7 @@ from .datetime_unix_timestamp import DateTimeUnixTimestamp
 from .email import Email
 from .enum import IsEnum
 from .for_each import ForEach
-from .is_uuid import IsUUid
+from .is_uuid import IsUuid
 from .match_pattern import MatchPattern
 from .max import Max
 from .max_length import MaxLength
