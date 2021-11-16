@@ -16,6 +16,7 @@ class TestValidatorDatetimeUnixTimestamp(TestCase):
         now = datetime.now()
         unix_timestamp = (now - datetime(year=1970, month=1, day=1)).total_seconds()
         self.assertEqual(now, foo(unix_timestamp))
+        self.assertEqual(now, foo(str(unix_timestamp)))
 
         with self.assertRaises(expected_exception=ValidationError):
             foo('12.12.2020')

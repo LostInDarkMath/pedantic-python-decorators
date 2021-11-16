@@ -36,11 +36,16 @@ from pedantic.decorators.fn_deco_validate.validators import Validator
 
 class DateTimeUnixTimestamp(Validator):
     @overrides(Validator)
-    def validate(self, value: Union[int, float]) -&gt; datetime:
-        if not isinstance(value, (int, float)):
+    def validate(self, value: Union[int, float, str]) -&gt; datetime:
+        if not isinstance(value, (int, float, str)):
             raise ValidationError(f&#39;Invalid seconds since 1970: {value}&#39;)
 
-        return datetime(year=1970, month=1, day=1) + timedelta(seconds=value)</code></pre>
+        try:
+            seconds = float(value)
+        except ValueError:
+            raise ValidationError(f&#39;Could parse {value} to float.&#39;)
+
+        return datetime(year=1970, month=1, day=1) + timedelta(seconds=seconds)</code></pre>
 </details>
 </section>
 <section>
@@ -64,11 +69,16 @@ inheritance.</p></div>
 </summary>
 <pre><code class="python">class DateTimeUnixTimestamp(Validator):
     @overrides(Validator)
-    def validate(self, value: Union[int, float]) -&gt; datetime:
-        if not isinstance(value, (int, float)):
+    def validate(self, value: Union[int, float, str]) -&gt; datetime:
+        if not isinstance(value, (int, float, str)):
             raise ValidationError(f&#39;Invalid seconds since 1970: {value}&#39;)
 
-        return datetime(year=1970, month=1, day=1) + timedelta(seconds=value)</code></pre>
+        try:
+            seconds = float(value)
+        except ValueError:
+            raise ValidationError(f&#39;Could parse {value} to float.&#39;)
+
+        return datetime(year=1970, month=1, day=1) + timedelta(seconds=seconds)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
