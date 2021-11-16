@@ -23,3 +23,6 @@ class TestValidatorDatetimeUnixTimestamp(TestCase):
 
         with self.assertRaises(expected_exception=ValidationError):
             foo('invalid')
+
+        with self.assertRaises(expected_exception=ValidationError):
+            foo({'a': 1})
