@@ -143,7 +143,7 @@ def validate(
                 return func(*result.values())
 
             if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
-                result = {k: v for k, v in result.items() if v is not None and &#39;self&#39;}
+                result = {k: v for k, v in result.items() if v is not None}
 
             if &#39;self&#39; in result:
                 return func(result.pop(&#39;self&#39;), **result)
@@ -283,7 +283,7 @@ This can be useful if you use only ExternalParameters.</dd>
                 return func(*result.values())
 
             if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
-                result = {k: v for k, v in result.items() if v is not None and &#39;self&#39;}
+                result = {k: v for k, v in result.items() if v is not None}
 
             if &#39;self&#39; in result:
                 return func(result.pop(&#39;self&#39;), **result)

@@ -32,12 +32,12 @@ from uuid import uuid1, uuid3, uuid4, uuid5
 from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import Parameter
-from pedantic.decorators.fn_deco_validate.validators import IsUUid
+from pedantic.decorators.fn_deco_validate.validators import IsUuid
 
 
 class TestValidatorIsUUID(TestCase):
     def test_validator_is_enum_convert_true(self) -&gt; None:
-        @validate(Parameter(name=&#39;x&#39;, validators=[IsUUid()]))
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsUuid()]))
         def foo(x):
             return x
 
@@ -96,7 +96,7 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">class TestValidatorIsUUID(TestCase):
     def test_validator_is_enum_convert_true(self) -&gt; None:
-        @validate(Parameter(name=&#39;x&#39;, validators=[IsUUid()]))
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsUuid()]))
         def foo(x):
             return x
 
@@ -122,7 +122,7 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_validator_is_enum_convert_true(self) -&gt; None:
-    @validate(Parameter(name=&#39;x&#39;, validators=[IsUUid()]))
+    @validate(Parameter(name=&#39;x&#39;, validators=[IsUuid()]))
     def foo(x):
         return x
 

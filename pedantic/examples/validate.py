@@ -45,16 +45,16 @@ class ConfigFromFile(ExternalParameter):
 
 
 # choose your configuration source here:
-@validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False, return_as=ReturnAs.KW)
-@validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=True)
+@validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False, return_as=ReturnAs.KWARGS_WITH_NONE)
+#@validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=False)
 
 # with strict_mode = True (which is the default)
 # you need to pass a Parameter for each parameter of the decorated function
-@validate(
-    Parameter(name='value', validators=[Min(5, include_boundary=False)]),
-    ConfigFromFile(name='config', validators=[ConfigurationValidator()]),
-)
-def my_algorithm(value: float, config: Configuration, *args) -> float:
+# @validate(
+#     Parameter(name='value', validators=[Min(5, include_boundary=False)]),
+#     ConfigFromFile(name='config', validators=[ConfigurationValidator()]),
+# )
+def my_algorithm(value: float, config: Configuration) -> float:
     """
         This method calculates something that depends on the given value with considering the configuration.
         Note how well this small piece of code is designed:
@@ -71,7 +71,7 @@ def my_algorithm(value: float, config: Configuration, *args) -> float:
 if __name__ == '__main__':
     # we can call the function with a config like there is no decorator.
     # This makes testing extremely easy: no config files, no environment variables or stuff like that
-    print(my_algorithm(value=2, config=Configuration(iterations=3, max_error=4.4), foo='bar'))
+    print(my_algorithm(value=2, config=Configuration(iterations=3, max_error=4.4)))
 
     os.environ['iterations'] = '12'
     os.environ['max_error'] = '3.1415'
