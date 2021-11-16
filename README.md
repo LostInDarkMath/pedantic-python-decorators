@@ -1,5 +1,5 @@
 # pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators.svg?branch=master)](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators)  [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic)
-These decorators will make you write cleaner and well-documented Python code. 
+This packages includes many decorators that will make you write cleaner Python code. 
 
 ## Getting Started
 This package requires Python 3.6.1 or later. 
@@ -16,10 +16,10 @@ Run `pip install pedantic`.
 1. Download the [latest release here](https://github.com/LostInDarkMath/PythonHelpers/releases/latest) by clicking on `pedantic-python-decorators-x.y.z-py-none-any.whl`.
 2. Execute `pip install pedantic-python-decorators-x.y.z-py3-none-any.whl`.
 
-## The [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic) decorator
+## The [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic) decorator - Type checking at runtime
 The `@pedantic` decorator does the following things:
 - The decorated function can only be called by using keyword arguments. Positional arguments are not accepted.
-- The decorated function must have [Type annotations](https://docs.python.org/3/library/typing.html).
+- The decorated function must have [type annotations](https://docs.python.org/3/library/typing.html).
 - Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
 As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
 - If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
@@ -57,10 +57,10 @@ m.print_sum()
 
 
 ## The [@validate]() decorator
-As the name suggests, with `@validate` you are able to validate the values that are passed to your function.
+As the name suggests, with `@validate` you are able to validate the values that are passed to the decorated function.
 That is done in a highly customizable way. 
-But the highest benefit of this decorator the opportunity to decouple your code easily and make easy testable, maintainable and scalable.
-The following example shows the decoupled implementation of a configurable algorithm with the help of `@decorate`:
+But the highest benefit of this decorator is that it makes it extremely easy to write decoupled easy testable, maintainable and scalable code.
+The following example shows the decoupled implementation of a configurable algorithm with the help of `@validate`:
 ```python
 import os
 from dataclasses import dataclass
