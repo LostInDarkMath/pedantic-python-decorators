@@ -30,7 +30,6 @@
 from typing import Any
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -44,7 +43,7 @@ class IsEnum(Validator):
         try:
             enum_value = self._enum(value)
         except (ValueError, TypeError):
-            raise ValidationError(f&#39;Incorrect value {value} for enum {self._enum}.&#39;)
+            return self.raise_exception(msg=f&#39;Incorrect value {value} for enum {self._enum}.&#39;, value=value)
 
         if self._convert:
             return enum_value
@@ -82,7 +81,7 @@ inheritance.</p></div>
         try:
             enum_value = self._enum(value)
         except (ValueError, TypeError):
-            raise ValidationError(f&#39;Incorrect value {value} for enum {self._enum}.&#39;)
+            return self.raise_exception(msg=f&#39;Incorrect value {value} for enum {self._enum}.&#39;, value=value)
 
         if self._convert:
             return enum_value

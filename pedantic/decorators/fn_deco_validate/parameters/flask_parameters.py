@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from flask import request
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, InvalidHeader
+from pedantic.decorators.fn_deco_validate.exceptions import InvalidHeader
 from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter, Parameter
 
@@ -21,7 +21,7 @@ class FlaskParameter(ExternalParameter, ABC):
             if self.default_value is not None:
                 return self.default_value
 
-            raise ValidationError(message=f'Data is not in JSON format.')
+            self.raise_exception(msg=f'Data is not in JSON format.')
 
         if self.name in dict_ and dict_[self.name] is not None:
             return dict_[self.name]

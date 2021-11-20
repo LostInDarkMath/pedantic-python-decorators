@@ -2,7 +2,7 @@ import unittest
 from abc import ABC, abstractmethod
 
 from pedantic.decorators.class_decorators import pedantic_class, for_all_methods
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.validators import Min
 from pedantic.exceptions import PedanticException, PedanticTypeCheckException, PedanticCallWithArgsException
 from pedantic.decorators.fn_deco_pedantic import pedantic
@@ -40,9 +40,9 @@ class TestCombinationOfDecorators(unittest.TestCase):
         some_calculation(x=42)
         some_calculation(42)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(x=-1)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(x=-42)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_calculation(x=1.0)
@@ -57,9 +57,9 @@ class TestCombinationOfDecorators(unittest.TestCase):
 
         some_calculation(x=42)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(x=-1)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(x=-42)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             some_calculation(x=1.0)
@@ -77,9 +77,9 @@ class TestCombinationOfDecorators(unittest.TestCase):
 
         m = MyClass()
         m.some_calculation(x=42)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(x=-1)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(x=-42)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_calculation(x=1.0)
@@ -99,9 +99,9 @@ class TestCombinationOfDecorators(unittest.TestCase):
         m.some_calculation(x=42)
         m.some_calculation(42)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(x=-1)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(x=-42)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_calculation(x=1.0)
@@ -117,9 +117,9 @@ class TestCombinationOfDecorators(unittest.TestCase):
 
         m = MyClass()
         m.some_calculation(x=42)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(x=-1)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(x=-42)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             m.some_calculation(x=1.0)

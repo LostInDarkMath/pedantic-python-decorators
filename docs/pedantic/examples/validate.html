@@ -29,8 +29,7 @@
 <pre><code class="python">import os
 from dataclasses import dataclass
 
-from pedantic import validate, ExternalParameter, overrides, Validator, ValidationError, Parameter, Min
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import ReturnAs
+from pedantic import validate, ExternalParameter, overrides, Validator, Parameter, Min, ReturnAs
 
 
 @dataclass(frozen=True)
@@ -43,7 +42,7 @@ class ConfigurationValidator(Validator):
     @overrides(Validator)
     def validate(self, value: Configuration) -&gt; Configuration:
         if value.iterations &lt; 1 or value.max_error &lt; 0:
-            raise ValidationError(f&#39;Invalid configuration: {value}&#39;)
+            self.raise_exception(msg=f&#39;Invalid configuration: {value}&#39;, value=value)
 
         return value
 
@@ -74,7 +73,7 @@ class ConfigFromFile(ExternalParameter):
 
 # choose your configuration source here:
 @validate(ConfigFromEnvVar(name=&#39;config&#39;, validators=[ConfigurationValidator()]), strict=False, return_as=ReturnAs.KWARGS_WITH_NONE)
-#@validate(ConfigFromFile(name=&#39;config&#39;, validators=[ConfigurationValidator()]), strict=False)
+# @validate(ConfigFromFile(name=&#39;config&#39;, validators=[ConfigurationValidator()]), strict=False)
 
 # with strict_mode = True (which is the default)
 # you need to pass a Parameter for each parameter of the decorated function
@@ -130,7 +129,7 @@ Note how well this small piece of code is designed:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@validate(ConfigFromEnvVar(name=&#39;config&#39;, validators=[ConfigurationValidator()]), strict=False, return_as=ReturnAs.KWARGS_WITH_NONE)
-#@validate(ConfigFromFile(name=&#39;config&#39;, validators=[ConfigurationValidator()]), strict=False)
+# @validate(ConfigFromFile(name=&#39;config&#39;, validators=[ConfigurationValidator()]), strict=False)
 
 # with strict_mode = True (which is the default)
 # you need to pass a Parameter for each parameter of the decorated function
@@ -273,7 +272,7 @@ inheritance.</p></div>
     @overrides(Validator)
     def validate(self, value: Configuration) -&gt; Configuration:
         if value.iterations &lt; 1 or value.max_error &lt; 0:
-            raise ValidationError(f&#39;Invalid configuration: {value}&#39;)
+            self.raise_exception(msg=f&#39;Invalid configuration: {value}&#39;, value=value)
 
         return value</code></pre>
 </details>

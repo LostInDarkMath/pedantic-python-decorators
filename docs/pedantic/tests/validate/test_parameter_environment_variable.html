@@ -29,7 +29,7 @@
 <pre><code class="python">import os
 from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import EnvironmentVariableParameter
 
@@ -79,7 +79,7 @@ class TestParameterEnvironmentVariable(TestCase):
         for value in [&#39;invalid&#39;, &#39;frue&#39;, &#39;talse&#39;]:
             os.environ[&#39;foo&#39;] = value
 
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 bar()
 
     def test_parameter_environment_variable_not_set(self) -&gt; None:
@@ -87,7 +87,7 @@ class TestParameterEnvironmentVariable(TestCase):
         def bar(foo):
             return foo
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar()
 
     def test_invalid_value_type(self) -&gt; None:
@@ -204,7 +204,7 @@ not have a method with the specified name.</p></div>
         for value in [&#39;invalid&#39;, &#39;frue&#39;, &#39;talse&#39;]:
             os.environ[&#39;foo&#39;] = value
 
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 bar()
 
     def test_parameter_environment_variable_not_set(self) -&gt; None:
@@ -212,7 +212,7 @@ not have a method with the specified name.</p></div>
         def bar(foo):
             return foo
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar()
 
     def test_invalid_value_type(self) -&gt; None:
@@ -298,7 +298,7 @@ not have a method with the specified name.</p></div>
     for value in [&#39;invalid&#39;, &#39;frue&#39;, &#39;talse&#39;]:
         os.environ[&#39;foo&#39;] = value
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar()</code></pre>
 </details>
 </dd>
@@ -370,7 +370,7 @@ not have a method with the specified name.</p></div>
     def bar(foo):
         return foo
 
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         bar()</code></pre>
 </details>
 </dd>

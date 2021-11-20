@@ -2,7 +2,8 @@ import os
 from typing import Optional, Any
 from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
+from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, ParameterException, \
+    ValidatorException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
 from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email, Validator
@@ -18,7 +19,7 @@ class TestValidate(TestCase):
         converted_value = validator.validate(value='hed')
         self.assertEqual(converted_value, 'hed')
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidatorException):
             validator.validate(value='hello world')
 
     def test_single_parameter(self) -> None:
@@ -26,7 +27,7 @@ class TestValidate(TestCase):
         converted_value = parameter.validate(value='hed')
         self.assertEqual(converted_value, 'hed')
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             parameter.validate(value='hello world')
 
     def test_multiple_parameters(self) -> None:
@@ -51,9 +52,9 @@ class TestValidate(TestCase):
             return a + b + c
 
         some_calculation(43, 45, 50)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(30, 40, 50)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(c=30, a=40, b=50)
 
     def test_validate_instance_method(self):
@@ -68,9 +69,9 @@ class TestValidate(TestCase):
         m.some_calculation(1)
         m.some_calculation(42)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(0)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(-42)
 
     def test_validate_static_method(self):
@@ -88,9 +89,9 @@ class TestValidate(TestCase):
         m.some_calculation(1)
         m.some_calculation(42)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(0)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(-42)
 
     def test_less_parameter_than_arguments(self):
@@ -311,7 +312,7 @@ class TestValidate(TestCase):
         self.assertIsNone(bar(a=None))
         self.assertIsNone(bar(None))
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar('no_email')
 
     def test_none_is_not_validated_if_not_required_kwargs_without_none(self) -> None:
@@ -322,7 +323,7 @@ class TestValidate(TestCase):
         self.assertIsNone(bar(a=None))
         self.assertIsNone(bar(None))
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar('no_email')
 
     def test_allow_renaming_of_parameter_of_custom_validator(self) -> None:

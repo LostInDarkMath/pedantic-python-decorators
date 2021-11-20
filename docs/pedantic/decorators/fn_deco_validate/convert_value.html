@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">from typing import Type, Any, Union
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ConversionError
 
 T = Union[bool, int, float, str, dict, list]
 
@@ -45,7 +45,7 @@ def convert_value(value: Any, target_type: Type[T]) -&gt; T:
         elif value in [&#39;false&#39;, &#39;0&#39;]:
             return False
 
-        raise ValidationError(message=f&#39;Value {value} cannot be converted to bool.&#39;)
+        raise ConversionError(f&#39;Value {value} cannot be converted to bool.&#39;)
 
     try:
         if target_type == list:
@@ -55,7 +55,7 @@ def convert_value(value: Any, target_type: Type[T]) -&gt; T:
 
         return target_type(value)
     except ValueError:
-        raise ValidationError(message=f&#39;Value {value} cannot be converted to {target_type}.&#39;)</code></pre>
+        raise ConversionError(f&#39;Value {value} cannot be converted to {target_type}.&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -86,7 +86,7 @@ def convert_value(value: Any, target_type: Type[T]) -&gt; T:
         elif value in [&#39;false&#39;, &#39;0&#39;]:
             return False
 
-        raise ValidationError(message=f&#39;Value {value} cannot be converted to bool.&#39;)
+        raise ConversionError(f&#39;Value {value} cannot be converted to bool.&#39;)
 
     try:
         if target_type == list:
@@ -96,7 +96,7 @@ def convert_value(value: Any, target_type: Type[T]) -&gt; T:
 
         return target_type(value)
     except ValueError:
-        raise ValidationError(message=f&#39;Value {value} cannot be converted to {target_type}.&#39;)</code></pre>
+        raise ConversionError(f&#39;Value {value} cannot be converted to {target_type}.&#39;)</code></pre>
 </details>
 </dd>
 </dl>

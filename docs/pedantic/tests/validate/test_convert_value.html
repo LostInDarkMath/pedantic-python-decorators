@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ConversionError
 from pedantic.decorators.fn_deco_validate.convert_value import convert_value
 
 
@@ -41,7 +41,7 @@ class TestConvertValue(TestCase):
             self.assertFalse(convert_value(value=value, target_type=bool))
 
         for value in [&#39;alse&#39;, 0.1, &#39;0.2&#39;, &#39;  0000 &#39;, &#39;Talse&#39;, &#39;Frue&#39;, 42]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ConversionError):
                 self.assertFalse(convert_value(value=value, target_type=bool))
 
     def test_convert_to_int(self):
@@ -52,7 +52,7 @@ class TestConvertValue(TestCase):
         self.assertEqual(0, convert_value(value=&#39;  0000 &#39;, target_type=int))
 
         for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;, 0.2, &#39;0.2&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ConversionError):
                 self.assertFalse(convert_value(value=value, target_type=int))
 
     def test_convert_to_float(self):
@@ -65,7 +65,7 @@ class TestConvertValue(TestCase):
         self.assertEqual(0, convert_value(value=&#39;  0000 &#39;, target_type=float))
 
         for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ConversionError):
                 self.assertFalse(convert_value(value=value, target_type=float))
 
     def test_convert_to_list(self):
@@ -136,7 +136,7 @@ not have a method with the specified name.</p></div>
             self.assertFalse(convert_value(value=value, target_type=bool))
 
         for value in [&#39;alse&#39;, 0.1, &#39;0.2&#39;, &#39;  0000 &#39;, &#39;Talse&#39;, &#39;Frue&#39;, 42]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ConversionError):
                 self.assertFalse(convert_value(value=value, target_type=bool))
 
     def test_convert_to_int(self):
@@ -147,7 +147,7 @@ not have a method with the specified name.</p></div>
         self.assertEqual(0, convert_value(value=&#39;  0000 &#39;, target_type=int))
 
         for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;, 0.2, &#39;0.2&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ConversionError):
                 self.assertFalse(convert_value(value=value, target_type=int))
 
     def test_convert_to_float(self):
@@ -160,7 +160,7 @@ not have a method with the specified name.</p></div>
         self.assertEqual(0, convert_value(value=&#39;  0000 &#39;, target_type=float))
 
         for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ConversionError):
                 self.assertFalse(convert_value(value=value, target_type=float))
 
     def test_convert_to_list(self):
@@ -198,7 +198,7 @@ not have a method with the specified name.</p></div>
         self.assertFalse(convert_value(value=value, target_type=bool))
 
     for value in [&#39;alse&#39;, 0.1, &#39;0.2&#39;, &#39;  0000 &#39;, &#39;Talse&#39;, &#39;Frue&#39;, 42]:
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ConversionError):
             self.assertFalse(convert_value(value=value, target_type=bool))</code></pre>
 </details>
 </dd>
@@ -237,7 +237,7 @@ not have a method with the specified name.</p></div>
     self.assertEqual(0, convert_value(value=&#39;  0000 &#39;, target_type=float))
 
     for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;]:
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ConversionError):
             self.assertFalse(convert_value(value=value, target_type=float))</code></pre>
 </details>
 </dd>
@@ -258,7 +258,7 @@ not have a method with the specified name.</p></div>
     self.assertEqual(0, convert_value(value=&#39;  0000 &#39;, target_type=int))
 
     for value in [&#39;alse&#39;, &#39;Talse&#39;, &#39;Frue&#39;, 0.2, &#39;0.2&#39;]:
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ConversionError):
             self.assertFalse(convert_value(value=value, target_type=int))</code></pre>
 </details>
 </dd>

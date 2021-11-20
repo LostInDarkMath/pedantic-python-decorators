@@ -1,8 +1,7 @@
 import os
 from dataclasses import dataclass
 
-from pedantic import validate, ExternalParameter, overrides, Validator, ValidationError, Parameter, Min
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import ReturnAs
+from pedantic import validate, ExternalParameter, overrides, Validator, Parameter, Min, ReturnAs
 
 
 @dataclass(frozen=True)
@@ -15,7 +14,7 @@ class ConfigurationValidator(Validator):
     @overrides(Validator)
     def validate(self, value: Configuration) -> Configuration:
         if value.iterations < 1 or value.max_error < 0:
-            raise ValidationError(f'Invalid configuration: {value}')
+            self.raise_exception(msg=f'Invalid configuration: {value}', value=value)
 
         return value
 
@@ -46,7 +45,7 @@ class ConfigFromFile(ExternalParameter):
 
 # choose your configuration source here:
 @validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False, return_as=ReturnAs.KWARGS_WITH_NONE)
-#@validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=False)
+# @validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=False)
 
 # with strict_mode = True (which is the default)
 # you need to pass a Parameter for each parameter of the decorated function

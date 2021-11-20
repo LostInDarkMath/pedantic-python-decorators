@@ -29,7 +29,7 @@
 <pre><code class="python">from enum import Enum
 from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import Parameter
 from pedantic.decorators.fn_deco_validate.validators import IsEnum
@@ -50,7 +50,7 @@ class TestValidatorIsEnum(TestCase):
         self.assertEqual(MyEnum.BLUE, foo(&#39;BLUE&#39;))
 
         for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 foo(value)
 
     def test_validator_is_enum_convert_false(self) -&gt; None:
@@ -62,7 +62,7 @@ class TestValidatorIsEnum(TestCase):
         self.assertEqual(&#39;BLUE&#39;, foo(&#39;BLUE&#39;))
 
         for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 foo(value)</code></pre>
 </details>
 </section>
@@ -152,7 +152,7 @@ not have a method with the specified name.</p></div>
         self.assertEqual(MyEnum.BLUE, foo(&#39;BLUE&#39;))
 
         for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 foo(value)
 
     def test_validator_is_enum_convert_false(self) -&gt; None:
@@ -164,7 +164,7 @@ not have a method with the specified name.</p></div>
         self.assertEqual(&#39;BLUE&#39;, foo(&#39;BLUE&#39;))
 
         for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 foo(value)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -191,7 +191,7 @@ not have a method with the specified name.</p></div>
     self.assertEqual(&#39;BLUE&#39;, foo(&#39;BLUE&#39;))
 
     for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             foo(value)</code></pre>
 </details>
 </dd>
@@ -213,7 +213,7 @@ not have a method with the specified name.</p></div>
     self.assertEqual(MyEnum.BLUE, foo(&#39;BLUE&#39;))
 
     for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             foo(value)</code></pre>
 </details>
 </dd>

@@ -3,7 +3,8 @@ from unittest import TestCase
 
 from flask import Flask, Response, jsonify
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException, TooManyArguments
+from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments, \
+    ParameterException, ExceptionDictKey, InvalidHeader
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
     FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
@@ -24,9 +25,7 @@ class TestFlaskParameters(TestCase):
         @validate(
             FlaskJsonParameter(name='key', validators=[NotEmpty()]),
         )
-        def hello_world(
-                key: str,
-        ) -> Response:
+        def hello_world(key: str) -> Response:
             return jsonify(key)
 
         @app.route('/required')
@@ -80,8 +79,8 @@ class TestFlaskParameters(TestCase):
                 'another': another,
             })
 
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
             print(str(exception))
             response = jsonify(exception.to_dict)
             response.status_code = INVALID
@@ -102,9 +101,10 @@ class TestFlaskParameters(TestCase):
             res = client.get('/', data=json.dumps({'key': '  '}), content_type=JSON)
             self.assertEqual(INVALID, res.status_code)
             expected = {
-                'rule': 'NotEmpty',
-                'value': '  ',
-                'message': 'Got empty String which is invalid.',
+                ExceptionDictKey.VALIDATOR: 'NotEmpty',
+                ExceptionDictKey.VALUE: '  ',
+                ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+                ExceptionDictKey.PARAMETER: 'key',
             }
             self.assertEqual(expected, res.json)
 
@@ -124,8 +124,8 @@ class TestFlaskParameters(TestCase):
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
             print(str(exception))
             response = jsonify(exception.to_dict)
             response.status_code = INVALID
@@ -139,9 +139,10 @@ class TestFlaskParameters(TestCase):
             res = client.get('/', data={'key': '  '})
             self.assertEqual(INVALID, res.status_code)
             expected = {
-                'rule': 'NotEmpty',
-                'value': '  ',
-                'message': 'Got empty String which is invalid.',
+                ExceptionDictKey.VALIDATOR: 'NotEmpty',
+                ExceptionDictKey.VALUE: '  ',
+                ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+                ExceptionDictKey.PARAMETER: 'key',
             }
             self.assertEqual(expected, res.json)
 
@@ -153,8 +154,8 @@ class TestFlaskParameters(TestCase):
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
+        @app.errorhandler(InvalidHeader)
+        def handle_validation_error(exception: InvalidHeader) -> Response:
             print(str(exception))
             response = jsonify(exception.to_dict)
             response.status_code = INVALID
@@ -168,9 +169,10 @@ class TestFlaskParameters(TestCase):
             res = client.get('/', headers={'key': '  '}, data={})
             self.assertEqual(INVALID, res.status_code)
             expected = {
-                'rule': 'NotEmpty',
-                'value': '  ',
-                'message': 'Got empty String which is invalid.',
+                ExceptionDictKey.VALUE: '  ',
+                ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+                ExceptionDictKey.PARAMETER: 'key',
+                ExceptionDictKey.VALIDATOR: 'NotEmpty',
             }
             self.assertEqual(expected, res.json)
 
@@ -181,13 +183,6 @@ class TestFlaskParameters(TestCase):
         @validate(FlaskHeaderParameter(name='key', validators=[NotEmpty()], required=False))
         def hello_world(key: str = None) -> Response:
             return jsonify(key)
-
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
-            print(str(exception))
-            response = jsonify(exception.to_dict)
-            response.status_code = INVALID
-            return response
 
         with app.test_client() as client:
             res = client.get('/', headers={'key': '  hello world  '}, data={})
@@ -206,8 +201,8 @@ class TestFlaskParameters(TestCase):
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
             print(str(exception))
             response = jsonify(exception.to_dict)
             response.status_code = INVALID
@@ -225,9 +220,10 @@ class TestFlaskParameters(TestCase):
             res = client.get('/?key= ', data={})
             self.assertEqual(INVALID, res.status_code)
             expected = {
-                'rule': 'NotEmpty',
-                'value': ' ',
-                'message': 'Got empty String which is invalid.',
+                ExceptionDictKey.VALIDATOR: 'NotEmpty',
+                ExceptionDictKey.VALUE: ' ',
+                ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+                ExceptionDictKey.PARAMETER: 'key',
             }
             self.assertEqual(expected, res.json)
 
@@ -239,8 +235,8 @@ class TestFlaskParameters(TestCase):
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
             print(str(exception))
             response = jsonify(exception.to_dict)
             response.status_code = INVALID
@@ -258,9 +254,10 @@ class TestFlaskParameters(TestCase):
             res = client.get('/   ', data={})
             self.assertEqual(INVALID, res.status_code)
             expected = {
-                'rule': 'NotEmpty',
-                'value': '   ',
-                'message': 'Got empty String which is invalid.',
+                ExceptionDictKey.VALIDATOR: 'NotEmpty',
+                ExceptionDictKey.VALUE: '   ',
+                ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+                ExceptionDictKey.PARAMETER: 'key',
             }
             self.assertEqual(expected, res.json)
 
@@ -291,7 +288,7 @@ class TestFlaskParameters(TestCase):
         with app.test_client() as client:
             res = client.get(data={'key': 'k'})
             self.assertEqual(INVALID, res.status_code)
-            self.assertEqual('Value for key k is required.', res.json)
+            self.assertIn('Value for key k is required.', res.json)
 
     def test_default_value(self) -> None:
         app = Flask(__name__)
@@ -300,13 +297,6 @@ class TestFlaskParameters(TestCase):
         @validate(FlaskFormParameter(name='key', value_type=str, default='42'))
         def hello_world(key: str) -> Response:
             return jsonify(key)
-
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
-            print(str(exception))
-            response = jsonify(exception.to_dict)
-            response.status_code = INVALID
-            return response
 
         with app.test_client() as client:
             res = client.get(data={})
@@ -361,8 +351,8 @@ class TestFlaskParameters(TestCase):
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
             print(str(exception))
             response = jsonify(exception.to_dict)
             response.status_code = INVALID
@@ -373,6 +363,16 @@ class TestFlaskParameters(TestCase):
             self.assertEqual(OK, res.status_code)
             self.assertEqual(42, res.json)
 
+            res = client.get('/42f', data={})
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                ExceptionDictKey.VALIDATOR: None,
+                ExceptionDictKey.VALUE: '42f',
+                ExceptionDictKey.MESSAGE: "Value 42f cannot be converted to <class 'int'>.",
+                ExceptionDictKey.PARAMETER: 'key',
+            }
+            self.assertEqual(expected, res.json)
+
     def test_validator_flask_json_parameter_does_not_get_json(self) -> None:
         app = Flask(__name__)
 
@@ -381,8 +381,8 @@ class TestFlaskParameters(TestCase):
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
-        @app.errorhandler(ValidationError)
-        def handle_validation_error(exception: ValidationError) -> Response:
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
             print(str(exception))
             response = jsonify(exception.to_dict)
             response.status_code = INVALID
@@ -392,9 +392,10 @@ class TestFlaskParameters(TestCase):
             res = client.get('/', data={})
             self.assertEqual(INVALID, res.status_code)
             expected = {
-                'rule': '',
-                'value': 'None',
-                'message': 'Data is not in JSON format.',
+                ExceptionDictKey.VALIDATOR: None,
+                ExceptionDictKey.VALUE: 'None',
+                ExceptionDictKey.MESSAGE: 'Data is not in JSON format.',
+                ExceptionDictKey.PARAMETER: 'key',
             }
             self.assertEqual(expected, res.json)
 
@@ -430,3 +431,24 @@ class TestFlaskParameters(TestCase):
             res = client.get(data=json.dumps({'k': 'k', 'a': 1}), content_type=JSON)
             self.assertEqual(INVALID, res.status_code)
             self.assertEqual("Got unexpected arguments: ['a']", res.json)
+
+    def test_exception_for_required_parameter(self) -> None:
+        app = Flask(__name__)
+        key = 'PASSWORD'
+
+        @app.route('/')
+        @validate(FlaskJsonParameter(name=key, value_type=str))
+        def hello_world(**kwargs) -> Response:
+            return jsonify(str(kwargs))
+
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
+            reason = 'required' if 'required' in exception.message else 'invalid'
+            response = jsonify({exception.parameter_name: [{'KEY': reason}]})
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get(data=json.dumps({}), content_type=JSON)
+            self.assertEqual(INVALID, res.status_code)
+            self.assertEqual({key: [{'KEY': 'required'}]}, res.json)

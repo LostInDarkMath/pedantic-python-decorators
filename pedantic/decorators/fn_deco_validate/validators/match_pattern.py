@@ -1,7 +1,6 @@
 import re
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -12,6 +11,6 @@ class MatchPattern(Validator):
     @overrides(Validator)
     def validate(self, value: str) -> str:
         if not self._pattern.search(string=str(value)):
-            raise ValidationError(f'Value "{value}" does not match pattern {self._pattern.pattern}.')
+            self.raise_exception(msg=f'Value "{value}" does not match pattern {self._pattern.pattern}.', value=value)
 
         return value
