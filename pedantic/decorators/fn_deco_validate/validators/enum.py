@@ -2,7 +2,6 @@ from enum import EnumMeta
 from typing import Any
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -16,7 +15,7 @@ class IsEnum(Validator):
         try:
             enum_value = self._enum(value)
         except (ValueError, TypeError):
-            raise ValidationError(f'Incorrect value {value} for enum {self._enum}.')
+            return self.raise_exception(msg=f'Incorrect value {value} for enum {self._enum}.', value=value)
 
         if self._convert:
             return enum_value

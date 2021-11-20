@@ -1,7 +1,6 @@
 from uuid import UUID
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -14,6 +13,6 @@ class IsUuid(Validator):
         try:
             converted_value = UUID(value)
         except ValueError:
-            raise ValidationError(f'{value} is not a valid UUID')
+            return self.raise_exception(msg=f'{value} is not a valid UUID', value=value)
 
         return converted_value if self._convert else value

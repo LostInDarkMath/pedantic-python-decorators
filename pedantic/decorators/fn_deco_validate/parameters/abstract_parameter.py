@@ -1,12 +1,13 @@
-from typing import Iterable, Any, Type, Union
+from typing import Iterable, Any, Type, Union, NoReturn, Optional
 
 from pedantic.decorators.fn_deco_validate.convert_value import convert_value
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
+from pedantic.decorators.fn_deco_validate.exceptions import ConversionError, ValidatorException, \
+    ParameterException
 from pedantic.decorators.fn_deco_validate.validators.abstract_validator import Validator
 
 
 class Parameter:
-    exception_type: Type[Exception] = ValidateException
+    exception_type: Type[ParameterException] = ParameterException
 
     def __init__(self,
                  name: str,
@@ -29,24 +30,29 @@ class Parameter:
 
         if value is None:
             if self.is_required:
-                raise self.exception_type(f'Value for key {self.name} is required.')
+                self.raise_exception(msg=f'Value for key {self.name} is required.')
 
             return None
 
         if self.value_type is not None:
-            result_value = convert_value(value=value, target_type=self.value_type)
+            try:
+                result_value = convert_value(value=value, target_type=self.value_type)
+            except ConversionError as ex:
+                return self.raise_exception(value=value, msg=ex.message)
         else:
             result_value = value
 
         for validator in self.validators:
             try:
                 result_value = validator.validate(result_value)
-            except ValidationError as e:
-                e.validator_name = validator.name
-                e.value = value
-                raise e
+            except ValidatorException as e:
+                raise self.exception_type.from_validator_exception(exception=e, parameter_name=self.name)
 
         return result_value
+
+    def raise_exception(self, msg: str, value: Any = None, validator: Optional[Validator] = None) -> NoReturn:
+        raise self.exception_type(value=value, parameter_name=self.name, msg=msg,
+                                  validator_name=validator.name if validator else None)
 
     def __str__(self) -> str:
         return self.__class__.__name__ + ' name=' + self.name

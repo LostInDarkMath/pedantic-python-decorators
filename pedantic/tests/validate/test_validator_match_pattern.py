@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import Parameter
 from pedantic.decorators.fn_deco_validate.validators import MatchPattern
@@ -18,5 +18,5 @@ class TestValidatorMatchPattern(TestCase):
             self.assertEqual(value, foo(value))
 
         for value in ['00:70', '24:00', '30:00', 'invalid']:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 foo([3, 2, 5])

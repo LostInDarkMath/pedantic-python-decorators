@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import Parameter
 from pedantic.decorators.fn_deco_validate.validators import Email
@@ -44,7 +44,7 @@ class TestValidatorEmail(TestCase):
             self.assertEqual(value, foo(value))
 
         for value in [&#39;fred&#39;, &#39;fred@web&#39;, &#39;fred@w@eb.de&#39;, &#39;fred@@web.de&#39;, &#39;invalid@invalid&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 foo(value)</code></pre>
 </details>
 </section>
@@ -104,7 +104,7 @@ not have a method with the specified name.</p></div>
             self.assertEqual(value, foo(value))
 
         for value in [&#39;fred&#39;, &#39;fred@web&#39;, &#39;fred@w@eb.de&#39;, &#39;fred@@web.de&#39;, &#39;invalid@invalid&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 foo(value)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -131,7 +131,7 @@ not have a method with the specified name.</p></div>
         self.assertEqual(value, foo(value))
 
     for value in [&#39;fred&#39;, &#39;fred@web&#39;, &#39;fred@w@eb.de&#39;, &#39;fred@@web.de&#39;, &#39;invalid@invalid&#39;]:
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             foo(value)</code></pre>
 </details>
 </dd>

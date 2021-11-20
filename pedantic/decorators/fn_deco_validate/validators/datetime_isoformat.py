@@ -2,7 +2,6 @@ import sys
 from datetime import datetime
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -15,7 +14,7 @@ class DatetimeIsoFormat(Validator):
             else:
                 value = datetime_from_iso_format(value)
         except (TypeError, ValueError, AttributeError):
-            raise ValidationError(f'invalid value: {value} is not a datetime in ISO format')
+            self.raise_exception(msg=f'invalid value: {value} is not a datetime in ISO format', value=value)
 
         return value
 

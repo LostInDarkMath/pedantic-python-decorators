@@ -2,7 +2,6 @@ import collections
 from typing import Sequence
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators.abstract_validator import Validator
 
 
@@ -19,13 +18,13 @@ class NotEmpty(Validator):
 
         if isinstance(value, str):
             if not value.strip():
-                raise ValidationError(f'Got empty String which is invalid.')
+                self.raise_exception(msg=f'Got empty String which is invalid.', value=value)
 
             return value.strip() if self.strip else value
         elif isinstance(value, collections.abc.Sequence):
             if len(value) == 0:
-                raise ValidationError(f'Got empty  which is invalid.')
+                raise self.raise_exception(msg=f'Got empty  which is invalid.', value=value)
 
             return value
 
-        raise ValidationError(f'Got {type(value)} which is not a Sequence.')
+        self.raise_exception(msg=f'Got {type(value)} which is not a Sequence.', value=value)

@@ -2,7 +2,6 @@ import collections
 from typing import Any, Iterable, List, Union
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -16,7 +15,7 @@ class ForEach(Validator):
     @overrides(Validator)
     def validate(self, value: Iterable[Any]) -> List[Any]:
         if not isinstance(value, collections.abc.Iterable):
-            raise ValidationError(f'{value} is not iterable.')
+            self.raise_exception(msg=f'{value} is not iterable.', value=value)
 
         results = []
 

@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import Parameter
 from pedantic.decorators.fn_deco_validate.validators import MatchPattern
@@ -46,7 +46,7 @@ class TestValidatorMatchPattern(TestCase):
             self.assertEqual(value, foo(value))
 
         for value in [&#39;00:70&#39;, &#39;24:00&#39;, &#39;30:00&#39;, &#39;invalid&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 foo([3, 2, 5])</code></pre>
 </details>
 </section>
@@ -108,7 +108,7 @@ not have a method with the specified name.</p></div>
             self.assertEqual(value, foo(value))
 
         for value in [&#39;00:70&#39;, &#39;24:00&#39;, &#39;30:00&#39;, &#39;invalid&#39;]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 foo([3, 2, 5])</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -137,7 +137,7 @@ not have a method with the specified name.</p></div>
         self.assertEqual(value, foo(value))
 
     for value in [&#39;00:70&#39;, &#39;24:00&#39;, &#39;30:00&#39;, &#39;invalid&#39;]:
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             foo([3, 2, 5])</code></pre>
 </details>
 </dd>

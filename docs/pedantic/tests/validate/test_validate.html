@@ -30,7 +30,8 @@
 from typing import Optional, Any
 from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
+from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, ParameterException, \
+    ValidatorException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
 from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email, Validator
@@ -46,7 +47,7 @@ class TestValidate(TestCase):
         converted_value = validator.validate(value=&#39;hed&#39;)
         self.assertEqual(converted_value, &#39;hed&#39;)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidatorException):
             validator.validate(value=&#39;hello world&#39;)
 
     def test_single_parameter(self) -&gt; None:
@@ -54,7 +55,7 @@ class TestValidate(TestCase):
         converted_value = parameter.validate(value=&#39;hed&#39;)
         self.assertEqual(converted_value, &#39;hed&#39;)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             parameter.validate(value=&#39;hello world&#39;)
 
     def test_multiple_parameters(self) -&gt; None:
@@ -79,9 +80,9 @@ class TestValidate(TestCase):
             return a + b + c
 
         some_calculation(43, 45, 50)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(30, 40, 50)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(c=30, a=40, b=50)
 
     def test_validate_instance_method(self):
@@ -96,9 +97,9 @@ class TestValidate(TestCase):
         m.some_calculation(1)
         m.some_calculation(42)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(0)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(-42)
 
     def test_validate_static_method(self):
@@ -116,9 +117,9 @@ class TestValidate(TestCase):
         m.some_calculation(1)
         m.some_calculation(42)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(0)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(-42)
 
     def test_less_parameter_than_arguments(self):
@@ -339,7 +340,7 @@ class TestValidate(TestCase):
         self.assertIsNone(bar(a=None))
         self.assertIsNone(bar(None))
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar(&#39;no_email&#39;)
 
     def test_none_is_not_validated_if_not_required_kwargs_without_none(self) -&gt; None:
@@ -350,7 +351,7 @@ class TestValidate(TestCase):
         self.assertIsNone(bar(a=None))
         self.assertIsNone(bar(None))
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar(&#39;no_email&#39;)
 
     def test_allow_renaming_of_parameter_of_custom_validator(self) -&gt; None:
@@ -431,7 +432,7 @@ not have a method with the specified name.</p></div>
         converted_value = validator.validate(value=&#39;hed&#39;)
         self.assertEqual(converted_value, &#39;hed&#39;)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ValidatorException):
             validator.validate(value=&#39;hello world&#39;)
 
     def test_single_parameter(self) -&gt; None:
@@ -439,7 +440,7 @@ not have a method with the specified name.</p></div>
         converted_value = parameter.validate(value=&#39;hed&#39;)
         self.assertEqual(converted_value, &#39;hed&#39;)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             parameter.validate(value=&#39;hello world&#39;)
 
     def test_multiple_parameters(self) -&gt; None:
@@ -464,9 +465,9 @@ not have a method with the specified name.</p></div>
             return a + b + c
 
         some_calculation(43, 45, 50)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(30, 40, 50)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             some_calculation(c=30, a=40, b=50)
 
     def test_validate_instance_method(self):
@@ -481,9 +482,9 @@ not have a method with the specified name.</p></div>
         m.some_calculation(1)
         m.some_calculation(42)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(0)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(-42)
 
     def test_validate_static_method(self):
@@ -501,9 +502,9 @@ not have a method with the specified name.</p></div>
         m.some_calculation(1)
         m.some_calculation(42)
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(0)
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(-42)
 
     def test_less_parameter_than_arguments(self):
@@ -724,7 +725,7 @@ not have a method with the specified name.</p></div>
         self.assertIsNone(bar(a=None))
         self.assertIsNone(bar(None))
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar(&#39;no_email&#39;)
 
     def test_none_is_not_validated_if_not_required_kwargs_without_none(self) -&gt; None:
@@ -735,7 +736,7 @@ not have a method with the specified name.</p></div>
         self.assertIsNone(bar(a=None))
         self.assertIsNone(bar(None))
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar(&#39;no_email&#39;)
 
     def test_allow_renaming_of_parameter_of_custom_validator(self) -&gt; None:
@@ -989,7 +990,7 @@ not have a method with the specified name.</p></div>
     self.assertIsNone(bar(a=None))
     self.assertIsNone(bar(None))
 
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         bar(&#39;no_email&#39;)</code></pre>
 </details>
 </dd>
@@ -1010,7 +1011,7 @@ not have a method with the specified name.</p></div>
     self.assertIsNone(bar(a=None))
     self.assertIsNone(bar(None))
 
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         bar(&#39;no_email&#39;)</code></pre>
 </details>
 </dd>
@@ -1214,7 +1215,7 @@ not have a method with the specified name.</p></div>
     converted_value = parameter.validate(value=&#39;hed&#39;)
     self.assertEqual(converted_value, &#39;hed&#39;)
 
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         parameter.validate(value=&#39;hello world&#39;)</code></pre>
 </details>
 </dd>
@@ -1232,7 +1233,7 @@ not have a method with the specified name.</p></div>
     converted_value = validator.validate(value=&#39;hed&#39;)
     self.assertEqual(converted_value, &#39;hed&#39;)
 
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ValidatorException):
         validator.validate(value=&#39;hello world&#39;)</code></pre>
 </details>
 </dd>
@@ -1339,9 +1340,9 @@ not have a method with the specified name.</p></div>
         return a + b + c
 
     some_calculation(43, 45, 50)
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         some_calculation(30, 40, 50)
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         some_calculation(c=30, a=40, b=50)</code></pre>
 </details>
 </dd>
@@ -1366,9 +1367,9 @@ not have a method with the specified name.</p></div>
     m.some_calculation(1)
     m.some_calculation(42)
 
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         m.some_calculation(0)
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         m.some_calculation(-42)</code></pre>
 </details>
 </dd>
@@ -1396,9 +1397,9 @@ not have a method with the specified name.</p></div>
     m.some_calculation(1)
     m.some_calculation(42)
 
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         m.some_calculation(0)
-    with self.assertRaises(expected_exception=ValidationError):
+    with self.assertRaises(expected_exception=ParameterException):
         m.some_calculation(-42)</code></pre>
 </details>
 </dd>

@@ -30,7 +30,6 @@
 from typing import Sized, Any
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators.abstract_validator import Validator
 
 
@@ -41,10 +40,10 @@ class MaxLength(Validator):
     @overrides(Validator)
     def validate(self, value: Sized) -&gt; Any:
         if not isinstance(value, collections.abc.Sized):
-            raise ValidationError(f&#39;{value} has no length.&#39;)
+            self.raise_exception(msg=f&#39;{value} has no length.&#39;, value=value)
 
         if len(value) &gt; self._length:
-            raise ValidationError(f&#39;{value} is too long with length {len(value)}.&#39;)
+            self.raise_exception(msg=f&#39;{value} is too long with length {len(value)}.&#39;, value=value)
 
         return value</code></pre>
 </details>
@@ -76,10 +75,10 @@ inheritance.</p></div>
     @overrides(Validator)
     def validate(self, value: Sized) -&gt; Any:
         if not isinstance(value, collections.abc.Sized):
-            raise ValidationError(f&#39;{value} has no length.&#39;)
+            self.raise_exception(msg=f&#39;{value} has no length.&#39;, value=value)
 
         if len(value) &gt; self._length:
-            raise ValidationError(f&#39;{value} is too long with length {len(value)}.&#39;)
+            self.raise_exception(msg=f&#39;{value} is too long with length {len(value)}.&#39;, value=value)
 
         return value</code></pre>
 </details>

@@ -29,7 +29,6 @@
 <pre><code class="python">from typing import Union
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -49,9 +48,9 @@ class Max(Validator):
     @overrides(Validator)
     def validate(self, value: Union[int, float]) -&gt; Union[int, float]:
         if value &gt; self._value and self._include_boundary:
-            raise ValidationError(f&#39;greater then allowed: {value} is not &lt;= {self._value}&#39;)
+            self.raise_exception(msg=f&#39;greater then allowed: {value} is not &lt;= {self._value}&#39;, value=value)
         elif value &gt;= self._value and not self._include_boundary:
-            raise ValidationError(f&#39;greater then allowed: {value} is not &lt; {self._value}&#39;)
+            self.raise_exception(msg=f&#39;greater then allowed: {value} is not &lt; {self._value}&#39;, value=value)
 
         return value</code></pre>
 </details>
@@ -99,9 +98,9 @@ True
     @overrides(Validator)
     def validate(self, value: Union[int, float]) -&gt; Union[int, float]:
         if value &gt; self._value and self._include_boundary:
-            raise ValidationError(f&#39;greater then allowed: {value} is not &lt;= {self._value}&#39;)
+            self.raise_exception(msg=f&#39;greater then allowed: {value} is not &lt;= {self._value}&#39;, value=value)
         elif value &gt;= self._value and not self._include_boundary:
-            raise ValidationError(f&#39;greater then allowed: {value} is not &lt; {self._value}&#39;)
+            self.raise_exception(msg=f&#39;greater then allowed: {value} is not &lt; {self._value}&#39;, value=value)
 
         return value</code></pre>
 </details>

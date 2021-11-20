@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ConversionError
 from pedantic.decorators.fn_deco_validate.convert_value import convert_value
 
 
@@ -13,7 +13,7 @@ class TestConvertValue(TestCase):
             self.assertFalse(convert_value(value=value, target_type=bool))
 
         for value in ['alse', 0.1, '0.2', '  0000 ', 'Talse', 'Frue', 42]:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ConversionError):
                 self.assertFalse(convert_value(value=value, target_type=bool))
 
     def test_convert_to_int(self):
@@ -24,7 +24,7 @@ class TestConvertValue(TestCase):
         self.assertEqual(0, convert_value(value='  0000 ', target_type=int))
 
         for value in ['alse', 'Talse', 'Frue', 0.2, '0.2']:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ConversionError):
                 self.assertFalse(convert_value(value=value, target_type=int))
 
     def test_convert_to_float(self):
@@ -37,7 +37,7 @@ class TestConvertValue(TestCase):
         self.assertEqual(0, convert_value(value='  0000 ', target_type=float))
 
         for value in ['alse', 'Talse', 'Frue']:
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ConversionError):
                 self.assertFalse(convert_value(value=value, target_type=float))
 
     def test_convert_to_list(self):

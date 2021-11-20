@@ -29,7 +29,6 @@
 <pre><code class="python">import re
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 REGEX_EMAIL = r&#34;[^@\s]+@[^@\s]+\.[a-zA-Z0-9]+$&#34;
@@ -42,7 +41,7 @@ class Email(Validator):
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
         if not re.fullmatch(pattern=self._pattern, string=value):
-            raise ValidationError(f&#39;invalid email address: {value}&#39;)
+            self.raise_exception(msg=f&#39;invalid email address: {value}&#39;, value=value)
 
         return value</code></pre>
 </details>
@@ -74,7 +73,7 @@ inheritance.</p></div>
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
         if not re.fullmatch(pattern=self._pattern, string=value):
-            raise ValidationError(f&#39;invalid email address: {value}&#39;)
+            self.raise_exception(msg=f&#39;invalid email address: {value}&#39;, value=value)
 
         return value</code></pre>
 </details>

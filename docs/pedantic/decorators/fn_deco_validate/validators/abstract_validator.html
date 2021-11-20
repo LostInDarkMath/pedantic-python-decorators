@@ -27,7 +27,9 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, NoReturn
+
+from pedantic.decorators.fn_deco_validate.exceptions import ValidatorException
 
 
 class Validator(ABC):
@@ -37,6 +39,9 @@ class Validator(ABC):
             Validates and convert the value.
             Raises an ValidationError in case of an invalid value.
         &#34;&#34;&#34;
+
+    def raise_exception(self, value: Any, msg: str) -&gt; NoReturn:
+        raise ValidatorException(value=value, validator_name=self.name, msg=msg)
 
     @property
     def name(self) -&gt; str:
@@ -69,6 +74,9 @@ inheritance.</p></div>
             Validates and convert the value.
             Raises an ValidationError in case of an invalid value.
         &#34;&#34;&#34;
+
+    def raise_exception(self, value: Any, msg: str) -&gt; NoReturn:
+        raise ValidatorException(value=value, validator_name=self.name, msg=msg)
 
     @property
     def name(self) -&gt; str:
@@ -112,6 +120,19 @@ def name(self) -&gt; str:
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.raise_exception"><code class="name flex">
+<span>def <span class="ident">raise_exception</span></span>(<span>self, value: Any, msg: str) ‑> NoReturn</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def raise_exception(self, value: Any, msg: str) -&gt; NoReturn:
+    raise ValidatorException(value=value, validator_name=self.name, msg=msg)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.validate"><code class="name flex">
 <span>def <span class="ident">validate</span></span>(<span>self, value: Any) ‑> Any</span>
 </code></dt>
@@ -152,6 +173,7 @@ def validate(self, value: Any) -&gt; Any:
 <h4><code><a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a></code></h4>
 <ul class="">
 <li><code><a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.name" href="#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.name">name</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.raise_exception" href="#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.raise_exception">raise_exception</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.validate" href="#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.validate">validate</a></code></li>
 </ul>
 </li>

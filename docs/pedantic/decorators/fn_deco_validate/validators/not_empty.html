@@ -30,7 +30,6 @@
 from typing import Sequence
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators.abstract_validator import Validator
 
 
@@ -47,16 +46,16 @@ class NotEmpty(Validator):
 
         if isinstance(value, str):
             if not value.strip():
-                raise ValidationError(f&#39;Got empty String which is invalid.&#39;)
+                self.raise_exception(msg=f&#39;Got empty String which is invalid.&#39;, value=value)
 
             return value.strip() if self.strip else value
         elif isinstance(value, collections.abc.Sequence):
             if len(value) == 0:
-                raise ValidationError(f&#39;Got empty  which is invalid.&#39;)
+                raise self.raise_exception(msg=f&#39;Got empty  which is invalid.&#39;, value=value)
 
             return value
 
-        raise ValidationError(f&#39;Got {type(value)} which is not a Sequence.&#39;)</code></pre>
+        self.raise_exception(msg=f&#39;Got {type(value)} which is not a Sequence.&#39;, value=value)</code></pre>
 </details>
 </section>
 <section>
@@ -92,16 +91,16 @@ inheritance.</p></div>
 
         if isinstance(value, str):
             if not value.strip():
-                raise ValidationError(f&#39;Got empty String which is invalid.&#39;)
+                self.raise_exception(msg=f&#39;Got empty String which is invalid.&#39;, value=value)
 
             return value.strip() if self.strip else value
         elif isinstance(value, collections.abc.Sequence):
             if len(value) == 0:
-                raise ValidationError(f&#39;Got empty  which is invalid.&#39;)
+                raise self.raise_exception(msg=f&#39;Got empty  which is invalid.&#39;, value=value)
 
             return value
 
-        raise ValidationError(f&#39;Got {type(value)} which is not a Sequence.&#39;)</code></pre>
+        self.raise_exception(msg=f&#39;Got {type(value)} which is not a Sequence.&#39;, value=value)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -129,16 +128,16 @@ def validate(self, value: Sequence) -&gt; Sequence:
 
     if isinstance(value, str):
         if not value.strip():
-            raise ValidationError(f&#39;Got empty String which is invalid.&#39;)
+            self.raise_exception(msg=f&#39;Got empty String which is invalid.&#39;, value=value)
 
         return value.strip() if self.strip else value
     elif isinstance(value, collections.abc.Sequence):
         if len(value) == 0:
-            raise ValidationError(f&#39;Got empty  which is invalid.&#39;)
+            raise self.raise_exception(msg=f&#39;Got empty  which is invalid.&#39;, value=value)
 
         return value
 
-    raise ValidationError(f&#39;Got {type(value)} which is not a Sequence.&#39;)</code></pre>
+    self.raise_exception(msg=f&#39;Got {type(value)} which is not a Sequence.&#39;, value=value)</code></pre>
 </details>
 </dd>
 </dl>

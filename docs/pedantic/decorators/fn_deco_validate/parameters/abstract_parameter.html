@@ -26,15 +26,16 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import Iterable, Any, Type, Union
+<pre><code class="python">from typing import Iterable, Any, Type, Union, NoReturn, Optional
 
 from pedantic.decorators.fn_deco_validate.convert_value import convert_value
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError, ValidateException
+from pedantic.decorators.fn_deco_validate.exceptions import ConversionError, ValidatorException, \
+    ParameterException
 from pedantic.decorators.fn_deco_validate.validators.abstract_validator import Validator
 
 
 class Parameter:
-    exception_type: Type[Exception] = ValidateException
+    exception_type: Type[ParameterException] = ParameterException
 
     def __init__(self,
                  name: str,
@@ -57,24 +58,29 @@ class Parameter:
 
         if value is None:
             if self.is_required:
-                raise self.exception_type(f&#39;Value for key {self.name} is required.&#39;)
+                self.raise_exception(msg=f&#39;Value for key {self.name} is required.&#39;)
 
             return None
 
         if self.value_type is not None:
-            result_value = convert_value(value=value, target_type=self.value_type)
+            try:
+                result_value = convert_value(value=value, target_type=self.value_type)
+            except ConversionError as ex:
+                return self.raise_exception(value=value, msg=ex.message)
         else:
             result_value = value
 
         for validator in self.validators:
             try:
                 result_value = validator.validate(result_value)
-            except ValidationError as e:
-                e.validator_name = validator.name
-                e.value = value
-                raise e
+            except ValidatorException as e:
+                raise self.exception_type.from_validator_exception(exception=e, parameter_name=self.name)
 
         return result_value
+
+    def raise_exception(self, msg: str, value: Any = None, validator: Optional[Validator] = None) -&gt; NoReturn:
+        raise self.exception_type(value=value, parameter_name=self.name, msg=msg,
+                                  validator_name=validator.name if validator else None)
 
     def __str__(self) -&gt; str:
         return self.__class__.__name__ + &#39; name=&#39; + self.name</code></pre>
@@ -100,7 +106,7 @@ class Parameter:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Parameter:
-    exception_type: Type[Exception] = ValidateException
+    exception_type: Type[ParameterException] = ParameterException
 
     def __init__(self,
                  name: str,
@@ -123,24 +129,29 @@ class Parameter:
 
         if value is None:
             if self.is_required:
-                raise self.exception_type(f&#39;Value for key {self.name} is required.&#39;)
+                self.raise_exception(msg=f&#39;Value for key {self.name} is required.&#39;)
 
             return None
 
         if self.value_type is not None:
-            result_value = convert_value(value=value, target_type=self.value_type)
+            try:
+                result_value = convert_value(value=value, target_type=self.value_type)
+            except ConversionError as ex:
+                return self.raise_exception(value=value, msg=ex.message)
         else:
             result_value = value
 
         for validator in self.validators:
             try:
                 result_value = validator.validate(result_value)
-            except ValidationError as e:
-                e.validator_name = validator.name
-                e.value = value
-                raise e
+            except ValidatorException as e:
+                raise self.exception_type.from_validator_exception(exception=e, parameter_name=self.name)
 
         return result_value
+
+    def raise_exception(self, msg: str, value: Any = None, validator: Optional[Validator] = None) -&gt; NoReturn:
+        raise self.exception_type(value=value, parameter_name=self.name, msg=msg,
+                                  validator_name=validator.name if validator else None)
 
     def __str__(self) -&gt; str:
         return self.__class__.__name__ + &#39; name=&#39; + self.name</code></pre>
@@ -152,13 +163,27 @@ class Parameter:
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type"><code class="name">var <span class="ident">exception_type</span> : Type[Exception]</code></dt>
+<dt id="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type"><code class="name">var <span class="ident">exception_type</span> : Type[<a title="pedantic.decorators.fn_deco_validate.exceptions.ParameterException" href="../exceptions.html#pedantic.decorators.fn_deco_validate.exceptions.ParameterException">ParameterException</a>]</code></dt>
 <dd>
-<div class="desc"><p>The base class for all exception thrown by the validate decorator.</p></div>
+<div class="desc"><p>An exception that is raised inside a Parameter.</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.raise_exception"><code class="name flex">
+<span>def <span class="ident">raise_exception</span></span>(<span>self, msg: str, value: Any = None, validator: Optional[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None) ‑> NoReturn</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def raise_exception(self, msg: str, value: Any = None, validator: Optional[Validator] = None) -&gt; NoReturn:
+    raise self.exception_type(value=value, parameter_name=self.name, msg=msg,
+                              validator_name=validator.name if validator else None)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate"><code class="name flex">
 <span>def <span class="ident">validate</span></span>(<span>self, value: Any) ‑> Any</span>
 </code></dt>
@@ -173,22 +198,23 @@ class Parameter:
 
     if value is None:
         if self.is_required:
-            raise self.exception_type(f&#39;Value for key {self.name} is required.&#39;)
+            self.raise_exception(msg=f&#39;Value for key {self.name} is required.&#39;)
 
         return None
 
     if self.value_type is not None:
-        result_value = convert_value(value=value, target_type=self.value_type)
+        try:
+            result_value = convert_value(value=value, target_type=self.value_type)
+        except ConversionError as ex:
+            return self.raise_exception(value=value, msg=ex.message)
     else:
         result_value = value
 
     for validator in self.validators:
         try:
             result_value = validator.validate(result_value)
-        except ValidationError as e:
-            e.validator_name = validator.name
-            e.value = value
-            raise e
+        except ValidatorException as e:
+            raise self.exception_type.from_validator_exception(exception=e, parameter_name=self.name)
 
     return result_value</code></pre>
 </details>
@@ -215,6 +241,7 @@ class Parameter:
 <h4><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter" href="#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter">Parameter</a></code></h4>
 <ul class="">
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type" href="#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.raise_exception" href="#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.raise_exception">raise_exception</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate" href="#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
 </ul>
 </li>

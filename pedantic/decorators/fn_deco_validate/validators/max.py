@@ -1,7 +1,6 @@
 from typing import Union
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -21,8 +20,8 @@ class Max(Validator):
     @overrides(Validator)
     def validate(self, value: Union[int, float]) -> Union[int, float]:
         if value > self._value and self._include_boundary:
-            raise ValidationError(f'greater then allowed: {value} is not <= {self._value}')
+            self.raise_exception(msg=f'greater then allowed: {value} is not <= {self._value}', value=value)
         elif value >= self._value and not self._include_boundary:
-            raise ValidationError(f'greater then allowed: {value} is not < {self._value}')
+            self.raise_exception(msg=f'greater then allowed: {value} is not < {self._value}', value=value)
 
         return value

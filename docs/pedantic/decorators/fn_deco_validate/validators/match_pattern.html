@@ -29,7 +29,6 @@
 <pre><code class="python">import re
 
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -40,7 +39,7 @@ class MatchPattern(Validator):
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
         if not self._pattern.search(string=str(value)):
-            raise ValidationError(f&#39;Value &#34;{value}&#34; does not match pattern {self._pattern.pattern}.&#39;)
+            self.raise_exception(msg=f&#39;Value &#34;{value}&#34; does not match pattern {self._pattern.pattern}.&#39;, value=value)
 
         return value</code></pre>
 </details>
@@ -72,7 +71,7 @@ inheritance.</p></div>
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
         if not self._pattern.search(string=str(value)):
-            raise ValidationError(f&#39;Value &#34;{value}&#34; does not match pattern {self._pattern.pattern}.&#39;)
+            self.raise_exception(msg=f&#39;Value &#34;{value}&#34; does not match pattern {self._pattern.pattern}.&#39;, value=value)
 
         return value</code></pre>
 </details>

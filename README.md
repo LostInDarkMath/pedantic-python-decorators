@@ -65,7 +65,7 @@ The following example shows the decoupled implementation of a configurable algor
 import os
 from dataclasses import dataclass
 
-from pedantic import validate, ExternalParameter, overrides, Validator, ValidationError
+from pedantic import validate, ExternalParameter, overrides, Validator, Parameter, Min, ReturnAs
 
 
 @dataclass(frozen=True)
@@ -78,7 +78,7 @@ class ConfigurationValidator(Validator):
     @overrides(Validator)
     def validate(self, value: Configuration) -> Configuration:
         if value.iterations < 1 or value.max_error < 0:
-            raise ValidationError(f'Invalid configuration: {value}')
+            self.raise_exception(msg=f'Invalid configuration: {value}', value=value)
 
         return value
 
@@ -108,12 +108,15 @@ class ConfigFromFile(ExternalParameter):
 
 
 # choose your configuration source here:
-@validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False)
+@validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False, return_as=ReturnAs.KWARGS_WITH_NONE)
 # @validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=False)
 
-# with strict_mode = True (which is the default) 
-# you need to pass a Parameter for each parameter of the decorated function 
-# @validate(Parameter(name='value') ConfigFromFile(name='config', validators=[ConfigurationValidator()]))
+# with strict_mode = True (which is the default)
+# you need to pass a Parameter for each parameter of the decorated function
+# @validate(
+#     Parameter(name='value', validators=[Min(5, include_boundary=False)]),
+#     ConfigFromFile(name='config', validators=[ConfigurationValidator()]),
+# )
 def my_algorithm(value: float, config: Configuration) -> float:
     """
         This method calculates something that depends on the given value with considering the configuration.

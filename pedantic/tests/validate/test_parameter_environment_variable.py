@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from pedantic.decorators.fn_deco_validate.exceptions import ValidationError
+from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import EnvironmentVariableParameter
 
@@ -51,7 +51,7 @@ class TestParameterEnvironmentVariable(TestCase):
         for value in ['invalid', 'frue', 'talse']:
             os.environ['foo'] = value
 
-            with self.assertRaises(expected_exception=ValidationError):
+            with self.assertRaises(expected_exception=ParameterException):
                 bar()
 
     def test_parameter_environment_variable_not_set(self) -> None:
@@ -59,7 +59,7 @@ class TestParameterEnvironmentVariable(TestCase):
         def bar(foo):
             return foo
 
-        with self.assertRaises(expected_exception=ValidationError):
+        with self.assertRaises(expected_exception=ParameterException):
             bar()
 
     def test_invalid_value_type(self) -> None:
