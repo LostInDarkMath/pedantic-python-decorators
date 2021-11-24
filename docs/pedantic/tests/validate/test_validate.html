@@ -27,9 +27,12 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import os
+from datetime import datetime
+from enum import Enum
 from typing import Optional, Any
 from unittest import TestCase
 
+from pedantic import IsEnum, DateTimeUnixTimestamp
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, ParameterException, \
     ValidatorException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
@@ -47,8 +50,11 @@ class TestValidate(TestCase):
         converted_value = validator.validate(value=&#39;hed&#39;)
         self.assertEqual(converted_value, &#39;hed&#39;)
 
-        with self.assertRaises(expected_exception=ValidatorException):
+        with self.assertRaises(expected_exception=ValidatorException) as ex:
             validator.validate(value=&#39;hello world&#39;)
+
+        expected_error_msg = &#39;MaxLength: hello world is too long with length 11. Value: hello world &#39;
+        self.assertEqual(expected_error_msg, str(ex.exception))
 
     def test_single_parameter(self) -&gt; None:
         parameter = Parameter(name=&#39;x&#39;, validators=[MaxLength(3)])
@@ -373,7 +379,26 @@ class TestValidate(TestCase):
 
         self.assertEqual(42, bar())
         self.assertEqual(2, bar(a=2))
-        self.assertEqual(2, bar(2))</code></pre>
+        self.assertEqual(2, bar(2))
+
+    def test_default_value_is_not_validated(self) -&gt; None:
+        t = datetime(year=2021, month=11, day=24)
+        unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
+
+        @validate(Parameter(name=&#39;a&#39;, required=False, default=t, validators=[DateTimeUnixTimestamp()]))
+        def bar(a: datetime) -&gt; datetime:
+            return a
+
+        self.assertEqual(t, bar(a=unix_timestamp))
+        self.assertEqual(t, bar())
+
+    def test_no_default_value(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, required=False))
+        def bar(a: datetime) -&gt; datetime:
+            return a
+
+        with self.assertRaises(expected_exception=ValidateException):
+            bar()</code></pre>
 </details>
 </section>
 <section>
@@ -432,8 +457,11 @@ not have a method with the specified name.</p></div>
         converted_value = validator.validate(value=&#39;hed&#39;)
         self.assertEqual(converted_value, &#39;hed&#39;)
 
-        with self.assertRaises(expected_exception=ValidatorException):
+        with self.assertRaises(expected_exception=ValidatorException) as ex:
             validator.validate(value=&#39;hello world&#39;)
+
+        expected_error_msg = &#39;MaxLength: hello world is too long with length 11. Value: hello world &#39;
+        self.assertEqual(expected_error_msg, str(ex.exception))
 
     def test_single_parameter(self) -&gt; None:
         parameter = Parameter(name=&#39;x&#39;, validators=[MaxLength(3)])
@@ -758,7 +786,26 @@ not have a method with the specified name.</p></div>
 
         self.assertEqual(42, bar())
         self.assertEqual(2, bar(a=2))
-        self.assertEqual(2, bar(2))</code></pre>
+        self.assertEqual(2, bar(2))
+
+    def test_default_value_is_not_validated(self) -&gt; None:
+        t = datetime(year=2021, month=11, day=24)
+        unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
+
+        @validate(Parameter(name=&#39;a&#39;, required=False, default=t, validators=[DateTimeUnixTimestamp()]))
+        def bar(a: datetime) -&gt; datetime:
+            return a
+
+        self.assertEqual(t, bar(a=unix_timestamp))
+        self.assertEqual(t, bar())
+
+    def test_no_default_value(self) -&gt; None:
+        @validate(Parameter(name=&#39;a&#39;, required=False))
+        def bar(a: datetime) -&gt; datetime:
+            return a
+
+        with self.assertRaises(expected_exception=ValidateException):
+            bar()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -819,6 +866,27 @@ not have a method with the specified name.</p></div>
         return x
 
     some_calculation(42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated"><code class="name flex">
+<span>def <span class="ident">test_default_value_is_not_validated</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_default_value_is_not_validated(self) -&gt; None:
+    t = datetime(year=2021, month=11, day=24)
+    unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
+
+    @validate(Parameter(name=&#39;a&#39;, required=False, default=t, validators=[DateTimeUnixTimestamp()]))
+    def bar(a: datetime) -&gt; datetime:
+        return a
+
+    self.assertEqual(t, bar(a=unix_timestamp))
+    self.assertEqual(t, bar())</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none"><code class="name flex">
@@ -971,6 +1039,24 @@ not have a method with the specified name.</p></div>
 
     self.assertEqual(11, bar(3, 3, 5))
     self.assertEqual(11, bar(a=3, b=3, c=5))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_no_default_value"><code class="name flex">
+<span>def <span class="ident">test_no_default_value</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_no_default_value(self) -&gt; None:
+    @validate(Parameter(name=&#39;a&#39;, required=False))
+    def bar(a: datetime) -&gt; datetime:
+        return a
+
+    with self.assertRaises(expected_exception=ValidateException):
+        bar()</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_with_none"><code class="name flex">
@@ -1233,8 +1319,11 @@ not have a method with the specified name.</p></div>
     converted_value = validator.validate(value=&#39;hed&#39;)
     self.assertEqual(converted_value, &#39;hed&#39;)
 
-    with self.assertRaises(expected_exception=ValidatorException):
-        validator.validate(value=&#39;hello world&#39;)</code></pre>
+    with self.assertRaises(expected_exception=ValidatorException) as ex:
+        validator.validate(value=&#39;hello world&#39;)
+
+    expected_error_msg = &#39;MaxLength: hello world is too long with length 11. Value: hello world &#39;
+    self.assertEqual(expected_error_msg, str(ex.exception))</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_validate.TestValidate.test_too_many_arguments"><code class="name flex">
@@ -1427,6 +1516,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.setUp" href="#pedantic.tests.validate.test_validate.TestValidate.setUp">setUp</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_allow_renaming_of_parameter_of_custom_validator" href="#pedantic.tests.validate.test_validate.TestValidate.test_allow_renaming_of_parameter_of_custom_validator">test_allow_renaming_of_parameter_of_custom_validator</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_call_with_args" href="#pedantic.tests.validate.test_validate.TestValidate.test_call_with_args">test_call_with_args</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated" href="#pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated">test_default_value_is_not_validated</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none">test_empty_parameter_kwargs_with_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_without_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_without_none">test_empty_parameter_kwargs_without_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given">test_external_parameter_accepts_value_when_given</a></code></li>
@@ -1434,6 +1524,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_mixed_with_normal_parameter">test_external_parameter_mixed_with_normal_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments" href="#pedantic.tests.validate.test_validate.TestValidate.test_less_parameter_than_arguments">test_less_parameter_than_arguments</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters" href="#pedantic.tests.validate.test_validate.TestValidate.test_multiple_parameters">test_multiple_parameters</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_no_default_value" href="#pedantic.tests.validate.test_validate.TestValidate.test_no_default_value">test_no_default_value</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_with_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_with_none">test_none_is_not_validated_if_not_required_kwargs_with_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_without_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_not_validated_if_not_required_kwargs_without_none">test_none_is_not_validated_if_not_required_kwargs_without_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_none_is_removed_for_not_required_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_none_is_removed_for_not_required_parameter">test_none_is_removed_for_not_required_parameter</a></code></li>

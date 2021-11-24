@@ -48,6 +48,7 @@ def validate(
             result = {}
             parameter_dict = {parameter.name: parameter for parameter in parameters}
             used_parameter_names: List[str] = []
+            signature = inspect.signature(func)
 
             if not ignore_input:
                 for k, v in kwargs.items():
@@ -61,7 +62,6 @@ def validate(
                         else:
                             result[k] = v
 
-                signature = inspect.signature(func)
                 wants_args = '*args' in str(signature)
                 used_args = []
 
@@ -94,16 +94,22 @@ def validate(
 
             for parameter in unused_parameters:
                 if not isinstance(parameter, ExternalParameter):
-                    if not parameter.is_required:
-                        continue
+                    if parameter.is_required:
+                        raise ValidateException(f'Got no value for parameter {parameter.name}')
+                    elif parameter.default_value is None:
+                        if signature.parameters[parameter.name].default is not signature.empty:
+                            value = signature.parameters[parameter.name].default
+                        else:
+                            raise ValidateException(f'Got neither value nor default value for parameter {parameter.name}')
+                    else:
+                        value = parameter.default_value
+                else:
+                    value = parameter.load_value()
+                    value = parameter.validate(value=value)
 
-                    raise ValidateException(f'Got no value for parameter {parameter.name}')
+                result[parameter.name] = value
 
-                value = parameter.load_value()
-                validated_value = parameter.validate(value=value)
-                result[parameter.name] = validated_value
-
-            # this is ugly, but i really want this behavior
+            # this is ugly, but I really want this behavior
             if strict and IS_FLASK_INSTALLED:
                 if all([isinstance(p, FlaskJsonParameter) for p in parameter_dict.values()]) and request.is_json:
                     unexpected_args = [k for k in request.json if k not in parameter_dict]

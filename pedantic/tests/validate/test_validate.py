@@ -1,7 +1,10 @@
 import os
+from datetime import datetime
+from enum import Enum
 from typing import Optional, Any
 from unittest import TestCase
 
+from pedantic import IsEnum, DateTimeUnixTimestamp
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, ParameterException, \
     ValidatorException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
@@ -349,3 +352,22 @@ class TestValidate(TestCase):
         self.assertEqual(42, bar())
         self.assertEqual(2, bar(a=2))
         self.assertEqual(2, bar(2))
+
+    def test_default_value_is_not_validated(self) -> None:
+        t = datetime(year=2021, month=11, day=24)
+        unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
+
+        @validate(Parameter(name='a', required=False, default=t, validators=[DateTimeUnixTimestamp()]))
+        def bar(a: datetime) -> datetime:
+            return a
+
+        self.assertEqual(t, bar(a=unix_timestamp))
+        self.assertEqual(t, bar())
+
+    def test_no_default_value(self) -> None:
+        @validate(Parameter(name='a', required=False))
+        def bar(a: datetime) -> datetime:
+            return a
+
+        with self.assertRaises(expected_exception=ValidateException):
+            bar()
