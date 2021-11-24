@@ -381,7 +381,7 @@ class TestValidate(TestCase):
         self.assertEqual(2, bar(a=2))
         self.assertEqual(2, bar(2))
 
-    def test_default_value_is_not_validated(self) -&gt; None:
+    def test_default_value_is_not_validated_internal_parameter(self) -&gt; None:
         t = datetime(year=2021, month=11, day=24)
         unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
 
@@ -398,7 +398,19 @@ class TestValidate(TestCase):
             return a
 
         with self.assertRaises(expected_exception=ValidateException):
-            bar()</code></pre>
+            bar()
+
+    def test_default_value_is_not_validated_external_parameter(self) -&gt; None:
+        t = datetime(year=2021, month=11, day=24)
+
+        if &#39;a&#39; in os.environ:
+            del os.environ[&#39;a&#39;]
+
+        @validate(EnvironmentVariableParameter(name=&#39;a&#39;, default=t, validators=[DateTimeUnixTimestamp()], required=False))
+        def bar(a: datetime) -&gt; datetime:
+            return a
+
+        self.assertEqual(t, bar())</code></pre>
 </details>
 </section>
 <section>
@@ -788,7 +800,7 @@ not have a method with the specified name.</p></div>
         self.assertEqual(2, bar(a=2))
         self.assertEqual(2, bar(2))
 
-    def test_default_value_is_not_validated(self) -&gt; None:
+    def test_default_value_is_not_validated_internal_parameter(self) -&gt; None:
         t = datetime(year=2021, month=11, day=24)
         unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
 
@@ -805,7 +817,19 @@ not have a method with the specified name.</p></div>
             return a
 
         with self.assertRaises(expected_exception=ValidateException):
-            bar()</code></pre>
+            bar()
+
+    def test_default_value_is_not_validated_external_parameter(self) -&gt; None:
+        t = datetime(year=2021, month=11, day=24)
+
+        if &#39;a&#39; in os.environ:
+            del os.environ[&#39;a&#39;]
+
+        @validate(EnvironmentVariableParameter(name=&#39;a&#39;, default=t, validators=[DateTimeUnixTimestamp()], required=False))
+        def bar(a: datetime) -&gt; datetime:
+            return a
+
+        self.assertEqual(t, bar())</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -868,8 +892,8 @@ not have a method with the specified name.</p></div>
     some_calculation(42)</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated"><code class="name flex">
-<span>def <span class="ident">test_default_value_is_not_validated</span></span>(<span>self) ‑> None</span>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated_external_parameter"><code class="name flex">
+<span>def <span class="ident">test_default_value_is_not_validated_external_parameter</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -877,7 +901,29 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_default_value_is_not_validated(self) -&gt; None:
+<pre><code class="python">def test_default_value_is_not_validated_external_parameter(self) -&gt; None:
+    t = datetime(year=2021, month=11, day=24)
+
+    if &#39;a&#39; in os.environ:
+        del os.environ[&#39;a&#39;]
+
+    @validate(EnvironmentVariableParameter(name=&#39;a&#39;, default=t, validators=[DateTimeUnixTimestamp()], required=False))
+    def bar(a: datetime) -&gt; datetime:
+        return a
+
+    self.assertEqual(t, bar())</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated_internal_parameter"><code class="name flex">
+<span>def <span class="ident">test_default_value_is_not_validated_internal_parameter</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_default_value_is_not_validated_internal_parameter(self) -&gt; None:
     t = datetime(year=2021, month=11, day=24)
     unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
 
@@ -1516,7 +1562,8 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.setUp" href="#pedantic.tests.validate.test_validate.TestValidate.setUp">setUp</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_allow_renaming_of_parameter_of_custom_validator" href="#pedantic.tests.validate.test_validate.TestValidate.test_allow_renaming_of_parameter_of_custom_validator">test_allow_renaming_of_parameter_of_custom_validator</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_call_with_args" href="#pedantic.tests.validate.test_validate.TestValidate.test_call_with_args">test_call_with_args</a></code></li>
-<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated" href="#pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated">test_default_value_is_not_validated</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated_external_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated_external_parameter">test_default_value_is_not_validated_external_parameter</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated_internal_parameter" href="#pedantic.tests.validate.test_validate.TestValidate.test_default_value_is_not_validated_internal_parameter">test_default_value_is_not_validated_internal_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_with_none">test_empty_parameter_kwargs_with_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_without_none" href="#pedantic.tests.validate.test_validate.TestValidate.test_empty_parameter_kwargs_without_none">test_empty_parameter_kwargs_without_none</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given" href="#pedantic.tests.validate.test_validate.TestValidate.test_external_parameter_accepts_value_when_given">test_external_parameter_accepts_value_when_given</a></code></li>

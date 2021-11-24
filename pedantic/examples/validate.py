@@ -24,7 +24,7 @@ class ConfigFromEnvVar(ExternalParameter):
 
     @overrides(ExternalParameter)
     def has_value(self) -> bool:
-        return 'iteration' in os.environ and 'max_error' in os.environ
+        return 'iterations' in os.environ and 'max_error' in os.environ
 
     @overrides(ExternalParameter)
     def load_value(self) -> Configuration:

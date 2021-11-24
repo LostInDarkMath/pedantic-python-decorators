@@ -33,6 +33,7 @@ from typing import Any, Callable, List
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalParameter
+from pedantic.decorators.fn_deco_validate.parameters.abstract_parameter import NoValue
 
 try:
     from flask import request
@@ -121,19 +122,21 @@ def validate(
             unused_parameters = [parameter for parameter in parameters if parameter.name not in used_parameter_names]
 
             for parameter in unused_parameters:
-                if not isinstance(parameter, ExternalParameter):
-                    if parameter.is_required:
-                        raise ValidateException(f&#39;Got no value for parameter {parameter.name}&#39;)
-                    elif parameter.default_value is None:
-                        if signature.parameters[parameter.name].default is not signature.empty:
-                            value = signature.parameters[parameter.name].default
-                        else:
-                            raise ValidateException(f&#39;Got neither value nor default value for parameter {parameter.name}&#39;)
+                if isinstance(parameter, ExternalParameter):
+                    if parameter.has_value():
+                        v = parameter.load_value()
+                        result[parameter.name] = parameter.validate(value=v)
+                        continue
+
+                if parameter.is_required:
+                    return parameter.raise_exception(msg=f&#39;Value for parameter {parameter.name} is required.&#39;)
+                elif parameter.default_value == NoValue:
+                    if signature.parameters[parameter.name].default is not signature.empty:
+                        value = signature.parameters[parameter.name].default
                     else:
-                        value = parameter.default_value
+                        raise ValidateException(f&#39;Got neither value nor default value for parameter {parameter.name}&#39;)
                 else:
-                    value = parameter.load_value()
-                    value = parameter.validate(value=value)
+                    value = parameter.default_value
 
                 result[parameter.name] = value
 
@@ -267,19 +270,21 @@ This can be useful if you use only ExternalParameters.</dd>
             unused_parameters = [parameter for parameter in parameters if parameter.name not in used_parameter_names]
 
             for parameter in unused_parameters:
-                if not isinstance(parameter, ExternalParameter):
-                    if parameter.is_required:
-                        raise ValidateException(f&#39;Got no value for parameter {parameter.name}&#39;)
-                    elif parameter.default_value is None:
-                        if signature.parameters[parameter.name].default is not signature.empty:
-                            value = signature.parameters[parameter.name].default
-                        else:
-                            raise ValidateException(f&#39;Got neither value nor default value for parameter {parameter.name}&#39;)
+                if isinstance(parameter, ExternalParameter):
+                    if parameter.has_value():
+                        v = parameter.load_value()
+                        result[parameter.name] = parameter.validate(value=v)
+                        continue
+
+                if parameter.is_required:
+                    return parameter.raise_exception(msg=f&#39;Value for parameter {parameter.name} is required.&#39;)
+                elif parameter.default_value == NoValue:
+                    if signature.parameters[parameter.name].default is not signature.empty:
+                        value = signature.parameters[parameter.name].default
                     else:
-                        value = parameter.default_value
+                        raise ValidateException(f&#39;Got neither value nor default value for parameter {parameter.name}&#39;)
                 else:
-                    value = parameter.load_value()
-                    value = parameter.validate(value=value)
+                    value = parameter.default_value
 
                 result[parameter.name] = value
 

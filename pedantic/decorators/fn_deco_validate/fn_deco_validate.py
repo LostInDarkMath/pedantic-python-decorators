@@ -5,6 +5,7 @@ from typing import Any, Callable, List
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalParameter
+from pedantic.decorators.fn_deco_validate.parameters.abstract_parameter import NoValue
 
 try:
     from flask import request
@@ -101,7 +102,7 @@ def validate(
 
                 if parameter.is_required:
                     return parameter.raise_exception(msg=f'Value for parameter {parameter.name} is required.')
-                elif parameter.default_value is None:
+                elif parameter.default_value == NoValue:
                     if signature.parameters[parameter.name].default is not signature.empty:
                         value = signature.parameters[parameter.name].default
                     else:

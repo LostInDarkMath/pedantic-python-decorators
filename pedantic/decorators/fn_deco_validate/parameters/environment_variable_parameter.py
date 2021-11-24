@@ -3,6 +3,7 @@ from typing import Any, Type, Iterable, Union
 
 from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter
+from pedantic.decorators.fn_deco_validate.parameters.abstract_parameter import NoValue
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -13,7 +14,7 @@ class EnvironmentVariableParameter(ExternalParameter):
                  value_type: Type[Union[str, bool, int, float]] = str,
                  validators: Iterable[Validator] = None,
                  required: bool = True,
-                 default: Any = None,
+                 default: Any = NoValue,
                  ) -> None:
         super().__init__(name=name, validators=validators, default=default, value_type=value_type, required=required)
 

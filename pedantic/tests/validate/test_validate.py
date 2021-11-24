@@ -374,7 +374,9 @@ class TestValidate(TestCase):
 
     def test_default_value_is_not_validated_external_parameter(self) -> None:
         t = datetime(year=2021, month=11, day=24)
-        unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
+
+        if 'a' in os.environ:
+            del os.environ['a']
 
         @validate(EnvironmentVariableParameter(name='a', default=t, validators=[DateTimeUnixTimestamp()], required=False))
         def bar(a: datetime) -> datetime:

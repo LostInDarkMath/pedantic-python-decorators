@@ -16,25 +16,16 @@ class FlaskParameter(ExternalParameter, ABC):
     @overrides(ExternalParameter)
     def has_value(self) -> bool:
         dict_ = self.get_dict()
+
+        if dict_ is None:
+            self.raise_exception(msg=f'Data is not in JSON format.')
+
         return dict_ is not None and self.name in dict_
 
     @overrides(ExternalParameter)
     def load_value(self) -> Any:
         dict_ = self.get_dict()
-
-        if dict_ is None:
-            if self.default_value is not None:
-                return self.default_value
-
-            self.raise_exception(msg=f'Data is not in JSON format.')
-
-        if self.name in dict_ and dict_[self.name] is not None:
-            return dict_[self.name]
-
-        if self.default_value is not None:
-            return self.default_value
-
-        return None
+        return dict_[self.name]
 
 
 class FlaskJsonParameter(FlaskParameter):

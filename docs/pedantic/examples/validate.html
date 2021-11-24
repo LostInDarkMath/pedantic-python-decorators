@@ -51,6 +51,10 @@ class ConfigFromEnvVar(ExternalParameter):
     &#34;&#34;&#34; Reads the configuration from environment variables. &#34;&#34;&#34;
 
     @overrides(ExternalParameter)
+    def has_value(self) -&gt; bool:
+        return &#39;iterations&#39; in os.environ and &#39;max_error&#39; in os.environ
+
+    @overrides(ExternalParameter)
     def load_value(self) -&gt; Configuration:
         return Configuration(
             iterations=int(os.environ[&#39;iterations&#39;]),
@@ -60,6 +64,10 @@ class ConfigFromEnvVar(ExternalParameter):
 
 class ConfigFromFile(ExternalParameter):
     &#34;&#34;&#34; Reads the configuration from a config file. &#34;&#34;&#34;
+
+    @overrides(ExternalParameter)
+    def has_value(self) -&gt; bool:
+        return os.path.isfile(&#39;config.csv&#39;)
 
     @overrides(ExternalParameter)
     def load_value(self) -&gt; Configuration:
@@ -158,7 +166,7 @@ def my_algorithm(value: float, config: Configuration) -&gt; float:
 <dl>
 <dt id="pedantic.examples.validate.ConfigFromEnvVar"><code class="flex name class">
 <span>class <span class="ident">ConfigFromEnvVar</span></span>
-<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../decorators/fn_deco_validate/validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../decorators/fn_deco_validate/validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.NoValue, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Reads the configuration from environment variables.</p></div>
@@ -168,6 +176,10 @@ def my_algorithm(value: float, config: Configuration) -&gt; float:
 </summary>
 <pre><code class="python">class ConfigFromEnvVar(ExternalParameter):
     &#34;&#34;&#34; Reads the configuration from environment variables. &#34;&#34;&#34;
+
+    @overrides(ExternalParameter)
+    def has_value(self) -&gt; bool:
+        return &#39;iterations&#39; in os.environ and &#39;max_error&#39; in os.environ
 
     @overrides(ExternalParameter)
     def load_value(self) -&gt; Configuration:
@@ -187,6 +199,7 @@ def my_algorithm(value: float, config: Configuration) -&gt; float:
 <li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter" href="../decorators/fn_deco_validate/parameters/abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter">ExternalParameter</a></b></code>:
 <ul class="hlist">
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.exception_type" href="../decorators/fn_deco_validate/parameters/abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.has_value" href="../decorators/fn_deco_validate/parameters/abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.has_value">has_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value" href="../decorators/fn_deco_validate/parameters/abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value">load_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.validate" href="../decorators/fn_deco_validate/parameters/abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
 </ul>
@@ -195,7 +208,7 @@ def my_algorithm(value: float, config: Configuration) -&gt; float:
 </dd>
 <dt id="pedantic.examples.validate.ConfigFromFile"><code class="flex name class">
 <span>class <span class="ident">ConfigFromFile</span></span>
-<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../decorators/fn_deco_validate/validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../decorators/fn_deco_validate/validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.NoValue, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Reads the configuration from a config file.</p></div>
@@ -205,6 +218,10 @@ def my_algorithm(value: float, config: Configuration) -&gt; float:
 </summary>
 <pre><code class="python">class ConfigFromFile(ExternalParameter):
     &#34;&#34;&#34; Reads the configuration from a config file. &#34;&#34;&#34;
+
+    @overrides(ExternalParameter)
+    def has_value(self) -&gt; bool:
+        return os.path.isfile(&#39;config.csv&#39;)
 
     @overrides(ExternalParameter)
     def load_value(self) -&gt; Configuration:
@@ -226,6 +243,7 @@ def my_algorithm(value: float, config: Configuration) -&gt; float:
 <li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter" href="../decorators/fn_deco_validate/parameters/abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter">ExternalParameter</a></b></code>:
 <ul class="hlist">
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.exception_type" href="../decorators/fn_deco_validate/parameters/abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.has_value" href="../decorators/fn_deco_validate/parameters/abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.has_value">has_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value" href="../decorators/fn_deco_validate/parameters/abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value">load_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.validate" href="../decorators/fn_deco_validate/parameters/abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
 </ul>

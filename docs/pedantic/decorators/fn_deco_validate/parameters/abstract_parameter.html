@@ -34,6 +34,10 @@ from pedantic.decorators.fn_deco_validate.exceptions import ConversionError, Val
 from pedantic.decorators.fn_deco_validate.validators.abstract_validator import Validator
 
 
+class NoValue:
+    pass
+
+
 class Parameter:
     exception_type: Type[ParameterException] = ParameterException
 
@@ -41,14 +45,14 @@ class Parameter:
                  name: str,
                  value_type: Type[Union[bool, int, float, str, dict, list]] = None,
                  validators: Iterable[Validator] = None,
-                 default: Any = None,
+                 default: Any = NoValue,
                  required: bool = True,
                  ) -&gt; None:
         self.name = name
         self.validators = validators if validators else []
         self.default_value = default
         self.value_type = value_type
-        self.is_required = required
+        self.is_required = False if default != NoValue else required
 
         if value_type not in [str, bool, int, float, dict, list, None]:
             raise AssertionError(f&#39;value_type needs to be one of these: str, bool, int, float, dict &amp; list&#39;)
@@ -95,9 +99,22 @@ class Parameter:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.NoValue"><code class="flex name class">
+<span>class <span class="ident">NoValue</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NoValue:
+    pass</code></pre>
+</details>
+</dd>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter"><code class="flex name class">
 <span>class <span class="ident">Parameter</span></span>
-<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None, required: bool = True)</span>
+<span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.NoValue, required: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -112,14 +129,14 @@ class Parameter:
                  name: str,
                  value_type: Type[Union[bool, int, float, str, dict, list]] = None,
                  validators: Iterable[Validator] = None,
-                 default: Any = None,
+                 default: Any = NoValue,
                  required: bool = True,
                  ) -&gt; None:
         self.name = name
         self.validators = validators if validators else []
         self.default_value = default
         self.value_type = value_type
-        self.is_required = required
+        self.is_required = False if default != NoValue else required
 
         if value_type not in [str, bool, int, float, dict, list, None]:
             raise AssertionError(f&#39;value_type needs to be one of these: str, bool, int, float, dict &amp; list&#39;)
@@ -237,6 +254,9 @@ class Parameter:
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.NoValue" href="#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.NoValue">NoValue</a></code></h4>
+</li>
 <li>
 <h4><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter" href="#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter">Parameter</a></code></h4>
 <ul class="">
