@@ -20,7 +20,7 @@ class Parameter:
         self.validators = validators if validators else []
         self.default_value = default
         self.value_type = value_type
-        self.is_required = required
+        self.is_required = False if default is not None else required
 
         if value_type not in [str, bool, int, float, dict, list, None]:
             raise AssertionError(f'value_type needs to be one of these: str, bool, int, float, dict & list')

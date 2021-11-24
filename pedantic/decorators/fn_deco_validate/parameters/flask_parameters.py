@@ -14,6 +14,11 @@ class FlaskParameter(ExternalParameter, ABC):
         """ Returns the actual values as a dictionary. """
 
     @overrides(ExternalParameter)
+    def has_value(self) -> bool:
+        dict_ = self.get_dict()
+        return dict_ is not None and self.name in dict_
+
+    @overrides(ExternalParameter)
     def load_value(self) -> Any:
         dict_ = self.get_dict()
 

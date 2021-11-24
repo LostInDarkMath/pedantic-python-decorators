@@ -353,7 +353,7 @@ class TestValidate(TestCase):
         self.assertEqual(2, bar(a=2))
         self.assertEqual(2, bar(2))
 
-    def test_default_value_is_not_validated(self) -> None:
+    def test_default_value_is_not_validated_internal_parameter(self) -> None:
         t = datetime(year=2021, month=11, day=24)
         unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
 
@@ -371,3 +371,13 @@ class TestValidate(TestCase):
 
         with self.assertRaises(expected_exception=ValidateException):
             bar()
+
+    def test_default_value_is_not_validated_external_parameter(self) -> None:
+        t = datetime(year=2021, month=11, day=24)
+        unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
+
+        @validate(EnvironmentVariableParameter(name='a', default=t, validators=[DateTimeUnixTimestamp()], required=False))
+        def bar(a: datetime) -> datetime:
+            return a
+
+        self.assertEqual(t, bar())
