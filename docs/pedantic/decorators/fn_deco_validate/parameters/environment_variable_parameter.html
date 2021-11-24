@@ -31,6 +31,7 @@ from typing import Any, Type, Iterable, Union
 
 from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter
+from pedantic.decorators.fn_deco_validate.parameters.abstract_parameter import NoValue
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
@@ -40,9 +41,10 @@ class EnvironmentVariableParameter(ExternalParameter):
                  env_var_name: str = None,
                  value_type: Type[Union[str, bool, int, float]] = str,
                  validators: Iterable[Validator] = None,
-                 default: Any = None,
+                 required: bool = True,
+                 default: Any = NoValue,
                  ) -&gt; None:
-        super().__init__(name=name, validators=validators, default=default, value_type=value_type)
+        super().__init__(name=name, validators=validators, default=default, value_type=value_type, required=required)
 
         if value_type not in [str, bool, int, float]:
             raise AssertionError(f&#39;value_type needs to be one of these: str, bool, int &amp; float&#39;)
@@ -53,12 +55,12 @@ class EnvironmentVariableParameter(ExternalParameter):
             self._env_var_name = env_var_name
 
     @overrides(ExternalParameter)
-    def load_value(self) -&gt; Any:
-        if self._env_var_name not in os.environ:
-            self.raise_exception(msg=f&#39;Environment variable {self._env_var_name} was not set.&#39;)
+    def has_value(self) -&gt; bool:
+        return self._env_var_name in os.environ
 
-        value = os.environ[self._env_var_name].strip()
-        return value</code></pre>
+    @overrides(ExternalParameter)
+    def load_value(self) -&gt; Any:
+        return os.environ[self._env_var_name].strip()</code></pre>
 </details>
 </section>
 <section>
@@ -72,7 +74,7 @@ class EnvironmentVariableParameter(ExternalParameter):
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.environment_variable_parameter.EnvironmentVariableParameter"><code class="flex name class">
 <span>class <span class="ident">EnvironmentVariableParameter</span></span>
-<span>(</span><span>name: str, env_var_name: str = None, value_type: Type[Union[str, bool, int, float]] = builtins.str, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = None)</span>
+<span>(</span><span>name: str, env_var_name: str = None, value_type: Type[Union[str, bool, int, float]] = builtins.str, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, required: bool = True, default: Any = pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.NoValue)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -87,9 +89,10 @@ inheritance.</p></div>
                  env_var_name: str = None,
                  value_type: Type[Union[str, bool, int, float]] = str,
                  validators: Iterable[Validator] = None,
-                 default: Any = None,
+                 required: bool = True,
+                 default: Any = NoValue,
                  ) -&gt; None:
-        super().__init__(name=name, validators=validators, default=default, value_type=value_type)
+        super().__init__(name=name, validators=validators, default=default, value_type=value_type, required=required)
 
         if value_type not in [str, bool, int, float]:
             raise AssertionError(f&#39;value_type needs to be one of these: str, bool, int &amp; float&#39;)
@@ -100,12 +103,12 @@ inheritance.</p></div>
             self._env_var_name = env_var_name
 
     @overrides(ExternalParameter)
-    def load_value(self) -&gt; Any:
-        if self._env_var_name not in os.environ:
-            self.raise_exception(msg=f&#39;Environment variable {self._env_var_name} was not set.&#39;)
+    def has_value(self) -&gt; bool:
+        return self._env_var_name in os.environ
 
-        value = os.environ[self._env_var_name].strip()
-        return value</code></pre>
+    @overrides(ExternalParameter)
+    def load_value(self) -&gt; Any:
+        return os.environ[self._env_var_name].strip()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -118,6 +121,7 @@ inheritance.</p></div>
 <li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter">ExternalParameter</a></b></code>:
 <ul class="hlist">
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.exception_type" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.has_value" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.has_value">has_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value">load_value</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.validate" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
 </ul>

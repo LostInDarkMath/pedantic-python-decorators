@@ -6,6 +6,10 @@ from pedantic.decorators.fn_deco_validate.exceptions import ConversionError, Val
 from pedantic.decorators.fn_deco_validate.validators.abstract_validator import Validator
 
 
+class NoValue:
+    pass
+
+
 class Parameter:
     exception_type: Type[ParameterException] = ParameterException
 
@@ -13,14 +17,14 @@ class Parameter:
                  name: str,
                  value_type: Type[Union[bool, int, float, str, dict, list]] = None,
                  validators: Iterable[Validator] = None,
-                 default: Any = None,
+                 default: Any = NoValue,
                  required: bool = True,
                  ) -> None:
         self.name = name
         self.validators = validators if validators else []
         self.default_value = default
         self.value_type = value_type
-        self.is_required = False if default is not None else required
+        self.is_required = False if default != NoValue else required
 
         if value_type not in [str, bool, int, float, dict, list, None]:
             raise AssertionError(f'value_type needs to be one of these: str, bool, int, float, dict & list')

@@ -288,7 +288,7 @@ class TestFlaskParameters(TestCase):
         with app.test_client() as client:
             res = client.get(data={'key': 'k'})
             self.assertEqual(INVALID, res.status_code)
-            self.assertIn('Value for key k is required.', res.json)
+            self.assertIn('Value for parameter k is required.', res.json)
 
     def test_default_value(self) -> None:
         app = Flask(__name__)
@@ -321,7 +321,8 @@ class TestFlaskParameters(TestCase):
         app = Flask(__name__)
 
         @app.route('/')
-        @validate(FlaskFormParameter(name='key', value_type=str, required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
+        @validate(FlaskFormParameter(name='key', value_type=str, required=False, default=None),
+                  return_as=ReturnAs.KWARGS_WITH_NONE)
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
@@ -407,10 +408,23 @@ class TestFlaskParameters(TestCase):
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
+            print(str(exception))
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
         with app.test_client() as client:
             res = client.get('/', data={})
-            self.assertEqual(OK, res.status_code)
-            self.assertEqual('42', res.json)
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                ExceptionDictKey.MESSAGE: 'Data is not in JSON format.',
+                ExceptionDictKey.PARAMETER: 'key',
+                ExceptionDictKey.VALIDATOR: None,
+                ExceptionDictKey.VALUE: 'None',
+            }
+            self.assertEqual(expected, res.json)
 
     def test_too_many_arguments(self) -> None:
         app = Flask(__name__)
