@@ -93,19 +93,21 @@ def validate(
             unused_parameters = [parameter for parameter in parameters if parameter.name not in used_parameter_names]
 
             for parameter in unused_parameters:
-                if not isinstance(parameter, ExternalParameter):
-                    if parameter.is_required:
-                        raise ValidateException(f'Got no value for parameter {parameter.name}')
-                    elif parameter.default_value is None:
-                        if signature.parameters[parameter.name].default is not signature.empty:
-                            value = signature.parameters[parameter.name].default
-                        else:
-                            raise ValidateException(f'Got neither value nor default value for parameter {parameter.name}')
+                if isinstance(parameter, ExternalParameter):
+                    if parameter.has_value():
+                        v = parameter.load_value()
+                        result[parameter.name] = parameter.validate(value=v)
+                        continue
+
+                if parameter.is_required:
+                    return parameter.raise_exception(msg=f'Value for parameter {parameter.name} is required.')
+                elif parameter.default_value is None:
+                    if signature.parameters[parameter.name].default is not signature.empty:
+                        value = signature.parameters[parameter.name].default
                     else:
-                        value = parameter.default_value
+                        raise ValidateException(f'Got neither value nor default value for parameter {parameter.name}')
                 else:
-                    value = parameter.load_value()
-                    value = parameter.validate(value=value)
+                    value = parameter.default_value
 
                 result[parameter.name] = value
 

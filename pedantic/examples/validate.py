@@ -23,6 +23,10 @@ class ConfigFromEnvVar(ExternalParameter):
     """ Reads the configuration from environment variables. """
 
     @overrides(ExternalParameter)
+    def has_value(self) -> bool:
+        return 'iteration' in os.environ and 'max_error' in os.environ
+
+    @overrides(ExternalParameter)
     def load_value(self) -> Configuration:
         return Configuration(
             iterations=int(os.environ['iterations']),
@@ -32,6 +36,10 @@ class ConfigFromEnvVar(ExternalParameter):
 
 class ConfigFromFile(ExternalParameter):
     """ Reads the configuration from a config file. """
+
+    @overrides(ExternalParameter)
+    def has_value(self) -> bool:
+        return os.path.isfile('config.csv')
 
     @overrides(ExternalParameter)
     def load_value(self) -> Configuration:

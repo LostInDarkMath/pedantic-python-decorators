@@ -326,7 +326,7 @@ class TestFlaskParameters(TestCase):
             return jsonify(key)
 
         with app.test_client() as client:
-            res = client.get(data={})
+            res = client.get(data={'key': None})
             self.assertEqual(OK, res.status_code)
             self.assertEqual(None, res.json)
 
