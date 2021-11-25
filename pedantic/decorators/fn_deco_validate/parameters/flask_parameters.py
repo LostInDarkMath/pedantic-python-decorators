@@ -52,6 +52,15 @@ class FlaskGetParameter(FlaskParameter):
     def get_dict(self) -> Dict:
         return request.args
 
+    @overrides(ExternalParameter)
+    def load_value(self) -> Any:
+        value = request.args.getlist(self.name)
+
+        if self.value_type == list:
+            return value
+
+        return value[0]
+
 
 class FlaskHeaderParameter(FlaskParameter):
     exception_type = InvalidHeader

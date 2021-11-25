@@ -80,6 +80,15 @@ class FlaskGetParameter(FlaskParameter):
     def get_dict(self) -&gt; Dict:
         return request.args
 
+    @overrides(ExternalParameter)
+    def load_value(self) -&gt; Any:
+        value = request.args.getlist(self.name)
+
+        if self.value_type == list:
+            return value
+
+        return value[0]
+
 
 class FlaskHeaderParameter(FlaskParameter):
     exception_type = InvalidHeader
@@ -148,7 +157,16 @@ inheritance.</p></div>
 <pre><code class="python">class FlaskGetParameter(FlaskParameter):
     @overrides(FlaskParameter)
     def get_dict(self) -&gt; Dict:
-        return request.args</code></pre>
+        return request.args
+
+    @overrides(ExternalParameter)
+    def load_value(self) -&gt; Any:
+        value = request.args.getlist(self.name)
+
+        if self.value_type == list:
+            return value
+
+        return value[0]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

@@ -1,4 +1,5 @@
 import json
+from typing import List
 from unittest import TestCase
 
 from flask import Flask, Response, jsonify
@@ -197,7 +198,7 @@ class TestFlaskParameters(TestCase):
         app = Flask(__name__)
 
         @app.route('/')
-        @validate(FlaskGetParameter(name='key', validators=[NotEmpty()]))
+        @validate(FlaskGetParameter(name='key', value_type=str, validators=[NotEmpty()]))
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
@@ -226,6 +227,19 @@ class TestFlaskParameters(TestCase):
                 ExceptionDictKey.PARAMETER: 'key',
             }
             self.assertEqual(expected, res.json)
+
+    def test_validator_flask_get_multiple_values_for_same_key(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/')
+        @validate(FlaskGetParameter(name='key', value_type=list, validators=[NotEmpty()]))
+        def hello_world(key: List[str]) -> Response:
+            return jsonify(key)
+
+        with app.test_client() as client:
+            res = client.get('/?key=hello&key=world', data={})
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual(['hello', 'world'], res.json)
 
     def test_validator_flask_path(self) -> None:
         app = Flask(__name__)
