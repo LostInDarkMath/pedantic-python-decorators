@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import datetime
 from enum import Enum
 from typing import Optional, Any
@@ -385,16 +386,20 @@ class TestValidate(TestCase):
         self.assertEqual(t, bar())
 
 
-class AsyncTests(IsolatedAsyncioTestCase):
-    async def test_async_instance_method(self) -> None:
-        class Foo:
-            @validate(Parameter(name='k', value_type=int, validators=[Min(42)]))
-            async def bar(self, k):
-                return k
+if sys.version_info >= (3, 8):
+    # IsolatedAsyncioTestCase exists since Python 3.8
 
-        f = Foo()
-        res = await f.bar(k=42)
-        self.assertEqual(42, res)
 
-        with self.assertRaises(expected_exception=ParameterException):
-            await f.bar(k=41)
+    class AsyncTests(IsolatedAsyncioTestCase):
+        async def test_async_instance_method(self) -> None:
+            class Foo:
+                @validate(Parameter(name='k', value_type=int, validators=[Min(42)]))
+                async def bar(self, k):
+                    return k
+
+            f = Foo()
+            res = await f.bar(k=42)
+            self.assertEqual(42, res)
+
+            with self.assertRaises(expected_exception=ParameterException):
+                await f.bar(k=41)
