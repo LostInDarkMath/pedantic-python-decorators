@@ -1,11 +1,13 @@
 import os
 import sys
 from datetime import datetime
-from enum import Enum
 from typing import Optional, Any
-from unittest import TestCase, IsolatedAsyncioTestCase
+from unittest import TestCase
 
-from pedantic import IsEnum, DateTimeUnixTimestamp
+if sys.version_info >= (3, 8):
+    from unittest import IsolatedAsyncioTestCase  # exists since Python 3.8
+
+from pedantic import DateTimeUnixTimestamp
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, ParameterException, \
     ValidatorException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
