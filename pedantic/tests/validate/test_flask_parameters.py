@@ -480,3 +480,31 @@ class TestFlaskParameters(TestCase):
             res = client.get(data=json.dumps({}), content_type=JSON)
             self.assertEqual(INVALID, res.status_code)
             self.assertEqual({key: [{'KEY': 'required'}]}, res.json)
+
+    def test_async_endpoints(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/<int:k>')
+        @validate(FlaskPathParameter(name='k', value_type=int, validators=[Min(42)]))
+        async def hello_world(k) -> Response:
+            return jsonify(str(k))
+
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get(path=f'/45')
+            self.assertEqual(OK, res.status_code)
+
+            res = client.get(path=f'/41')
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                ExceptionDictKey.MESSAGE: 'smaller then allowed: 41 is not >= 42',
+                ExceptionDictKey.PARAMETER: 'k',
+                ExceptionDictKey.VALIDATOR: 'Min',
+                ExceptionDictKey.VALUE: '41',
+            }
+            self.assertEqual(expected, res.json)

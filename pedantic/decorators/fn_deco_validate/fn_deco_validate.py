@@ -1,7 +1,7 @@
 import inspect
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Dict
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalParameter
@@ -44,8 +44,39 @@ def validate(
     """
 
     def validator(func: Callable) -> Callable:
+        is_coroutine = inspect.iscoroutinefunction(func)
+
         @wraps(func)
         def wrapper(*args, **kwargs) -> Any:
+            result = _wrapper_content(*args, **kwargs)
+
+            if return_as == ReturnAs.ARGS:
+                return func(*result.values())
+
+            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
+                result = {k: v for k, v in result.items() if v is not None}
+
+            if 'self' in result:
+                return func(result.pop('self'), **result)
+
+            return func(**result)
+
+        @wraps(func)
+        async def async_wrapper(*args, **kwargs) -> Any:
+            result = _wrapper_content(*args, **kwargs)
+
+            if return_as == ReturnAs.ARGS:
+                return await func(*result.values())
+
+            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
+                result = {k: v for k, v in result.items() if v is not None}
+
+            if 'self' in result:
+                return await func(result.pop('self'), **result)
+
+            return await func(**result)
+
+        def _wrapper_content(*args, **kwargs) -> Dict[str, Any]:
             result = {}
             parameter_dict = {parameter.name: parameter for parameter in parameters}
             used_parameter_names: List[str] = []
@@ -120,15 +151,10 @@ def validate(
                     if unexpected_args:
                         raise TooManyArguments(f'Got unexpected arguments: {unexpected_args}')
 
-            if return_as == ReturnAs.ARGS:
-                return func(*result.values())
+            return result
 
-            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
-                result = {k: v for k, v in result.items() if v is not None}
-
-            if 'self' in result:
-                return func(result.pop('self'), **result)
-
-            return func(**result)
-        return wrapper
+        if is_coroutine:
+            return async_wrapper
+        else:
+            return wrapper
     return validator
