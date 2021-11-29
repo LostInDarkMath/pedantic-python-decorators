@@ -496,6 +496,17 @@ class TestFlaskParameters(TestCase):
         async def hello_world(k) -> Response:
             return jsonify(str(k))
 
+        @app.route('/foo/<int:k>')
+        @validate(FlaskPathParameter(name='k', value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+        async def return_args(k) -> Response:
+            return jsonify(str(k))
+
+        @app.route('/bar/<int:k>')
+        @validate(FlaskPathParameter(name='k', value_type=int, validators=[Min(42)]),
+                  return_as=ReturnAs.KWARGS_WITH_NONE)
+        async def return_kwargs_with_none(k) -> Response:
+            return jsonify(str(k))
+
         @app.errorhandler(ParameterException)
         def handle_validation_error(exception: ParameterException) -> Response:
             response = jsonify(exception.to_dict)
@@ -504,6 +515,12 @@ class TestFlaskParameters(TestCase):
 
         with app.test_client() as client:
             res = client.get(path=f'/45')
+            self.assertEqual(OK, res.status_code)
+
+            res = client.get(path=f'/foo/45')
+            self.assertEqual(OK, res.status_code)
+
+            res = client.get(path=f'/bar/45')
             self.assertEqual(OK, res.status_code)
 
             res = client.get(path=f'/41')

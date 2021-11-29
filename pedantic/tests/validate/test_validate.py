@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from enum import Enum
 from typing import Optional, Any
-from unittest import TestCase
+from unittest import TestCase, IsolatedAsyncioTestCase
 
 from pedantic import IsEnum, DateTimeUnixTimestamp
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, ParameterException, \
@@ -383,3 +383,18 @@ class TestValidate(TestCase):
             return a
 
         self.assertEqual(t, bar())
+
+
+class AsyncTests(IsolatedAsyncioTestCase):
+    async def test_async_instance_method(self) -> None:
+        class Foo:
+            @validate(Parameter(name='k', value_type=int, validators=[Min(42)]))
+            async def bar(self, k):
+                return k
+
+        f = Foo()
+        res = await f.bar(k=42)
+        self.assertEqual(42, res)
+
+        with self.assertRaises(expected_exception=ParameterException):
+            await f.bar(k=41)
