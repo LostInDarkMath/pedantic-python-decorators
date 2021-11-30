@@ -35,56 +35,56 @@ from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.decorators.fn_deco_pedantic import pedantic
 
 
-class TestAsyncio(unittest.TestCase):
-    @staticmethod
-    def get_res_of_async_function(coroutine: Coroutine) -&gt; Any:
-        event_loop = asyncio.get_event_loop()
-        result = event_loop.run_until_complete(future=coroutine)
-        return result
-
-    def test_coroutine_correct_return_type(self):
+class TestPedanticAsyncio(unittest.IsolatedAsyncioTestCase):
+    async def test_coroutine_correct_return_type(self):
         @pedantic
         async def foo() -&gt; str:
+            await asyncio.sleep(0)
             return &#39;foo&#39;
 
-        self.get_res_of_async_function(coroutine=foo())
+        await foo()
 
-    def test_coroutine_wrong_return_type(self):
+    async def test_coroutine_wrong_return_type(self):
         @pedantic
         async def foo() -&gt; str:
+            await asyncio.sleep(0)
             return 1
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(coroutine=foo())
+            await foo()
 
-    def test_coroutine_wrong_argument_type(self):
+    async def test_coroutine_wrong_argument_type(self):
         @pedantic
         async def foo(x: int) -&gt; int:
+            await asyncio.sleep(0)
             return 1 + x
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(coroutine=foo(x=4.5))
+            await foo(x=4.5)
 
-    def test_static_async(self):
+    async def test_static_async(self):
         @pedantic_class
         class Foo:
             @staticmethod
             async def staticmethod() -&gt; int:
+                await asyncio.sleep(0)
                 return &#39;foo&#39;
 
             @classmethod
             async def classmethod(cls) -&gt; int:
+                await asyncio.sleep(0)
                 return &#39;foo&#39;
 
             async def method(self) -&gt; int:
+                await asyncio.sleep(0)
                 return &#39;foo&#39;
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(Foo.staticmethod())
+            await Foo.staticmethod()
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(Foo.classmethod())
+            await Foo.classmethod()
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(Foo().method())</code></pre>
+            await Foo().method()</code></pre>
 </details>
 </section>
 <section>
@@ -96,8 +96,8 @@ class TestAsyncio(unittest.TestCase):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="pedantic.tests.tests_pedantic_async.TestAsyncio"><code class="flex name class">
-<span>class <span class="ident">TestAsyncio</span></span>
+<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio"><code class="flex name class">
+<span>class <span class="ident">TestPedanticAsyncio</span></span>
 <span>(</span><span>methodName='runTest')</span>
 </code></dt>
 <dd>
@@ -133,84 +133,66 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TestAsyncio(unittest.TestCase):
-    @staticmethod
-    def get_res_of_async_function(coroutine: Coroutine) -&gt; Any:
-        event_loop = asyncio.get_event_loop()
-        result = event_loop.run_until_complete(future=coroutine)
-        return result
-
-    def test_coroutine_correct_return_type(self):
+<pre><code class="python">class TestPedanticAsyncio(unittest.IsolatedAsyncioTestCase):
+    async def test_coroutine_correct_return_type(self):
         @pedantic
         async def foo() -&gt; str:
+            await asyncio.sleep(0)
             return &#39;foo&#39;
 
-        self.get_res_of_async_function(coroutine=foo())
+        await foo()
 
-    def test_coroutine_wrong_return_type(self):
+    async def test_coroutine_wrong_return_type(self):
         @pedantic
         async def foo() -&gt; str:
+            await asyncio.sleep(0)
             return 1
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(coroutine=foo())
+            await foo()
 
-    def test_coroutine_wrong_argument_type(self):
+    async def test_coroutine_wrong_argument_type(self):
         @pedantic
         async def foo(x: int) -&gt; int:
+            await asyncio.sleep(0)
             return 1 + x
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(coroutine=foo(x=4.5))
+            await foo(x=4.5)
 
-    def test_static_async(self):
+    async def test_static_async(self):
         @pedantic_class
         class Foo:
             @staticmethod
             async def staticmethod() -&gt; int:
+                await asyncio.sleep(0)
                 return &#39;foo&#39;
 
             @classmethod
             async def classmethod(cls) -&gt; int:
+                await asyncio.sleep(0)
                 return &#39;foo&#39;
 
             async def method(self) -&gt; int:
+                await asyncio.sleep(0)
                 return &#39;foo&#39;
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(Foo.staticmethod())
+            await Foo.staticmethod()
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(Foo.classmethod())
+            await Foo.classmethod()
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            self.get_res_of_async_function(Foo().method())</code></pre>
+            await Foo().method()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li>unittest.async_case.IsolatedAsyncioTestCase</li>
 <li>unittest.case.TestCase</li>
 </ul>
-<h3>Static methods</h3>
-<dl>
-<dt id="pedantic.tests.tests_pedantic_async.TestAsyncio.get_res_of_async_function"><code class="name flex">
-<span>def <span class="ident">get_res_of_async_function</span></span>(<span>coroutine: Coroutine[+T_co, -T_contra, +V_co]) ‑> Any</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def get_res_of_async_function(coroutine: Coroutine) -&gt; Any:
-    event_loop = asyncio.get_event_loop()
-    result = event_loop.run_until_complete(future=coroutine)
-    return result</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
-<dt id="pedantic.tests.tests_pedantic_async.TestAsyncio.test_coroutine_correct_return_type"><code class="name flex">
-<span>def <span class="ident">test_coroutine_correct_return_type</span></span>(<span>self)</span>
+<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_correct_return_type"><code class="name flex">
+<span>async def <span class="ident">test_coroutine_correct_return_type</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -218,16 +200,17 @@ def get_res_of_async_function(coroutine: Coroutine) -&gt; Any:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_coroutine_correct_return_type(self):
+<pre><code class="python">async def test_coroutine_correct_return_type(self):
     @pedantic
     async def foo() -&gt; str:
+        await asyncio.sleep(0)
         return &#39;foo&#39;
 
-    self.get_res_of_async_function(coroutine=foo())</code></pre>
+    await foo()</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.tests_pedantic_async.TestAsyncio.test_coroutine_wrong_argument_type"><code class="name flex">
-<span>def <span class="ident">test_coroutine_wrong_argument_type</span></span>(<span>self)</span>
+<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_argument_type"><code class="name flex">
+<span>async def <span class="ident">test_coroutine_wrong_argument_type</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -235,17 +218,18 @@ def get_res_of_async_function(coroutine: Coroutine) -&gt; Any:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_coroutine_wrong_argument_type(self):
+<pre><code class="python">async def test_coroutine_wrong_argument_type(self):
     @pedantic
     async def foo(x: int) -&gt; int:
+        await asyncio.sleep(0)
         return 1 + x
 
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        self.get_res_of_async_function(coroutine=foo(x=4.5))</code></pre>
+        await foo(x=4.5)</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.tests_pedantic_async.TestAsyncio.test_coroutine_wrong_return_type"><code class="name flex">
-<span>def <span class="ident">test_coroutine_wrong_return_type</span></span>(<span>self)</span>
+<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_return_type"><code class="name flex">
+<span>async def <span class="ident">test_coroutine_wrong_return_type</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -253,17 +237,18 @@ def get_res_of_async_function(coroutine: Coroutine) -&gt; Any:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_coroutine_wrong_return_type(self):
+<pre><code class="python">async def test_coroutine_wrong_return_type(self):
     @pedantic
     async def foo() -&gt; str:
+        await asyncio.sleep(0)
         return 1
 
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        self.get_res_of_async_function(coroutine=foo())</code></pre>
+        await foo()</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.tests_pedantic_async.TestAsyncio.test_static_async"><code class="name flex">
-<span>def <span class="ident">test_static_async</span></span>(<span>self)</span>
+<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_static_async"><code class="name flex">
+<span>async def <span class="ident">test_static_async</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -271,26 +256,29 @@ def get_res_of_async_function(coroutine: Coroutine) -&gt; Any:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_static_async(self):
+<pre><code class="python">async def test_static_async(self):
     @pedantic_class
     class Foo:
         @staticmethod
         async def staticmethod() -&gt; int:
+            await asyncio.sleep(0)
             return &#39;foo&#39;
 
         @classmethod
         async def classmethod(cls) -&gt; int:
+            await asyncio.sleep(0)
             return &#39;foo&#39;
 
         async def method(self) -&gt; int:
+            await asyncio.sleep(0)
             return &#39;foo&#39;
 
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        self.get_res_of_async_function(Foo.staticmethod())
+        await Foo.staticmethod()
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        self.get_res_of_async_function(Foo.classmethod())
+        await Foo.classmethod()
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        self.get_res_of_async_function(Foo().method())</code></pre>
+        await Foo().method()</code></pre>
 </details>
 </dd>
 </dl>
@@ -312,13 +300,12 @@ def get_res_of_async_function(coroutine: Coroutine) -&gt; Any:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="pedantic.tests.tests_pedantic_async.TestAsyncio" href="#pedantic.tests.tests_pedantic_async.TestAsyncio">TestAsyncio</a></code></h4>
+<h4><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio">TestPedanticAsyncio</a></code></h4>
 <ul class="">
-<li><code><a title="pedantic.tests.tests_pedantic_async.TestAsyncio.get_res_of_async_function" href="#pedantic.tests.tests_pedantic_async.TestAsyncio.get_res_of_async_function">get_res_of_async_function</a></code></li>
-<li><code><a title="pedantic.tests.tests_pedantic_async.TestAsyncio.test_coroutine_correct_return_type" href="#pedantic.tests.tests_pedantic_async.TestAsyncio.test_coroutine_correct_return_type">test_coroutine_correct_return_type</a></code></li>
-<li><code><a title="pedantic.tests.tests_pedantic_async.TestAsyncio.test_coroutine_wrong_argument_type" href="#pedantic.tests.tests_pedantic_async.TestAsyncio.test_coroutine_wrong_argument_type">test_coroutine_wrong_argument_type</a></code></li>
-<li><code><a title="pedantic.tests.tests_pedantic_async.TestAsyncio.test_coroutine_wrong_return_type" href="#pedantic.tests.tests_pedantic_async.TestAsyncio.test_coroutine_wrong_return_type">test_coroutine_wrong_return_type</a></code></li>
-<li><code><a title="pedantic.tests.tests_pedantic_async.TestAsyncio.test_static_async" href="#pedantic.tests.tests_pedantic_async.TestAsyncio.test_static_async">test_static_async</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_correct_return_type" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_correct_return_type">test_coroutine_correct_return_type</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_argument_type" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_argument_type">test_coroutine_wrong_argument_type</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_return_type" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_return_type">test_coroutine_wrong_return_type</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_static_async" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_static_async">test_static_async</a></code></li>
 </ul>
 </li>
 </ul>

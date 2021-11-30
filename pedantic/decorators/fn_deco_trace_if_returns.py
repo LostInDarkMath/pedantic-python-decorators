@@ -1,3 +1,4 @@
+import inspect
 from functools import wraps
 from typing import Any
 
@@ -25,10 +26,25 @@ def trace_if_returns(return_value: ReturnType) -> F:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
             result = func(*args, **kwargs)
+
             if result == return_value:
                 print(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
+
             return result
-        return wrapper
+
+        @wraps(func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -> ReturnType:
+            result = await func(*args, **kwargs)
+
+            if result == return_value:
+                print(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
+
+            return result
+
+        if inspect.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return wrapper
     return decorator
 
 

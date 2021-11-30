@@ -420,7 +420,7 @@ if sys.version_info &gt;= (3, 8):
     # IsolatedAsyncioTestCase exists since Python 3.8
 
 
-    class AsyncTests(IsolatedAsyncioTestCase):
+    class AsyncValidateTests(IsolatedAsyncioTestCase):
         async def test_async_instance_method(self) -&gt; None:
             class Foo:
                 @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]))
@@ -444,8 +444,8 @@ if sys.version_info &gt;= (3, 8):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="pedantic.tests.validate.test_validate.AsyncTests"><code class="flex name class">
-<span>class <span class="ident">AsyncTests</span></span>
+<dt id="pedantic.tests.validate.test_validate.AsyncValidateTests"><code class="flex name class">
+<span>class <span class="ident">AsyncValidateTests</span></span>
 <span>(</span><span>methodName='runTest')</span>
 </code></dt>
 <dd>
@@ -481,7 +481,7 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class AsyncTests(IsolatedAsyncioTestCase):
+<pre><code class="python">class AsyncValidateTests(IsolatedAsyncioTestCase):
     async def test_async_instance_method(self) -&gt; None:
         class Foo:
             @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]))
@@ -502,7 +502,7 @@ not have a method with the specified name.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="pedantic.tests.validate.test_validate.AsyncTests.test_async_instance_method"><code class="name flex">
+<dt id="pedantic.tests.validate.test_validate.AsyncValidateTests.test_async_instance_method"><code class="name flex">
 <span>async def <span class="ident">test_async_instance_method</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
@@ -1662,9 +1662,9 @@ not have a method with the specified name.</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="pedantic.tests.validate.test_validate.AsyncTests" href="#pedantic.tests.validate.test_validate.AsyncTests">AsyncTests</a></code></h4>
+<h4><code><a title="pedantic.tests.validate.test_validate.AsyncValidateTests" href="#pedantic.tests.validate.test_validate.AsyncValidateTests">AsyncValidateTests</a></code></h4>
 <ul class="">
-<li><code><a title="pedantic.tests.validate.test_validate.AsyncTests.test_async_instance_method" href="#pedantic.tests.validate.test_validate.AsyncTests.test_async_instance_method">test_async_instance_method</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validate.AsyncValidateTests.test_async_instance_method" href="#pedantic.tests.validate.test_validate.AsyncValidateTests.test_async_instance_method">test_async_instance_method</a></code></li>
 </ul>
 </li>
 <li>

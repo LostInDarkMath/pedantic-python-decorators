@@ -392,7 +392,7 @@ if sys.version_info >= (3, 8):
     # IsolatedAsyncioTestCase exists since Python 3.8
 
 
-    class AsyncTests(IsolatedAsyncioTestCase):
+    class AsyncValidateTests(IsolatedAsyncioTestCase):
         async def test_async_instance_method(self) -> None:
             class Foo:
                 @validate(Parameter(name='k', value_type=int, validators=[Min(42)]))

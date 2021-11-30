@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from functools import wraps
+<pre><code class="python">import inspect
+from functools import wraps
 from typing import Any
 
 from pedantic.constants import F, ReturnType
@@ -58,7 +59,26 @@ def does_same_as_function(other_func: F) -&gt; F:
                 raise AssertionError(f&#39;Different outputs: Function &#34;{decorated_func.__name__}&#34; returns {result} and &#39;
                                      f&#39;function &#34;{other_func.__name__}&#34; returns {other} for parameters {args} {kwargs}&#39;)
             return result
-        return wrapper
+
+        @wraps(decorated_func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
+            result = await decorated_func(*args, **kwargs)
+
+            if inspect.iscoroutinefunction(other_func):
+                other = await other_func(*args, **kwargs)
+            else:
+                other = other_func(*args, **kwargs)
+
+            if other != result:
+                raise AssertionError(f&#39;Different outputs: Function &#34;{decorated_func.__name__}&#34; returns {result} and &#39;
+                                     f&#39;function &#34;{other_func.__name__}&#34; returns {other} for parameters {args} {kwargs}&#39;)
+            return result
+
+        if inspect.iscoroutinefunction(decorated_func):
+            return async_wrapper
+        else:
+            return wrapper
+
     return decorator
 
 
@@ -119,7 +139,26 @@ are compared. An AssertionError is raised if the results are not equal.</p>
                 raise AssertionError(f&#39;Different outputs: Function &#34;{decorated_func.__name__}&#34; returns {result} and &#39;
                                      f&#39;function &#34;{other_func.__name__}&#34; returns {other} for parameters {args} {kwargs}&#39;)
             return result
-        return wrapper
+
+        @wraps(decorated_func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
+            result = await decorated_func(*args, **kwargs)
+
+            if inspect.iscoroutinefunction(other_func):
+                other = await other_func(*args, **kwargs)
+            else:
+                other = other_func(*args, **kwargs)
+
+            if other != result:
+                raise AssertionError(f&#39;Different outputs: Function &#34;{decorated_func.__name__}&#34; returns {result} and &#39;
+                                     f&#39;function &#34;{other_func.__name__}&#34; returns {other} for parameters {args} {kwargs}&#39;)
+            return result
+
+        if inspect.iscoroutinefunction(decorated_func):
+            return async_wrapper
+        else:
+            return wrapper
+
     return decorator</code></pre>
 </details>
 </dd>

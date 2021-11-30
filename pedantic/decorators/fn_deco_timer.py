@@ -1,3 +1,4 @@
+import inspect
 from datetime import datetime
 from functools import wraps
 from typing import Any
@@ -27,7 +28,20 @@ def timer(func: F) -> F:
         run_time = end_time - start_time
         print(f'Timer: Finished function "{func.__name__}" in {run_time}.')
         return value
-    return wrapper
+
+    @wraps(func)
+    async def async_wrapper(*args: Any, **kwargs: Any) -> ReturnType:
+        start_time: datetime = datetime.now()
+        value = await func(*args, **kwargs)
+        end_time = datetime.now()
+        run_time = end_time - start_time
+        print(f'Timer: Finished function "{func.__name__}" in {run_time}.')
+        return value
+
+    if inspect.iscoroutinefunction(func):
+        return async_wrapper
+    else:
+        return wrapper
 
 
 if __name__ == "__main__":
