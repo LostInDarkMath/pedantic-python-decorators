@@ -29,6 +29,7 @@ def validate(
 ) -> Callable:
     """
         Validates the values that are passed to the function by using the validators in the passed parameters.
+        The decorated function could also be async or an instance method as well as a normal function.
 
         Args:
             parameters (multiple Parameter): The parameters that will be validated.
@@ -134,7 +135,8 @@ def validate(
                 if parameter.is_required:
                     return parameter.raise_exception(msg=f'Value for parameter {parameter.name} is required.')
                 elif parameter.default_value == NoValue:
-                    if signature.parameters[parameter.name].default is not signature.empty:
+                    if parameter.name in signature.parameters and \
+                            signature.parameters[parameter.name].default is not signature.empty:
                         value = signature.parameters[parameter.name].default
                     else:
                         raise ValidateException(f'Got neither value nor default value for parameter {parameter.name}')

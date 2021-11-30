@@ -29,7 +29,7 @@
 <pre><code class="python">import inspect
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Dict
 
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments
 from pedantic.decorators.fn_deco_validate.parameters import Parameter, ExternalParameter
@@ -57,6 +57,7 @@ def validate(
 ) -&gt; Callable:
     &#34;&#34;&#34;
         Validates the values that are passed to the function by using the validators in the passed parameters.
+        The decorated function could also be async or an instance method as well as a normal function.
 
         Args:
             parameters (multiple Parameter): The parameters that will be validated.
@@ -72,8 +73,39 @@ def validate(
     &#34;&#34;&#34;
 
     def validator(func: Callable) -&gt; Callable:
+        is_coroutine = inspect.iscoroutinefunction(func)
+
         @wraps(func)
         def wrapper(*args, **kwargs) -&gt; Any:
+            result = _wrapper_content(*args, **kwargs)
+
+            if return_as == ReturnAs.ARGS:
+                return func(*result.values())
+
+            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
+                result = {k: v for k, v in result.items() if v is not None}
+
+            if &#39;self&#39; in result:
+                return func(result.pop(&#39;self&#39;), **result)
+
+            return func(**result)
+
+        @wraps(func)
+        async def async_wrapper(*args, **kwargs) -&gt; Any:
+            result = _wrapper_content(*args, **kwargs)
+
+            if return_as == ReturnAs.ARGS:
+                return await func(*result.values())
+
+            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
+                result = {k: v for k, v in result.items() if v is not None}
+
+            if &#39;self&#39; in result:
+                return await func(result.pop(&#39;self&#39;), **result)
+
+            return await func(**result)
+
+        def _wrapper_content(*args, **kwargs) -&gt; Dict[str, Any]:
             result = {}
             parameter_dict = {parameter.name: parameter for parameter in parameters}
             used_parameter_names: List[str] = []
@@ -131,7 +163,8 @@ def validate(
                 if parameter.is_required:
                     return parameter.raise_exception(msg=f&#39;Value for parameter {parameter.name} is required.&#39;)
                 elif parameter.default_value == NoValue:
-                    if signature.parameters[parameter.name].default is not signature.empty:
+                    if parameter.name in signature.parameters and \
+                            signature.parameters[parameter.name].default is not signature.empty:
                         value = signature.parameters[parameter.name].default
                     else:
                         raise ValidateException(f&#39;Got neither value nor default value for parameter {parameter.name}&#39;)
@@ -148,17 +181,12 @@ def validate(
                     if unexpected_args:
                         raise TooManyArguments(f&#39;Got unexpected arguments: {unexpected_args}&#39;)
 
-            if return_as == ReturnAs.ARGS:
-                return func(*result.values())
+            return result
 
-            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
-                result = {k: v for k, v in result.items() if v is not None}
-
-            if &#39;self&#39; in result:
-                return func(result.pop(&#39;self&#39;), **result)
-
-            return func(**result)
-        return wrapper
+        if is_coroutine:
+            return async_wrapper
+        else:
+            return wrapper
     return validator</code></pre>
 </details>
 </section>
@@ -173,7 +201,8 @@ def validate(
 <span>def <span class="ident">validate</span></span>(<span>*parameters: <a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter" href="parameters/abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter">Parameter</a>, return_as: <a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs">ReturnAs</a> = ReturnAs.KWARGS_WITHOUT_NONE, strict: bool = True, ignore_input: bool = False) ‑> Callable</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Validates the values that are passed to the function by using the validators in the passed parameters.</p>
+<div class="desc"><p>Validates the values that are passed to the function by using the validators in the passed parameters.
+The decorated function could also be async or an instance method as well as a normal function.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>parameters</code></strong> :&ensp;<code>multiple Parameter</code></dt>
@@ -205,6 +234,7 @@ This can be useful if you use only ExternalParameters.</dd>
 ) -&gt; Callable:
     &#34;&#34;&#34;
         Validates the values that are passed to the function by using the validators in the passed parameters.
+        The decorated function could also be async or an instance method as well as a normal function.
 
         Args:
             parameters (multiple Parameter): The parameters that will be validated.
@@ -220,8 +250,39 @@ This can be useful if you use only ExternalParameters.</dd>
     &#34;&#34;&#34;
 
     def validator(func: Callable) -&gt; Callable:
+        is_coroutine = inspect.iscoroutinefunction(func)
+
         @wraps(func)
         def wrapper(*args, **kwargs) -&gt; Any:
+            result = _wrapper_content(*args, **kwargs)
+
+            if return_as == ReturnAs.ARGS:
+                return func(*result.values())
+
+            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
+                result = {k: v for k, v in result.items() if v is not None}
+
+            if &#39;self&#39; in result:
+                return func(result.pop(&#39;self&#39;), **result)
+
+            return func(**result)
+
+        @wraps(func)
+        async def async_wrapper(*args, **kwargs) -&gt; Any:
+            result = _wrapper_content(*args, **kwargs)
+
+            if return_as == ReturnAs.ARGS:
+                return await func(*result.values())
+
+            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
+                result = {k: v for k, v in result.items() if v is not None}
+
+            if &#39;self&#39; in result:
+                return await func(result.pop(&#39;self&#39;), **result)
+
+            return await func(**result)
+
+        def _wrapper_content(*args, **kwargs) -&gt; Dict[str, Any]:
             result = {}
             parameter_dict = {parameter.name: parameter for parameter in parameters}
             used_parameter_names: List[str] = []
@@ -279,7 +340,8 @@ This can be useful if you use only ExternalParameters.</dd>
                 if parameter.is_required:
                     return parameter.raise_exception(msg=f&#39;Value for parameter {parameter.name} is required.&#39;)
                 elif parameter.default_value == NoValue:
-                    if signature.parameters[parameter.name].default is not signature.empty:
+                    if parameter.name in signature.parameters and \
+                            signature.parameters[parameter.name].default is not signature.empty:
                         value = signature.parameters[parameter.name].default
                     else:
                         raise ValidateException(f&#39;Got neither value nor default value for parameter {parameter.name}&#39;)
@@ -296,17 +358,12 @@ This can be useful if you use only ExternalParameters.</dd>
                     if unexpected_args:
                         raise TooManyArguments(f&#39;Got unexpected arguments: {unexpected_args}&#39;)
 
-            if return_as == ReturnAs.ARGS:
-                return func(*result.values())
+            return result
 
-            if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
-                result = {k: v for k, v in result.items() if v is not None}
-
-            if &#39;self&#39; in result:
-                return func(result.pop(&#39;self&#39;), **result)
-
-            return func(**result)
-        return wrapper
+        if is_coroutine:
+            return async_wrapper
+        else:
+            return wrapper
     return validator</code></pre>
 </details>
 </dd>

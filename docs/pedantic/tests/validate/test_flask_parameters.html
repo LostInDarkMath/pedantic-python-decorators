@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import json
+import sys
 from typing import List
 from unittest import TestCase
 
@@ -507,7 +508,58 @@ class TestFlaskParameters(TestCase):
         with app.test_client() as client:
             res = client.get(data=json.dumps({}), content_type=JSON)
             self.assertEqual(INVALID, res.status_code)
-            self.assertEqual({key: [{&#39;KEY&#39;: &#39;required&#39;}]}, res.json)</code></pre>
+            self.assertEqual({key: [{&#39;KEY&#39;: &#39;required&#39;}]}, res.json)
+
+    def test_async_endpoints(self) -&gt; None:
+        &#34;&#34;&#34; This test requires Python 3.7 or above because async Flask endpoints require this. &#34;&#34;&#34;
+
+        if sys.version_info &lt; (3, 7):
+            print(f&#39;Skip test, because Python 3.7+ is required.&#39;)
+            return
+
+        app = Flask(__name__)
+
+        @app.route(&#39;/&lt;int:k&gt;&#39;)
+        @validate(FlaskPathParameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]))
+        async def hello_world(k) -&gt; Response:
+            return jsonify(str(k))
+
+        @app.route(&#39;/foo/&lt;int:k&gt;&#39;)
+        @validate(FlaskPathParameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+        async def return_args(k) -&gt; Response:
+            return jsonify(str(k))
+
+        @app.route(&#39;/bar/&lt;int:k&gt;&#39;)
+        @validate(FlaskPathParameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]),
+                  return_as=ReturnAs.KWARGS_WITH_NONE)
+        async def return_kwargs_with_none(k) -&gt; Response:
+            return jsonify(str(k))
+
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -&gt; Response:
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get(path=f&#39;/45&#39;)
+            self.assertEqual(OK, res.status_code)
+
+            res = client.get(path=f&#39;/foo/45&#39;)
+            self.assertEqual(OK, res.status_code)
+
+            res = client.get(path=f&#39;/bar/45&#39;)
+            self.assertEqual(OK, res.status_code)
+
+            res = client.get(path=f&#39;/41&#39;)
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                ExceptionDictKey.MESSAGE: &#39;smaller then allowed: 41 is not &gt;= 42&#39;,
+                ExceptionDictKey.PARAMETER: &#39;k&#39;,
+                ExceptionDictKey.VALIDATOR: &#39;Min&#39;,
+                ExceptionDictKey.VALUE: &#39;41&#39;,
+            }
+            self.assertEqual(expected, res.json)</code></pre>
 </details>
 </section>
 <section>
@@ -1017,7 +1069,58 @@ not have a method with the specified name.</p></div>
         with app.test_client() as client:
             res = client.get(data=json.dumps({}), content_type=JSON)
             self.assertEqual(INVALID, res.status_code)
-            self.assertEqual({key: [{&#39;KEY&#39;: &#39;required&#39;}]}, res.json)</code></pre>
+            self.assertEqual({key: [{&#39;KEY&#39;: &#39;required&#39;}]}, res.json)
+
+    def test_async_endpoints(self) -&gt; None:
+        &#34;&#34;&#34; This test requires Python 3.7 or above because async Flask endpoints require this. &#34;&#34;&#34;
+
+        if sys.version_info &lt; (3, 7):
+            print(f&#39;Skip test, because Python 3.7+ is required.&#39;)
+            return
+
+        app = Flask(__name__)
+
+        @app.route(&#39;/&lt;int:k&gt;&#39;)
+        @validate(FlaskPathParameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]))
+        async def hello_world(k) -&gt; Response:
+            return jsonify(str(k))
+
+        @app.route(&#39;/foo/&lt;int:k&gt;&#39;)
+        @validate(FlaskPathParameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+        async def return_args(k) -&gt; Response:
+            return jsonify(str(k))
+
+        @app.route(&#39;/bar/&lt;int:k&gt;&#39;)
+        @validate(FlaskPathParameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]),
+                  return_as=ReturnAs.KWARGS_WITH_NONE)
+        async def return_kwargs_with_none(k) -&gt; Response:
+            return jsonify(str(k))
+
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -&gt; Response:
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            res = client.get(path=f&#39;/45&#39;)
+            self.assertEqual(OK, res.status_code)
+
+            res = client.get(path=f&#39;/foo/45&#39;)
+            self.assertEqual(OK, res.status_code)
+
+            res = client.get(path=f&#39;/bar/45&#39;)
+            self.assertEqual(OK, res.status_code)
+
+            res = client.get(path=f&#39;/41&#39;)
+            self.assertEqual(INVALID, res.status_code)
+            expected = {
+                ExceptionDictKey.MESSAGE: &#39;smaller then allowed: 41 is not &gt;= 42&#39;,
+                ExceptionDictKey.PARAMETER: &#39;k&#39;,
+                ExceptionDictKey.VALIDATOR: &#39;Min&#39;,
+                ExceptionDictKey.VALUE: &#39;41&#39;,
+            }
+            self.assertEqual(expected, res.json)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1025,6 +1128,67 @@ not have a method with the specified name.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_async_endpoints"><code class="name flex">
+<span>def <span class="ident">test_async_endpoints</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This test requires Python 3.7 or above because async Flask endpoints require this.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_async_endpoints(self) -&gt; None:
+    &#34;&#34;&#34; This test requires Python 3.7 or above because async Flask endpoints require this. &#34;&#34;&#34;
+
+    if sys.version_info &lt; (3, 7):
+        print(f&#39;Skip test, because Python 3.7+ is required.&#39;)
+        return
+
+    app = Flask(__name__)
+
+    @app.route(&#39;/&lt;int:k&gt;&#39;)
+    @validate(FlaskPathParameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]))
+    async def hello_world(k) -&gt; Response:
+        return jsonify(str(k))
+
+    @app.route(&#39;/foo/&lt;int:k&gt;&#39;)
+    @validate(FlaskPathParameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+    async def return_args(k) -&gt; Response:
+        return jsonify(str(k))
+
+    @app.route(&#39;/bar/&lt;int:k&gt;&#39;)
+    @validate(FlaskPathParameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]),
+              return_as=ReturnAs.KWARGS_WITH_NONE)
+    async def return_kwargs_with_none(k) -&gt; Response:
+        return jsonify(str(k))
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -&gt; Response:
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get(path=f&#39;/45&#39;)
+        self.assertEqual(OK, res.status_code)
+
+        res = client.get(path=f&#39;/foo/45&#39;)
+        self.assertEqual(OK, res.status_code)
+
+        res = client.get(path=f&#39;/bar/45&#39;)
+        self.assertEqual(OK, res.status_code)
+
+        res = client.get(path=f&#39;/41&#39;)
+        self.assertEqual(INVALID, res.status_code)
+        expected = {
+            ExceptionDictKey.MESSAGE: &#39;smaller then allowed: 41 is not &gt;= 42&#39;,
+            ExceptionDictKey.PARAMETER: &#39;k&#39;,
+            ExceptionDictKey.VALIDATOR: &#39;Min&#39;,
+            ExceptionDictKey.VALUE: &#39;41&#39;,
+        }
+        self.assertEqual(expected, res.json)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_default_value"><code class="name flex">
 <span>def <span class="ident">test_default_value</span></span>(<span>self) ‑> None</span>
 </code></dt>
@@ -1688,6 +1852,7 @@ not have a method with the specified name.</p></div>
 <li>
 <h4><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters">TestFlaskParameters</a></code></h4>
 <ul class="">
+<li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_async_endpoints" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_async_endpoints">test_async_endpoints</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_default_value" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_default_value">test_default_value</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_exception_for_required_parameter" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_exception_for_required_parameter">test_exception_for_required_parameter</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_invalid_value_type" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_invalid_value_type">test_invalid_value_type</a></code></li>
