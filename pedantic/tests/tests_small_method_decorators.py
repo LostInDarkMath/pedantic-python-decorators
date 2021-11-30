@@ -2,7 +2,6 @@ import asyncio
 import sys
 import unittest
 import warnings
-from unittest import IsolatedAsyncioTestCase
 
 from pedantic.exceptions import NotImplementedException, PedanticOverrideException, PedanticCallWithArgsException
 from pedantic import overrides, timer, count_calls, trace, trace_if_returns, does_same_as_function, deprecated, \
@@ -141,6 +140,7 @@ class TestSmallDecoratorMethods(unittest.TestCase):
 
 if sys.version_info >= (3, 8):
     # IsolatedAsyncioTestCase exists since Python 3.8
+    from unittest import IsolatedAsyncioTestCase
 
     class AsyncSmallDecoratorTests(IsolatedAsyncioTestCase):
         async def test_overrides_async_instance_method(self) -> None:
