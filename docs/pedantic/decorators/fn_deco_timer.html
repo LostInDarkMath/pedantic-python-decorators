@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from datetime import datetime
+<pre><code class="python">import inspect
+from datetime import datetime
 from functools import wraps
 from typing import Any
 
@@ -55,7 +56,20 @@ def timer(func: F) -&gt; F:
         run_time = end_time - start_time
         print(f&#39;Timer: Finished function &#34;{func.__name__}&#34; in {run_time}.&#39;)
         return value
-    return wrapper
+
+    @wraps(func)
+    async def async_wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
+        start_time: datetime = datetime.now()
+        value = await func(*args, **kwargs)
+        end_time = datetime.now()
+        run_time = end_time - start_time
+        print(f&#39;Timer: Finished function &#34;{func.__name__}&#34; in {run_time}.&#39;)
+        return value
+
+    if inspect.iscoroutinefunction(func):
+        return async_wrapper
+    else:
+        return wrapper
 
 
 if __name__ == &#34;__main__&#34;:
@@ -109,7 +123,20 @@ Timer: Finished function &quot;long_taking_calculation&quot; in 0:00:00...
         run_time = end_time - start_time
         print(f&#39;Timer: Finished function &#34;{func.__name__}&#34; in {run_time}.&#39;)
         return value
-    return wrapper</code></pre>
+
+    @wraps(func)
+    async def async_wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
+        start_time: datetime = datetime.now()
+        value = await func(*args, **kwargs)
+        end_time = datetime.now()
+        run_time = end_time - start_time
+        print(f&#39;Timer: Finished function &#34;{func.__name__}&#34; in {run_time}.&#39;)
+        return value
+
+    if inspect.iscoroutinefunction(func):
+        return async_wrapper
+    else:
+        return wrapper</code></pre>
 </details>
 </dd>
 </dl>

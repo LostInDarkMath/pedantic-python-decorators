@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from functools import wraps
+<pre><code class="python">import inspect
+from functools import wraps
 from typing import Any
 
 from pedantic.constants import ReturnType, F
@@ -53,10 +54,25 @@ def trace_if_returns(return_value: ReturnType) -&gt; F:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
             result = func(*args, **kwargs)
+
             if result == return_value:
                 print(f&#39;Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}&#39;)
+
             return result
-        return wrapper
+
+        @wraps(func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
+            result = await func(*args, **kwargs)
+
+            if result == return_value:
+                print(f&#39;Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}&#39;)
+
+            return result
+
+        if inspect.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return wrapper
     return decorator
 
 
@@ -113,10 +129,25 @@ Function my_function returned value 42 for args: (10, 8, 24) and kwargs: {}
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
             result = func(*args, **kwargs)
+
             if result == return_value:
                 print(f&#39;Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}&#39;)
+
             return result
-        return wrapper
+
+        @wraps(func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
+            result = await func(*args, **kwargs)
+
+            if result == return_value:
+                print(f&#39;Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}&#39;)
+
+            return result
+
+        if inspect.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return wrapper
     return decorator</code></pre>
 </details>
 </dd>

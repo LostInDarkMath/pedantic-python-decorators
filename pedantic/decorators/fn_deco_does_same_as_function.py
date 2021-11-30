@@ -1,3 +1,4 @@
+import inspect
 from functools import wraps
 from typing import Any
 
@@ -30,7 +31,26 @@ def does_same_as_function(other_func: F) -> F:
                 raise AssertionError(f'Different outputs: Function "{decorated_func.__name__}" returns {result} and '
                                      f'function "{other_func.__name__}" returns {other} for parameters {args} {kwargs}')
             return result
-        return wrapper
+
+        @wraps(decorated_func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -> ReturnType:
+            result = await decorated_func(*args, **kwargs)
+
+            if inspect.iscoroutinefunction(other_func):
+                other = await other_func(*args, **kwargs)
+            else:
+                other = other_func(*args, **kwargs)
+
+            if other != result:
+                raise AssertionError(f'Different outputs: Function "{decorated_func.__name__}" returns {result} and '
+                                     f'function "{other_func.__name__}" returns {other} for parameters {args} {kwargs}')
+            return result
+
+        if inspect.iscoroutinefunction(decorated_func):
+            return async_wrapper
+        else:
+            return wrapper
+
     return decorator
 
 

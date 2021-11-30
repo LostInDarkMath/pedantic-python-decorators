@@ -12,7 +12,9 @@ from pedantic.tests.validate.test_parameter_environment_variable import TestPara
 from pedantic.tests.validate.test_validate import TestValidate
 
 if sys.version_info >= (3, 8):
-    from pedantic.tests.validate.test_validate import AsyncTests
+    from pedantic.tests.validate.test_validate import AsyncValidateTests
+    from pedantic.tests.tests_small_method_decorators import AsyncSmallDecoratorTests
+    from pedantic.tests.tests_pedantic_async import TestPedanticAsyncio
 
 from pedantic.tests.validate.test_validator_composite import TestValidatorComposite
 from pedantic.tests.validate.test_validator_datetime_unix_timestamp import TestValidatorDatetimeUnixTimestamp
@@ -41,7 +43,6 @@ from pedantic.tests.tests_decorated_function import TestDecoratedFunction
 from pedantic.tests.tests_environment_variables import TestEnvironmentVariables
 from pedantic.tests.tests_generic_classes import TestGenericClasses
 from pedantic.tests.tests_generator import TestGenerator
-from pedantic.tests.tests_pedantic_async import TestAsyncio
 
 
 def run_all_tests() -> None:
@@ -58,7 +59,6 @@ def run_all_tests() -> None:
         TestEnvironmentVariables,
         TestGenericClasses,
         TestGenerator,
-        TestAsyncio,
         TestMock,
         TestGeneratorWrapper,
         TestRenameKwargs,
@@ -83,7 +83,12 @@ def run_all_tests() -> None:
     ]
 
     if sys.version_info >= (3, 8):
-        test_classes_to_run.append(AsyncTests)
+        async_test_classes_to_run = [
+            AsyncValidateTests,
+            AsyncSmallDecoratorTests,
+            TestPedanticAsyncio,
+        ]
+        test_classes_to_run.extend(async_test_classes_to_run)
 
     loader = unittest.TestLoader()
     suites_list = [get_doctest_test_suite()]

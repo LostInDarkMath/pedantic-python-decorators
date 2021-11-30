@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from datetime import datetime
+<pre><code class="python">import inspect
+from datetime import datetime
 from functools import wraps
 from typing import Any
 
@@ -54,7 +55,18 @@ def trace(func: F) -&gt; F:
         original_result = func(*args, **kwargs)
         print(f&#39;Trace: {datetime.now()} {func.__name__}() returned {original_result!r}&#39;)
         return original_result
-    return wrapper
+
+    @wraps(func)
+    async def async_wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
+        print(f&#39;Trace: {datetime.now()} calling {func.__name__}()  with {args}, {kwargs}&#39;)
+        original_result = await func(*args, **kwargs)
+        print(f&#39;Trace: {datetime.now()} {func.__name__}() returned {original_result!r}&#39;)
+        return original_result
+
+    if inspect.iscoroutinefunction(func):
+        return async_wrapper
+    else:
+        return wrapper
 
 
 if __name__ == &#34;__main__&#34;:
@@ -108,7 +120,18 @@ Trace: ... my_function() returned 15
         original_result = func(*args, **kwargs)
         print(f&#39;Trace: {datetime.now()} {func.__name__}() returned {original_result!r}&#39;)
         return original_result
-    return wrapper</code></pre>
+
+    @wraps(func)
+    async def async_wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
+        print(f&#39;Trace: {datetime.now()} calling {func.__name__}()  with {args}, {kwargs}&#39;)
+        original_result = await func(*args, **kwargs)
+        print(f&#39;Trace: {datetime.now()} {func.__name__}() returned {original_result!r}&#39;)
+        return original_result
+
+    if inspect.iscoroutinefunction(func):
+        return async_wrapper
+    else:
+        return wrapper</code></pre>
 </details>
 </dd>
 </dl>

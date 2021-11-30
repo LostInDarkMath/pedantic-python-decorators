@@ -1,3 +1,4 @@
+import inspect
 from datetime import datetime
 from functools import wraps
 from typing import Any
@@ -26,7 +27,18 @@ def trace(func: F) -> F:
         original_result = func(*args, **kwargs)
         print(f'Trace: {datetime.now()} {func.__name__}() returned {original_result!r}')
         return original_result
-    return wrapper
+
+    @wraps(func)
+    async def async_wrapper(*args: Any, **kwargs: Any) -> ReturnType:
+        print(f'Trace: {datetime.now()} calling {func.__name__}()  with {args}, {kwargs}')
+        original_result = await func(*args, **kwargs)
+        print(f'Trace: {datetime.now()} {func.__name__}() returned {original_result!r}')
+        return original_result
+
+    if inspect.iscoroutinefunction(func):
+        return async_wrapper
+    else:
+        return wrapper
 
 
 if __name__ == "__main__":

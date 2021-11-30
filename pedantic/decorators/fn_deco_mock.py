@@ -1,3 +1,4 @@
+import inspect
 from functools import wraps
 from typing import Any
 
@@ -25,7 +26,15 @@ def mock(return_value: ReturnType) -> F:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
             return return_value
-        return wrapper
+
+        @wraps(func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -> ReturnType:
+            return return_value
+
+        if inspect.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return wrapper
     return decorator
 
 
