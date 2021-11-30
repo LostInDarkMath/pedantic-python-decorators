@@ -10,6 +10,10 @@ from pedantic.tests.validate.test_datetime_isoformat import TestValidatorDatetim
 from pedantic.tests.validate.test_flask_parameters import TestFlaskParameters
 from pedantic.tests.validate.test_parameter_environment_variable import TestParameterEnvironmentVariable
 from pedantic.tests.validate.test_validate import TestValidate
+
+if sys.version_info >= (3, 8):
+    from pedantic.tests.validate.test_validate import AsyncTests
+
 from pedantic.tests.validate.test_validator_composite import TestValidatorComposite
 from pedantic.tests.validate.test_validator_datetime_unix_timestamp import TestValidatorDatetimeUnixTimestamp
 from pedantic.tests.validate.test_validator_email import TestValidatorEmail
@@ -77,6 +81,9 @@ def run_all_tests() -> None:
         TestValidatorMinLength,
         TestValidatorNotEmpty,
     ]
+
+    if sys.version_info >= (3, 8):
+        test_classes_to_run.append(AsyncTests)
 
     loader = unittest.TestLoader()
     suites_list = [get_doctest_test_suite()]
