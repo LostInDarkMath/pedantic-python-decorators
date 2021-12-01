@@ -63,6 +63,24 @@ class TestValidatorIsEnum(TestCase):
 
         for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
             with self.assertRaises(expected_exception=ParameterException):
+                foo(value)
+
+    def test_validator_is_enum_to_upper_case(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=False)]))
+        def foo(x):
+            return x
+
+        self.assertEqual(&#39;RED&#39;, foo(&#39;red&#39;))
+        self.assertEqual(&#39;BLUE&#39;, foo(&#39;blue&#39;))
+        self.assertEqual(&#39;BLUE&#39;, foo(&#39;bLUe&#39;))
+
+    def test_validator_is_enum_to_upper_case_disabled(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=False, to_upper_case=False)]))
+        def foo(x):
+            return x
+
+        for value in [&#39;red&#39;, &#39;blue&#39;, &#39;Red&#39;, &#39;bLUe&#39;]:
+            with self.assertRaises(expected_exception=ParameterException):
                 foo(value)</code></pre>
 </details>
 </section>
@@ -165,6 +183,24 @@ not have a method with the specified name.</p></div>
 
         for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
             with self.assertRaises(expected_exception=ParameterException):
+                foo(value)
+
+    def test_validator_is_enum_to_upper_case(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=False)]))
+        def foo(x):
+            return x
+
+        self.assertEqual(&#39;RED&#39;, foo(&#39;red&#39;))
+        self.assertEqual(&#39;BLUE&#39;, foo(&#39;blue&#39;))
+        self.assertEqual(&#39;BLUE&#39;, foo(&#39;bLUe&#39;))
+
+    def test_validator_is_enum_to_upper_case_disabled(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=False, to_upper_case=False)]))
+        def foo(x):
+            return x
+
+        for value in [&#39;red&#39;, &#39;blue&#39;, &#39;Red&#39;, &#39;bLUe&#39;]:
+            with self.assertRaises(expected_exception=ParameterException):
                 foo(value)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -217,6 +253,44 @@ not have a method with the specified name.</p></div>
             foo(value)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case"><code class="name flex">
+<span>def <span class="ident">test_validator_is_enum_to_upper_case</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_validator_is_enum_to_upper_case(self) -&gt; None:
+    @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=False)]))
+    def foo(x):
+        return x
+
+    self.assertEqual(&#39;RED&#39;, foo(&#39;red&#39;))
+    self.assertEqual(&#39;BLUE&#39;, foo(&#39;blue&#39;))
+    self.assertEqual(&#39;BLUE&#39;, foo(&#39;bLUe&#39;))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case_disabled"><code class="name flex">
+<span>def <span class="ident">test_validator_is_enum_to_upper_case_disabled</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_validator_is_enum_to_upper_case_disabled(self) -&gt; None:
+    @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=False, to_upper_case=False)]))
+    def foo(x):
+        return x
+
+    for value in [&#39;red&#39;, &#39;blue&#39;, &#39;Red&#39;, &#39;bLUe&#39;]:
+        with self.assertRaises(expected_exception=ParameterException):
+            foo(value)</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -247,6 +321,8 @@ not have a method with the specified name.</p></div>
 <ul class="">
 <li><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_convert_false" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_convert_false">test_validator_is_enum_convert_false</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_convert_true" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_convert_true">test_validator_is_enum_convert_true</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case">test_validator_is_enum_to_upper_case</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case_disabled" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case_disabled">test_validator_is_enum_to_upper_case_disabled</a></code></li>
 </ul>
 </li>
 </ul>

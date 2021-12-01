@@ -34,13 +34,17 @@ from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
 class IsEnum(Validator):
-    def __init__(self, enum: EnumMeta, convert: bool = True) -&gt; None:
+    def __init__(self, enum: EnumMeta, convert: bool = True, to_upper_case: bool = True) -&gt; None:
         self._enum = enum
         self._convert = convert
+        self._to_upper_case = to_upper_case
 
     @overrides(Validator)
     def validate(self, value: Any) -&gt; Any:
         try:
+            if isinstance(value, str) and self._to_upper_case:
+                value = value.upper()
+
             enum_value = self._enum(value)
         except (ValueError, TypeError):
             return self.raise_exception(msg=f&#39;Incorrect value {value} for enum {self._enum}.&#39;, value=value)
@@ -62,7 +66,7 @@ class IsEnum(Validator):
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.validators.enum.IsEnum"><code class="flex name class">
 <span>class <span class="ident">IsEnum</span></span>
-<span>(</span><span>enum: enum.EnumMeta, convert: bool = True)</span>
+<span>(</span><span>enum: enum.EnumMeta, convert: bool = True, to_upper_case: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -72,13 +76,17 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class IsEnum(Validator):
-    def __init__(self, enum: EnumMeta, convert: bool = True) -&gt; None:
+    def __init__(self, enum: EnumMeta, convert: bool = True, to_upper_case: bool = True) -&gt; None:
         self._enum = enum
         self._convert = convert
+        self._to_upper_case = to_upper_case
 
     @overrides(Validator)
     def validate(self, value: Any) -&gt; Any:
         try:
+            if isinstance(value, str) and self._to_upper_case:
+                value = value.upper()
+
             enum_value = self._enum(value)
         except (ValueError, TypeError):
             return self.raise_exception(msg=f&#39;Incorrect value {value} for enum {self._enum}.&#39;, value=value)
