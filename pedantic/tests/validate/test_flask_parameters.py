@@ -5,6 +5,7 @@ from unittest import TestCase
 
 from flask import Flask, Response, jsonify
 
+from pedantic import Email
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments, \
     ParameterException, ExceptionDictKey, InvalidHeader
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
@@ -410,7 +411,7 @@ class TestFlaskParameters(TestCase):
             expected = {
                 ExceptionDictKey.VALIDATOR: None,
                 ExceptionDictKey.VALUE: 'None',
-                ExceptionDictKey.MESSAGE: 'Data is not in JSON format.',
+                ExceptionDictKey.MESSAGE: 'Value for parameter key is required.',
                 ExceptionDictKey.PARAMETER: 'key',
             }
             self.assertEqual(expected, res.json)
@@ -423,23 +424,10 @@ class TestFlaskParameters(TestCase):
         def hello_world(key: str) -> Response:
             return jsonify(key)
 
-        @app.errorhandler(ParameterException)
-        def handle_validation_error(exception: ParameterException) -> Response:
-            print(str(exception))
-            response = jsonify(exception.to_dict)
-            response.status_code = INVALID
-            return response
-
         with app.test_client() as client:
             res = client.get('/', data={})
-            self.assertEqual(INVALID, res.status_code)
-            expected = {
-                ExceptionDictKey.MESSAGE: 'Data is not in JSON format.',
-                ExceptionDictKey.PARAMETER: 'key',
-                ExceptionDictKey.VALIDATOR: None,
-                ExceptionDictKey.VALUE: 'None',
-            }
-            self.assertEqual(expected, res.json)
+            self.assertEqual(OK, res.status_code)
+            self.assertEqual('42', res.json)
 
     def test_too_many_arguments(self) -> None:
         app = Flask(__name__)
@@ -530,5 +518,34 @@ class TestFlaskParameters(TestCase):
                 ExceptionDictKey.PARAMETER: 'k',
                 ExceptionDictKey.VALIDATOR: 'Min',
                 ExceptionDictKey.VALUE: '41',
+            }
+            self.assertEqual(expected, res.json)
+
+    def test_json_parameter_with_default_value(self) -> None:
+        app = Flask(__name__)
+
+        @app.route('/testing/message/<string:email>', methods=['POST'])
+        @validate(
+            FlaskPathParameter(name='email', value_type=str, validators=[Email()]),
+            FlaskJsonParameter(name='content', value_type=str, default='this is a fake message', required=False),
+            return_as=ReturnAs.ARGS,
+        )
+        def testing_send_system_message(email: str, content: str) -> Response:
+            return jsonify({'email': email, 'content': content})
+
+        with app.test_client() as client:
+            res = client.post(path=f'/testing/message/adam@eva.de')
+            self.assertEqual(OK, res.status_code)
+            expected = {
+                'email': 'adam@eva.de',
+                'content': 'this is a fake message',
+            }
+            self.assertEqual(expected, res.json)
+
+            res = client.post(path=f'/testing/message/adam@eva.de', json={'content': 'hello world'})
+            self.assertEqual(OK, res.status_code)
+            expected = {
+                'email': 'adam@eva.de',
+                'content': 'hello world',
             }
             self.assertEqual(expected, res.json)

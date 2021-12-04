@@ -44,10 +44,6 @@ class FlaskParameter(ExternalParameter, ABC):
     @overrides(ExternalParameter)
     def has_value(self) -&gt; bool:
         dict_ = self.get_dict()
-
-        if dict_ is None:
-            self.raise_exception(msg=f&#39;Data is not in JSON format.&#39;)
-
         return dict_ is not None and self.name in dict_
 
     @overrides(ExternalParameter)
@@ -281,10 +277,6 @@ inheritance.</p></div>
     @overrides(ExternalParameter)
     def has_value(self) -&gt; bool:
         dict_ = self.get_dict()
-
-        if dict_ is None:
-            self.raise_exception(msg=f&#39;Data is not in JSON format.&#39;)
-
         return dict_ is not None and self.name in dict_
 
     @overrides(ExternalParameter)
