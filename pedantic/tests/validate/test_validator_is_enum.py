@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 from unittest import TestCase
 
 from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
@@ -12,6 +12,11 @@ class MyEnum(Enum):
     BLUE = 'BLUE'
 
 
+class MyIntEnum(IntEnum):
+    RED = 1
+    BLUE = 2
+
+
 class TestValidatorIsEnum(TestCase):
     def test_validator_is_enum_convert_true(self) -> None:
         @validate(Parameter(name='x', validators=[IsEnum(MyEnum, convert=True)]))
@@ -22,6 +27,20 @@ class TestValidatorIsEnum(TestCase):
         self.assertEqual(MyEnum.BLUE, foo('BLUE'))
 
         for value in ['fred', 1, 'GREEN']:
+            with self.assertRaises(expected_exception=ParameterException):
+                foo(value)
+
+    def test_validator_is_enum_int_enum_convert_true(self) -> None:
+        @validate(Parameter(name='x', validators=[IsEnum(MyIntEnum, convert=True)]))
+        def foo(x):
+            return x
+
+        self.assertEqual(MyIntEnum.RED, foo('1'))
+        self.assertEqual(MyIntEnum.BLUE, foo('2'))
+        self.assertEqual(MyIntEnum.RED, foo(1))
+        self.assertEqual(MyIntEnum.BLUE, foo(2))
+
+        for value in ['fred', 3, 'GREEN']:
             with self.assertRaises(expected_exception=ParameterException):
                 foo(value)
 

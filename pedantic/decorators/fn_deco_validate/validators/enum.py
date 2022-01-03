@@ -1,4 +1,4 @@
-from enum import EnumMeta
+from enum import EnumMeta, IntEnum
 from typing import Any
 
 from pedantic import overrides
@@ -17,7 +17,10 @@ class IsEnum(Validator):
             if isinstance(value, str) and self._to_upper_case:
                 value = value.upper()
 
-            enum_value = self._enum(value)
+            if issubclass(self._enum, IntEnum):
+                enum_value = self._enum(int(value))
+            else:
+                enum_value = self._enum(value)
         except (ValueError, TypeError):
             return self.raise_exception(msg=f'Incorrect value {value} for enum {self._enum}.', value=value)
 

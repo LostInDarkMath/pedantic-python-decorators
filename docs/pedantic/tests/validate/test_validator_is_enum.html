@@ -26,7 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from enum import Enum
+<pre><code class="python">from enum import Enum, IntEnum
 from unittest import TestCase
 
 from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
@@ -40,6 +40,11 @@ class MyEnum(Enum):
     BLUE = &#39;BLUE&#39;
 
 
+class MyIntEnum(IntEnum):
+    RED = 1
+    BLUE = 2
+
+
 class TestValidatorIsEnum(TestCase):
     def test_validator_is_enum_convert_true(self) -&gt; None:
         @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=True)]))
@@ -50,6 +55,20 @@ class TestValidatorIsEnum(TestCase):
         self.assertEqual(MyEnum.BLUE, foo(&#39;BLUE&#39;))
 
         for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
+            with self.assertRaises(expected_exception=ParameterException):
+                foo(value)
+
+    def test_validator_is_enum_int_enum_convert_true(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyIntEnum, convert=True)]))
+        def foo(x):
+            return x
+
+        self.assertEqual(MyIntEnum.RED, foo(&#39;1&#39;))
+        self.assertEqual(MyIntEnum.BLUE, foo(&#39;2&#39;))
+        self.assertEqual(MyIntEnum.RED, foo(1))
+        self.assertEqual(MyIntEnum.BLUE, foo(2))
+
+        for value in [&#39;fred&#39;, 3, &#39;GREEN&#39;]:
             with self.assertRaises(expected_exception=ParameterException):
                 foo(value)
 
@@ -123,6 +142,38 @@ class TestValidatorIsEnum(TestCase):
 </dd>
 </dl>
 </dd>
+<dt id="pedantic.tests.validate.test_validator_is_enum.MyIntEnum"><code class="flex name class">
+<span>class <span class="ident">MyIntEnum</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MyIntEnum(IntEnum):
+    RED = 1
+    BLUE = 2</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pedantic.tests.validate.test_validator_is_enum.MyIntEnum.BLUE"><code class="name">var <span class="ident">BLUE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pedantic.tests.validate.test_validator_is_enum.MyIntEnum.RED"><code class="name">var <span class="ident">RED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 <dt id="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum"><code class="flex name class">
 <span>class <span class="ident">TestValidatorIsEnum</span></span>
 <span>(</span><span>methodName='runTest')</span>
@@ -170,6 +221,20 @@ not have a method with the specified name.</p></div>
         self.assertEqual(MyEnum.BLUE, foo(&#39;BLUE&#39;))
 
         for value in [&#39;fred&#39;, 1, &#39;GREEN&#39;]:
+            with self.assertRaises(expected_exception=ParameterException):
+                foo(value)
+
+    def test_validator_is_enum_int_enum_convert_true(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyIntEnum, convert=True)]))
+        def foo(x):
+            return x
+
+        self.assertEqual(MyIntEnum.RED, foo(&#39;1&#39;))
+        self.assertEqual(MyIntEnum.BLUE, foo(&#39;2&#39;))
+        self.assertEqual(MyIntEnum.RED, foo(1))
+        self.assertEqual(MyIntEnum.BLUE, foo(2))
+
+        for value in [&#39;fred&#39;, 3, &#39;GREEN&#39;]:
             with self.assertRaises(expected_exception=ParameterException):
                 foo(value)
 
@@ -253,6 +318,30 @@ not have a method with the specified name.</p></div>
             foo(value)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_int_enum_convert_true"><code class="name flex">
+<span>def <span class="ident">test_validator_is_enum_int_enum_convert_true</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_validator_is_enum_int_enum_convert_true(self) -&gt; None:
+    @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyIntEnum, convert=True)]))
+    def foo(x):
+        return x
+
+    self.assertEqual(MyIntEnum.RED, foo(&#39;1&#39;))
+    self.assertEqual(MyIntEnum.BLUE, foo(&#39;2&#39;))
+    self.assertEqual(MyIntEnum.RED, foo(1))
+    self.assertEqual(MyIntEnum.BLUE, foo(2))
+
+    for value in [&#39;fred&#39;, 3, &#39;GREEN&#39;]:
+        with self.assertRaises(expected_exception=ParameterException):
+            foo(value)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case"><code class="name flex">
 <span>def <span class="ident">test_validator_is_enum_to_upper_case</span></span>(<span>self) ‑> None</span>
 </code></dt>
@@ -317,10 +406,18 @@ not have a method with the specified name.</p></div>
 </ul>
 </li>
 <li>
+<h4><code><a title="pedantic.tests.validate.test_validator_is_enum.MyIntEnum" href="#pedantic.tests.validate.test_validator_is_enum.MyIntEnum">MyIntEnum</a></code></h4>
+<ul class="">
+<li><code><a title="pedantic.tests.validate.test_validator_is_enum.MyIntEnum.BLUE" href="#pedantic.tests.validate.test_validator_is_enum.MyIntEnum.BLUE">BLUE</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validator_is_enum.MyIntEnum.RED" href="#pedantic.tests.validate.test_validator_is_enum.MyIntEnum.RED">RED</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum">TestValidatorIsEnum</a></code></h4>
 <ul class="">
 <li><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_convert_false" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_convert_false">test_validator_is_enum_convert_false</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_convert_true" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_convert_true">test_validator_is_enum_convert_true</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_int_enum_convert_true" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_int_enum_convert_true">test_validator_is_enum_int_enum_convert_true</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case">test_validator_is_enum_to_upper_case</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case_disabled" href="#pedantic.tests.validate.test_validator_is_enum.TestValidatorIsEnum.test_validator_is_enum_to_upper_case_disabled">test_validator_is_enum_to_upper_case_disabled</a></code></li>
 </ul>
