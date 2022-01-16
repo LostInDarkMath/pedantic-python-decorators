@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import re
+from typing import Callable
 
 from pedantic import overrides
 from pedantic.decorators.fn_deco_validate.validators import Validator
@@ -35,15 +36,16 @@ REGEX_EMAIL = r&#34;[^@\s]+@[^@\s]+\.[a-zA-Z0-9]+$&#34;
 
 
 class Email(Validator):
-    def __init__(self, email_pattern: str = REGEX_EMAIL) -&gt; None:
+    def __init__(self, email_pattern: str = REGEX_EMAIL, post_processor: Callable[[str], str] = lambda x: x) -&gt; None:
         self._pattern = email_pattern
+        self._post_processor = post_processor
 
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
         if not re.fullmatch(pattern=self._pattern, string=value):
             self.raise_exception(msg=f&#39;invalid email address: {value}&#39;, value=value)
 
-        return value</code></pre>
+        return self._post_processor(value)</code></pre>
 </details>
 </section>
 <section>
@@ -57,7 +59,7 @@ class Email(Validator):
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.validators.email.Email"><code class="flex name class">
 <span>class <span class="ident">Email</span></span>
-<span>(</span><span>email_pattern: str = '[^@\\s]+@[^@\\s]+\\.[a-zA-Z0-9]+$')</span>
+<span>(</span><span>email_pattern: str = '[^@\\s]+@[^@\\s]+\\.[a-zA-Z0-9]+$', post_processor: Callable[[str], str] = &lt;function Email.&lt;lambda&gt;&gt;)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
@@ -67,15 +69,16 @@ inheritance.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Email(Validator):
-    def __init__(self, email_pattern: str = REGEX_EMAIL) -&gt; None:
+    def __init__(self, email_pattern: str = REGEX_EMAIL, post_processor: Callable[[str], str] = lambda x: x) -&gt; None:
         self._pattern = email_pattern
+        self._post_processor = post_processor
 
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
         if not re.fullmatch(pattern=self._pattern, string=value):
             self.raise_exception(msg=f&#39;invalid email address: {value}&#39;, value=value)
 
-        return value</code></pre>
+        return self._post_processor(value)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

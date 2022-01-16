@@ -45,7 +45,15 @@ class TestValidatorEmail(TestCase):
 
         for value in [&#39;fred&#39;, &#39;fred@web&#39;, &#39;fred@w@eb.de&#39;, &#39;fred@@web.de&#39;, &#39;invalid@invalid&#39;]:
             with self.assertRaises(expected_exception=ParameterException):
-                foo(value)</code></pre>
+                foo(value)
+
+    def test_validator_email_converts_to_lower_case(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;, validators=[Email(post_processor=lambda x: x.lower())]))
+        def foo(x):
+            return x
+
+        for value in [&#39;Fred@Web.de&#39;, &#39;GENIAL@GMAIL.com&#39;, &#39;test@test.CO.UK&#39;]:
+            self.assertEqual(value.lower(), foo(value))</code></pre>
 </details>
 </section>
 <section>
@@ -105,7 +113,15 @@ not have a method with the specified name.</p></div>
 
         for value in [&#39;fred&#39;, &#39;fred@web&#39;, &#39;fred@w@eb.de&#39;, &#39;fred@@web.de&#39;, &#39;invalid@invalid&#39;]:
             with self.assertRaises(expected_exception=ParameterException):
-                foo(value)</code></pre>
+                foo(value)
+
+    def test_validator_email_converts_to_lower_case(self) -&gt; None:
+        @validate(Parameter(name=&#39;x&#39;, validators=[Email(post_processor=lambda x: x.lower())]))
+        def foo(x):
+            return x
+
+        for value in [&#39;Fred@Web.de&#39;, &#39;GENIAL@GMAIL.com&#39;, &#39;test@test.CO.UK&#39;]:
+            self.assertEqual(value.lower(), foo(value))</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -135,6 +151,24 @@ not have a method with the specified name.</p></div>
             foo(value)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.validate.test_validator_email.TestValidatorEmail.test_validator_email_converts_to_lower_case"><code class="name flex">
+<span>def <span class="ident">test_validator_email_converts_to_lower_case</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_validator_email_converts_to_lower_case(self) -&gt; None:
+    @validate(Parameter(name=&#39;x&#39;, validators=[Email(post_processor=lambda x: x.lower())]))
+    def foo(x):
+        return x
+
+    for value in [&#39;Fred@Web.de&#39;, &#39;GENIAL@GMAIL.com&#39;, &#39;test@test.CO.UK&#39;]:
+        self.assertEqual(value.lower(), foo(value))</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -157,6 +191,7 @@ not have a method with the specified name.</p></div>
 <h4><code><a title="pedantic.tests.validate.test_validator_email.TestValidatorEmail" href="#pedantic.tests.validate.test_validator_email.TestValidatorEmail">TestValidatorEmail</a></code></h4>
 <ul class="">
 <li><code><a title="pedantic.tests.validate.test_validator_email.TestValidatorEmail.test_validator_email" href="#pedantic.tests.validate.test_validator_email.TestValidatorEmail.test_validator_email">test_validator_email</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validator_email.TestValidatorEmail.test_validator_email_converts_to_lower_case" href="#pedantic.tests.validate.test_validator_email.TestValidatorEmail.test_validator_email_converts_to_lower_case">test_validator_email_converts_to_lower_case</a></code></li>
 </ul>
 </li>
 </ul>

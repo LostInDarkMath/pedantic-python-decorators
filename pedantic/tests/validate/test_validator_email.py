@@ -18,3 +18,11 @@ class TestValidatorEmail(TestCase):
         for value in ['fred', 'fred@web', 'fred@w@eb.de', 'fred@@web.de', 'invalid@invalid']:
             with self.assertRaises(expected_exception=ParameterException):
                 foo(value)
+
+    def test_validator_email_converts_to_lower_case(self) -> None:
+        @validate(Parameter(name='x', validators=[Email(post_processor=lambda x: x.lower())]))
+        def foo(x):
+            return x
+
+        for value in ['Fred@Web.de', 'GENIAL@GMAIL.com', 'test@test.CO.UK']:
+            self.assertEqual(value.lower(), foo(value))
