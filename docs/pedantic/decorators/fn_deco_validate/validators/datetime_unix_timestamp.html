@@ -44,7 +44,11 @@ class DateTimeUnixTimestamp(Validator):
         except ValueError:
             return self.raise_exception(msg=f&#39;Could parse {value} to float.&#39;, value=value)
 
-        return datetime(year=1970, month=1, day=1) + timedelta(seconds=seconds)</code></pre>
+        try:
+            return datetime(year=1970, month=1, day=1) + timedelta(seconds=seconds)
+        except OverflowError:
+            return self.raise_exception(
+                msg=f&#39;Date value out of range. Make sure you send SECONDS since 1970. Got: {value}&#39;, value=value)</code></pre>
 </details>
 </section>
 <section>
@@ -77,7 +81,11 @@ inheritance.</p></div>
         except ValueError:
             return self.raise_exception(msg=f&#39;Could parse {value} to float.&#39;, value=value)
 
-        return datetime(year=1970, month=1, day=1) + timedelta(seconds=seconds)</code></pre>
+        try:
+            return datetime(year=1970, month=1, day=1) + timedelta(seconds=seconds)
+        except OverflowError:
+            return self.raise_exception(
+                msg=f&#39;Date value out of range. Make sure you send SECONDS since 1970. Got: {value}&#39;, value=value)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

@@ -53,7 +53,10 @@ class TestValidatorDatetimeUnixTimestamp(TestCase):
             foo(&#39;invalid&#39;)
 
         with self.assertRaises(expected_exception=ParameterException):
-            foo({&#39;a&#39;: 1})</code></pre>
+            foo({&#39;a&#39;: 1})
+
+        with self.assertRaises(expected_exception=ParameterException):
+            foo(unix_timestamp * 1000)</code></pre>
 </details>
 </section>
 <section>
@@ -120,7 +123,10 @@ not have a method with the specified name.</p></div>
             foo(&#39;invalid&#39;)
 
         with self.assertRaises(expected_exception=ParameterException):
-            foo({&#39;a&#39;: 1})</code></pre>
+            foo({&#39;a&#39;: 1})
+
+        with self.assertRaises(expected_exception=ParameterException):
+            foo(unix_timestamp * 1000)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -154,7 +160,10 @@ not have a method with the specified name.</p></div>
         foo(&#39;invalid&#39;)
 
     with self.assertRaises(expected_exception=ParameterException):
-        foo({&#39;a&#39;: 1})</code></pre>
+        foo({&#39;a&#39;: 1})
+
+    with self.assertRaises(expected_exception=ParameterException):
+        foo(unix_timestamp * 1000)</code></pre>
 </details>
 </dd>
 </dl>

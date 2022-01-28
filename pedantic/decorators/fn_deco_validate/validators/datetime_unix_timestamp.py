@@ -16,4 +16,8 @@ class DateTimeUnixTimestamp(Validator):
         except ValueError:
             return self.raise_exception(msg=f'Could parse {value} to float.', value=value)
 
-        return datetime(year=1970, month=1, day=1) + timedelta(seconds=seconds)
+        try:
+            return datetime(year=1970, month=1, day=1) + timedelta(seconds=seconds)
+        except OverflowError:
+            return self.raise_exception(
+                msg=f'Date value out of range. Make sure you send SECONDS since 1970. Got: {value}', value=value)

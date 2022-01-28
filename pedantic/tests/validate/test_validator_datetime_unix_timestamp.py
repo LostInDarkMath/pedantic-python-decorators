@@ -26,3 +26,6 @@ class TestValidatorDatetimeUnixTimestamp(TestCase):
 
         with self.assertRaises(expected_exception=ParameterException):
             foo({'a': 1})
+
+        with self.assertRaises(expected_exception=ParameterException):
+            foo(unix_timestamp * 1000)
