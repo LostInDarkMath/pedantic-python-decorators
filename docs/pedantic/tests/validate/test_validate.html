@@ -102,6 +102,13 @@ class TestValidate(TestCase):
             def some_calculation(self, x: int) -&gt; int:
                 return x
 
+            @validate(
+                Parameter(name=&#39;x&#39;, validators=[Min(1)]),
+                return_as=ReturnAs.KWARGS_WITHOUT_NONE,
+            )
+            def some_calculation_2(self, x: int) -&gt; int:
+                return x
+
         m = MyClass()
         m.some_calculation(1)
         m.some_calculation(42)
@@ -110,6 +117,14 @@ class TestValidate(TestCase):
             m.some_calculation(0)
         with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(-42)
+
+        m.some_calculation_2(1)
+        m.some_calculation_2(42)
+
+        with self.assertRaises(expected_exception=ParameterException):
+            m.some_calculation_2(0)
+        with self.assertRaises(expected_exception=ParameterException):
+            m.some_calculation_2(-42)
 
     def test_validate_static_method(self):
         &#34;&#34;&#34; The @staticmethod decorator have to be ABOVE the @validate decorator. &#34;&#34;&#34;
@@ -215,6 +230,7 @@ class TestValidate(TestCase):
         @validate(
             EnvironmentVariableParameter(name=&#39;foo&#39;),
             Parameter(name=&#39;footer&#39;),
+            return_as=ReturnAs.KWARGS_WITHOUT_NONE,
         )
         def bar(foo, footer):
             return foo, footer
@@ -333,6 +349,7 @@ class TestValidate(TestCase):
             Parameter(name=&#39;c&#39;),
             Parameter(name=&#39;a&#39;),
             Parameter(name=&#39;b&#39;),
+            return_as=ReturnAs.KWARGS_WITH_NONE,
         )
         def bar(*args, **kwargs):
             return args, kwargs
@@ -423,8 +440,13 @@ if sys.version_info &gt;= (3, 8):
     class AsyncValidateTests(IsolatedAsyncioTestCase):
         async def test_async_instance_method(self) -&gt; None:
             class Foo:
-                @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]))
+                @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]),
+                          return_as=ReturnAs.KWARGS_WITHOUT_NONE)
                 async def bar(self, k):
+                    return k
+
+                @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+                async def bar_2(self, k):
                     return k
 
             f = Foo()
@@ -432,7 +454,13 @@ if sys.version_info &gt;= (3, 8):
             self.assertEqual(42, res)
 
             with self.assertRaises(expected_exception=ParameterException):
-                await f.bar(k=41)</code></pre>
+                await f.bar(k=41)
+
+            res = await f.bar_2(k=42)
+            self.assertEqual(42, res)
+
+            with self.assertRaises(expected_exception=ParameterException):
+                await f.bar_2(k=41)</code></pre>
 </details>
 </section>
 <section>
@@ -484,8 +512,13 @@ not have a method with the specified name.</p></div>
 <pre><code class="python">class AsyncValidateTests(IsolatedAsyncioTestCase):
     async def test_async_instance_method(self) -&gt; None:
         class Foo:
-            @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]))
+            @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]),
+                      return_as=ReturnAs.KWARGS_WITHOUT_NONE)
             async def bar(self, k):
+                return k
+
+            @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+            async def bar_2(self, k):
                 return k
 
         f = Foo()
@@ -493,7 +526,13 @@ not have a method with the specified name.</p></div>
         self.assertEqual(42, res)
 
         with self.assertRaises(expected_exception=ParameterException):
-            await f.bar(k=41)</code></pre>
+            await f.bar(k=41)
+
+        res = await f.bar_2(k=42)
+        self.assertEqual(42, res)
+
+        with self.assertRaises(expected_exception=ParameterException):
+            await f.bar_2(k=41)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -513,8 +552,13 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">async def test_async_instance_method(self) -&gt; None:
     class Foo:
-        @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]))
+        @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]),
+                  return_as=ReturnAs.KWARGS_WITHOUT_NONE)
         async def bar(self, k):
+            return k
+
+        @validate(Parameter(name=&#39;k&#39;, value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+        async def bar_2(self, k):
             return k
 
     f = Foo()
@@ -522,7 +566,13 @@ not have a method with the specified name.</p></div>
     self.assertEqual(42, res)
 
     with self.assertRaises(expected_exception=ParameterException):
-        await f.bar(k=41)</code></pre>
+        await f.bar(k=41)
+
+    res = await f.bar_2(k=42)
+    self.assertEqual(42, res)
+
+    with self.assertRaises(expected_exception=ParameterException):
+        await f.bar_2(k=41)</code></pre>
 </details>
 </dd>
 </dl>
@@ -623,6 +673,13 @@ not have a method with the specified name.</p></div>
             def some_calculation(self, x: int) -&gt; int:
                 return x
 
+            @validate(
+                Parameter(name=&#39;x&#39;, validators=[Min(1)]),
+                return_as=ReturnAs.KWARGS_WITHOUT_NONE,
+            )
+            def some_calculation_2(self, x: int) -&gt; int:
+                return x
+
         m = MyClass()
         m.some_calculation(1)
         m.some_calculation(42)
@@ -631,6 +688,14 @@ not have a method with the specified name.</p></div>
             m.some_calculation(0)
         with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(-42)
+
+        m.some_calculation_2(1)
+        m.some_calculation_2(42)
+
+        with self.assertRaises(expected_exception=ParameterException):
+            m.some_calculation_2(0)
+        with self.assertRaises(expected_exception=ParameterException):
+            m.some_calculation_2(-42)
 
     def test_validate_static_method(self):
         &#34;&#34;&#34; The @staticmethod decorator have to be ABOVE the @validate decorator. &#34;&#34;&#34;
@@ -736,6 +801,7 @@ not have a method with the specified name.</p></div>
         @validate(
             EnvironmentVariableParameter(name=&#39;foo&#39;),
             Parameter(name=&#39;footer&#39;),
+            return_as=ReturnAs.KWARGS_WITHOUT_NONE,
         )
         def bar(foo, footer):
             return foo, footer
@@ -854,6 +920,7 @@ not have a method with the specified name.</p></div>
             Parameter(name=&#39;c&#39;),
             Parameter(name=&#39;a&#39;),
             Parameter(name=&#39;b&#39;),
+            return_as=ReturnAs.KWARGS_WITH_NONE,
         )
         def bar(*args, **kwargs):
             return args, kwargs
@@ -1137,6 +1204,7 @@ not have a method with the specified name.</p></div>
     @validate(
         EnvironmentVariableParameter(name=&#39;foo&#39;),
         Parameter(name=&#39;footer&#39;),
+        return_as=ReturnAs.KWARGS_WITHOUT_NONE,
     )
     def bar(foo, footer):
         return foo, footer
@@ -1429,6 +1497,7 @@ not have a method with the specified name.</p></div>
         Parameter(name=&#39;c&#39;),
         Parameter(name=&#39;a&#39;),
         Parameter(name=&#39;b&#39;),
+        return_as=ReturnAs.KWARGS_WITH_NONE,
     )
     def bar(*args, **kwargs):
         return args, kwargs
@@ -1603,6 +1672,13 @@ not have a method with the specified name.</p></div>
         def some_calculation(self, x: int) -&gt; int:
             return x
 
+        @validate(
+            Parameter(name=&#39;x&#39;, validators=[Min(1)]),
+            return_as=ReturnAs.KWARGS_WITHOUT_NONE,
+        )
+        def some_calculation_2(self, x: int) -&gt; int:
+            return x
+
     m = MyClass()
     m.some_calculation(1)
     m.some_calculation(42)
@@ -1610,7 +1686,15 @@ not have a method with the specified name.</p></div>
     with self.assertRaises(expected_exception=ParameterException):
         m.some_calculation(0)
     with self.assertRaises(expected_exception=ParameterException):
-        m.some_calculation(-42)</code></pre>
+        m.some_calculation(-42)
+
+    m.some_calculation_2(1)
+    m.some_calculation_2(42)
+
+    with self.assertRaises(expected_exception=ParameterException):
+        m.some_calculation_2(0)
+    with self.assertRaises(expected_exception=ParameterException):
+        m.some_calculation_2(-42)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_validate.TestValidate.test_validate_static_method"><code class="name flex">

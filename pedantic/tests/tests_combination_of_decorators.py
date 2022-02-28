@@ -7,7 +7,7 @@ from pedantic.decorators.fn_deco_validate.validators import Min
 from pedantic.exceptions import PedanticException, PedanticTypeCheckException, PedanticCallWithArgsException
 from pedantic.decorators.fn_deco_pedantic import pedantic
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, Parameter
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, Parameter, ReturnAs
 
 
 class TestCombinationOfDecorators(unittest.TestCase):
@@ -32,6 +32,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
     def test_pedantic_below_validate(self):
         @validate(
             Parameter(name='x', validators=[Min(0)]),
+            return_as=ReturnAs.KWARGS_WITH_NONE,
         )
         @pedantic
         def some_calculation(x: int) -> int:

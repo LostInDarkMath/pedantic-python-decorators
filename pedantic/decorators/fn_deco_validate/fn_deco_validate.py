@@ -23,12 +23,12 @@ class ReturnAs(Enum):
 
 def validate(
         *parameters: Parameter,
-        return_as: ReturnAs = ReturnAs.KWARGS_WITHOUT_NONE,
+        return_as: ReturnAs = ReturnAs.ARGS,
         strict: bool = True,
         ignore_input: bool = False,
 ) -> Callable:
     """
-        Validates the values that are passed to the function by using the validators in the passed parameters.
+        Validates the values that are passed to the function by using the validators in the given parameters.
         The decorated function could also be async or an instance method as well as a normal function.
 
         Args:
@@ -52,6 +52,9 @@ def validate(
             result = _wrapper_content(*args, **kwargs)
 
             if return_as == ReturnAs.ARGS:
+                if 'self' in result:
+                    return func(result.pop('self'), **result)
+
                 return func(*result.values())
 
             if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
@@ -67,6 +70,9 @@ def validate(
             result = _wrapper_content(*args, **kwargs)
 
             if return_as == ReturnAs.ARGS:
+                if 'self' in result:
+                    return await func(result.pop('self'), **result)
+
                 return await func(*result.values())
 
             if return_as == ReturnAs.KWARGS_WITHOUT_NONE:

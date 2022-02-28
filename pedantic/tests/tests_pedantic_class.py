@@ -1,7 +1,8 @@
 import sys
 import unittest
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Callable, Union, Dict
+from enum import IntEnum
+from typing import Any, Optional, Callable, Union, Dict, List
 
 from pedantic.env_var_logic import disable_pedantic, enable_pedantic
 from pedantic import overrides
@@ -21,6 +22,19 @@ class TestPedanticClass(unittest.TestCase):
                 self.a = a
 
         MyClass(a=42)
+
+    def test_constructor_with_list(self):
+        class Foo(IntEnum):
+            A = 1
+            B = 2
+
+        @pedantic_class
+        class MyClass:
+            def __init__(self, b: int, a: List[Foo]) -> None:
+                self.a = a
+                self.b = b
+
+        MyClass(b=42, a=[Foo.A, Foo.B])
 
     def test_constructor_param_without_type_hint(self):
         @pedantic_class

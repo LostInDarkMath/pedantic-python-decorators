@@ -35,7 +35,7 @@ from pedantic.decorators.fn_deco_validate.validators import Min
 from pedantic.exceptions import PedanticException, PedanticTypeCheckException, PedanticCallWithArgsException
 from pedantic.decorators.fn_deco_pedantic import pedantic
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, Parameter
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, Parameter, ReturnAs
 
 
 class TestCombinationOfDecorators(unittest.TestCase):
@@ -60,6 +60,7 @@ class TestCombinationOfDecorators(unittest.TestCase):
     def test_pedantic_below_validate(self):
         @validate(
             Parameter(name=&#39;x&#39;, validators=[Min(0)]),
+            return_as=ReturnAs.KWARGS_WITH_NONE,
         )
         @pedantic
         def some_calculation(x: int) -&gt; int:
@@ -261,6 +262,7 @@ not have a method with the specified name.</p></div>
     def test_pedantic_below_validate(self):
         @validate(
             Parameter(name=&#39;x&#39;, validators=[Min(0)]),
+            return_as=ReturnAs.KWARGS_WITH_NONE,
         )
         @pedantic
         def some_calculation(x: int) -&gt; int:
@@ -470,6 +472,7 @@ not have a method with the specified name.</p></div>
 <pre><code class="python">def test_pedantic_below_validate(self):
     @validate(
         Parameter(name=&#39;x&#39;, validators=[Min(0)]),
+        return_as=ReturnAs.KWARGS_WITH_NONE,
     )
     @pedantic
     def some_calculation(x: int) -&gt; int:

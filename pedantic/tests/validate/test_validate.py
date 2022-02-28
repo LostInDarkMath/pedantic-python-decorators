@@ -74,6 +74,13 @@ class TestValidate(TestCase):
             def some_calculation(self, x: int) -> int:
                 return x
 
+            @validate(
+                Parameter(name='x', validators=[Min(1)]),
+                return_as=ReturnAs.KWARGS_WITHOUT_NONE,
+            )
+            def some_calculation_2(self, x: int) -> int:
+                return x
+
         m = MyClass()
         m.some_calculation(1)
         m.some_calculation(42)
@@ -82,6 +89,14 @@ class TestValidate(TestCase):
             m.some_calculation(0)
         with self.assertRaises(expected_exception=ParameterException):
             m.some_calculation(-42)
+
+        m.some_calculation_2(1)
+        m.some_calculation_2(42)
+
+        with self.assertRaises(expected_exception=ParameterException):
+            m.some_calculation_2(0)
+        with self.assertRaises(expected_exception=ParameterException):
+            m.some_calculation_2(-42)
 
     def test_validate_static_method(self):
         """ The @staticmethod decorator have to be ABOVE the @validate decorator. """
@@ -187,6 +202,7 @@ class TestValidate(TestCase):
         @validate(
             EnvironmentVariableParameter(name='foo'),
             Parameter(name='footer'),
+            return_as=ReturnAs.KWARGS_WITHOUT_NONE,
         )
         def bar(foo, footer):
             return foo, footer
@@ -305,6 +321,7 @@ class TestValidate(TestCase):
             Parameter(name='c'),
             Parameter(name='a'),
             Parameter(name='b'),
+            return_as=ReturnAs.KWARGS_WITH_NONE,
         )
         def bar(*args, **kwargs):
             return args, kwargs
@@ -395,8 +412,13 @@ if sys.version_info >= (3, 8):
     class AsyncValidateTests(IsolatedAsyncioTestCase):
         async def test_async_instance_method(self) -> None:
             class Foo:
-                @validate(Parameter(name='k', value_type=int, validators=[Min(42)]))
+                @validate(Parameter(name='k', value_type=int, validators=[Min(42)]),
+                          return_as=ReturnAs.KWARGS_WITHOUT_NONE)
                 async def bar(self, k):
+                    return k
+
+                @validate(Parameter(name='k', value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+                async def bar_2(self, k):
                     return k
 
             f = Foo()
@@ -405,3 +427,9 @@ if sys.version_info >= (3, 8):
 
             with self.assertRaises(expected_exception=ParameterException):
                 await f.bar(k=41)
+
+            res = await f.bar_2(k=42)
+            self.assertEqual(42, res)
+
+            with self.assertRaises(expected_exception=ParameterException):
+                await f.bar_2(k=41)

@@ -51,12 +51,12 @@ class ReturnAs(Enum):
 
 def validate(
         *parameters: Parameter,
-        return_as: ReturnAs = ReturnAs.KWARGS_WITHOUT_NONE,
+        return_as: ReturnAs = ReturnAs.ARGS,
         strict: bool = True,
         ignore_input: bool = False,
 ) -&gt; Callable:
     &#34;&#34;&#34;
-        Validates the values that are passed to the function by using the validators in the passed parameters.
+        Validates the values that are passed to the function by using the validators in the given parameters.
         The decorated function could also be async or an instance method as well as a normal function.
 
         Args:
@@ -80,6 +80,9 @@ def validate(
             result = _wrapper_content(*args, **kwargs)
 
             if return_as == ReturnAs.ARGS:
+                if &#39;self&#39; in result:
+                    return func(result.pop(&#39;self&#39;), **result)
+
                 return func(*result.values())
 
             if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
@@ -95,6 +98,9 @@ def validate(
             result = _wrapper_content(*args, **kwargs)
 
             if return_as == ReturnAs.ARGS:
+                if &#39;self&#39; in result:
+                    return await func(result.pop(&#39;self&#39;), **result)
+
                 return await func(*result.values())
 
             if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
@@ -198,10 +204,10 @@ def validate(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.fn_deco_validate.validate"><code class="name flex">
-<span>def <span class="ident">validate</span></span>(<span>*parameters: <a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter" href="parameters/abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter">Parameter</a>, return_as: <a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs">ReturnAs</a> = ReturnAs.KWARGS_WITHOUT_NONE, strict: bool = True, ignore_input: bool = False) ‑> Callable</span>
+<span>def <span class="ident">validate</span></span>(<span>*parameters: <a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter" href="parameters/abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter">Parameter</a>, return_as: <a title="pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs" href="#pedantic.decorators.fn_deco_validate.fn_deco_validate.ReturnAs">ReturnAs</a> = ReturnAs.ARGS, strict: bool = True, ignore_input: bool = False) ‑> Callable</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Validates the values that are passed to the function by using the validators in the passed parameters.
+<div class="desc"><p>Validates the values that are passed to the function by using the validators in the given parameters.
 The decorated function could also be async or an instance method as well as a normal function.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -228,12 +234,12 @@ This can be useful if you use only ExternalParameters.</dd>
 </summary>
 <pre><code class="python">def validate(
         *parameters: Parameter,
-        return_as: ReturnAs = ReturnAs.KWARGS_WITHOUT_NONE,
+        return_as: ReturnAs = ReturnAs.ARGS,
         strict: bool = True,
         ignore_input: bool = False,
 ) -&gt; Callable:
     &#34;&#34;&#34;
-        Validates the values that are passed to the function by using the validators in the passed parameters.
+        Validates the values that are passed to the function by using the validators in the given parameters.
         The decorated function could also be async or an instance method as well as a normal function.
 
         Args:
@@ -257,6 +263,9 @@ This can be useful if you use only ExternalParameters.</dd>
             result = _wrapper_content(*args, **kwargs)
 
             if return_as == ReturnAs.ARGS:
+                if &#39;self&#39; in result:
+                    return func(result.pop(&#39;self&#39;), **result)
+
                 return func(*result.values())
 
             if return_as == ReturnAs.KWARGS_WITHOUT_NONE:
@@ -272,6 +281,9 @@ This can be useful if you use only ExternalParameters.</dd>
             result = _wrapper_content(*args, **kwargs)
 
             if return_as == ReturnAs.ARGS:
+                if &#39;self&#39; in result:
+                    return await func(result.pop(&#39;self&#39;), **result)
+
                 return await func(*result.values())
 
             if return_as == ReturnAs.KWARGS_WITHOUT_NONE:

@@ -29,7 +29,8 @@
 <pre><code class="python">import sys
 import unittest
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Callable, Union, Dict
+from enum import IntEnum
+from typing import Any, Optional, Callable, Union, Dict, List
 
 from pedantic.env_var_logic import disable_pedantic, enable_pedantic
 from pedantic import overrides
@@ -49,6 +50,19 @@ class TestPedanticClass(unittest.TestCase):
                 self.a = a
 
         MyClass(a=42)
+
+    def test_constructor_with_list(self):
+        class Foo(IntEnum):
+            A = 1
+            B = 2
+
+        @pedantic_class
+        class MyClass:
+            def __init__(self, b: int, a: List[Foo]) -&gt; None:
+                self.a = a
+                self.b = b
+
+        MyClass(b=42, a=[Foo.A, Foo.B])
 
     def test_constructor_param_without_type_hint(self):
         @pedantic_class
@@ -607,6 +621,19 @@ not have a method with the specified name.</p></div>
                 self.a = a
 
         MyClass(a=42)
+
+    def test_constructor_with_list(self):
+        class Foo(IntEnum):
+            A = 1
+            B = 2
+
+        @pedantic_class
+        class MyClass:
+            def __init__(self, b: int, a: List[Foo]) -&gt; None:
+                self.a = a
+                self.b = b
+
+        MyClass(b=42, a=[Foo.A, Foo.B])
 
     def test_constructor_param_without_type_hint(self):
         @pedantic_class
@@ -1261,6 +1288,29 @@ not have a method with the specified name.</p></div>
 
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
         MyClass(a=42)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_with_list"><code class="name flex">
+<span>def <span class="ident">test_constructor_with_list</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_constructor_with_list(self):
+    class Foo(IntEnum):
+        A = 1
+        B = 2
+
+    @pedantic_class
+    class MyClass:
+        def __init__(self, b: int, a: List[Foo]) -&gt; None:
+            self.a = a
+            self.b = b
+
+    MyClass(b=42, a=[Foo.A, Foo.B])</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_without_return_type"><code class="name flex">
@@ -1951,6 +2001,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor" href="#pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor">test_constructor</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_must_be_called_with_kwargs" href="#pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_must_be_called_with_kwargs">test_constructor_must_be_called_with_kwargs</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_param_without_type_hint" href="#pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_param_without_type_hint">test_constructor_param_without_type_hint</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_with_list" href="#pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_with_list">test_constructor_with_list</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_without_return_type" href="#pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_without_return_type">test_constructor_without_return_type</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_wrong_return_type" href="#pedantic.tests.tests_pedantic_class.TestPedanticClass.test_constructor_wrong_return_type">test_constructor_wrong_return_type</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_dataclass_inside" href="#pedantic.tests.tests_pedantic_class.TestPedanticClass.test_dataclass_inside">test_dataclass_inside</a></code></li>
