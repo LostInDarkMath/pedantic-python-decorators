@@ -26,8 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import sys
-from datetime import datetime
+<pre><code class="python">from datetime import datetime
 
 from pedantic import overrides
 from pedantic.decorators.fn_deco_validate.validators import Validator
@@ -37,30 +36,11 @@ class DatetimeIsoFormat(Validator):
     @overrides(Validator)
     def validate(self, value: str) -&gt; datetime:
         try:
-            if sys.version_info &gt;= (3, 7):
-                value = datetime.fromisoformat(value)
-            else:
-                value = datetime_from_iso_format(value)
+            value = datetime.fromisoformat(value)
         except (TypeError, ValueError, AttributeError):
             self.raise_exception(msg=f&#39;invalid value: {value} is not a datetime in ISO format&#39;, value=value)
 
-        return value
-
-
-def datetime_from_iso_format(value: str) -&gt; datetime:
-    &#34;&#34;&#34;
-        For python versions &lt; 3.7: Get datetime from iso format.
-        Source: https://github.com/fitoprincipe/ipygee/blob/master/ipygee/tasks.py#L80
-    &#34;&#34;&#34;
-
-    d, t = value.split(&#39;T&#39;)
-    year, month, day = d.split(&#39;-&#39;)
-    hours, minutes, seconds = t.split(&#39;:&#39;)
-    seconds = float(seconds[0:-1])
-    sec = int(seconds)
-    microseconds = int((seconds-sec)*1e6)
-
-    return datetime(int(year), int(month), int(day), int(hours), int(minutes), sec, microseconds)</code></pre>
+        return value</code></pre>
 </details>
 </section>
 <section>
@@ -68,35 +48,6 @@ def datetime_from_iso_format(value: str) -&gt; datetime:
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="pedantic.decorators.fn_deco_validate.validators.datetime_isoformat.datetime_from_iso_format"><code class="name flex">
-<span>def <span class="ident">datetime_from_iso_format</span></span>(<span>value: str) ‑> datetime.datetime</span>
-</code></dt>
-<dd>
-<div class="desc"><p>For python versions &lt; 3.7: Get datetime from iso format.
-Source: <a href="https://github.com/fitoprincipe/ipygee/blob/master/ipygee/tasks.py#L80">https://github.com/fitoprincipe/ipygee/blob/master/ipygee/tasks.py#L80</a></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def datetime_from_iso_format(value: str) -&gt; datetime:
-    &#34;&#34;&#34;
-        For python versions &lt; 3.7: Get datetime from iso format.
-        Source: https://github.com/fitoprincipe/ipygee/blob/master/ipygee/tasks.py#L80
-    &#34;&#34;&#34;
-
-    d, t = value.split(&#39;T&#39;)
-    year, month, day = d.split(&#39;-&#39;)
-    hours, minutes, seconds = t.split(&#39;:&#39;)
-    seconds = float(seconds[0:-1])
-    sec = int(seconds)
-    microseconds = int((seconds-sec)*1e6)
-
-    return datetime(int(year), int(month), int(day), int(hours), int(minutes), sec, microseconds)</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -115,10 +66,7 @@ inheritance.</p></div>
     @overrides(Validator)
     def validate(self, value: str) -&gt; datetime:
         try:
-            if sys.version_info &gt;= (3, 7):
-                value = datetime.fromisoformat(value)
-            else:
-                value = datetime_from_iso_format(value)
+            value = datetime.fromisoformat(value)
         except (TypeError, ValueError, AttributeError):
             self.raise_exception(msg=f&#39;invalid value: {value} is not a datetime in ISO format&#39;, value=value)
 
@@ -150,11 +98,6 @@ inheritance.</p></div>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="pedantic.decorators.fn_deco_validate.validators" href="index.html">pedantic.decorators.fn_deco_validate.validators</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="pedantic.decorators.fn_deco_validate.validators.datetime_isoformat.datetime_from_iso_format" href="#pedantic.decorators.fn_deco_validate.validators.datetime_isoformat.datetime_from_iso_format">datetime_from_iso_format</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

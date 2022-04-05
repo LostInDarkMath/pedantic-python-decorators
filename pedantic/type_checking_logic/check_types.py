@@ -380,8 +380,7 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (typing.Tuple[float, str],)
         >>> _get_type_arguments(List[Tuple[Any, ...]])
         (typing.Tuple[typing.Any, ...],)
-        >>> Union[bool, int, float] if sys.version_info >= (3, 7) else \
-            print("typing.Union[bool, int, float]") # in Python 3.6 is bool an subtype of int, WTF!?
+        >>> Union[bool, int, float]
         typing.Union[bool, int, float]
         >>> _get_type_arguments(Union[str, float, int])
         (<class 'str'>, <class 'float'>, <class 'int'>)

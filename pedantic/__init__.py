@@ -1,6 +1,6 @@
 import sys
 
-assert sys.version_info >= (3, 6), f'Pedantic does not work with Python versions below 3.6.'
+assert sys.version_info >= (3, 7), f'Pedantic does not work with Python versions below 3.7.'
 
 from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, trace, trace_if_returns, \
     does_same_as_function, deprecated, unimplemented, require_kwargs, pedantic, \

@@ -29,6 +29,7 @@
 <pre><code class="python">import sys
 import unittest
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import IntEnum
 from typing import Any, Optional, Callable, Union, Dict, List
 
@@ -466,11 +467,6 @@ class TestPedanticClass(unittest.TestCase):
     def test_dataclass_inside(self):
         &#34;&#34;&#34;Pedantic cannot be used on dataclasses.&#34;&#34;&#34;
 
-        if sys.version_info &lt; (3, 7):
-            return
-
-        from dataclasses import dataclass
-
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             @pedantic_class
             @dataclass
@@ -481,11 +477,6 @@ class TestPedanticClass(unittest.TestCase):
 
     def test_dataclass_outside(self):
         &#34;&#34;&#34;Pedantic cannot check the constructor of dataclasses&#34;&#34;&#34;
-
-        if sys.version_info &lt; (3, 7):
-            return
-
-        from dataclasses import dataclass
 
         @dataclass
         @pedantic_class
@@ -1037,11 +1028,6 @@ not have a method with the specified name.</p></div>
     def test_dataclass_inside(self):
         &#34;&#34;&#34;Pedantic cannot be used on dataclasses.&#34;&#34;&#34;
 
-        if sys.version_info &lt; (3, 7):
-            return
-
-        from dataclasses import dataclass
-
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             @pedantic_class
             @dataclass
@@ -1052,11 +1038,6 @@ not have a method with the specified name.</p></div>
 
     def test_dataclass_outside(self):
         &#34;&#34;&#34;Pedantic cannot check the constructor of dataclasses&#34;&#34;&#34;
-
-        if sys.version_info &lt; (3, 7):
-            return
-
-        from dataclasses import dataclass
 
         @dataclass
         @pedantic_class
@@ -1363,11 +1344,6 @@ not have a method with the specified name.</p></div>
 <pre><code class="python">def test_dataclass_inside(self):
     &#34;&#34;&#34;Pedantic cannot be used on dataclasses.&#34;&#34;&#34;
 
-    if sys.version_info &lt; (3, 7):
-        return
-
-    from dataclasses import dataclass
-
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
         @pedantic_class
         @dataclass
@@ -1388,11 +1364,6 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">def test_dataclass_outside(self):
     &#34;&#34;&#34;Pedantic cannot check the constructor of dataclasses&#34;&#34;&#34;
-
-    if sys.version_info &lt; (3, 7):
-        return
-
-    from dataclasses import dataclass
 
     @dataclass
     @pedantic_class

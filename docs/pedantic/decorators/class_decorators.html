@@ -28,6 +28,7 @@
 </summary>
 <pre><code class="python">import enum
 import sys
+from dataclasses import is_dataclass
 from typing import Callable, Any, Optional, Dict
 import types
 
@@ -59,12 +60,9 @@ def for_all_methods(decorator: F) -&gt; Callable[[C], C]:
             raise PedanticTypeCheckException(f&#39;Enum &#34;{cls}&#34; cannot be decorated with &#34;@pedantic_class&#34;. &#39;
                                              f&#39;Enums are not supported yet.&#39;)
 
-        if sys.version_info &gt;= (3, 7):
-            from dataclasses import is_dataclass
-
-            if is_dataclass(obj=cls):
-                raise PedanticTypeCheckException(f&#39;Dataclass &#34;{cls}&#34; cannot be decorated with &#34;@pedantic_class&#34;. &#39;
-                                                 f&#39;Try to write &#34;@dataclass&#34; over &#34;@pedantic_class&#34;.&#39;)
+        if is_dataclass(obj=cls):
+            raise PedanticTypeCheckException(f&#39;Dataclass &#34;{cls}&#34; cannot be decorated with &#34;@pedantic_class&#34;. &#39;
+                                             f&#39;Try to write &#34;@dataclass&#34; over &#34;@pedantic_class&#34;.&#39;)
 
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)
@@ -169,12 +167,9 @@ def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -&gt; Dict[Any, 
             raise PedanticTypeCheckException(f&#39;Enum &#34;{cls}&#34; cannot be decorated with &#34;@pedantic_class&#34;. &#39;
                                              f&#39;Enums are not supported yet.&#39;)
 
-        if sys.version_info &gt;= (3, 7):
-            from dataclasses import is_dataclass
-
-            if is_dataclass(obj=cls):
-                raise PedanticTypeCheckException(f&#39;Dataclass &#34;{cls}&#34; cannot be decorated with &#34;@pedantic_class&#34;. &#39;
-                                                 f&#39;Try to write &#34;@dataclass&#34; over &#34;@pedantic_class&#34;.&#39;)
+        if is_dataclass(obj=cls):
+            raise PedanticTypeCheckException(f&#39;Dataclass &#34;{cls}&#34; cannot be decorated with &#34;@pedantic_class&#34;. &#39;
+                                             f&#39;Try to write &#34;@dataclass&#34; over &#34;@pedantic_class&#34;.&#39;)
 
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)

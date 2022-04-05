@@ -1,6 +1,7 @@
 import sys
 import unittest
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import IntEnum
 from typing import Any, Optional, Callable, Union, Dict, List
 
@@ -438,11 +439,6 @@ class TestPedanticClass(unittest.TestCase):
     def test_dataclass_inside(self):
         """Pedantic cannot be used on dataclasses."""
 
-        if sys.version_info < (3, 7):
-            return
-
-        from dataclasses import dataclass
-
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             @pedantic_class
             @dataclass
@@ -453,11 +449,6 @@ class TestPedanticClass(unittest.TestCase):
 
     def test_dataclass_outside(self):
         """Pedantic cannot check the constructor of dataclasses"""
-
-        if sys.version_info < (3, 7):
-            return
-
-        from dataclasses import dataclass
 
         @dataclass
         @pedantic_class
