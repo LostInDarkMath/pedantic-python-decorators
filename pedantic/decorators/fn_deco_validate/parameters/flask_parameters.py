@@ -27,6 +27,9 @@ class FlaskParameter(ExternalParameter, ABC):
 class FlaskJsonParameter(FlaskParameter):
     @overrides(FlaskParameter)
     def get_dict(self) -> Dict:
+        if not request.is_json:
+            return {}
+
         return request.json
 
 

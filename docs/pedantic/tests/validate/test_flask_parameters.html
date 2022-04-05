@@ -556,7 +556,6 @@ class TestFlaskParameters(TestCase):
         @validate(
             FlaskPathParameter(name=&#39;email&#39;, value_type=str, validators=[Email()]),
             FlaskJsonParameter(name=&#39;content&#39;, value_type=str, default=&#39;this is a fake message&#39;, required=False),
-            return_as=ReturnAs.ARGS,
         )
         def testing_send_system_message(email: str, content: str) -&gt; Response:
             return jsonify({&#39;email&#39;: email, &#39;content&#39;: content})
@@ -1133,7 +1132,6 @@ not have a method with the specified name.</p></div>
         @validate(
             FlaskPathParameter(name=&#39;email&#39;, value_type=str, validators=[Email()]),
             FlaskJsonParameter(name=&#39;content&#39;, value_type=str, default=&#39;this is a fake message&#39;, required=False),
-            return_as=ReturnAs.ARGS,
         )
         def testing_send_system_message(email: str, content: str) -&gt; Response:
             return jsonify({&#39;email&#39;: email, &#39;content&#39;: content})
@@ -1311,7 +1309,6 @@ not have a method with the specified name.</p></div>
     @validate(
         FlaskPathParameter(name=&#39;email&#39;, value_type=str, validators=[Email()]),
         FlaskJsonParameter(name=&#39;content&#39;, value_type=str, default=&#39;this is a fake message&#39;, required=False),
-        return_as=ReturnAs.ARGS,
     )
     def testing_send_system_message(email: str, content: str) -&gt; Response:
         return jsonify({&#39;email&#39;: email, &#39;content&#39;: content})

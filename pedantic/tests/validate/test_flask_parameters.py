@@ -528,7 +528,6 @@ class TestFlaskParameters(TestCase):
         @validate(
             FlaskPathParameter(name='email', value_type=str, validators=[Email()]),
             FlaskJsonParameter(name='content', value_type=str, default='this is a fake message', required=False),
-            return_as=ReturnAs.ARGS,
         )
         def testing_send_system_message(email: str, content: str) -> Response:
             return jsonify({'email': email, 'content': content})

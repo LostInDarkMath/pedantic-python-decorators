@@ -55,6 +55,9 @@ class FlaskParameter(ExternalParameter, ABC):
 class FlaskJsonParameter(FlaskParameter):
     @overrides(FlaskParameter)
     def get_dict(self) -&gt; Dict:
+        if not request.is_json:
+            return {}
+
         return request.json
 
 
@@ -236,6 +239,9 @@ inheritance.</p></div>
 <pre><code class="python">class FlaskJsonParameter(FlaskParameter):
     @overrides(FlaskParameter)
     def get_dict(self) -&gt; Dict:
+        if not request.is_json:
+            return {}
+
         return request.json</code></pre>
 </details>
 <h3>Ancestors</h3>
