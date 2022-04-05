@@ -27,7 +27,6 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import json
-import sys
 from typing import List
 from unittest import TestCase
 
@@ -40,7 +39,6 @@ from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, Retu
 from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
     FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
 from pedantic.decorators.fn_deco_validate.validators import NotEmpty, Min
-
 
 JSON = &#39;application/json&#39;
 OK = 200
@@ -499,12 +497,6 @@ class TestFlaskParameters(TestCase):
             self.assertEqual({key: [{&#39;KEY&#39;: &#39;required&#39;}]}, res.json)
 
     def test_async_endpoints(self) -&gt; None:
-        &#34;&#34;&#34; This test requires Python 3.7 or above because async Flask endpoints require this. &#34;&#34;&#34;
-
-        if sys.version_info &lt; (3, 7):
-            print(f&#39;Skip test, because Python 3.7+ is required.&#39;)
-            return
-
         app = Flask(__name__)
 
         @app.route(&#39;/&lt;int:k&gt;&#39;)
@@ -1075,12 +1067,6 @@ not have a method with the specified name.</p></div>
             self.assertEqual({key: [{&#39;KEY&#39;: &#39;required&#39;}]}, res.json)
 
     def test_async_endpoints(self) -&gt; None:
-        &#34;&#34;&#34; This test requires Python 3.7 or above because async Flask endpoints require this. &#34;&#34;&#34;
-
-        if sys.version_info &lt; (3, 7):
-            print(f&#39;Skip test, because Python 3.7+ is required.&#39;)
-            return
-
         app = Flask(__name__)
 
         @app.route(&#39;/&lt;int:k&gt;&#39;)
@@ -1163,18 +1149,12 @@ not have a method with the specified name.</p></div>
 <span>def <span class="ident">test_async_endpoints</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This test requires Python 3.7 or above because async Flask endpoints require this.</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_async_endpoints(self) -&gt; None:
-    &#34;&#34;&#34; This test requires Python 3.7 or above because async Flask endpoints require this. &#34;&#34;&#34;
-
-    if sys.version_info &lt; (3, 7):
-        print(f&#39;Skip test, because Python 3.7+ is required.&#39;)
-        return
-
     app = Flask(__name__)
 
     @app.route(&#39;/&lt;int:k&gt;&#39;)

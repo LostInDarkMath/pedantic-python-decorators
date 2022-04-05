@@ -14,8 +14,8 @@ author = "Willi Sontopski"
 
 setup(
     name="pedantic",
-    version="1.9.1",
-    python_requires='>=3.6.1',
+    version="1.10.0",
+    python_requires='>=3.7.0',
     packages=find_packages(),
     install_requires=['docstring_parser'],
     author=author,

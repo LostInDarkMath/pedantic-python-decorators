@@ -1,5 +1,6 @@
 import enum
 import sys
+from dataclasses import is_dataclass
 from typing import Callable, Any, Optional, Dict
 import types
 
@@ -31,12 +32,9 @@ def for_all_methods(decorator: F) -> Callable[[C], C]:
             raise PedanticTypeCheckException(f'Enum "{cls}" cannot be decorated with "@pedantic_class". '
                                              f'Enums are not supported yet.')
 
-        if sys.version_info >= (3, 7):
-            from dataclasses import is_dataclass
-
-            if is_dataclass(obj=cls):
-                raise PedanticTypeCheckException(f'Dataclass "{cls}" cannot be decorated with "@pedantic_class". '
-                                                 f'Try to write "@dataclass" over "@pedantic_class".')
+        if is_dataclass(obj=cls):
+            raise PedanticTypeCheckException(f'Dataclass "{cls}" cannot be decorated with "@pedantic_class". '
+                                             f'Try to write "@dataclass" over "@pedantic_class".')
 
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)

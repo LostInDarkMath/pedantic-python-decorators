@@ -33,7 +33,6 @@ from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import Parameter
 from pedantic.decorators.fn_deco_validate.validators import DatetimeIsoFormat
-from pedantic.decorators.fn_deco_validate.validators.datetime_isoformat import datetime_from_iso_format
 
 
 class TestValidatorDatetimeIsoformat(TestCase):
@@ -49,15 +48,7 @@ class TestValidatorDatetimeIsoformat(TestCase):
             foo(&#39;12.12.2020&#39;)
 
         with self.assertRaises(expected_exception=ParameterException):
-            foo(&#39;invalid&#39;)
-
-    def test_datetime_iso_format_python_3_6(self) -&gt; None:
-        now = datetime.now()
-        self.assertTrue(abs(now - datetime_from_iso_format(now.isoformat())) &lt; timedelta(milliseconds=1))
-
-        for value in [&#39;invalid&#39;, 42, &#39;12.12.2020&#39;]:
-            with self.assertRaises(expected_exception=(AttributeError, ValueError)):
-                datetime_from_iso_format(value=value)</code></pre>
+            foo(&#39;invalid&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -119,15 +110,7 @@ not have a method with the specified name.</p></div>
             foo(&#39;12.12.2020&#39;)
 
         with self.assertRaises(expected_exception=ParameterException):
-            foo(&#39;invalid&#39;)
-
-    def test_datetime_iso_format_python_3_6(self) -&gt; None:
-        now = datetime.now()
-        self.assertTrue(abs(now - datetime_from_iso_format(now.isoformat())) &lt; timedelta(milliseconds=1))
-
-        for value in [&#39;invalid&#39;, 42, &#39;12.12.2020&#39;]:
-            with self.assertRaises(expected_exception=(AttributeError, ValueError)):
-                datetime_from_iso_format(value=value)</code></pre>
+            foo(&#39;invalid&#39;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -135,24 +118,6 @@ not have a method with the specified name.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="pedantic.tests.validate.test_datetime_isoformat.TestValidatorDatetimeIsoformat.test_datetime_iso_format_python_3_6"><code class="name flex">
-<span>def <span class="ident">test_datetime_iso_format_python_3_6</span></span>(<span>self) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_datetime_iso_format_python_3_6(self) -&gt; None:
-    now = datetime.now()
-    self.assertTrue(abs(now - datetime_from_iso_format(now.isoformat())) &lt; timedelta(milliseconds=1))
-
-    for value in [&#39;invalid&#39;, 42, &#39;12.12.2020&#39;]:
-        with self.assertRaises(expected_exception=(AttributeError, ValueError)):
-            datetime_from_iso_format(value=value)</code></pre>
-</details>
-</dd>
 <dt id="pedantic.tests.validate.test_datetime_isoformat.TestValidatorDatetimeIsoformat.test_validator_datetime_isoformat"><code class="name flex">
 <span>def <span class="ident">test_validator_datetime_isoformat</span></span>(<span>self) ‑> None</span>
 </code></dt>
@@ -198,7 +163,6 @@ not have a method with the specified name.</p></div>
 <li>
 <h4><code><a title="pedantic.tests.validate.test_datetime_isoformat.TestValidatorDatetimeIsoformat" href="#pedantic.tests.validate.test_datetime_isoformat.TestValidatorDatetimeIsoformat">TestValidatorDatetimeIsoformat</a></code></h4>
 <ul class="">
-<li><code><a title="pedantic.tests.validate.test_datetime_isoformat.TestValidatorDatetimeIsoformat.test_datetime_iso_format_python_3_6" href="#pedantic.tests.validate.test_datetime_isoformat.TestValidatorDatetimeIsoformat.test_datetime_iso_format_python_3_6">test_datetime_iso_format_python_3_6</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_datetime_isoformat.TestValidatorDatetimeIsoformat.test_validator_datetime_isoformat" href="#pedantic.tests.validate.test_datetime_isoformat.TestValidatorDatetimeIsoformat.test_validator_datetime_isoformat">test_validator_datetime_isoformat</a></code></li>
 </ul>
 </li>

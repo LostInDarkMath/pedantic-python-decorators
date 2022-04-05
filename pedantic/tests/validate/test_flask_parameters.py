@@ -1,5 +1,4 @@
 import json
-import sys
 from typing import List
 from unittest import TestCase
 
@@ -12,7 +11,6 @@ from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, Retu
 from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
     FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
 from pedantic.decorators.fn_deco_validate.validators import NotEmpty, Min
-
 
 JSON = 'application/json'
 OK = 200
@@ -471,12 +469,6 @@ class TestFlaskParameters(TestCase):
             self.assertEqual({key: [{'KEY': 'required'}]}, res.json)
 
     def test_async_endpoints(self) -> None:
-        """ This test requires Python 3.7 or above because async Flask endpoints require this. """
-
-        if sys.version_info < (3, 7):
-            print(f'Skip test, because Python 3.7+ is required.')
-            return
-
         app = Flask(__name__)
 
         @app.route('/<int:k>')

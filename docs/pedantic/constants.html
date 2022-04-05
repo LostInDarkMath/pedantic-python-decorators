@@ -34,9 +34,7 @@ TYPE_VAR_METHOD_NAME = &#39;__pedantic_m42__&#39;
 TYPE_VAR_ATTR_NAME = &#39;__pedantic_a42__&#39;
 ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED = &#39;__pedantic_g42__&#39;
 
-TypeVar = Tv if sys.version_info &gt;= (3, 7) else type
-# because in Python 3.6 there is a bug: https://github.com/python/typing/issues/520
-
+TypeVar = Tv
 ReturnType = TypeVar(&#39;ReturnType&#39;)
 F = Callable[..., ReturnType]
 C = TypeVar(&#39;C&#39;)
