@@ -29,6 +29,7 @@
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Idea is taken from: https://stackoverflow.com/a/55504010/10975692&#34;&#34;&#34;
 import inspect
+import types
 import typing
 from io import BytesIO, StringIO, BufferedWriter, TextIOWrapper
 from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType
@@ -181,6 +182,9 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -&gt; boo
             validator = _SPECIAL_INSTANCE_CHECKERS[name]
             return validator(obj, type_, type_vars)
 
+    if hasattr(types, &#39;UnionType&#39;) and isinstance(type_, types.UnionType):
+        return _instancecheck_union(value=obj, type_=type_, type_vars=type_vars)
+
     if type_ == typing.BinaryIO:
         return isinstance(obj, (BytesIO, BufferedWriter))
     elif type_ == typing.TextIO:
@@ -267,6 +271,10 @@ def _is_type_new_type(type_: Any) -&gt; bool:
         &gt;&gt;&gt; _is_type_new_type(UserId)
         True
     &#34;&#34;&#34;
+
+    if type(type_) == typing.NewType:
+        return True
+
     return type_.__qualname__ == NewType(&#39;name&#39;, int).__qualname__  # arguments of NewType() are arbitrary here
 
 
@@ -334,16 +342,14 @@ def _is_generic(cls: Any) -&gt; bool:
         &gt;&gt;&gt; _is_generic(Dict[str, str])
         True
     &#34;&#34;&#34;
+
     if hasattr(typing, &#39;_SpecialGenericAlias&#39;) and isinstance(cls, typing._SpecialGenericAlias):
         return True
-    elif hasattr(typing, &#39;_GenericAlias&#39;):
-        if isinstance(cls, typing._GenericAlias):
-            return True
-
-        if isinstance(cls, typing._SpecialForm):
-            return cls not in {Any}
-    elif isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
+    elif isinstance(cls, typing._GenericAlias):
         return True
+    elif isinstance(cls, typing._SpecialForm):
+        return cls not in {Any}
+
     return False
 
 
@@ -394,8 +400,10 @@ def _get_type_arguments(cls: Any) -&gt; Tuple[Any, ...]:
         &gt;&gt;&gt; _get_type_arguments(List[int])
         (&lt;class &#39;int&#39;&gt;,)
         &gt;&gt;&gt; UserId = NewType(&#39;UserId&#39;, int)
-        &gt;&gt;&gt; _get_type_arguments(List[UserId])
+        &gt;&gt;&gt; _get_type_arguments(List[UserId]) if sys.version_info &lt; (3, 10) else print(&#39;(&lt;function NewType.&lt;locals&gt;.new_type at ...,)&#39;)
         (&lt;function NewType.&lt;locals&gt;.new_type at ...,)
+        &gt;&gt;&gt; _get_type_arguments(List[UserId]) if sys.version_info &gt;= (3, 10) else print(&#39;(pedantic.type_checking_logic.check_types.UserId,)&#39;)
+        (pedantic.type_checking_logic.check_types.UserId,)
         &gt;&gt;&gt; _get_type_arguments(List)
         ()
         &gt;&gt;&gt; T = TypeVar(&#39;T&#39;)
@@ -423,6 +431,8 @@ def _get_type_arguments(cls: Any) -&gt; Tuple[Any, ...]:
         (Ellipsis, &lt;class &#39;str&#39;&gt;)
         &gt;&gt;&gt; _get_type_arguments(Optional[int])
         (&lt;class &#39;int&#39;&gt;, &lt;class &#39;NoneType&#39;&gt;)
+        &gt;&gt;&gt; _get_type_arguments(str | int) if sys.version_info &gt;= (3, 10) else (str, int)
+        (&lt;class &#39;str&#39;&gt;, &lt;class &#39;int&#39;&gt;)
     &#34;&#34;&#34;
 
     result = ()
@@ -430,12 +440,20 @@ def _get_type_arguments(cls: Any) -&gt; Tuple[Any, ...]:
     if hasattr(cls, &#39;__args__&#39;):
         result = cls.__args__
         origin = _get_base_generic(cls=cls)
+
         if origin != cls and \
                 ((origin is Callable) or (origin is collections.abc.Callable)) and \
                 result[0] is not Ellipsis:
             result = (list(result[:-1]), result[-1])
+
     result = result or ()
-    return result if &#39;[&#39; in str(cls) else ()
+
+    if hasattr(types, &#39;UnionType&#39;) and isinstance(cls, types.UnionType):
+        return result
+    elif &#39;[&#39; in str(cls):
+        return result
+
+    return ()
 
 
 def _get_base_generic(cls: Any) -&gt; Any:
@@ -593,14 +611,13 @@ def _get_class_of_type_annotation(annotation: Any) -&gt; Any:
         &gt;&gt;&gt; _get_class_of_type_annotation(Callable)
         &lt;class &#39;collections.abc.Callable&#39;&gt;
     &#34;&#34;&#34;
+
     if annotation in [Any, Ellipsis]:
         return object
-    elif hasattr(annotation, &#39;__extra__&#39;):
-        return annotation.__extra__
     elif annotation.__module__ == &#39;typing&#39; and annotation.__origin__ is not None:
         return annotation.__origin__
-    else:
-        return annotation
+
+    return annotation
 
 
 def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -&gt; bool:
@@ -756,14 +773,66 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any])
         True
         &gt;&gt;&gt; _instancecheck_union(None, Optional[Callable[[float], float]], {})
         True
+        &gt;&gt;&gt; _instancecheck_union(3.0, int | float, {}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(3, int | float, {}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(&#39;3&#39;, int | float, {}) if sys.version_info &gt;= (3, 10) else False
+        False
+        &gt;&gt;&gt; _instancecheck_union(None, int | NoneType, {}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, float | NoneType, {}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; S = TypeVar(&#39;S&#39;)
+        &gt;&gt;&gt; T = TypeVar(&#39;T&#39;)
+        &gt;&gt;&gt; U = TypeVar(&#39;U&#39;)
+        &gt;&gt;&gt; _instancecheck_union(42, T | NoneType, {}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, T | NoneType, {}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, T | NoneType, {T: int}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(&#39;None&#39;, T | NoneType, {T: int}) if sys.version_info &gt;= (3, 10) else False
+        False
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: int}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: str}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: int, S: float}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: str, S: float}) if sys.version_info &gt;= (3, 10) else False
+        False
+        &gt;&gt;&gt; _instancecheck_union(42.8, T | S, {T: str, S: float}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, T | S, {T: str, S: float}) if sys.version_info &gt;= (3, 10) else False
+        False
+        &gt;&gt;&gt; _instancecheck_union(None, T | S, {}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, T | NoneType, {T: int}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(&#39;None&#39;, T | NoneType | S, {T: int}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, T | Any, {}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(42, T | Any, {T: float}) if sys.version_info &gt;= (3, 10) else True
+        True
+        &gt;&gt;&gt; _instancecheck_union(None, Optional[Callable[[float], float]], {}) if sys.version_info &gt;= (3, 10) else True
+        True
     &#34;&#34;&#34;
 
     type_args = _get_type_arguments(cls=type_)
+    return _check_union(value=value, type_args=type_args, type_vars=type_vars)
+
+
+def _check_union(value: Any, type_args: Tuple[Any, ...], type_vars: Dict[TypeVar_, Any]) -&gt; bool:
     args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, TypeVar)]
     args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, TypeVar)]
     args_type_vars_bounded = [type_var for type_var in args_type_vars if type_var in type_vars]
     args_type_vars_unbounded = [type_var for type_var in args_type_vars if type_var not in args_type_vars_bounded]
     matches_non_type_var = any([_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars])
+
     if matches_non_type_var:
         return True
 
@@ -879,6 +948,7 @@ for class_path, _check_func in {
 
 _SPECIAL_INSTANCE_CHECKERS = {
     &#39;Union&#39;: _instancecheck_union,
+    &#39;Optional&#39;: _instancecheck_union,
     &#39;Literal&#39;: _instancecheck_literal,
     &#39;Callable&#39;: _instancecheck_callable,
     &#39;Any&#39;: lambda v, t, tv: True,

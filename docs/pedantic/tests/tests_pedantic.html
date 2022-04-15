@@ -1480,6 +1480,20 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         for value in [6, &#39;xa&#39;]:
             foo(a=value)
 
+    def test_union_new_syntax(self):
+        if sys.version_info &lt; (3, 10):
+            return
+
+        @pedantic
+        def foo(a: str | int) -&gt; None:
+            pass
+
+        for value in [6, &#39;xa&#39;]:
+            foo(a=value)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=1.7)
+
     def test_union_typing_type(self):
         @pedantic
         def foo(a: Union[str, Collection]) -&gt; None:
@@ -3919,6 +3933,20 @@ not have a method with the specified name.</p></div>
 
         for value in [6, &#39;xa&#39;]:
             foo(a=value)
+
+    def test_union_new_syntax(self):
+        if sys.version_info &lt; (3, 10):
+            return
+
+        @pedantic
+        def foo(a: str | int) -&gt; None:
+            pass
+
+        for value in [6, &#39;xa&#39;]:
+            foo(a=value)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=1.7)
 
     def test_union_typing_type(self):
         @pedantic
@@ -9215,6 +9243,30 @@ arguments have default values.</p></div>
             foo(a=value)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union_new_syntax"><code class="name flex">
+<span>def <span class="ident">test_union_new_syntax</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_union_new_syntax(self):
+    if sys.version_info &lt; (3, 10):
+        return
+
+    @pedantic
+    def foo(a: str | int) -&gt; None:
+        pass
+
+    for value in [6, &#39;xa&#39;]:
+        foo(a=value)
+
+    with self.assertRaises(PedanticTypeCheckException):
+        foo(a=1.7)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union_typing_type"><code class="name flex">
 <span>def <span class="ident">test_union_typing_type</span></span>(<span>self)</span>
 </code></dt>
@@ -9701,6 +9753,7 @@ arguments have default values.</p></div>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_typevar_constraints_fail" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_typevar_constraints_fail">test_typevar_constraints_fail</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union">test_union</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union_fail" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union_fail">test_union_fail</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union_new_syntax" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union_new_syntax">test_union_new_syntax</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union_typing_type" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_union_typing_type">test_union_typing_type</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_varargs" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_varargs">test_varargs</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_varargs_fail" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_varargs_fail">test_varargs_fail</a></code></li>

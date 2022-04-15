@@ -34,35 +34,35 @@ from pedantic.type_checking_logic.check_types import _get_type_arguments
 from pedantic.constants import TypeVar, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED
 
 
-def check_instance_of_generic_class_and_get_typ_vars(instance: Any) -&gt; Dict[TypeVar, Any]:
+def check_instance_of_generic_class_and_get_type_vars(instance: Any) -&gt; Dict[TypeVar, Any]:
     &#34;&#34;&#34;
         &gt;&gt;&gt; from typing import TypeVar, Generic, List
         &gt;&gt;&gt; T = TypeVar(&#39;T&#39;)
         &gt;&gt;&gt; class A(Generic[T]): pass
         &gt;&gt;&gt; a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(a)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(a)
         {}
         &gt;&gt;&gt; b = A[int]()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(b)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(b)
         {~T: &lt;class &#39;int&#39;&gt;}
         &gt;&gt;&gt; c = A[List[int]]()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(c)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(c)
         {~T: typing.List[int]}
         &gt;&gt;&gt; S = TypeVar(&#39;S&#39;)
         &gt;&gt;&gt; class B(Generic[T, S]): pass
         &gt;&gt;&gt; d = B()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(d)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(d)
         {}
         &gt;&gt;&gt; e = B[int]()
         Traceback (most recent call last):
         ...
-        TypeError: Too few parameters for ...; actual 1, expected 2
+        TypeError: Too few ...; actual 1, expected 2
         &gt;&gt;&gt; f = B[int, float]()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(f)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(f)
         {~T: &lt;class &#39;int&#39;&gt;, ~S: &lt;class &#39;float&#39;&gt;}
         &gt;&gt;&gt; class C(B): pass
         &gt;&gt;&gt; g = C()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(g)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(g)
         {}
     &#34;&#34;&#34;
     type_vars = dict()
@@ -178,72 +178,72 @@ if __name__ == &#39;__main__&#39;:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="pedantic.type_checking_logic.check_generic_classes.check_instance_of_generic_class_and_get_typ_vars"><code class="name flex">
-<span>def <span class="ident">check_instance_of_generic_class_and_get_typ_vars</span></span>(<span>instance: Any) ‑> Dict[TypeVar, Any]</span>
+<dt id="pedantic.type_checking_logic.check_generic_classes.check_instance_of_generic_class_and_get_type_vars"><code class="name flex">
+<span>def <span class="ident">check_instance_of_generic_class_and_get_type_vars</span></span>(<span>instance: Any) ‑> Dict[TypeVar, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from typing import TypeVar, Generic, List
 &gt;&gt;&gt; T = TypeVar('T')
 &gt;&gt;&gt; class A(Generic[T]): pass
 &gt;&gt;&gt; a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
-&gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(a)
+&gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(a)
 {}
 &gt;&gt;&gt; b = A[int]()
-&gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(b)
+&gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(b)
 {~T: &lt;class 'int'&gt;}
 &gt;&gt;&gt; c = A[List[int]]()
-&gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(c)
+&gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(c)
 {~T: typing.List[int]}
 &gt;&gt;&gt; S = TypeVar('S')
 &gt;&gt;&gt; class B(Generic[T, S]): pass
 &gt;&gt;&gt; d = B()
-&gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(d)
+&gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(d)
 {}
 &gt;&gt;&gt; e = B[int]()
 Traceback (most recent call last):
 ...
-TypeError: Too few parameters for ...; actual 1, expected 2
+TypeError: Too few ...; actual 1, expected 2
 &gt;&gt;&gt; f = B[int, float]()
-&gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(f)
+&gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(f)
 {~T: &lt;class 'int'&gt;, ~S: &lt;class 'float'&gt;}
 &gt;&gt;&gt; class C(B): pass
 &gt;&gt;&gt; g = C()
-&gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(g)
+&gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(g)
 {}
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def check_instance_of_generic_class_and_get_typ_vars(instance: Any) -&gt; Dict[TypeVar, Any]:
+<pre><code class="python">def check_instance_of_generic_class_and_get_type_vars(instance: Any) -&gt; Dict[TypeVar, Any]:
     &#34;&#34;&#34;
         &gt;&gt;&gt; from typing import TypeVar, Generic, List
         &gt;&gt;&gt; T = TypeVar(&#39;T&#39;)
         &gt;&gt;&gt; class A(Generic[T]): pass
         &gt;&gt;&gt; a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(a)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(a)
         {}
         &gt;&gt;&gt; b = A[int]()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(b)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(b)
         {~T: &lt;class &#39;int&#39;&gt;}
         &gt;&gt;&gt; c = A[List[int]]()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(c)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(c)
         {~T: typing.List[int]}
         &gt;&gt;&gt; S = TypeVar(&#39;S&#39;)
         &gt;&gt;&gt; class B(Generic[T, S]): pass
         &gt;&gt;&gt; d = B()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(d)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(d)
         {}
         &gt;&gt;&gt; e = B[int]()
         Traceback (most recent call last):
         ...
-        TypeError: Too few parameters for ...; actual 1, expected 2
+        TypeError: Too few ...; actual 1, expected 2
         &gt;&gt;&gt; f = B[int, float]()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(f)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(f)
         {~T: &lt;class &#39;int&#39;&gt;, ~S: &lt;class &#39;float&#39;&gt;}
         &gt;&gt;&gt; class C(B): pass
         &gt;&gt;&gt; g = C()
-        &gt;&gt;&gt; check_instance_of_generic_class_and_get_typ_vars(g)
+        &gt;&gt;&gt; check_instance_of_generic_class_and_get_type_vars(g)
         {}
     &#34;&#34;&#34;
     type_vars = dict()
@@ -281,7 +281,7 @@ TypeError: Too few parameters for ...; actual 1, expected 2
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="pedantic.type_checking_logic.check_generic_classes.check_instance_of_generic_class_and_get_typ_vars" href="#pedantic.type_checking_logic.check_generic_classes.check_instance_of_generic_class_and_get_typ_vars">check_instance_of_generic_class_and_get_typ_vars</a></code></li>
+<li><code><a title="pedantic.type_checking_logic.check_generic_classes.check_instance_of_generic_class_and_get_type_vars" href="#pedantic.type_checking_logic.check_generic_classes.check_instance_of_generic_class_and_get_type_vars">check_instance_of_generic_class_and_get_type_vars</a></code></li>
 </ul>
 </li>
 </ul>
