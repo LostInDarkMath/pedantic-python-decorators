@@ -582,7 +582,7 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         >>> _get_class_of_type_annotation(Callable)
         <class 'collections.abc.Callable'>
     """
-    
+
     if annotation in [Any, Ellipsis]:
         return object
     elif annotation.__module__ == 'typing' and annotation.__origin__ is not None:
