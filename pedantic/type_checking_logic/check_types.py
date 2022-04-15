@@ -313,16 +313,14 @@ def _is_generic(cls: Any) -> bool:
         >>> _is_generic(Dict[str, str])
         True
     """
+
     if hasattr(typing, '_SpecialGenericAlias') and isinstance(cls, typing._SpecialGenericAlias):
         return True
-    elif hasattr(typing, '_GenericAlias'):
-        if isinstance(cls, typing._GenericAlias):
-            return True
-
-        if isinstance(cls, typing._SpecialForm):
-            return cls not in {Any}
-    elif isinstance(cls, (typing.GenericMeta, typing._Union, typing._Optional, typing._ClassVar)):
+    elif isinstance(cls, typing._GenericAlias):
         return True
+    elif isinstance(cls, typing._SpecialForm):
+        return cls not in {Any}
+
     return False
 
 
@@ -584,14 +582,13 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
         >>> _get_class_of_type_annotation(Callable)
         <class 'collections.abc.Callable'>
     """
+    
     if annotation in [Any, Ellipsis]:
         return object
-    elif hasattr(annotation, '__extra__'):
-        return annotation.__extra__
     elif annotation.__module__ == 'typing' and annotation.__origin__ is not None:
         return annotation.__origin__
-    else:
-        return annotation
+
+    return annotation
 
 
 def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
