@@ -1,5 +1,6 @@
 """Idea is taken from: https://stackoverflow.com/a/55504010/10975692"""
 import inspect
+import types
 import typing
 from io import BytesIO, StringIO, BufferedWriter, TextIOWrapper
 from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType
@@ -152,6 +153,9 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
             validator = _SPECIAL_INSTANCE_CHECKERS[name]
             return validator(obj, type_, type_vars)
 
+    if hasattr(types, 'UnionType') and isinstance(type_, types.UnionType):
+        return _instancecheck_union(value=obj, type_=type_, type_vars=type_vars)
+
     if type_ == typing.BinaryIO:
         return isinstance(obj, (BytesIO, BufferedWriter))
     elif type_ == typing.TextIO:
@@ -238,6 +242,10 @@ def _is_type_new_type(type_: Any) -> bool:
         >>> _is_type_new_type(UserId)
         True
     """
+
+    if type(type_) == typing.NewType:
+        return True
+
     return type_.__qualname__ == NewType('name', int).__qualname__  # arguments of NewType() are arbitrary here
 
 
@@ -365,8 +373,10 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         >>> _get_type_arguments(List[int])
         (<class 'int'>,)
         >>> UserId = NewType('UserId', int)
-        >>> _get_type_arguments(List[UserId])
+        >>> _get_type_arguments(List[UserId]) if sys.version_info < (3, 10) else print('(<function NewType.<locals>.new_type at ...,)')
         (<function NewType.<locals>.new_type at ...,)
+        >>> _get_type_arguments(List[UserId]) if sys.version_info >= (3, 10) else print('(pedantic.type_checking_logic.check_types.UserId,)')
+        (pedantic.type_checking_logic.check_types.UserId,)
         >>> _get_type_arguments(List)
         ()
         >>> T = TypeVar('T')
@@ -394,6 +404,8 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (Ellipsis, <class 'str'>)
         >>> _get_type_arguments(Optional[int])
         (<class 'int'>, <class 'NoneType'>)
+        >>> _get_type_arguments(str | int) if sys.version_info >= (3, 10) else (str, int)
+        (<class 'str'>, <class 'int'>)
     """
 
     result = ()
@@ -401,12 +413,20 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
     if hasattr(cls, '__args__'):
         result = cls.__args__
         origin = _get_base_generic(cls=cls)
+
         if origin != cls and \
                 ((origin is Callable) or (origin is collections.abc.Callable)) and \
                 result[0] is not Ellipsis:
             result = (list(result[:-1]), result[-1])
+
     result = result or ()
-    return result if '[' in str(cls) else ()
+
+    if hasattr(types, 'UnionType') and isinstance(cls, types.UnionType):
+        return result
+    elif '[' in str(cls):
+        return result
+
+    return ()
 
 
 def _get_base_generic(cls: Any) -> Any:
@@ -727,14 +747,66 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any])
         True
         >>> _instancecheck_union(None, Optional[Callable[[float], float]], {})
         True
+        >>> _instancecheck_union(3.0, int | float, {}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(3, int | float, {}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union('3', int | float, {}) if sys.version_info >= (3, 10) else False
+        False
+        >>> _instancecheck_union(None, int | NoneType, {}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(None, float | NoneType, {}) if sys.version_info >= (3, 10) else True
+        True
+        >>> S = TypeVar('S')
+        >>> T = TypeVar('T')
+        >>> U = TypeVar('U')
+        >>> _instancecheck_union(42, T | NoneType, {}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(None, T | NoneType, {}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(None, T | NoneType, {T: int}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union('None', T | NoneType, {T: int}) if sys.version_info >= (3, 10) else False
+        False
+        >>> _instancecheck_union(42, T | S, {}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(42, T | S, {T: int}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(42, T | S, {T: str}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(42, T | S, {T: int, S: float}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(42, T | S, {T: str, S: float}) if sys.version_info >= (3, 10) else False
+        False
+        >>> _instancecheck_union(42.8, T | S, {T: str, S: float}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(None, T | S, {T: str, S: float}) if sys.version_info >= (3, 10) else False
+        False
+        >>> _instancecheck_union(None, T | S, {}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(None, T | NoneType, {T: int}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union('None', T | NoneType | S, {T: int}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(42, T | Any, {}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(42, T | Any, {T: float}) if sys.version_info >= (3, 10) else True
+        True
+        >>> _instancecheck_union(None, Optional[Callable[[float], float]], {}) if sys.version_info >= (3, 10) else True
+        True
     """
 
     type_args = _get_type_arguments(cls=type_)
+    return _check_union(value=value, type_args=type_args, type_vars=type_vars)
+
+
+def _check_union(value: Any, type_args: Tuple[Any, ...], type_vars: Dict[TypeVar_, Any]) -> bool:
     args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, TypeVar)]
     args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, TypeVar)]
     args_type_vars_bounded = [type_var for type_var in args_type_vars if type_var in type_vars]
     args_type_vars_unbounded = [type_var for type_var in args_type_vars if type_var not in args_type_vars_bounded]
     matches_non_type_var = any([_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars])
+
     if matches_non_type_var:
         return True
 
@@ -850,6 +922,7 @@ for class_path, _check_func in {
 
 _SPECIAL_INSTANCE_CHECKERS = {
     'Union': _instancecheck_union,
+    'Optional': _instancecheck_union,
     'Literal': _instancecheck_literal,
     'Callable': _instancecheck_callable,
     'Any': lambda v, t, tv: True,

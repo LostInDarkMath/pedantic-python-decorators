@@ -6,35 +6,35 @@ from pedantic.type_checking_logic.check_types import _get_type_arguments
 from pedantic.constants import TypeVar, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED
 
 
-def check_instance_of_generic_class_and_get_typ_vars(instance: Any) -> Dict[TypeVar, Any]:
+def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> Dict[TypeVar, Any]:
     """
         >>> from typing import TypeVar, Generic, List
         >>> T = TypeVar('T')
         >>> class A(Generic[T]): pass
         >>> a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
-        >>> check_instance_of_generic_class_and_get_typ_vars(a)
+        >>> check_instance_of_generic_class_and_get_type_vars(a)
         {}
         >>> b = A[int]()
-        >>> check_instance_of_generic_class_and_get_typ_vars(b)
+        >>> check_instance_of_generic_class_and_get_type_vars(b)
         {~T: <class 'int'>}
         >>> c = A[List[int]]()
-        >>> check_instance_of_generic_class_and_get_typ_vars(c)
+        >>> check_instance_of_generic_class_and_get_type_vars(c)
         {~T: typing.List[int]}
         >>> S = TypeVar('S')
         >>> class B(Generic[T, S]): pass
         >>> d = B()
-        >>> check_instance_of_generic_class_and_get_typ_vars(d)
+        >>> check_instance_of_generic_class_and_get_type_vars(d)
         {}
         >>> e = B[int]()
         Traceback (most recent call last):
         ...
-        TypeError: Too few parameters for ...; actual 1, expected 2
+        TypeError: Too few ...; actual 1, expected 2
         >>> f = B[int, float]()
-        >>> check_instance_of_generic_class_and_get_typ_vars(f)
+        >>> check_instance_of_generic_class_and_get_type_vars(f)
         {~T: <class 'int'>, ~S: <class 'float'>}
         >>> class C(B): pass
         >>> g = C()
-        >>> check_instance_of_generic_class_and_get_typ_vars(g)
+        >>> check_instance_of_generic_class_and_get_type_vars(g)
         {}
     """
     type_vars = dict()
