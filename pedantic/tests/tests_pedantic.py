@@ -1452,6 +1452,20 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         for value in [6, 'xa']:
             foo(a=value)
 
+    def test_union_new_syntax(self):
+        if sys.version_info < (3, 10):
+            return
+
+        @pedantic
+        def foo(a: str | int) -> None:
+            pass
+
+        for value in [6, 'xa']:
+            foo(a=value)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=1.7)
+
     def test_union_typing_type(self):
         @pedantic
         def foo(a: Union[str, Collection]) -> None:
