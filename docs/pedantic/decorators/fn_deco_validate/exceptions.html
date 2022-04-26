@@ -46,13 +46,14 @@ class ValidateException(Exception):
 class ValidatorException(ValidateException):
     &#34;&#34;&#34; An exception that is raised inside the validate() function of a Validator. &#34;&#34;&#34;
 
-    def __init__(self, msg: str, validator_name: str, value: Any) -&gt; None:
+    def __init__(self, msg: str, validator_name: str, value: Any, parameter_name: str = &#39;&#39;) -&gt; None:
         super().__init__(msg=msg)
         self.validator_name = validator_name
         self.value = value
+        self.parameter_name = parameter_name
 
     def __str__(self) -&gt; str:
-        return f&#39;{self.validator_name}: {self.message} Value: {self.value} &#39;
+        return f&#39;{self.validator_name}: {self.message} Value: {self.value}&#39;
 
 
 class ParameterException(ValidateException):
@@ -66,13 +67,13 @@ class ParameterException(ValidateException):
         self.value = value
 
     @classmethod
-    def from_validator_exception(cls, exception: ValidatorException, parameter_name: str) -&gt; &#39;ParameterException&#39;:
-        &#34;&#34;&#34; Creates a parameter exception from an validator exception. &#34;&#34;&#34;
+    def from_validator_exception(cls, exception: ValidatorException, parameter_name: str = &#39;&#39;) -&gt; &#39;ParameterException&#39;:
+        &#34;&#34;&#34; Creates a parameter exception from a validator exception. &#34;&#34;&#34;
         return cls(
             value=exception.value,
             msg=exception.message,
             validator_name=exception.validator_name,
-            parameter_name=parameter_name,
+            parameter_name=parameter_name or exception.parameter_name,
         )
 
     def __str__(self) -&gt; str:
@@ -214,13 +215,13 @@ class ConversionError(ValidateException):
         self.value = value
 
     @classmethod
-    def from_validator_exception(cls, exception: ValidatorException, parameter_name: str) -&gt; &#39;ParameterException&#39;:
-        &#34;&#34;&#34; Creates a parameter exception from an validator exception. &#34;&#34;&#34;
+    def from_validator_exception(cls, exception: ValidatorException, parameter_name: str = &#39;&#39;) -&gt; &#39;ParameterException&#39;:
+        &#34;&#34;&#34; Creates a parameter exception from a validator exception. &#34;&#34;&#34;
         return cls(
             value=exception.value,
             msg=exception.message,
             validator_name=exception.validator_name,
-            parameter_name=parameter_name,
+            parameter_name=parameter_name or exception.parameter_name,
         )
 
     def __str__(self) -&gt; str:
@@ -248,22 +249,22 @@ class ConversionError(ValidateException):
 <h3>Static methods</h3>
 <dl>
 <dt id="pedantic.decorators.fn_deco_validate.exceptions.ParameterException.from_validator_exception"><code class="name flex">
-<span>def <span class="ident">from_validator_exception</span></span>(<span>exception: <a title="pedantic.decorators.fn_deco_validate.exceptions.ValidatorException" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidatorException">ValidatorException</a>, parameter_name: str) ‑> <a title="pedantic.decorators.fn_deco_validate.exceptions.ParameterException" href="#pedantic.decorators.fn_deco_validate.exceptions.ParameterException">ParameterException</a></span>
+<span>def <span class="ident">from_validator_exception</span></span>(<span>exception: <a title="pedantic.decorators.fn_deco_validate.exceptions.ValidatorException" href="#pedantic.decorators.fn_deco_validate.exceptions.ValidatorException">ValidatorException</a>, parameter_name: str = '') ‑> <a title="pedantic.decorators.fn_deco_validate.exceptions.ParameterException" href="#pedantic.decorators.fn_deco_validate.exceptions.ParameterException">ParameterException</a></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates a parameter exception from an validator exception.</p></div>
+<div class="desc"><p>Creates a parameter exception from a validator exception.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def from_validator_exception(cls, exception: ValidatorException, parameter_name: str) -&gt; &#39;ParameterException&#39;:
-    &#34;&#34;&#34; Creates a parameter exception from an validator exception. &#34;&#34;&#34;
+def from_validator_exception(cls, exception: ValidatorException, parameter_name: str = &#39;&#39;) -&gt; &#39;ParameterException&#39;:
+    &#34;&#34;&#34; Creates a parameter exception from a validator exception. &#34;&#34;&#34;
     return cls(
         value=exception.value,
         msg=exception.message,
         validator_name=exception.validator_name,
-        parameter_name=parameter_name,
+        parameter_name=parameter_name or exception.parameter_name,
     )</code></pre>
 </details>
 </dd>
@@ -340,7 +341,7 @@ def to_dict(self) -&gt; Dict[str, str]:
 </dd>
 <dt id="pedantic.decorators.fn_deco_validate.exceptions.ValidatorException"><code class="flex name class">
 <span>class <span class="ident">ValidatorException</span></span>
-<span>(</span><span>msg: str, validator_name: str, value: Any)</span>
+<span>(</span><span>msg: str, validator_name: str, value: Any, parameter_name: str = '')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An exception that is raised inside the validate() function of a Validator.</p></div>
@@ -351,13 +352,14 @@ def to_dict(self) -&gt; Dict[str, str]:
 <pre><code class="python">class ValidatorException(ValidateException):
     &#34;&#34;&#34; An exception that is raised inside the validate() function of a Validator. &#34;&#34;&#34;
 
-    def __init__(self, msg: str, validator_name: str, value: Any) -&gt; None:
+    def __init__(self, msg: str, validator_name: str, value: Any, parameter_name: str = &#39;&#39;) -&gt; None:
         super().__init__(msg=msg)
         self.validator_name = validator_name
         self.value = value
+        self.parameter_name = parameter_name
 
     def __str__(self) -&gt; str:
-        return f&#39;{self.validator_name}: {self.message} Value: {self.value} &#39;</code></pre>
+        return f&#39;{self.validator_name}: {self.message} Value: {self.value}&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

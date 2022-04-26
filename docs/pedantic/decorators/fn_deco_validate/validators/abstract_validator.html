@@ -37,8 +37,21 @@ class Validator(ABC):
     def validate(self, value: Any) -&gt; Any:
         &#34;&#34;&#34;
             Validates and convert the value.
-            Raises an ValidationError in case of an invalid value.
+            Raises an [ValidatorException] in case of an invalid value.
+            To raise this you can simply call self.raise_exception().
         &#34;&#34;&#34;
+
+    def validate_param(self, value: Any, parameter_name: str) -&gt; Any:
+        &#34;&#34;&#34;
+            Validates and converts the value, just like [validate()].
+            The difference is that a parameter_name is included in the exception, if an exception is raised.
+        &#34;&#34;&#34;
+
+        try:
+            return self.validate(value=value)
+        except ValidatorException as ex:
+            ex.parameter_name = parameter_name
+            raise ex
 
     def raise_exception(self, value: Any, msg: str) -&gt; NoReturn:
         raise ValidatorException(value=value, validator_name=self.name, msg=msg)
@@ -72,8 +85,21 @@ inheritance.</p></div>
     def validate(self, value: Any) -&gt; Any:
         &#34;&#34;&#34;
             Validates and convert the value.
-            Raises an ValidationError in case of an invalid value.
+            Raises an [ValidatorException] in case of an invalid value.
+            To raise this you can simply call self.raise_exception().
         &#34;&#34;&#34;
+
+    def validate_param(self, value: Any, parameter_name: str) -&gt; Any:
+        &#34;&#34;&#34;
+            Validates and converts the value, just like [validate()].
+            The difference is that a parameter_name is included in the exception, if an exception is raised.
+        &#34;&#34;&#34;
+
+        try:
+            return self.validate(value=value)
+        except ValidatorException as ex:
+            ex.parameter_name = parameter_name
+            raise ex
 
     def raise_exception(self, value: Any, msg: str) -&gt; NoReturn:
         raise ValidatorException(value=value, validator_name=self.name, msg=msg)
@@ -138,7 +164,8 @@ def name(self) -&gt; str:
 </code></dt>
 <dd>
 <div class="desc"><p>Validates and convert the value.
-Raises an ValidationError in case of an invalid value.</p></div>
+Raises an [ValidatorException] in case of an invalid value.
+To raise this you can simply call self.raise_exception().</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -147,8 +174,32 @@ Raises an ValidationError in case of an invalid value.</p></div>
 def validate(self, value: Any) -&gt; Any:
     &#34;&#34;&#34;
         Validates and convert the value.
-        Raises an ValidationError in case of an invalid value.
+        Raises an [ValidatorException] in case of an invalid value.
+        To raise this you can simply call self.raise_exception().
     &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.validate_param"><code class="name flex">
+<span>def <span class="ident">validate_param</span></span>(<span>self, value: Any, parameter_name: str) ‑> Any</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Validates and converts the value, just like [validate()].
+The difference is that a parameter_name is included in the exception, if an exception is raised.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate_param(self, value: Any, parameter_name: str) -&gt; Any:
+    &#34;&#34;&#34;
+        Validates and converts the value, just like [validate()].
+        The difference is that a parameter_name is included in the exception, if an exception is raised.
+    &#34;&#34;&#34;
+
+    try:
+        return self.validate(value=value)
+    except ValidatorException as ex:
+        ex.parameter_name = parameter_name
+        raise ex</code></pre>
 </details>
 </dd>
 </dl>
@@ -175,6 +226,7 @@ def validate(self, value: Any) -&gt; Any:
 <li><code><a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.name" href="#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.name">name</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.raise_exception" href="#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.raise_exception">raise_exception</a></code></li>
 <li><code><a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.validate" href="#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.validate">validate</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.validate_param" href="#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator.validate_param">validate_param</a></code></li>
 </ul>
 </li>
 </ul>

@@ -1,15 +1,16 @@
 import json
-from typing import List
+from dataclasses import dataclass
+from typing import List, Dict, Any
 from unittest import TestCase
 
 from flask import Flask, Response, jsonify
 
-from pedantic import Email
+from pedantic import Email, overrides
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments, \
     ParameterException, ExceptionDictKey, InvalidHeader
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
-    FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
+    FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter, Deserializable, GenericFlaskDeserializer
 from pedantic.decorators.fn_deco_validate.validators import NotEmpty, Min
 
 JSON = 'application/json'
@@ -540,3 +541,69 @@ class TestFlaskParameters(TestCase):
                 'content': 'hello world',
             }
             self.assertEqual(expected, res.json)
+
+    def test_generic_deserializer(self) -> None:
+        @dataclass(frozen=True)
+        class User(Deserializable):
+            firstname: str
+            lastname: str
+            age: int
+
+            @staticmethod
+            @overrides(Deserializable)
+            def from_json(data: Dict[str, Any]) -> 'User':
+                return User(
+                    firstname=data['firstname'],
+                    lastname=data['lastname'],
+                    age=Min(value=18).validate_param(value=int(data['age']), parameter_name='age'),
+                )
+
+        app = Flask(__name__)
+
+        @app.route('/foo', methods=['POST'])
+        @validate(
+            GenericFlaskDeserializer(name='user', cls=User, catch_exception=True),
+        )
+        def the_generic_approach(user: User) -> Response:
+            return jsonify({'name': user.firstname})
+
+        @app.route('/bar', methods=['POST'])
+        @validate(
+            GenericFlaskDeserializer(name='user', cls=User, catch_exception=False),
+        )
+        def do_not_catch(user: User) -> Response:
+            return jsonify({'name': user.firstname})
+
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -> Response:
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            data = {
+                'firstname': 'Albert',
+                'lastname': 'Einstein',
+                'age': '56',
+            }
+            res = client.post(path=f'/foo', json=data)
+            assert res.status_code == 200
+            assert res.json == {'name': 'Albert'}
+
+            data.pop('age')
+            res = client.post(path=f'/foo', json=data)
+            assert res.status_code == 422
+
+            res = client.post(path=f'/bar', json=data)
+            assert res.status_code == 500
+
+            data['age'] = '16'
+            res = client.post(path=f'/foo', json=data)
+            assert res.status_code == 422
+            expected = {
+                ExceptionDictKey.MESSAGE: 'smaller then allowed: 16 is not >= 18',
+                ExceptionDictKey.PARAMETER: 'age',
+                ExceptionDictKey.VALIDATOR: 'Min',
+                ExceptionDictKey.VALUE: '16',
+            }
+            assert res.json == expected
