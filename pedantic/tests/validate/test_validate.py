@@ -28,7 +28,7 @@ class TestValidate(TestCase):
         with self.assertRaises(expected_exception=ValidatorException) as ex:
             validator.validate(value='hello world')
 
-        expected_error_msg = 'MaxLength: hello world is too long with length 11. Value: hello world '
+        expected_error_msg = 'MaxLength: hello world is too long with length 11. Value: hello world'
         self.assertEqual(expected_error_msg, str(ex.exception))
 
     def test_single_parameter(self) -> None:

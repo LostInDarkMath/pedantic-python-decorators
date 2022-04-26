@@ -27,17 +27,18 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import json
-from typing import List
+from dataclasses import dataclass
+from typing import List, Dict, Any
 from unittest import TestCase
 
 from flask import Flask, Response, jsonify
 
-from pedantic import Email
+from pedantic import Email, overrides
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments, \
     ParameterException, ExceptionDictKey, InvalidHeader
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
 from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
-    FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter
+    FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter, Deserializable, GenericFlaskDeserializer
 from pedantic.decorators.fn_deco_validate.validators import NotEmpty, Min
 
 JSON = &#39;application/json&#39;
@@ -567,7 +568,73 @@ class TestFlaskParameters(TestCase):
                 &#39;email&#39;: &#39;adam@eva.de&#39;,
                 &#39;content&#39;: &#39;hello world&#39;,
             }
-            self.assertEqual(expected, res.json)</code></pre>
+            self.assertEqual(expected, res.json)
+
+    def test_generic_deserializer(self) -&gt; None:
+        @dataclass(frozen=True)
+        class User(Deserializable):
+            firstname: str
+            lastname: str
+            age: int
+
+            @staticmethod
+            @overrides(Deserializable)
+            def from_json(data: Dict[str, Any]) -&gt; &#39;User&#39;:
+                return User(
+                    firstname=data[&#39;firstname&#39;],
+                    lastname=data[&#39;lastname&#39;],
+                    age=Min(value=18).validate_param(value=int(data[&#39;age&#39;]), parameter_name=&#39;age&#39;),
+                )
+
+        app = Flask(__name__)
+
+        @app.route(&#39;/foo&#39;, methods=[&#39;POST&#39;])
+        @validate(
+            GenericFlaskDeserializer(name=&#39;user&#39;, cls=User, catch_exception=True),
+        )
+        def the_generic_approach(user: User) -&gt; Response:
+            return jsonify({&#39;name&#39;: user.firstname})
+
+        @app.route(&#39;/bar&#39;, methods=[&#39;POST&#39;])
+        @validate(
+            GenericFlaskDeserializer(name=&#39;user&#39;, cls=User, catch_exception=False),
+        )
+        def do_not_catch(user: User) -&gt; Response:
+            return jsonify({&#39;name&#39;: user.firstname})
+
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -&gt; Response:
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            data = {
+                &#39;firstname&#39;: &#39;Albert&#39;,
+                &#39;lastname&#39;: &#39;Einstein&#39;,
+                &#39;age&#39;: &#39;56&#39;,
+            }
+            res = client.post(path=f&#39;/foo&#39;, json=data)
+            assert res.status_code == 200
+            assert res.json == {&#39;name&#39;: &#39;Albert&#39;}
+
+            data.pop(&#39;age&#39;)
+            res = client.post(path=f&#39;/foo&#39;, json=data)
+            assert res.status_code == 422
+
+            res = client.post(path=f&#39;/bar&#39;, json=data)
+            assert res.status_code == 500
+
+            data[&#39;age&#39;] = &#39;16&#39;
+            res = client.post(path=f&#39;/foo&#39;, json=data)
+            assert res.status_code == 422
+            expected = {
+                ExceptionDictKey.MESSAGE: &#39;smaller then allowed: 16 is not &gt;= 18&#39;,
+                ExceptionDictKey.PARAMETER: &#39;age&#39;,
+                ExceptionDictKey.VALIDATOR: &#39;Min&#39;,
+                ExceptionDictKey.VALUE: &#39;16&#39;,
+            }
+            assert res.json == expected</code></pre>
 </details>
 </section>
 <section>
@@ -1137,7 +1204,73 @@ not have a method with the specified name.</p></div>
                 &#39;email&#39;: &#39;adam@eva.de&#39;,
                 &#39;content&#39;: &#39;hello world&#39;,
             }
-            self.assertEqual(expected, res.json)</code></pre>
+            self.assertEqual(expected, res.json)
+
+    def test_generic_deserializer(self) -&gt; None:
+        @dataclass(frozen=True)
+        class User(Deserializable):
+            firstname: str
+            lastname: str
+            age: int
+
+            @staticmethod
+            @overrides(Deserializable)
+            def from_json(data: Dict[str, Any]) -&gt; &#39;User&#39;:
+                return User(
+                    firstname=data[&#39;firstname&#39;],
+                    lastname=data[&#39;lastname&#39;],
+                    age=Min(value=18).validate_param(value=int(data[&#39;age&#39;]), parameter_name=&#39;age&#39;),
+                )
+
+        app = Flask(__name__)
+
+        @app.route(&#39;/foo&#39;, methods=[&#39;POST&#39;])
+        @validate(
+            GenericFlaskDeserializer(name=&#39;user&#39;, cls=User, catch_exception=True),
+        )
+        def the_generic_approach(user: User) -&gt; Response:
+            return jsonify({&#39;name&#39;: user.firstname})
+
+        @app.route(&#39;/bar&#39;, methods=[&#39;POST&#39;])
+        @validate(
+            GenericFlaskDeserializer(name=&#39;user&#39;, cls=User, catch_exception=False),
+        )
+        def do_not_catch(user: User) -&gt; Response:
+            return jsonify({&#39;name&#39;: user.firstname})
+
+        @app.errorhandler(ParameterException)
+        def handle_validation_error(exception: ParameterException) -&gt; Response:
+            response = jsonify(exception.to_dict)
+            response.status_code = INVALID
+            return response
+
+        with app.test_client() as client:
+            data = {
+                &#39;firstname&#39;: &#39;Albert&#39;,
+                &#39;lastname&#39;: &#39;Einstein&#39;,
+                &#39;age&#39;: &#39;56&#39;,
+            }
+            res = client.post(path=f&#39;/foo&#39;, json=data)
+            assert res.status_code == 200
+            assert res.json == {&#39;name&#39;: &#39;Albert&#39;}
+
+            data.pop(&#39;age&#39;)
+            res = client.post(path=f&#39;/foo&#39;, json=data)
+            assert res.status_code == 422
+
+            res = client.post(path=f&#39;/bar&#39;, json=data)
+            assert res.status_code == 500
+
+            data[&#39;age&#39;] = &#39;16&#39;
+            res = client.post(path=f&#39;/foo&#39;, json=data)
+            assert res.status_code == 422
+            expected = {
+                ExceptionDictKey.MESSAGE: &#39;smaller then allowed: 16 is not &gt;= 18&#39;,
+                ExceptionDictKey.PARAMETER: &#39;age&#39;,
+                ExceptionDictKey.VALIDATOR: &#39;Min&#39;,
+                ExceptionDictKey.VALUE: &#39;16&#39;,
+            }
+            assert res.json == expected</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1252,6 +1385,82 @@ not have a method with the specified name.</p></div>
         res = client.get(data=json.dumps({}), content_type=JSON)
         self.assertEqual(INVALID, res.status_code)
         self.assertEqual({key: [{&#39;KEY&#39;: &#39;required&#39;}]}, res.json)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_generic_deserializer"><code class="name flex">
+<span>def <span class="ident">test_generic_deserializer</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_generic_deserializer(self) -&gt; None:
+    @dataclass(frozen=True)
+    class User(Deserializable):
+        firstname: str
+        lastname: str
+        age: int
+
+        @staticmethod
+        @overrides(Deserializable)
+        def from_json(data: Dict[str, Any]) -&gt; &#39;User&#39;:
+            return User(
+                firstname=data[&#39;firstname&#39;],
+                lastname=data[&#39;lastname&#39;],
+                age=Min(value=18).validate_param(value=int(data[&#39;age&#39;]), parameter_name=&#39;age&#39;),
+            )
+
+    app = Flask(__name__)
+
+    @app.route(&#39;/foo&#39;, methods=[&#39;POST&#39;])
+    @validate(
+        GenericFlaskDeserializer(name=&#39;user&#39;, cls=User, catch_exception=True),
+    )
+    def the_generic_approach(user: User) -&gt; Response:
+        return jsonify({&#39;name&#39;: user.firstname})
+
+    @app.route(&#39;/bar&#39;, methods=[&#39;POST&#39;])
+    @validate(
+        GenericFlaskDeserializer(name=&#39;user&#39;, cls=User, catch_exception=False),
+    )
+    def do_not_catch(user: User) -&gt; Response:
+        return jsonify({&#39;name&#39;: user.firstname})
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -&gt; Response:
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        data = {
+            &#39;firstname&#39;: &#39;Albert&#39;,
+            &#39;lastname&#39;: &#39;Einstein&#39;,
+            &#39;age&#39;: &#39;56&#39;,
+        }
+        res = client.post(path=f&#39;/foo&#39;, json=data)
+        assert res.status_code == 200
+        assert res.json == {&#39;name&#39;: &#39;Albert&#39;}
+
+        data.pop(&#39;age&#39;)
+        res = client.post(path=f&#39;/foo&#39;, json=data)
+        assert res.status_code == 422
+
+        res = client.post(path=f&#39;/bar&#39;, json=data)
+        assert res.status_code == 500
+
+        data[&#39;age&#39;] = &#39;16&#39;
+        res = client.post(path=f&#39;/foo&#39;, json=data)
+        assert res.status_code == 422
+        expected = {
+            ExceptionDictKey.MESSAGE: &#39;smaller then allowed: 16 is not &gt;= 18&#39;,
+            ExceptionDictKey.PARAMETER: &#39;age&#39;,
+            ExceptionDictKey.VALIDATOR: &#39;Min&#39;,
+            ExceptionDictKey.VALUE: &#39;16&#39;,
+        }
+        assert res.json == expected</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_invalid_value_type"><code class="name flex">
@@ -1891,6 +2100,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_async_endpoints" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_async_endpoints">test_async_endpoints</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_default_value" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_default_value">test_default_value</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_exception_for_required_parameter" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_exception_for_required_parameter">test_exception_for_required_parameter</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_generic_deserializer" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_generic_deserializer">test_generic_deserializer</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_invalid_value_type" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_invalid_value_type">test_invalid_value_type</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_json_parameter_with_default_value" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_json_parameter_with_default_value">test_json_parameter_with_default_value</a></code></li>
 <li><code><a title="pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_with_none" href="#pedantic.tests.validate.test_flask_parameters.TestFlaskParameters.test_not_required_allows_none_kwargs_with_none">test_not_required_allows_none_kwargs_with_none</a></code></li>

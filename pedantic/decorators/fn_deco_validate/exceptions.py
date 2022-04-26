@@ -18,13 +18,14 @@ class ValidateException(Exception):
 class ValidatorException(ValidateException):
     """ An exception that is raised inside the validate() function of a Validator. """
 
-    def __init__(self, msg: str, validator_name: str, value: Any) -> None:
+    def __init__(self, msg: str, validator_name: str, value: Any, parameter_name: str = '') -> None:
         super().__init__(msg=msg)
         self.validator_name = validator_name
         self.value = value
+        self.parameter_name = parameter_name
 
     def __str__(self) -> str:
-        return f'{self.validator_name}: {self.message} Value: {self.value} '
+        return f'{self.validator_name}: {self.message} Value: {self.value}'
 
 
 class ParameterException(ValidateException):
@@ -38,13 +39,13 @@ class ParameterException(ValidateException):
         self.value = value
 
     @classmethod
-    def from_validator_exception(cls, exception: ValidatorException, parameter_name: str) -> 'ParameterException':
-        """ Creates a parameter exception from an validator exception. """
+    def from_validator_exception(cls, exception: ValidatorException, parameter_name: str = '') -> 'ParameterException':
+        """ Creates a parameter exception from a validator exception. """
         return cls(
             value=exception.value,
             msg=exception.message,
             validator_name=exception.validator_name,
-            parameter_name=parameter_name,
+            parameter_name=parameter_name or exception.parameter_name,
         )
 
     def __str__(self) -> str:

@@ -56,7 +56,7 @@ class TestValidate(TestCase):
         with self.assertRaises(expected_exception=ValidatorException) as ex:
             validator.validate(value=&#39;hello world&#39;)
 
-        expected_error_msg = &#39;MaxLength: hello world is too long with length 11. Value: hello world &#39;
+        expected_error_msg = &#39;MaxLength: hello world is too long with length 11. Value: hello world&#39;
         self.assertEqual(expected_error_msg, str(ex.exception))
 
     def test_single_parameter(self) -&gt; None:
@@ -627,7 +627,7 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=ValidatorException) as ex:
             validator.validate(value=&#39;hello world&#39;)
 
-        expected_error_msg = &#39;MaxLength: hello world is too long with length 11. Value: hello world &#39;
+        expected_error_msg = &#39;MaxLength: hello world is too long with length 11. Value: hello world&#39;
         self.assertEqual(expected_error_msg, str(ex.exception))
 
     def test_single_parameter(self) -&gt; None:
@@ -1542,7 +1542,7 @@ not have a method with the specified name.</p></div>
     with self.assertRaises(expected_exception=ValidatorException) as ex:
         validator.validate(value=&#39;hello world&#39;)
 
-    expected_error_msg = &#39;MaxLength: hello world is too long with length 11. Value: hello world &#39;
+    expected_error_msg = &#39;MaxLength: hello world is too long with length 11. Value: hello world&#39;
     self.assertEqual(expected_error_msg, str(ex.exception))</code></pre>
 </details>
 </dd>

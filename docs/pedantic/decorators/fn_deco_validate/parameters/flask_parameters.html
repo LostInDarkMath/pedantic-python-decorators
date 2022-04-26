@@ -27,11 +27,12 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from flask import request
 
-from pedantic.decorators.fn_deco_validate.exceptions import InvalidHeader
+from pedantic.decorators.fn_deco_validate.exceptions import InvalidHeader, ValidateException, ParameterException, \
+    ValidatorException
 from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter, Parameter
 
@@ -94,7 +95,41 @@ class FlaskHeaderParameter(FlaskParameter):
 
     @overrides(FlaskParameter)
     def get_dict(self) -&gt; Dict:
-        return request.headers</code></pre>
+        return request.headers
+
+
+class Deserializable(ABC):
+    &#34;&#34;&#34; A tiny interface which has a static &#34;from_json() method which acts like a named constructor. &#34;&#34;&#34;
+
+    @staticmethod
+    @abstractmethod
+    def from_json(data: Dict[str, Any]) -&gt; &#39;Deserializable&#39;:
+        &#34;&#34;&#34; A named constructor which creates an object from JSON. &#34;&#34;&#34;
+
+
+class GenericFlaskDeserializer(ExternalParameter):
+    &#34;&#34;&#34; A JSON deserializer for classes which implements the [Deserializable] interface. &#34;&#34;&#34;
+
+    def __init__(self, cls: Type[Deserializable], catch_exception: bool = True, **kwargs) -&gt; None:
+        super().__init__(**kwargs)
+        self._cls = cls
+        self._catch_exceptions = catch_exception
+
+    @overrides(ExternalParameter)
+    def has_value(self) -&gt; bool:
+        return request.is_json
+
+    @overrides(ExternalParameter)
+    def load_value(self) -&gt; Any:
+        try:
+            return self._cls.from_json(request.json)
+        except ValidatorException as ex:
+            raise ParameterException.from_validator_exception(exception=ex, parameter_name=&#39;&#39;)
+        except Exception as ex:
+            if self._catch_exceptions:
+                self.raise_exception(msg=str(ex))
+
+            raise ex</code></pre>
 </details>
 </section>
 <section>
@@ -106,6 +141,46 @@ class FlaskHeaderParameter(FlaskParameter):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable"><code class="flex name class">
+<span>class <span class="ident">Deserializable</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A tiny interface which has a static "from_json() method which acts like a named constructor.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Deserializable(ABC):
+    &#34;&#34;&#34; A tiny interface which has a static &#34;from_json() method which acts like a named constructor. &#34;&#34;&#34;
+
+    @staticmethod
+    @abstractmethod
+    def from_json(data: Dict[str, Any]) -&gt; &#39;Deserializable&#39;:
+        &#34;&#34;&#34; A named constructor which creates an object from JSON. &#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable.from_json"><code class="name flex">
+<span>def <span class="ident">from_json</span></span>(<span>data: Dict[str, Any]) ‑> <a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable">Deserializable</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>A named constructor which creates an object from JSON.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+@abstractmethod
+def from_json(data: Dict[str, Any]) -&gt; &#39;Deserializable&#39;:
+    &#34;&#34;&#34; A named constructor which creates an object from JSON. &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskFormParameter"><code class="flex name class">
 <span>class <span class="ident">FlaskFormParameter</span></span>
 <span>(</span><span>name: str, value_type: Type[Union[bool, int, float, str, dict, list]] = None, validators: Iterable[<a title="pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator" href="../validators/abstract_validator.html#pedantic.decorators.fn_deco_validate.validators.abstract_validator.Validator">Validator</a>] = None, default: Any = pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.NoValue, required: bool = True)</span>
@@ -363,6 +438,58 @@ Therefore, this doesn't need to be an ExternalParameter.</p></div>
 </li>
 </ul>
 </dd>
+<dt id="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.GenericFlaskDeserializer"><code class="flex name class">
+<span>class <span class="ident">GenericFlaskDeserializer</span></span>
+<span>(</span><span>cls: Type[<a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable">Deserializable</a>], catch_exception: bool = True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A JSON deserializer for classes which implements the [Deserializable] interface.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GenericFlaskDeserializer(ExternalParameter):
+    &#34;&#34;&#34; A JSON deserializer for classes which implements the [Deserializable] interface. &#34;&#34;&#34;
+
+    def __init__(self, cls: Type[Deserializable], catch_exception: bool = True, **kwargs) -&gt; None:
+        super().__init__(**kwargs)
+        self._cls = cls
+        self._catch_exceptions = catch_exception
+
+    @overrides(ExternalParameter)
+    def has_value(self) -&gt; bool:
+        return request.is_json
+
+    @overrides(ExternalParameter)
+    def load_value(self) -&gt; Any:
+        try:
+            return self._cls.from_json(request.json)
+        except ValidatorException as ex:
+            raise ParameterException.from_validator_exception(exception=ex, parameter_name=&#39;&#39;)
+        except Exception as ex:
+            if self._catch_exceptions:
+                self.raise_exception(msg=str(ex))
+
+            raise ex</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter">ExternalParameter</a></li>
+<li><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter">Parameter</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter">ExternalParameter</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.exception_type" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.exception_type">exception_type</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.has_value" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.has_value">has_value</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value" href="abstract_external_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.load_value">load_value</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.abstract_external_parameter.ExternalParameter.validate" href="abstract_parameter.html#pedantic.decorators.fn_deco_validate.parameters.abstract_parameter.Parameter.validate">validate</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 </dl>
 </section>
 </article>
@@ -379,6 +506,12 @@ Therefore, this doesn't need to be an ExternalParameter.</p></div>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable">Deserializable</a></code></h4>
+<ul class="">
+<li><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable.from_json" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable.from_json">from_json</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskFormParameter" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskFormParameter">FlaskFormParameter</a></code></h4>
 </li>
@@ -399,6 +532,9 @@ Therefore, this doesn't need to be an ExternalParameter.</p></div>
 </li>
 <li>
 <h4><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskPathParameter" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.FlaskPathParameter">FlaskPathParameter</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.GenericFlaskDeserializer" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.GenericFlaskDeserializer">GenericFlaskDeserializer</a></code></h4>
 </li>
 </ul>
 </li>
