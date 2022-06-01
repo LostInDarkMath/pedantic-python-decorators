@@ -11,7 +11,7 @@ class IsUuid(Validator):
     @overrides(Validator)
     def validate(self, value: str) -> str:
         try:
-            converted_value = UUID(value)
+            converted_value = UUID(str(value))
         except ValueError:
             return self.raise_exception(msg=f'{value} is not a valid UUID', value=value)
 

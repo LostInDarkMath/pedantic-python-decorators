@@ -39,7 +39,7 @@ class IsUuid(Validator):
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
         try:
-            converted_value = UUID(value)
+            converted_value = UUID(str(value))
         except ValueError:
             return self.raise_exception(msg=f&#39;{value} is not a valid UUID&#39;, value=value)
 
@@ -73,7 +73,7 @@ inheritance.</p></div>
     @overrides(Validator)
     def validate(self, value: str) -&gt; str:
         try:
-            converted_value = UUID(value)
+            converted_value = UUID(str(value))
         except ValueError:
             return self.raise_exception(msg=f&#39;{value} is not a valid UUID&#39;, value=value)
 

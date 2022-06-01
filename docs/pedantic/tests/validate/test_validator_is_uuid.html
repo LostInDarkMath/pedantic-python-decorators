@@ -29,6 +29,7 @@
 <pre><code class="python">from unittest import TestCase
 from uuid import uuid1, uuid3, uuid4, uuid5
 
+from pedantic import ForEach
 from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import Parameter
@@ -36,16 +37,29 @@ from pedantic.decorators.fn_deco_validate.validators import IsUuid
 
 
 class TestValidatorIsUUID(TestCase):
-    def test_validator_is_enum_convert_true(self) -&gt; None:
-        @validate(Parameter(name=&#39;x&#39;, validators=[IsUuid()]))
+    def test_validator_is_uuid(self):
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsUuid()], required=False))
         def foo(x):
             return x
 
         for id_ in [str(uuid1()), str(uuid3(uuid1(), &#39;b&#39;)), str(uuid4()), str(uuid5(uuid1(), &#39;b&#39;))]:
             self.assertEqual(id_, foo(id_))
 
+        for no_id in [&#39;invalid&#39;, 12]:
+            with self.assertRaises(expected_exception=ParameterException):
+                foo(no_id)
+
+    def test_validator_is_uuid_with_for_each_and_none_value(self):
+        @validate(Parameter(name=&#39;x&#39;, validators=[ForEach(IsUuid())]))
+        def foo(x):
+            return x
+
+        uuid = str(uuid1())
+        self.assertEqual([], foo([]))
+        self.assertEqual([uuid], foo([uuid]))
+
         with self.assertRaises(expected_exception=ParameterException):
-            foo(&#39;invalid&#39;)</code></pre>
+            foo([None])</code></pre>
 </details>
 </section>
 <section>
@@ -95,16 +109,29 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TestValidatorIsUUID(TestCase):
-    def test_validator_is_enum_convert_true(self) -&gt; None:
-        @validate(Parameter(name=&#39;x&#39;, validators=[IsUuid()]))
+    def test_validator_is_uuid(self):
+        @validate(Parameter(name=&#39;x&#39;, validators=[IsUuid()], required=False))
         def foo(x):
             return x
 
         for id_ in [str(uuid1()), str(uuid3(uuid1(), &#39;b&#39;)), str(uuid4()), str(uuid5(uuid1(), &#39;b&#39;))]:
             self.assertEqual(id_, foo(id_))
 
+        for no_id in [&#39;invalid&#39;, 12]:
+            with self.assertRaises(expected_exception=ParameterException):
+                foo(no_id)
+
+    def test_validator_is_uuid_with_for_each_and_none_value(self):
+        @validate(Parameter(name=&#39;x&#39;, validators=[ForEach(IsUuid())]))
+        def foo(x):
+            return x
+
+        uuid = str(uuid1())
+        self.assertEqual([], foo([]))
+        self.assertEqual([uuid], foo([uuid]))
+
         with self.assertRaises(expected_exception=ParameterException):
-            foo(&#39;invalid&#39;)</code></pre>
+            foo([None])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -112,8 +139,8 @@ not have a method with the specified name.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID.test_validator_is_enum_convert_true"><code class="name flex">
-<span>def <span class="ident">test_validator_is_enum_convert_true</span></span>(<span>self) ‑> None</span>
+<dt id="pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID.test_validator_is_uuid"><code class="name flex">
+<span>def <span class="ident">test_validator_is_uuid</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -121,16 +148,39 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_validator_is_enum_convert_true(self) -&gt; None:
-    @validate(Parameter(name=&#39;x&#39;, validators=[IsUuid()]))
+<pre><code class="python">def test_validator_is_uuid(self):
+    @validate(Parameter(name=&#39;x&#39;, validators=[IsUuid()], required=False))
     def foo(x):
         return x
 
     for id_ in [str(uuid1()), str(uuid3(uuid1(), &#39;b&#39;)), str(uuid4()), str(uuid5(uuid1(), &#39;b&#39;))]:
         self.assertEqual(id_, foo(id_))
 
+    for no_id in [&#39;invalid&#39;, 12]:
+        with self.assertRaises(expected_exception=ParameterException):
+            foo(no_id)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID.test_validator_is_uuid_with_for_each_and_none_value"><code class="name flex">
+<span>def <span class="ident">test_validator_is_uuid_with_for_each_and_none_value</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_validator_is_uuid_with_for_each_and_none_value(self):
+    @validate(Parameter(name=&#39;x&#39;, validators=[ForEach(IsUuid())]))
+    def foo(x):
+        return x
+
+    uuid = str(uuid1())
+    self.assertEqual([], foo([]))
+    self.assertEqual([uuid], foo([uuid]))
+
     with self.assertRaises(expected_exception=ParameterException):
-        foo(&#39;invalid&#39;)</code></pre>
+        foo([None])</code></pre>
 </details>
 </dd>
 </dl>
@@ -154,7 +204,8 @@ not have a method with the specified name.</p></div>
 <li>
 <h4><code><a title="pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID" href="#pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID">TestValidatorIsUUID</a></code></h4>
 <ul class="">
-<li><code><a title="pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID.test_validator_is_enum_convert_true" href="#pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID.test_validator_is_enum_convert_true">test_validator_is_enum_convert_true</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID.test_validator_is_uuid" href="#pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID.test_validator_is_uuid">test_validator_is_uuid</a></code></li>
+<li><code><a title="pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID.test_validator_is_uuid_with_for_each_and_none_value" href="#pedantic.tests.validate.test_validator_is_uuid.TestValidatorIsUUID.test_validator_is_uuid_with_for_each_and_none_value">test_validator_is_uuid_with_for_each_and_none_value</a></code></li>
 </ul>
 </li>
 </ul>
