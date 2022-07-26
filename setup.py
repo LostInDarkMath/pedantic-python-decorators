@@ -14,10 +14,10 @@ author = "Willi Sontopski"
 
 setup(
     name="pedantic",
-    version="1.11.1",
+    version="1.11.2",
     python_requires='>=3.7.0',
     packages=find_packages(),
-    install_requires=['docstring_parser'],
+    install_requires=[],
     author=author,
     author_email="willi_sontopski@arcor.de",
     license="Apache-2.0 License",

@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.11.2
+- Remove the dependency [docstring-parser](https://github.com/rr-/docstring_parser) dependency and make it optional
+
 ## Pedantic 1.11.1
 - Bugfix in `IsUuid` validator: Now handle `None` and `int` values correctly.
 
