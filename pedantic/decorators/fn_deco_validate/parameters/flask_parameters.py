@@ -3,8 +3,7 @@ from typing import Any, Dict, Type
 
 from flask import request
 
-from pedantic.decorators.fn_deco_validate.exceptions import InvalidHeader, ValidateException, ParameterException, \
-    ValidatorException
+from pedantic.decorators.fn_deco_validate.exceptions import InvalidHeader, ParameterException, ValidatorException
 from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter, Parameter
 
@@ -71,7 +70,7 @@ class FlaskHeaderParameter(FlaskParameter):
 
 
 class Deserializable(ABC):
-    """ A tiny interface which has a static "from_json() method which acts like a named constructor. """
+    """ A tiny interface which has a static from_json() method which acts like a named constructor. """
 
     @staticmethod
     @abstractmethod
@@ -80,7 +79,11 @@ class Deserializable(ABC):
 
 
 class GenericFlaskDeserializer(ExternalParameter):
-    """ A JSON deserializer for classes which implements the [Deserializable] interface. """
+    """
+        A JSON deserializer for classes which implements the [Deserializable] interface.
+
+        Further reading: https://github.com/LostInDarkMath/pedantic-python-decorators/issues/55
+    """
 
     def __init__(self, cls: Type[Deserializable], catch_exception: bool = True, **kwargs) -> None:
         super().__init__(**kwargs)

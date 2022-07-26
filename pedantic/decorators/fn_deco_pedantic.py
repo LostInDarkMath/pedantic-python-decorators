@@ -51,7 +51,7 @@ def pedantic(func: Optional[F] = None, require_docstring: bool = False) -> F:
 
         decorated_func = DecoratedFunction(func=f)
 
-        if require_docstring or len(decorated_func.docstring.params) > 0:
+        if decorated_func.docstring is not None and (require_docstring or len(decorated_func.docstring.params)) > 0:
             _check_docstring(decorated_func=decorated_func)
 
         @wraps(f)

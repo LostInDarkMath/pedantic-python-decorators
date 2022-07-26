@@ -1,9 +1,13 @@
 import inspect
 import re
 import types
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional
 
-from docstring_parser import parse, Docstring
+try:
+    from docstring_parser import parse, Docstring
+    IS_DOCSTRING_PARSER_INSTALLED = True
+except ImportError:
+    IS_DOCSTRING_PARSER_INSTALLED = False
 
 from pedantic.exceptions import PedanticTypeCheckException
 
@@ -24,7 +28,11 @@ class DecoratedFunction:
         self._signature = inspect.signature(func)
         self._err = f'In function {func.__qualname__}:' + '\n'
         self._source: str = inspect.getsource(object=func)
-        self._docstring = parse(func.__doc__)
+
+        if IS_DOCSTRING_PARSER_INSTALLED:
+            self._docstring = parse(func.__doc__)
+        else:
+            self._docstring = None
 
     @property
     def func(self) -> Callable[..., Any]:
@@ -35,7 +43,12 @@ class DecoratedFunction:
         return self._full_arg_spec.annotations
 
     @property
-    def docstring(self) -> Docstring:
+    def docstring(self) -> Optional[Docstring]:
+        """
+            Returns the docstring if the docstring-parser package is installed else None.
+            See also https://pypi.org/project/docstring-parser/
+        """
+
         return self._docstring
 
     @property

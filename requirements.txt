@@ -1,3 +1,3 @@
-docstring-parser==0.13
-Flask[async]==2.1.1  # you do not need flask to use this decorators. Flask is only needed you want to use @validate for Flask endpoints
-Werkzeug==2.1.1
+docstring-parser==0.14.1
+Flask[async]==2.1.3  # you do not need flask to use this decorators. Flask is only needed you want to use @validate for Flask endpoints
+Werkzeug==2.2.0

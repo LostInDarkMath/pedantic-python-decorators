@@ -29,9 +29,13 @@
 <pre><code class="python">import inspect
 import re
 import types
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional
 
-from docstring_parser import parse, Docstring
+try:
+    from docstring_parser import parse, Docstring
+    IS_DOCSTRING_PARSER_INSTALLED = True
+except ImportError:
+    IS_DOCSTRING_PARSER_INSTALLED = False
 
 from pedantic.exceptions import PedanticTypeCheckException
 
@@ -52,7 +56,11 @@ class DecoratedFunction:
         self._signature = inspect.signature(func)
         self._err = f&#39;In function {func.__qualname__}:&#39; + &#39;\n&#39;
         self._source: str = inspect.getsource(object=func)
-        self._docstring = parse(func.__doc__)
+
+        if IS_DOCSTRING_PARSER_INSTALLED:
+            self._docstring = parse(func.__doc__)
+        else:
+            self._docstring = None
 
     @property
     def func(self) -&gt; Callable[..., Any]:
@@ -63,7 +71,12 @@ class DecoratedFunction:
         return self._full_arg_spec.annotations
 
     @property
-    def docstring(self) -&gt; Docstring:
+    def docstring(self) -&gt; Optional[Docstring]:
+        &#34;&#34;&#34;
+            Returns the docstring if the docstring-parser package is installed else None.
+            See also https://pypi.org/project/docstring-parser/
+        &#34;&#34;&#34;
+
         return self._docstring
 
     @property
@@ -161,7 +174,11 @@ class DecoratedFunction:
         self._signature = inspect.signature(func)
         self._err = f&#39;In function {func.__qualname__}:&#39; + &#39;\n&#39;
         self._source: str = inspect.getsource(object=func)
-        self._docstring = parse(func.__doc__)
+
+        if IS_DOCSTRING_PARSER_INSTALLED:
+            self._docstring = parse(func.__doc__)
+        else:
+            self._docstring = None
 
     @property
     def func(self) -&gt; Callable[..., Any]:
@@ -172,7 +189,12 @@ class DecoratedFunction:
         return self._full_arg_spec.annotations
 
     @property
-    def docstring(self) -&gt; Docstring:
+    def docstring(self) -&gt; Optional[Docstring]:
+        &#34;&#34;&#34;
+            Returns the docstring if the docstring-parser package is installed else None.
+            See also https://pypi.org/project/docstring-parser/
+        &#34;&#34;&#34;
+
         return self._docstring
 
     @property
@@ -253,15 +275,21 @@ def annotations(self) -&gt; Dict[str, Any]:
     return self._full_arg_spec.annotations</code></pre>
 </details>
 </dd>
-<dt id="pedantic.models.decorated_function.DecoratedFunction.docstring"><code class="name">var <span class="ident">docstring</span> : docstring_parser.common.Docstring</code></dt>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.docstring"><code class="name">var <span class="ident">docstring</span> : Optional[docstring_parser.common.Docstring]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns the docstring if the docstring-parser package is installed else None.
+See also <a href="https://pypi.org/project/docstring-parser/">https://pypi.org/project/docstring-parser/</a></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def docstring(self) -&gt; Docstring:
+def docstring(self) -&gt; Optional[Docstring]:
+    &#34;&#34;&#34;
+        Returns the docstring if the docstring-parser package is installed else None.
+        See also https://pypi.org/project/docstring-parser/
+    &#34;&#34;&#34;
+
     return self._docstring</code></pre>
 </details>
 </dd>

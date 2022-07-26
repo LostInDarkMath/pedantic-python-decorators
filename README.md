@@ -24,7 +24,7 @@ The `@pedantic` decorator does the following things:
 - Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
 As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
 - If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
-Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported.
+Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported. **Note:** you need install the [docstring-parser](https://github.com/rr-/docstring_parser) to make this work. 
 
 In a nutshell:
 `@pedantic` raises an `PedanticException` if one of the following happened:
@@ -174,10 +174,16 @@ if __name__ == '__main__':
 - [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate/fn_deco_validate.html)
 
 ## Dependencies
-Outside the Python standard library, the following dependencies are used:
-- [Docstring-Parser](https://github.com/rr-/docstring_parser) 
-
-To use the `FlaskParameter` class or subclasses, you obviously need to have `Flask` installed. 
+There are no hard dependencies. But if you want to use some advanced features you need to install the following packages:
+- [Docstring-Parser](https://github.com/rr-/docstring_parser) if you need to verify your docstrings.
+- [flask](https://pypi.org/project/Flask/) if want to you the request validators which are designed for `Flask` (see unit tests for examples): 
+  - `FlaskParameter` (abstract class)
+  - `FlaskJsonParameter`
+  - `FlaskFormParameter`
+  - `FlaskPathParameter`
+  - `FlaskGetParameter`
+  - `FlaskHeaderParameter`
+  - `GenericFlaskDeserializer`
 
 ## Contributing
 Feel free to contribute by submitting a pull request :)
