@@ -1948,7 +1948,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo(a: Tuple[()]) -> None:
             print(a)
 
-        foo(a=())
+        if sys.version_info < (3, 11):
+            foo(a=())
+        else:
+            with self.assertRaises(PedanticTypeCheckException):
+                foo(a=())
 
     def test_class(self):
         @pedantic
