@@ -8,6 +8,7 @@ try:
     IS_DOCSTRING_PARSER_INSTALLED = True
 except ImportError:
     IS_DOCSTRING_PARSER_INSTALLED = False
+    Docstring = None
 
 from pedantic.exceptions import PedanticTypeCheckException
 
@@ -52,7 +53,7 @@ class DecoratedFunction:
         return self._docstring
 
     @property
-    def raw_doc(self) -> Docstring:
+    def raw_doc(self) -> Optional[str]:
         return self._func.__doc__
 
     @property

@@ -98,7 +98,7 @@ class FlaskHeaderParameter(FlaskParameter):
 
 
 class Deserializable(ABC):
-    &#34;&#34;&#34; A tiny interface which has a static &#34;from_json() method which acts like a named constructor. &#34;&#34;&#34;
+    &#34;&#34;&#34; A tiny interface which has a static from_json() method which acts like a named constructor. &#34;&#34;&#34;
 
     @staticmethod
     @abstractmethod
@@ -107,7 +107,11 @@ class Deserializable(ABC):
 
 
 class GenericFlaskDeserializer(ExternalParameter):
-    &#34;&#34;&#34; A JSON deserializer for classes which implements the [Deserializable] interface. &#34;&#34;&#34;
+    &#34;&#34;&#34;
+        A JSON deserializer for classes which implements the [Deserializable] interface.
+
+        Further reading: https://github.com/LostInDarkMath/pedantic-python-decorators/issues/55
+    &#34;&#34;&#34;
 
     def __init__(self, cls: Type[Deserializable], catch_exception: bool = True, **kwargs) -&gt; None:
         super().__init__(**kwargs)
@@ -144,13 +148,13 @@ class GenericFlaskDeserializer(ExternalParameter):
 <span>class <span class="ident">Deserializable</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>A tiny interface which has a static "from_json() method which acts like a named constructor.</p></div>
+<div class="desc"><p>A tiny interface which has a static from_json() method which acts like a named constructor.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Deserializable(ABC):
-    &#34;&#34;&#34; A tiny interface which has a static &#34;from_json() method which acts like a named constructor. &#34;&#34;&#34;
+    &#34;&#34;&#34; A tiny interface which has a static from_json() method which acts like a named constructor. &#34;&#34;&#34;
 
     @staticmethod
     @abstractmethod
@@ -442,13 +446,18 @@ Therefore, this doesn't need to be an ExternalParameter.</p></div>
 <span>(</span><span>cls: Type[<a title="pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable" href="#pedantic.decorators.fn_deco_validate.parameters.flask_parameters.Deserializable">Deserializable</a>], catch_exception: bool = True, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A JSON deserializer for classes which implements the [Deserializable] interface.</p></div>
+<div class="desc"><p>A JSON deserializer for classes which implements the [Deserializable] interface.</p>
+<p>Further reading: <a href="https://github.com/LostInDarkMath/pedantic-python-decorators/issues/55">https://github.com/LostInDarkMath/pedantic-python-decorators/issues/55</a></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class GenericFlaskDeserializer(ExternalParameter):
-    &#34;&#34;&#34; A JSON deserializer for classes which implements the [Deserializable] interface. &#34;&#34;&#34;
+    &#34;&#34;&#34;
+        A JSON deserializer for classes which implements the [Deserializable] interface.
+
+        Further reading: https://github.com/LostInDarkMath/pedantic-python-decorators/issues/55
+    &#34;&#34;&#34;
 
     def __init__(self, cls: Type[Deserializable], catch_exception: bool = True, **kwargs) -&gt; None:
         super().__init__(**kwargs)

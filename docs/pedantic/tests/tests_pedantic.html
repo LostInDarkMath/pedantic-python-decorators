@@ -1976,7 +1976,11 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo(a: Tuple[()]) -&gt; None:
             print(a)
 
-        foo(a=())
+        if sys.version_info &lt; (3, 11):
+            foo(a=())
+        else:
+            with self.assertRaises(PedanticTypeCheckException):
+                foo(a=())
 
     def test_class(self):
         @pedantic
@@ -4430,7 +4434,11 @@ not have a method with the specified name.</p></div>
         def foo(a: Tuple[()]) -&gt; None:
             print(a)
 
-        foo(a=())
+        if sys.version_info &lt; (3, 11):
+            foo(a=())
+        else:
+            with self.assertRaises(PedanticTypeCheckException):
+                foo(a=())
 
     def test_class(self):
         @pedantic
@@ -6145,7 +6153,11 @@ arguments have default values.</p></div>
     def foo(a: Tuple[()]) -&gt; None:
         print(a)
 
-    foo(a=())</code></pre>
+    if sys.version_info &lt; (3, 11):
+        foo(a=())
+    else:
+        with self.assertRaises(PedanticTypeCheckException):
+            foo(a=())</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum"><code class="name flex">

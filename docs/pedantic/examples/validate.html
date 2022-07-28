@@ -260,7 +260,8 @@ def my_algorithm(value: float, config: Configuration) -&gt; float:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Configuration:
+<pre><code class="python">@dataclass(frozen=True)
+class Configuration:
     iterations: int
     max_error: float</code></pre>
 </details>

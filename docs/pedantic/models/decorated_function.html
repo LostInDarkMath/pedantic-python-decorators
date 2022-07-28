@@ -36,6 +36,7 @@ try:
     IS_DOCSTRING_PARSER_INSTALLED = True
 except ImportError:
     IS_DOCSTRING_PARSER_INSTALLED = False
+    Docstring = None
 
 from pedantic.exceptions import PedanticTypeCheckException
 
@@ -80,7 +81,7 @@ class DecoratedFunction:
         return self._docstring
 
     @property
-    def raw_doc(self) -&gt; Docstring:
+    def raw_doc(self) -&gt; Optional[str]:
         return self._func.__doc__
 
     @property
@@ -198,7 +199,7 @@ class DecoratedFunction:
         return self._docstring
 
     @property
-    def raw_doc(self) -&gt; Docstring:
+    def raw_doc(self) -&gt; Optional[str]:
         return self._func.__doc__
 
     @property
@@ -425,7 +426,7 @@ def num_of_decorators(self) -&gt; int:
     return len(re.findall(&#39;@&#39;, self.source.split(&#39;def&#39;)[0]))</code></pre>
 </details>
 </dd>
-<dt id="pedantic.models.decorated_function.DecoratedFunction.raw_doc"><code class="name">var <span class="ident">raw_doc</span> : docstring_parser.common.Docstring</code></dt>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.raw_doc"><code class="name">var <span class="ident">raw_doc</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -433,7 +434,7 @@ def num_of_decorators(self) -&gt; int:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def raw_doc(self) -&gt; Docstring:
+def raw_doc(self) -&gt; Optional[str]:
     return self._func.__doc__</code></pre>
 </details>
 </dd>

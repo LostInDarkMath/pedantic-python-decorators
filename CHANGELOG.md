@@ -1,4 +1,9 @@
 # Changelog
+## Pedantic 1.11.3
+- Fix `NameError: name 'Docstring' is not defined`
+- Fix type hint of `raw_doc()`
+- Fix `create_pdoc.sh`
+
 ## Pedantic 1.11.2
 - Remove the dependency [docstring-parser](https://github.com/rr-/docstring_parser) dependency and make it optional
 
