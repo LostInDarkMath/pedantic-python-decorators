@@ -9,6 +9,7 @@ try:
 except ImportError:
     IS_DOCSTRING_PARSER_INSTALLED = False
     Docstring = None
+    parse = None
 
 from pedantic.exceptions import PedanticTypeCheckException
 
@@ -32,7 +33,7 @@ class DecoratedFunction:
 
         if IS_DOCSTRING_PARSER_INSTALLED:
             self._docstring = parse(func.__doc__)
-        else:
+        else:  # pragma: no cover
             self._docstring = None
 
     @property
