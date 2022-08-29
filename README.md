@@ -206,5 +206,10 @@ from pedantic import enable_pedantic, disable_pedantic
 enable_pedantic()
 ```
 
+## Issues with compiled Python code
+This package is **not** compatible with compiled source code (e.g. with [Nuitka](https://github.com/Nuitka/Nuitka)).
+That's because it uses the `inspect` module from the standard library which will raise errors like `OSError: could not get source code` in case of compiled source code.
+
+
 Don't forget to check out the [documentation](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic).
 Happy coding!

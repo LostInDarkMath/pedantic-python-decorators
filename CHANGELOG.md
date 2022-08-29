@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 1.11.4
+- Added remarks to `README.md` concerning code compilation
+- Exclude lines to fix test coverage
+
 ## Pedantic 1.11.3
 - Fix `NameError: name 'Docstring' is not defined`
 - Fix type hint of `raw_doc()`
