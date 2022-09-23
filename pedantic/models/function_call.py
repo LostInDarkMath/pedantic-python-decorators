@@ -3,7 +3,7 @@ from typing import Dict, Tuple, Any, Union
 
 from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
-from pedantic.type_checking_logic.check_types import _assert_value_matches_type
+from pedantic.type_checking_logic.check_types import assert_value_matches_type
 from pedantic.models.decorated_function import DecoratedFunction
 from pedantic.models.generator_wrapper import GeneratorWrapper
 
@@ -94,11 +94,11 @@ class FunctionCall:
                 else:
                     actual_value = param.default
 
-            _assert_value_matches_type(value=actual_value,
-                                       type_=param.annotation,
-                                       err=self.func.err,
-                                       type_vars=self.type_vars,
-                                       key=key)
+            assert_value_matches_type(value=actual_value,
+                                      type_=param.annotation,
+                                      err=self.func.err,
+                                      type_vars=self.type_vars,
+                                      key=key)
 
     def _check_types_args(self, params: Dict[str, inspect.Parameter]) -> None:
         if not params:
@@ -107,7 +107,7 @@ class FunctionCall:
         expected = list(params.values())[0].annotation  # it's not possible to have more then 1
 
         for arg in self.args:
-            _assert_value_matches_type(value=arg, type_=expected, err=self.func.err, type_vars=self.type_vars)
+            assert_value_matches_type(value=arg, type_=expected, err=self.func.err, type_vars=self.type_vars)
 
     def _check_types_kwargs(self, params: Dict[str, inspect.Parameter]) -> None:
         if not params:
@@ -118,11 +118,11 @@ class FunctionCall:
 
         for kwarg in self.not_yet_check_kwargs:
             actual_value = self.kwargs[kwarg]
-            _assert_value_matches_type(value=actual_value,
-                                       type_=param.annotation,
-                                       err=self.func.err,
-                                       type_vars=self.type_vars,
-                                       key=kwarg)
+            assert_value_matches_type(value=actual_value,
+                                      type_=param.annotation,
+                                      err=self.func.err,
+                                      type_vars=self.type_vars,
+                                      key=kwarg)
 
     def _check_types_return(self, result: Any) -> Union[None, GeneratorWrapper]:
         if self.func.signature.return_annotation is inspect.Signature.empty:
@@ -137,11 +137,11 @@ class FunctionCall:
 
         msg = f'{self.func.err}Type hint of return value is incorrect: Expected type {expected_result_type} ' \
               f'but {result} of type {type(result)} was the return value which does not match.'
-        _assert_value_matches_type(value=result,
-                                   type_=expected_result_type,
-                                   err=self.func.err,
-                                   type_vars=self.type_vars,
-                                   msg=msg)
+        assert_value_matches_type(value=result,
+                                  type_=expected_result_type,
+                                  err=self.func.err,
+                                  type_vars=self.type_vars,
+                                  msg=msg)
         return result
 
     def _assert_param_has_type_annotation(self, param: inspect.Parameter):

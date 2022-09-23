@@ -156,6 +156,7 @@ if __name__ == '__main__':
 - [@count_calls](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_count_calls.html)
 - [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_deprecated.html)
 - [@does_same_as_function](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_does_same_as_function.html)
+- [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/frozen_dataclass.html)
 - [@for_all_methods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.for_all_methods)
 - [@mock](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_mock.html)
 - [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_overrides.html)

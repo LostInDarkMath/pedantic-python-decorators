@@ -22,6 +22,7 @@ def get_doctest_test_suite() -> unittest.TestSuite:
         parent_module.type_checking_logic.check_types,
         parent_module.type_checking_logic.check_generic_classes,
         parent_module.type_checking_logic.check_docstring,
+        parent_module.decorators.cls_deco_frozen_dataclass,
     ]
     test_suites = [doctest.DocTestSuite(module=module, optionflags=doctest.ELLIPSIS) for module in modules]
     return unittest.TestSuite(test_suites)

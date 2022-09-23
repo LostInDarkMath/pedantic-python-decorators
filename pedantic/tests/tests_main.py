@@ -2,6 +2,8 @@ import unittest
 import sys
 import os
 
+from pedantic.tests.test_frozen_dataclass import TestFrozenDataclass
+
 sys.path.append(os.getcwd())
 
 from pedantic.tests.validate.test_convert_value import TestConvertValue
@@ -49,6 +51,7 @@ def run_all_tests() -> None:
     test_classes_to_run = [
         TestRequireKwargs,
         TestClassDecorators,
+        TestFrozenDataclass,
         TestPedanticClass,
         TestDecoratorRequireKwargsAndTypeCheck,
         TestSmallDecoratorMethods,

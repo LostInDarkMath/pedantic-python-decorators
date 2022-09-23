@@ -1,6 +1,6 @@
 from typing import Generator, Any, Dict, Iterable, Iterator
 
-from pedantic.type_checking_logic.check_types import _assert_value_matches_type, _get_type_arguments, _get_base_generic
+from pedantic.type_checking_logic.check_types import assert_value_matches_type, _get_type_arguments, _get_base_generic
 from pedantic.exceptions import PedanticTypeCheckException
 
 
@@ -33,23 +33,23 @@ class GeneratorWrapper:
 
     def send(self, obj) -> Any:
         if self._initialized:
-            _assert_value_matches_type(value=obj, type_=self._send_type, type_vars=self._type_vars, err=self._err)
+            assert_value_matches_type(value=obj, type_=self._send_type, type_vars=self._type_vars, err=self._err)
         else:
             self._initialized = True
 
         try:
             returned_value = self._generator.send(obj)
         except StopIteration as ex:
-            _assert_value_matches_type(value=ex.value,
-                                       type_=self._return_type,
-                                       type_vars=self._type_vars,
-                                       err=self._err)
+            assert_value_matches_type(value=ex.value,
+                                      type_=self._return_type,
+                                      type_vars=self._type_vars,
+                                      err=self._err)
             raise ex
 
-        _assert_value_matches_type(value=returned_value,
-                                   type_=self._yield_type,
-                                   type_vars=self._type_vars,
-                                   err=self._err)
+        assert_value_matches_type(value=returned_value,
+                                  type_=self._yield_type,
+                                  type_vars=self._type_vars,
+                                  err=self._err)
         return returned_value
 
     def _set_and_check_return_types(self, expected_return_type: Any) -> Any:

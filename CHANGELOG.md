@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.12.0
+- Add decorator `frozen_dataclass` which adds the methods `copy_with()` and `validate_types()` to the often used `dataclass(frozen=True)`. 
+
 ## Pedantic 1.11.4
 - Added remarks to `README.md` concerning code compilation
 - Exclude lines to fix test coverage

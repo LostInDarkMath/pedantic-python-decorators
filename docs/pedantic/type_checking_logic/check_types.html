@@ -40,13 +40,14 @@ from pedantic.constants import TypeVar as TypeVar_
 from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
 
 
-def _assert_value_matches_type(value: Any,
-                               type_: Any,
-                               err: str,
-                               type_vars: Dict[TypeVar_, Any],
-                               key: Optional[str] = None,
-                               msg: Optional[str] = None
-                               ) -&gt; None:
+def assert_value_matches_type(
+        value: Any,
+        type_: Any,
+        err: str,
+        type_vars: Dict[TypeVar_, Any],
+        key: Optional[str] = None,
+        msg: Optional[str] = None
+) -&gt; None:
     if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars):
         t = type(value)
         value = f&#39;{key}={value}&#39; if key is not None else str(value)
@@ -980,6 +981,36 @@ if __name__ == &#34;__main__&#34;:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pedantic.type_checking_logic.check_types.assert_value_matches_type"><code class="name flex">
+<span>def <span class="ident">assert_value_matches_type</span></span>(<span>value: Any, type_: Any, err: str, type_vars: Dict[TypeVar, Any], key: Optional[str] = None, msg: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assert_value_matches_type(
+        value: Any,
+        type_: Any,
+        err: str,
+        type_vars: Dict[TypeVar_, Any],
+        key: Optional[str] = None,
+        msg: Optional[str] = None
+) -&gt; None:
+    if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars):
+        t = type(value)
+        value = f&#39;{key}={value}&#39; if key is not None else str(value)
+
+        if not msg:
+            msg = f&#39;{err}Type hint is incorrect: Argument {value} of type {t} does not match expected type {type_}.&#39;
+
+        raise PedanticTypeCheckException(msg)</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -993,6 +1024,11 @@ if __name__ == &#34;__main__&#34;:
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="pedantic.type_checking_logic" href="index.html">pedantic.type_checking_logic</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pedantic.type_checking_logic.check_types.assert_value_matches_type" href="#pedantic.type_checking_logic.check_types.assert_value_matches_type">assert_value_matches_type</a></code></li>
 </ul>
 </li>
 </ul>

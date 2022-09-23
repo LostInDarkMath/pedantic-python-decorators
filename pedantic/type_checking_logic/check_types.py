@@ -11,13 +11,14 @@ from pedantic.constants import TypeVar as TypeVar_
 from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
 
 
-def _assert_value_matches_type(value: Any,
-                               type_: Any,
-                               err: str,
-                               type_vars: Dict[TypeVar_, Any],
-                               key: Optional[str] = None,
-                               msg: Optional[str] = None
-                               ) -> None:
+def assert_value_matches_type(
+        value: Any,
+        type_: Any,
+        err: str,
+        type_vars: Dict[TypeVar_, Any],
+        key: Optional[str] = None,
+        msg: Optional[str] = None
+) -> None:
     if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars):
         t = type(value)
         value = f'{key}={value}' if key is not None else str(value)
