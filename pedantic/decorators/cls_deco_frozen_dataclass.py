@@ -73,6 +73,6 @@ def frozen_dataclass(cls: Type[T]) -> Type[T]:
     return dataclass(frozen=True)(cls)
 
 
-if __name__ == '_main_':
+if __name__ == '__main__':
     import doctest
     doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
