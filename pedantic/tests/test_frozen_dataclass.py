@@ -63,14 +63,18 @@ class TestFrozenDataclass(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
             bar.validate_types()
 
-        expected = 'In dataclass "Foo" in field "a": Type hint is incorrect: Argument 6.6 of type <class \'float\'> does not match expected type <class \'int\'>.'
-        self.assertEquals(str(exc.exception), expected)
+        expected = 'In dataclass "Foo" in field "a": Type hint is incorrect: Argument 6.6 of type <class \'float\'> ' \
+                   'does not match expected type <class \'int\'>.'
+        self.assertEqual(str(exc.exception), expected)
 
     def test_decorate_dataclass(self):
         with self.assertRaises(expected_exception=AssertionError) as exc:
             @frozen_dataclass
             @dataclass
             class A:
-                a: int
+                foo: int
 
-        self.assertIn('cannot be decorated with "@frozen_dataclass" because it already is a dataclass', str(exc.exception))
+        self.assertIn(
+            'cannot be decorated with "@frozen_dataclass" because it already is a dataclass',
+            str(exc.exception)
+        )

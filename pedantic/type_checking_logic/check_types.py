@@ -144,7 +144,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
 
     if type_.__module__ == 'typing':
         if _is_generic(type_):
-            origin = _get_base_generic(type_)
+            origin = get_base_generic(type_)
         else:
             origin = type_
 
@@ -168,8 +168,8 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
         if not isinstance(obj, python_type):
             return False
 
-        base = _get_base_generic(type_)
-        type_args = _get_type_arguments(cls=type_)
+        base = get_base_generic(type_)
+        type_args = get_type_arguments(cls=type_)
 
         if base in _ORIGIN_TYPE_CHECKERS:
             validator = _ORIGIN_TYPE_CHECKERS[base]
@@ -353,7 +353,7 @@ def _has_required_type_arguments(cls: Any) -> bool:
     """
 
     base: str = _get_name(cls=cls)
-    num_type_args = len(_get_type_arguments(cls=cls))
+    num_type_args = len(get_type_arguments(cls=cls))
 
     if base in NUM_OF_REQUIRED_TYPE_ARGS_EXACT:
         return NUM_OF_REQUIRED_TYPE_ARGS_EXACT[base] == num_type_args
@@ -362,48 +362,48 @@ def _has_required_type_arguments(cls: Any) -> bool:
     return True
 
 
-def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
+def get_type_arguments(cls: Any) -> Tuple[Any, ...]:
     """ Works similar to typing.args()
         >>> from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar, Optional
-        >>> _get_type_arguments(int)
+        >>> get_type_arguments(int)
         ()
-        >>> _get_type_arguments(List[float])
+        >>> get_type_arguments(List[float])
         (<class 'float'>,)
-        >>> _get_type_arguments(List[int])
+        >>> get_type_arguments(List[int])
         (<class 'int'>,)
         >>> UserId = NewType('UserId', int)
-        >>> _get_type_arguments(List[UserId]) if sys.version_info < (3, 10) else print('(<function NewType.<locals>.new_type at ...,)')
+        >>> get_type_arguments(List[UserId]) if sys.version_info < (3, 10) else print('(<function NewType.<locals>.new_type at ...,)')
         (<function NewType.<locals>.new_type at ...,)
-        >>> _get_type_arguments(List[UserId]) if sys.version_info >= (3, 10) else print('(pedantic.type_checking_logic.check_types.UserId,)')
+        >>> get_type_arguments(List[UserId]) if sys.version_info >= (3, 10) else print('(pedantic.type_checking_logic.check_types.UserId,)')
         (pedantic.type_checking_logic.check_types.UserId,)
-        >>> _get_type_arguments(List)
+        >>> get_type_arguments(List)
         ()
         >>> T = TypeVar('T')
-        >>> _get_type_arguments(List[T])
+        >>> get_type_arguments(List[T])
         (~T,)
-        >>> _get_type_arguments(List[List[int]])
+        >>> get_type_arguments(List[List[int]])
         (typing.List[int],)
-        >>> _get_type_arguments(List[List[List[int]]])
+        >>> get_type_arguments(List[List[List[int]]])
         (typing.List[typing.List[int]],)
-        >>> _get_type_arguments(List[Tuple[float, str]])
+        >>> get_type_arguments(List[Tuple[float, str]])
         (typing.Tuple[float, str],)
-        >>> _get_type_arguments(List[Tuple[Any, ...]])
+        >>> get_type_arguments(List[Tuple[Any, ...]])
         (typing.Tuple[typing.Any, ...],)
         >>> Union[bool, int, float]
         typing.Union[bool, int, float]
-        >>> _get_type_arguments(Union[str, float, int])
+        >>> get_type_arguments(Union[str, float, int])
         (<class 'str'>, <class 'float'>, <class 'int'>)
-        >>> _get_type_arguments(Union[str, float, List[int], int])
+        >>> get_type_arguments(Union[str, float, List[int], int])
         (<class 'str'>, <class 'float'>, typing.List[int], <class 'int'>)
-        >>> _get_type_arguments(Callable)
+        >>> get_type_arguments(Callable)
         ()
-        >>> _get_type_arguments(Callable[[int, float], Tuple[float, str]])
+        >>> get_type_arguments(Callable[[int, float], Tuple[float, str]])
         ([<class 'int'>, <class 'float'>], typing.Tuple[float, str])
-        >>> _get_type_arguments(Callable[..., str])
+        >>> get_type_arguments(Callable[..., str])
         (Ellipsis, <class 'str'>)
-        >>> _get_type_arguments(Optional[int])
+        >>> get_type_arguments(Optional[int])
         (<class 'int'>, <class 'NoneType'>)
-        >>> _get_type_arguments(str | int) if sys.version_info >= (3, 10) else (str, int)
+        >>> get_type_arguments(str | int) if sys.version_info >= (3, 10) else (str, int)
         (<class 'str'>, <class 'int'>)
     """
 
@@ -411,7 +411,7 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
 
     if hasattr(cls, '__args__'):
         result = cls.__args__
-        origin = _get_base_generic(cls=cls)
+        origin = get_base_generic(cls=cls)
 
         if origin != cls and \
                 ((origin is Callable) or (origin is collections.abc.Callable)) and \
@@ -428,38 +428,38 @@ def _get_type_arguments(cls: Any) -> Tuple[Any, ...]:
     return ()
 
 
-def _get_base_generic(cls: Any) -> Any:
+def get_base_generic(cls: Any) -> Any:
     """
         >>> from typing import List, Union, Tuple, Callable, Dict, Set
-        >>> _get_base_generic(List)
+        >>> get_base_generic(List)
         typing.List
-        >>> _get_base_generic(List[float])
+        >>> get_base_generic(List[float])
         typing.List
-        >>> _get_base_generic(List[List[float]])
+        >>> get_base_generic(List[List[float]])
         typing.List
-        >>> _get_base_generic(List[Union[int, float]])
+        >>> get_base_generic(List[Union[int, float]])
         typing.List
-        >>> _get_base_generic(Tuple)
+        >>> get_base_generic(Tuple)
         typing.Tuple
-        >>> _get_base_generic(Tuple[float, int])
+        >>> get_base_generic(Tuple[float, int])
         typing.Tuple
-        >>> _get_base_generic(Tuple[Union[int, float], str])
+        >>> get_base_generic(Tuple[Union[int, float], str])
         typing.Tuple
-        >>> _get_base_generic(Callable[..., int])
+        >>> get_base_generic(Callable[..., int])
         typing.Callable
-        >>> _get_base_generic(Callable[[Union[int, str], float], int])
+        >>> get_base_generic(Callable[[Union[int, str], float], int])
         typing.Callable
-        >>> _get_base_generic(Dict)
+        >>> get_base_generic(Dict)
         typing.Dict
-        >>> _get_base_generic(Dict[str, str])
+        >>> get_base_generic(Dict[str, str])
         typing.Dict
-        >>> _get_base_generic(Union)
+        >>> get_base_generic(Union)
         typing.Union
-        >>> _get_base_generic(Union[float, int, str])
+        >>> get_base_generic(Union[float, int, str])
         typing.Union
-        >>> _get_base_generic(Set)
+        >>> get_base_generic(Set)
         typing.Set
-        >>> _get_base_generic(Set[int])
+        >>> get_base_generic(Set[int])
         typing.Set
     """
 
@@ -537,7 +537,7 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
     python_super = _get_class_of_type_annotation(super_type)
 
     if python_super == typing.Union:
-        type_args = _get_type_arguments(cls=super_type)
+        type_args = get_type_arguments(cls=super_type)
         return sub_type in type_args
 
     if not _is_generic(sub_type):
@@ -549,8 +549,8 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
     if not _is_generic(super_type):
         return True
 
-    sub_args = _get_type_arguments(cls=sub_type)
-    super_args = _get_type_arguments(cls=super_type)
+    sub_args = get_type_arguments(cls=sub_type)
+    super_args = get_type_arguments(cls=super_type)
 
     if len(sub_args) != len(super_args) and Ellipsis not in sub_args + super_args:
         return False
@@ -794,7 +794,7 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any])
         True
     """
 
-    type_args = _get_type_arguments(cls=type_)
+    type_args = get_type_arguments(cls=type_)
     return _check_union(value=value, type_args=type_args, type_vars=type_vars)
 
 
@@ -823,7 +823,7 @@ def _check_union(value: Any, type_args: Tuple[Any, ...], type_vars: Dict[TypeVar
 
 
 def _instancecheck_literal(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
-    type_args = _get_type_arguments(cls=type_)
+    type_args = get_type_arguments(cls=type_)
     return value in type_args
 
 
@@ -855,7 +855,7 @@ def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
     if _is_lambda(obj=value):
         return True
 
-    param_types, ret_type = _get_type_arguments(cls=type_)
+    param_types, ret_type = get_type_arguments(cls=type_)
     sig = inspect.signature(obj=value)
     non_optional_params = {k: v for k, v in sig.parameters.items() if v.default == sig.empty}
 

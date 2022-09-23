@@ -91,17 +91,21 @@ class TestFrozenDataclass(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
             bar.validate_types()
 
-        expected = &#39;In dataclass &#34;Foo&#34; in field &#34;a&#34;: Type hint is incorrect: Argument 6.6 of type &lt;class \&#39;float\&#39;&gt; does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;
-        self.assertEquals(str(exc.exception), expected)
+        expected = &#39;In dataclass &#34;Foo&#34; in field &#34;a&#34;: Type hint is incorrect: Argument 6.6 of type &lt;class \&#39;float\&#39;&gt; &#39; \
+                   &#39;does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;
+        self.assertEqual(str(exc.exception), expected)
 
     def test_decorate_dataclass(self):
         with self.assertRaises(expected_exception=AssertionError) as exc:
             @frozen_dataclass
             @dataclass
             class A:
-                a: int
+                foo: int
 
-        self.assertIn(&#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;, str(exc.exception))</code></pre>
+        self.assertIn(
+            &#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;,
+            str(exc.exception)
+        )</code></pre>
 </details>
 </section>
 <section>
@@ -279,17 +283,21 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
             bar.validate_types()
 
-        expected = &#39;In dataclass &#34;Foo&#34; in field &#34;a&#34;: Type hint is incorrect: Argument 6.6 of type &lt;class \&#39;float\&#39;&gt; does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;
-        self.assertEquals(str(exc.exception), expected)
+        expected = &#39;In dataclass &#34;Foo&#34; in field &#34;a&#34;: Type hint is incorrect: Argument 6.6 of type &lt;class \&#39;float\&#39;&gt; &#39; \
+                   &#39;does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;
+        self.assertEqual(str(exc.exception), expected)
 
     def test_decorate_dataclass(self):
         with self.assertRaises(expected_exception=AssertionError) as exc:
             @frozen_dataclass
             @dataclass
             class A:
-                a: int
+                foo: int
 
-        self.assertIn(&#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;, str(exc.exception))</code></pre>
+        self.assertIn(
+            &#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;,
+            str(exc.exception)
+        )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -351,9 +359,12 @@ not have a method with the specified name.</p></div>
         @frozen_dataclass
         @dataclass
         class A:
-            a: int
+            foo: int
 
-    self.assertIn(&#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;, str(exc.exception))</code></pre>
+    self.assertIn(
+        &#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;,
+        str(exc.exception)
+    )</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash"><code class="name flex">
@@ -395,8 +406,9 @@ not have a method with the specified name.</p></div>
     with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
         bar.validate_types()
 
-    expected = &#39;In dataclass &#34;Foo&#34; in field &#34;a&#34;: Type hint is incorrect: Argument 6.6 of type &lt;class \&#39;float\&#39;&gt; does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;
-    self.assertEquals(str(exc.exception), expected)</code></pre>
+    expected = &#39;In dataclass &#34;Foo&#34; in field &#34;a&#34;: Type hint is incorrect: Argument 6.6 of type &lt;class \&#39;float\&#39;&gt; &#39; \
+               &#39;does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;
+    self.assertEqual(str(exc.exception), expected)</code></pre>
 </details>
 </dd>
 </dl>

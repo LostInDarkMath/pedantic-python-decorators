@@ -1,6 +1,6 @@
 from typing import *  # necessary for eval()
 
-from pedantic.type_checking_logic.check_types import _get_type_arguments
+from pedantic.type_checking_logic.check_types import get_type_arguments
 from pedantic.exceptions import PedanticDocstringException
 from pedantic.models.decorated_function import DecoratedFunction
 
@@ -177,7 +177,7 @@ def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
     if isinstance(type_, str):
         context[type_] = type_
     elif str(type_).startswith('typing'):
-        type_arguments = _get_type_arguments(cls=type_)
+        type_arguments = get_type_arguments(cls=type_)
 
         for type_argument in type_arguments:
             if isinstance(type_argument, list):  # Callable has a List of Types as first argument

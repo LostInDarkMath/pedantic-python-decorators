@@ -2,7 +2,7 @@ import inspect
 from typing import Any, Generic, Dict
 
 from pedantic.exceptions import PedanticTypeVarMismatchException
-from pedantic.type_checking_logic.check_types import _get_type_arguments
+from pedantic.type_checking_logic.check_types import get_type_arguments
 from pedantic.constants import TypeVar, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED
 
 
@@ -41,13 +41,13 @@ def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> Dict[Typ
     _assert_constructor_called_with_generics(instance=instance)
 
     # The information I need is set after the object construction in the __orig_class__ attribute.
-    # This method is called before construction and therefore it returns if the value isn't set
+    # This method is called before construction, and therefore it returns if the value isn't set
     # https://stackoverflow.com/questions/60985221/how-can-i-access-t-from-a-generict-instance-early-in-its-lifecycle
     if not hasattr(instance, '__orig_class__'):
         return type_vars
 
-    type_variables = _get_type_arguments(type(instance).__orig_bases__[0])
-    actual_types = _get_type_arguments(instance.__orig_class__)
+    type_variables = get_type_arguments(type(instance).__orig_bases__[0])
+    actual_types = get_type_arguments(instance.__orig_class__)
 
     for i, type_var in enumerate(type_variables):
         type_vars[type_var] = actual_types[i]
@@ -56,7 +56,7 @@ def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> Dict[Typ
 
 def _assert_constructor_called_with_generics(instance: Any) -> None:
     """
-        This is very hacky. Therefore, it is kind of non-aggressive and raises only an error it is sure.
+        This is very hacky. Therefore, it is kind of non-aggressive and raises only an error if is sure.
 
         >>> from typing import TypeVar, Generic, List
         >>> T = TypeVar('T')

@@ -60,18 +60,18 @@ class FunctionCall:
                 f'{self.func.err}Use kwargs when you call function {self.func.name}. Args: {self.args_without_self}')
 
     def check_types(self) -> ReturnType:
-        d = self.params_without_self.items()
-        self._check_type_param(params={k: v for k, v in d if not str(v).startswith('*')})
-        self._check_types_args(params={k: v for k, v in d if str(v).startswith('*') and not str(v).startswith('**')})
-        self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith('**')})
+        self._check_types_of_arguments()
         return self._check_types_return(result=self._get_return_value())
 
     async def async_check_types(self) -> ReturnType:
+        self._check_types_of_arguments()
+        return self._check_types_return(result=await self._async_get_return_value())
+
+    def _check_types_of_arguments(self) -> None:
         d = self.params_without_self.items()
         self._check_type_param(params={k: v for k, v in d if not str(v).startswith('*')})
         self._check_types_args(params={k: v for k, v in d if str(v).startswith('*') and not str(v).startswith('**')})
         self._check_types_kwargs(params={k: v for k, v in d if str(v).startswith('**')})
-        return self._check_types_return(result=await self._async_get_return_value())
 
     def _check_type_param(self, params: Dict[str, inspect.Parameter]) -> None:
         arg_index = 1 if self.func.is_instance_method else 0
@@ -94,17 +94,19 @@ class FunctionCall:
                 else:
                     actual_value = param.default
 
-            assert_value_matches_type(value=actual_value,
-                                      type_=param.annotation,
-                                      err=self.func.err,
-                                      type_vars=self.type_vars,
-                                      key=key)
+            assert_value_matches_type(
+                value=actual_value,
+                type_=param.annotation,
+                err=self.func.err,
+                type_vars=self.type_vars,
+                key=key,
+            )
 
     def _check_types_args(self, params: Dict[str, inspect.Parameter]) -> None:
         if not params:
             return
 
-        expected = list(params.values())[0].annotation  # it's not possible to have more then 1
+        expected = list(params.values())[0].annotation  # it's not possible to have more than 1
 
         for arg in self.args:
             assert_value_matches_type(value=arg, type_=expected, err=self.func.err, type_vars=self.type_vars)
@@ -113,7 +115,7 @@ class FunctionCall:
         if not params:
             return
 
-        param = list(params.values())[0]  # it's not possible to have more then 1
+        param = list(params.values())[0]  # it's not possible to have more than 1
         self._assert_param_has_type_annotation(param=param)
 
         for kwarg in self.not_yet_check_kwargs:

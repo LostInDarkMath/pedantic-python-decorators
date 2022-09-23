@@ -1,5 +1,4 @@
 from typing import TypeVar as Tv, Callable
-import sys
 
 
 TYPE_VAR_METHOD_NAME = '__pedantic_m42__'
