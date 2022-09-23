@@ -31,6 +31,7 @@ from pedantic.tests.validate.test_validator_not_empty import TestValidatorNotEmp
 from pedantic.tests.test_generator_wrapper import TestGeneratorWrapper
 from pedantic.tests.tests_mock import TestMock
 from pedantic.tests.tests_doctests import get_doctest_test_suite
+from pedantic.tests.test_frozen_dataclass import TestFrozenDataclass
 from pedantic.tests.tests_require_kwargs import TestRequireKwargs
 from pedantic.tests.tests_class_decorators import TestClassDecorators
 from pedantic.tests.tests_pedantic_class import TestPedanticClass
@@ -49,6 +50,7 @@ def run_all_tests() -> None:
     test_classes_to_run = [
         TestRequireKwargs,
         TestClassDecorators,
+        TestFrozenDataclass,
         TestPedanticClass,
         TestDecoratorRequireKwargsAndTypeCheck,
         TestSmallDecoratorMethods,

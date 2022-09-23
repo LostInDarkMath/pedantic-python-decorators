@@ -1,5 +1,4 @@
 import enum
-import sys
 from dataclasses import is_dataclass
 from typing import Callable, Any, Optional, Dict
 import types
