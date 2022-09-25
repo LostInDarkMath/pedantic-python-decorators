@@ -1,7 +1,7 @@
 import unittest
 from dataclasses import dataclass
 
-from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass
+from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from pedantic.exceptions import PedanticTypeCheckException
 
 
@@ -78,3 +78,78 @@ class TestFrozenDataclass(unittest.TestCase):
             'cannot be decorated with "@frozen_dataclass" because it already is a dataclass',
             str(exc.exception)
         )
+
+    def test_frozen_typesafe_dataclass_with_post_init(self):
+        b = 3
+
+        @frozen_dataclass(type_safe=True)
+        class A:
+            foo: int
+
+            def __post_init__(self) -> None:
+                nonlocal b
+                b = 33
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
+            A(foo=42.7)
+
+        self.assertEqual(
+            'In dataclass "A" in field "foo": Type hint is incorrect: Argument 42.7 of type'
+            ' <class \'float\'> does not match expected type <class \'int\'>.',
+            str(exc.exception)
+        )
+
+        # we check that the __post_init__ method is executed
+        self.assertEqual(33, b)
+
+    def test_frozen_typesafe_dataclass_without_post_init(self):
+        @frozen_dataclass(type_safe=True)
+        class A:
+            foo: int
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
+            A(foo=42.7)
+
+        self.assertEqual(
+            'In dataclass "A" in field "foo": Type hint is incorrect: Argument 42.7 of type'
+            ' <class \'float\'> does not match expected type <class \'int\'>.',
+            str(exc.exception)
+        )
+
+    def test_frozen_dataclass_with_empty_braces(self):
+        @frozen_dataclass()
+        class A:
+            foo: int
+
+        a = A(foo=42)
+        self.assertEqual(42, a.foo)
+
+    def test_frozen_dataclass_order(self):
+        @frozen_dataclass(order=True)
+        class A:
+            foo: int
+            bar: int
+
+        a = A(foo=42, bar=43)
+        b = A(foo=42, bar=42)
+        c = A(foo=41, bar=44)
+        d = A(foo=44, bar=0)
+        self.assertLess(b, a)
+        self.assertLess(c, b)
+        self.assertLess(a, d)
+
+    def test_frozen_type_safe_dataclass_copy_with_check(self):
+        @frozen_type_safe_dataclass
+        class A:
+            foo: int
+            bar: bool
+
+        a = A(foo=42, bar=False)
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            a.copy_with(foo=1.1)
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            a.copy_with(bar=11)
+
+        a.copy_with(foo=11, bar=True)

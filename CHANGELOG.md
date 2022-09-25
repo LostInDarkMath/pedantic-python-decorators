@@ -1,4 +1,10 @@
 # Changelog
+## Pedantic 1.12.2
+- Added the `frozen_type_safe_dataclass` decorator
+- Added parameters to `frozen_dataclass`:
+  - `type_safe` with default `False`: If `True` it ensured that all fields have a value that matches the given data type at any time.
+  - `order` with default `False`: If `True` the comparison methods are generated for the class.
+
 ## Pedantic 1.12.1
 - Fix link in `README.md`
 - update dependencies in `requirements.txt`

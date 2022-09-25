@@ -27,25 +27,46 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from dataclasses import dataclass, asdict, fields, is_dataclass
-from typing import Type, TypeVar, Any
+from typing import Type, TypeVar, Any, Callable
 
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
 
 T = TypeVar(&#39;T&#39;)
 
 
-def frozen_dataclass(cls: Type[T]) -&gt; Type[T]:
+def frozen_type_safe_dataclass(cls: Type[T]) -&gt; Type[T]:
+    &#34;&#34;&#34; Shortcut for @frozen_dataclass(type_safe=True) &#34;&#34;&#34;
+
+    return frozen_dataclass(type_safe=True)(cls)
+
+
+def frozen_dataclass(cls: Type[T] = None, type_safe: bool = False, order: bool = False) -&gt; Type[T]:
     &#34;&#34;&#34;
-        Makes the decorated class immutable by adding the [@dataclass(frozen=True)]
-        decorator and add a useful [copy_with()] instance method to this class.
+        Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
+        decorator. Also adds useful copy_with() and validate_types() instance methods to this class (see below).
+
+        If [type_safe] is True, a type check is performed for each field after the __post_init__ method was called
+        which itself s directly called after the __init__ constructor.
+        Note this have a negative impact on the performance. It&#39;s recommend to use this for debugging and testing only.
 
         In a nutshell, the followings methods will be added to the decorated class automatically:
-        - __init__()
-        - __eq__()
-        - __hash__()
-        - __repr__()
-        - copy_with()
-        - validate_types()
+        - __init__() gives you a simple constructor like &#34;Foo(a=6, b=&#39;hi&#39;, c=True)&#34;
+        - __eq__() lets you compare objects easily with &#34;a == b&#34;
+        - __hash__() is also needed for instance comparison
+        - __repr__() gives you a nice output when you call &#34;print(foo)&#34;
+        - copy_with() allows you to quickly create new similar frozen instances. Use this instead of setters.
+        - validate_types() allows you to validate the types of the dataclass.
+                           This is called automatically when [type_safe] is True.
+
+        If the [order] parameter is True (default is False), the following comparison methods
+        will be added additionally:
+        - __lt__() lets you compare instance like &#34;a &lt; b&#34;
+        - __le__() lets you compare instance like &#34;a &lt;= b&#34;
+        - __gt__() lets you compare instance like &#34;a &gt; b&#34;
+        - __ge__() lets you compare instance like &#34;a &gt;= b&#34;
+
+        These compare the class as if it were a tuple of its fields, in order.
+        Both instances in the comparison must be of the identical type.
 
         Example:
 
@@ -69,36 +90,61 @@ def frozen_dataclass(cls: Type[T]) -&gt; Type[T]:
         Foo(a=676676, b=&#39;new&#39;, c=False)
     &#34;&#34;&#34;
 
-    def copy_with(self, **kwargs: Any) -&gt; T:
-        &#34;&#34;&#34;
-            Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
-        &#34;&#34;&#34;
+    def decorator(cls_: Type[T]) -&gt; Type[T]:
+        def copy_with(self, **kwargs: Any) -&gt; T:
+            &#34;&#34;&#34;
+                Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+            &#34;&#34;&#34;
 
-        return cls(**{**asdict(self), **kwargs})  # python &gt;= 3.9.0: cls(**(asdict(self) | kwargs))
+            return cls_(**{**asdict(self), **kwargs})  # python &gt;= 3.9.0: cls(**(asdict(self) | kwargs))
 
-    def validate_types(self) -&gt; None:
-        &#34;&#34;&#34;
-            Checks that all instance variable have the correct type.
-            Raises an Exception if at least one type is incorrect.
-        &#34;&#34;&#34;
+        def validate_types(self) -&gt; None:
+            &#34;&#34;&#34;
+                Checks that all instance variable have the correct type.
+                Raises a [PedanticTypeCheckException] if at least one type is incorrect.
+            &#34;&#34;&#34;
 
-        props = fields(cls)
+            props = fields(cls_)
 
-        for field in props:
-            assert_value_matches_type(
-                value=getattr(self, field.name),
-                type_=field.type,
-                err=f&#39;In dataclass &#34;{cls.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
-                type_vars={},
-            )
+            for field in props:
+                assert_value_matches_type(
+                    value=getattr(self, field.name),
+                    type_=field.type,
+                    err=f&#39;In dataclass &#34;{cls_.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
+                    type_vars={},
+                )
 
-    if is_dataclass(obj=cls):
-        raise AssertionError(f&#39;Dataclass &#34;{cls}&#34; cannot be decorated with &#39;
-                             f&#39;&#34;@frozen_dataclass&#34; because it already is a dataclass.&#39;)
+        def _post_init(f: Callable[[T], None]) -&gt; Callable[[T], None]:
+            def wrapper(self) -&gt; None:
+                f(self)
+                self.validate_types()
 
-    setattr(cls, &#39;copy_with&#39;, copy_with)
-    setattr(cls, &#39;validate_types&#39;, validate_types)
-    return dataclass(frozen=True)(cls)
+            return wrapper
+
+        if is_dataclass(obj=cls_):
+            raise AssertionError(f&#39;Dataclass &#34;{cls_}&#34; cannot be decorated with &#39;
+                                 f&#39;&#34;@frozen_dataclass&#34; because it already is a dataclass.&#39;)
+
+        setattr(cls_, copy_with.__name__, copy_with)
+        setattr(cls_, validate_types.__name__, validate_types)
+
+        if type_safe:
+            post_init = &#39;__post_init__&#39;
+
+            if hasattr(cls_, post_init):
+                new_post_init = _post_init(f=getattr(cls_, post_init))
+            else:
+                def new_post_init(self):
+                    self.validate_types()
+
+            setattr(cls_, post_init, new_post_init)
+
+        return dataclass(frozen=True, order=order)(cls_)
+
+    if cls is None:
+        return decorator
+
+    return decorator(cls_=cls)
 
 
 if __name__ == &#39;__main__&#39;:
@@ -114,18 +160,30 @@ if __name__ == &#39;__main__&#39;:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.decorators.cls_deco_frozen_dataclass.frozen_dataclass"><code class="name flex">
-<span>def <span class="ident">frozen_dataclass</span></span>(<span>cls: Type[~T]) ‑> Type[~T]</span>
+<span>def <span class="ident">frozen_dataclass</span></span>(<span>cls: Type[~T] = None, type_safe: bool = False, order: bool = False) ‑> Type[~T]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Makes the decorated class immutable by adding the [@dataclass(frozen=True)]
-decorator and add a useful [copy_with()] instance method to this class.</p>
+<div class="desc"><p>Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
+decorator. Also adds useful copy_with() and validate_types() instance methods to this class (see below).</p>
+<p>If [type_safe] is True, a type check is performed for each field after the <strong>post_init</strong> method was called
+which itself s directly called after the <strong>init</strong> constructor.
+Note this have a negative impact on the performance. It's recommend to use this for debugging and testing only.</p>
 <p>In a nutshell, the followings methods will be added to the decorated class automatically:
-- <strong>init</strong>()
-- <strong>eq</strong>()
-- <strong>hash</strong>()
-- <strong>repr</strong>()
-- copy_with()
-- validate_types()</p>
+- <strong>init</strong>() gives you a simple constructor like "Foo(a=6, b='hi', c=True)"
+- <strong>eq</strong>() lets you compare objects easily with "a == b"
+- <strong>hash</strong>() is also needed for instance comparison
+- <strong>repr</strong>() gives you a nice output when you call "print(foo)"
+- copy_with() allows you to quickly create new similar frozen instances. Use this instead of setters.
+- validate_types() allows you to validate the types of the dataclass.
+This is called automatically when [type_safe] is True.</p>
+<p>If the [order] parameter is True (default is False), the following comparison methods
+will be added additionally:
+- <strong>lt</strong>() lets you compare instance like "a &lt; b"
+- <strong>le</strong>() lets you compare instance like "a &lt;= b"
+- <strong>gt</strong>() lets you compare instance like "a &gt; b"
+- <strong>ge</strong>() lets you compare instance like "a &gt;= b"</p>
+<p>These compare the class as if it were a tuple of its fields, in order.
+Both instances in the comparison must be of the identical type.</p>
 <p>Example:</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; @frozen_dataclass
 ... class Foo:
@@ -150,18 +208,33 @@ Foo(a=676676, b='new', c=False)
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def frozen_dataclass(cls: Type[T]) -&gt; Type[T]:
+<pre><code class="python">def frozen_dataclass(cls: Type[T] = None, type_safe: bool = False, order: bool = False) -&gt; Type[T]:
     &#34;&#34;&#34;
-        Makes the decorated class immutable by adding the [@dataclass(frozen=True)]
-        decorator and add a useful [copy_with()] instance method to this class.
+        Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
+        decorator. Also adds useful copy_with() and validate_types() instance methods to this class (see below).
+
+        If [type_safe] is True, a type check is performed for each field after the __post_init__ method was called
+        which itself s directly called after the __init__ constructor.
+        Note this have a negative impact on the performance. It&#39;s recommend to use this for debugging and testing only.
 
         In a nutshell, the followings methods will be added to the decorated class automatically:
-        - __init__()
-        - __eq__()
-        - __hash__()
-        - __repr__()
-        - copy_with()
-        - validate_types()
+        - __init__() gives you a simple constructor like &#34;Foo(a=6, b=&#39;hi&#39;, c=True)&#34;
+        - __eq__() lets you compare objects easily with &#34;a == b&#34;
+        - __hash__() is also needed for instance comparison
+        - __repr__() gives you a nice output when you call &#34;print(foo)&#34;
+        - copy_with() allows you to quickly create new similar frozen instances. Use this instead of setters.
+        - validate_types() allows you to validate the types of the dataclass.
+                           This is called automatically when [type_safe] is True.
+
+        If the [order] parameter is True (default is False), the following comparison methods
+        will be added additionally:
+        - __lt__() lets you compare instance like &#34;a &lt; b&#34;
+        - __le__() lets you compare instance like &#34;a &lt;= b&#34;
+        - __gt__() lets you compare instance like &#34;a &gt; b&#34;
+        - __ge__() lets you compare instance like &#34;a &gt;= b&#34;
+
+        These compare the class as if it were a tuple of its fields, in order.
+        Both instances in the comparison must be of the identical type.
 
         Example:
 
@@ -185,36 +258,76 @@ Foo(a=676676, b='new', c=False)
         Foo(a=676676, b=&#39;new&#39;, c=False)
     &#34;&#34;&#34;
 
-    def copy_with(self, **kwargs: Any) -&gt; T:
-        &#34;&#34;&#34;
-            Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
-        &#34;&#34;&#34;
+    def decorator(cls_: Type[T]) -&gt; Type[T]:
+        def copy_with(self, **kwargs: Any) -&gt; T:
+            &#34;&#34;&#34;
+                Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+            &#34;&#34;&#34;
 
-        return cls(**{**asdict(self), **kwargs})  # python &gt;= 3.9.0: cls(**(asdict(self) | kwargs))
+            return cls_(**{**asdict(self), **kwargs})  # python &gt;= 3.9.0: cls(**(asdict(self) | kwargs))
 
-    def validate_types(self) -&gt; None:
-        &#34;&#34;&#34;
-            Checks that all instance variable have the correct type.
-            Raises an Exception if at least one type is incorrect.
-        &#34;&#34;&#34;
+        def validate_types(self) -&gt; None:
+            &#34;&#34;&#34;
+                Checks that all instance variable have the correct type.
+                Raises a [PedanticTypeCheckException] if at least one type is incorrect.
+            &#34;&#34;&#34;
 
-        props = fields(cls)
+            props = fields(cls_)
 
-        for field in props:
-            assert_value_matches_type(
-                value=getattr(self, field.name),
-                type_=field.type,
-                err=f&#39;In dataclass &#34;{cls.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
-                type_vars={},
-            )
+            for field in props:
+                assert_value_matches_type(
+                    value=getattr(self, field.name),
+                    type_=field.type,
+                    err=f&#39;In dataclass &#34;{cls_.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
+                    type_vars={},
+                )
 
-    if is_dataclass(obj=cls):
-        raise AssertionError(f&#39;Dataclass &#34;{cls}&#34; cannot be decorated with &#39;
-                             f&#39;&#34;@frozen_dataclass&#34; because it already is a dataclass.&#39;)
+        def _post_init(f: Callable[[T], None]) -&gt; Callable[[T], None]:
+            def wrapper(self) -&gt; None:
+                f(self)
+                self.validate_types()
 
-    setattr(cls, &#39;copy_with&#39;, copy_with)
-    setattr(cls, &#39;validate_types&#39;, validate_types)
-    return dataclass(frozen=True)(cls)</code></pre>
+            return wrapper
+
+        if is_dataclass(obj=cls_):
+            raise AssertionError(f&#39;Dataclass &#34;{cls_}&#34; cannot be decorated with &#39;
+                                 f&#39;&#34;@frozen_dataclass&#34; because it already is a dataclass.&#39;)
+
+        setattr(cls_, copy_with.__name__, copy_with)
+        setattr(cls_, validate_types.__name__, validate_types)
+
+        if type_safe:
+            post_init = &#39;__post_init__&#39;
+
+            if hasattr(cls_, post_init):
+                new_post_init = _post_init(f=getattr(cls_, post_init))
+            else:
+                def new_post_init(self):
+                    self.validate_types()
+
+            setattr(cls_, post_init, new_post_init)
+
+        return dataclass(frozen=True, order=order)(cls_)
+
+    if cls is None:
+        return decorator
+
+    return decorator(cls_=cls)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.decorators.cls_deco_frozen_dataclass.frozen_type_safe_dataclass"><code class="name flex">
+<span>def <span class="ident">frozen_type_safe_dataclass</span></span>(<span>cls: Type[~T]) ‑> Type[~T]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Shortcut for @frozen_dataclass(type_safe=True)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def frozen_type_safe_dataclass(cls: Type[T]) -&gt; Type[T]:
+    &#34;&#34;&#34; Shortcut for @frozen_dataclass(type_safe=True) &#34;&#34;&#34;
+
+    return frozen_dataclass(type_safe=True)(cls)</code></pre>
 </details>
 </dd>
 </dl>
@@ -236,6 +349,7 @@ Foo(a=676676, b='new', c=False)
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pedantic.decorators.cls_deco_frozen_dataclass.frozen_dataclass" href="#pedantic.decorators.cls_deco_frozen_dataclass.frozen_dataclass">frozen_dataclass</a></code></li>
+<li><code><a title="pedantic.decorators.cls_deco_frozen_dataclass.frozen_type_safe_dataclass" href="#pedantic.decorators.cls_deco_frozen_dataclass.frozen_type_safe_dataclass">frozen_type_safe_dataclass</a></code></li>
 </ul>
 </li>
 </ul>

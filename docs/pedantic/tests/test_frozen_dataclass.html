@@ -29,7 +29,7 @@
 <pre><code class="python">import unittest
 from dataclasses import dataclass
 
-from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass
+from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from pedantic.exceptions import PedanticTypeCheckException
 
 
@@ -105,7 +105,82 @@ class TestFrozenDataclass(unittest.TestCase):
         self.assertIn(
             &#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;,
             str(exc.exception)
-        )</code></pre>
+        )
+
+    def test_frozen_typesafe_dataclass_with_post_init(self):
+        b = 3
+
+        @frozen_dataclass(type_safe=True)
+        class A:
+            foo: int
+
+            def __post_init__(self) -&gt; None:
+                nonlocal b
+                b = 33
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
+            A(foo=42.7)
+
+        self.assertEqual(
+            &#39;In dataclass &#34;A&#34; in field &#34;foo&#34;: Type hint is incorrect: Argument 42.7 of type&#39;
+            &#39; &lt;class \&#39;float\&#39;&gt; does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;,
+            str(exc.exception)
+        )
+
+        # we check that the __post_init__ method is executed
+        self.assertEqual(33, b)
+
+    def test_frozen_typesafe_dataclass_without_post_init(self):
+        @frozen_dataclass(type_safe=True)
+        class A:
+            foo: int
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
+            A(foo=42.7)
+
+        self.assertEqual(
+            &#39;In dataclass &#34;A&#34; in field &#34;foo&#34;: Type hint is incorrect: Argument 42.7 of type&#39;
+            &#39; &lt;class \&#39;float\&#39;&gt; does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;,
+            str(exc.exception)
+        )
+
+    def test_frozen_dataclass_with_empty_braces(self):
+        @frozen_dataclass()
+        class A:
+            foo: int
+
+        a = A(foo=42)
+        self.assertEqual(42, a.foo)
+
+    def test_frozen_dataclass_order(self):
+        @frozen_dataclass(order=True)
+        class A:
+            foo: int
+            bar: int
+
+        a = A(foo=42, bar=43)
+        b = A(foo=42, bar=42)
+        c = A(foo=41, bar=44)
+        d = A(foo=44, bar=0)
+        self.assertLess(b, a)
+        self.assertLess(c, b)
+        self.assertLess(a, d)
+
+    def test_frozen_type_safe_dataclass_copy_with_check(self):
+        @frozen_type_safe_dataclass
+        class A:
+            foo: int
+            bar: bool
+
+        a = A(foo=42, bar=False)
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            a.copy_with(foo=1.1)
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            a.copy_with(bar=11)
+
+        a.copy_with(foo=11, bar=True)</code></pre>
 </details>
 </section>
 <section>
@@ -163,7 +238,7 @@ class TestFrozenDataclass(unittest.TestCase):
         Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
     &#34;&#34;&#34;
 
-    return cls(**{**asdict(self), **kwargs})  # python &gt;= 3.9.0: cls(**(asdict(self) | kwargs))</code></pre>
+    return cls_(**{**asdict(self), **kwargs})  # python &gt;= 3.9.0: cls(**(asdict(self) | kwargs))</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.Foo.validate_types"><code class="name flex">
@@ -171,7 +246,7 @@ class TestFrozenDataclass(unittest.TestCase):
 </code></dt>
 <dd>
 <div class="desc"><p>Checks that all instance variable have the correct type.
-Raises an Exception if at least one type is incorrect.</p></div>
+Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -179,16 +254,16 @@ Raises an Exception if at least one type is incorrect.</p></div>
 <pre><code class="python">def validate_types(self) -&gt; None:
     &#34;&#34;&#34;
         Checks that all instance variable have the correct type.
-        Raises an Exception if at least one type is incorrect.
+        Raises a [PedanticTypeCheckException] if at least one type is incorrect.
     &#34;&#34;&#34;
 
-    props = fields(cls)
+    props = fields(cls_)
 
     for field in props:
         assert_value_matches_type(
             value=getattr(self, field.name),
             type_=field.type,
-            err=f&#39;In dataclass &#34;{cls.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
+            err=f&#39;In dataclass &#34;{cls_.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
             type_vars={},
         )</code></pre>
 </details>
@@ -297,7 +372,82 @@ not have a method with the specified name.</p></div>
         self.assertIn(
             &#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;,
             str(exc.exception)
-        )</code></pre>
+        )
+
+    def test_frozen_typesafe_dataclass_with_post_init(self):
+        b = 3
+
+        @frozen_dataclass(type_safe=True)
+        class A:
+            foo: int
+
+            def __post_init__(self) -&gt; None:
+                nonlocal b
+                b = 33
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
+            A(foo=42.7)
+
+        self.assertEqual(
+            &#39;In dataclass &#34;A&#34; in field &#34;foo&#34;: Type hint is incorrect: Argument 42.7 of type&#39;
+            &#39; &lt;class \&#39;float\&#39;&gt; does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;,
+            str(exc.exception)
+        )
+
+        # we check that the __post_init__ method is executed
+        self.assertEqual(33, b)
+
+    def test_frozen_typesafe_dataclass_without_post_init(self):
+        @frozen_dataclass(type_safe=True)
+        class A:
+            foo: int
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
+            A(foo=42.7)
+
+        self.assertEqual(
+            &#39;In dataclass &#34;A&#34; in field &#34;foo&#34;: Type hint is incorrect: Argument 42.7 of type&#39;
+            &#39; &lt;class \&#39;float\&#39;&gt; does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;,
+            str(exc.exception)
+        )
+
+    def test_frozen_dataclass_with_empty_braces(self):
+        @frozen_dataclass()
+        class A:
+            foo: int
+
+        a = A(foo=42)
+        self.assertEqual(42, a.foo)
+
+    def test_frozen_dataclass_order(self):
+        @frozen_dataclass(order=True)
+        class A:
+            foo: int
+            bar: int
+
+        a = A(foo=42, bar=43)
+        b = A(foo=42, bar=42)
+        c = A(foo=41, bar=44)
+        d = A(foo=44, bar=0)
+        self.assertLess(b, a)
+        self.assertLess(c, b)
+        self.assertLess(a, d)
+
+    def test_frozen_type_safe_dataclass_copy_with_check(self):
+        @frozen_type_safe_dataclass
+        class A:
+            foo: int
+            bar: bool
+
+        a = A(foo=42, bar=False)
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            a.copy_with(foo=1.1)
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            a.copy_with(bar=11)
+
+        a.copy_with(foo=11, bar=True)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -388,6 +538,131 @@ not have a method with the specified name.</p></div>
     self.assertNotEqual(hash(a), hash(c))</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_order"><code class="name flex">
+<span>def <span class="ident">test_frozen_dataclass_order</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_dataclass_order(self):
+    @frozen_dataclass(order=True)
+    class A:
+        foo: int
+        bar: int
+
+    a = A(foo=42, bar=43)
+    b = A(foo=42, bar=42)
+    c = A(foo=41, bar=44)
+    d = A(foo=44, bar=0)
+    self.assertLess(b, a)
+    self.assertLess(c, b)
+    self.assertLess(a, d)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_with_empty_braces"><code class="name flex">
+<span>def <span class="ident">test_frozen_dataclass_with_empty_braces</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_dataclass_with_empty_braces(self):
+    @frozen_dataclass()
+    class A:
+        foo: int
+
+    a = A(foo=42)
+    self.assertEqual(42, a.foo)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_type_safe_dataclass_copy_with_check"><code class="name flex">
+<span>def <span class="ident">test_frozen_type_safe_dataclass_copy_with_check</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_type_safe_dataclass_copy_with_check(self):
+    @frozen_type_safe_dataclass
+    class A:
+        foo: int
+        bar: bool
+
+    a = A(foo=42, bar=False)
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        a.copy_with(foo=1.1)
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        a.copy_with(bar=11)
+
+    a.copy_with(foo=11, bar=True)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_with_post_init"><code class="name flex">
+<span>def <span class="ident">test_frozen_typesafe_dataclass_with_post_init</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_typesafe_dataclass_with_post_init(self):
+    b = 3
+
+    @frozen_dataclass(type_safe=True)
+    class A:
+        foo: int
+
+        def __post_init__(self) -&gt; None:
+            nonlocal b
+            b = 33
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
+        A(foo=42.7)
+
+    self.assertEqual(
+        &#39;In dataclass &#34;A&#34; in field &#34;foo&#34;: Type hint is incorrect: Argument 42.7 of type&#39;
+        &#39; &lt;class \&#39;float\&#39;&gt; does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;,
+        str(exc.exception)
+    )
+
+    # we check that the __post_init__ method is executed
+    self.assertEqual(33, b)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_without_post_init"><code class="name flex">
+<span>def <span class="ident">test_frozen_typesafe_dataclass_without_post_init</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_typesafe_dataclass_without_post_init(self):
+    @frozen_dataclass(type_safe=True)
+    class A:
+        foo: int
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException) as exc:
+        A(foo=42.7)
+
+    self.assertEqual(
+        &#39;In dataclass &#34;A&#34; in field &#34;foo&#34;: Type hint is incorrect: Argument 42.7 of type&#39;
+        &#39; &lt;class \&#39;float\&#39;&gt; does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;,
+        str(exc.exception)
+    )</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_validate_types"><code class="name flex">
 <span>def <span class="ident">test_validate_types</span></span>(<span>self)</span>
 </code></dt>
@@ -445,6 +720,11 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with">test_copy_with</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_decorate_dataclass" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_decorate_dataclass">test_decorate_dataclass</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash">test_equals_and_hash</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_order" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_order">test_frozen_dataclass_order</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_with_empty_braces" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_with_empty_braces">test_frozen_dataclass_with_empty_braces</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_type_safe_dataclass_copy_with_check" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_type_safe_dataclass_copy_with_check">test_frozen_type_safe_dataclass_copy_with_check</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_with_post_init" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_with_post_init">test_frozen_typesafe_dataclass_with_post_init</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_without_post_init" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_without_post_init">test_frozen_typesafe_dataclass_without_post_init</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_validate_types" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_validate_types">test_validate_types</a></code></li>
 </ul>
 </li>
