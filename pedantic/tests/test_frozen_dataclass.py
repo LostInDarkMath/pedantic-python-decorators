@@ -1,5 +1,6 @@
 import unittest
 from dataclasses import dataclass
+from typing import List, Dict, Set, Tuple
 
 from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from pedantic.exceptions import PedanticTypeCheckException
@@ -11,6 +12,17 @@ class Foo:
     b: str
     c: bool
 
+
+@frozen_type_safe_dataclass
+class B:
+    v: Set[int]
+
+
+@frozen_type_safe_dataclass
+class A:
+    foo: List[int]
+    bar: Dict[str, str]
+    values: Tuple[B, B]
 
 class TestFrozenDataclass(unittest.TestCase):
     def test_equals_and_hash(self):
@@ -153,3 +165,29 @@ class TestFrozenDataclass(unittest.TestCase):
             a.copy_with(bar=11)
 
         a.copy_with(foo=11, bar=True)
+
+    def test_copy_with_is_shallow(self):
+        a = A(foo=[1, 2], bar={'hello': 'world'}, values=(B(v={4, 5}), B(v={6})))
+        shallow = a.copy_with()
+
+        # manipulation
+        shallow.bar['hello'] = 'pedantic'
+        shallow.foo.append(3)
+
+        self.assertEqual([1, 2, 3], a.foo)
+        self.assertEqual([1, 2, 3], shallow.foo)
+        self.assertEqual('pedantic', a.bar['hello'])
+        self.assertEqual('pedantic', shallow.bar['hello'])
+
+    def test_copy_with_and_deep_copy_with(self):
+        a = A(foo=[1, 2], bar={'hello': 'world'}, values=(B(v={4, 5}), B(v={6})))
+        deep = a.deep_copy_with()
+
+        # manipulation
+        deep.bar['hello'] = 'pedantic'
+        deep.foo.append(3)
+
+        self.assertEqual([1, 2], a.foo)
+        self.assertEqual([1, 2, 3], deep.foo)
+        self.assertEqual('world', a.bar['hello'])
+        self.assertEqual('pedantic', deep.bar['hello'])

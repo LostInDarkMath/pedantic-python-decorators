@@ -28,6 +28,7 @@
 </summary>
 <pre><code class="python">import unittest
 from dataclasses import dataclass
+from typing import List, Dict, Set, Tuple
 
 from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from pedantic.exceptions import PedanticTypeCheckException
@@ -39,6 +40,17 @@ class Foo:
     b: str
     c: bool
 
+
+@frozen_type_safe_dataclass
+class B:
+    v: Set[int]
+
+
+@frozen_type_safe_dataclass
+class A:
+    foo: List[int]
+    bar: Dict[str, str]
+    values: Tuple[B, B]
 
 class TestFrozenDataclass(unittest.TestCase):
     def test_equals_and_hash(self):
@@ -180,7 +192,33 @@ class TestFrozenDataclass(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             a.copy_with(bar=11)
 
-        a.copy_with(foo=11, bar=True)</code></pre>
+        a.copy_with(foo=11, bar=True)
+
+    def test_copy_with_is_shallow(self):
+        a = A(foo=[1, 2], bar={&#39;hello&#39;: &#39;world&#39;}, values=(B(v={4, 5}), B(v={6})))
+        shallow = a.copy_with()
+
+        # manipulation
+        shallow.bar[&#39;hello&#39;] = &#39;pedantic&#39;
+        shallow.foo.append(3)
+
+        self.assertEqual([1, 2, 3], a.foo)
+        self.assertEqual([1, 2, 3], shallow.foo)
+        self.assertEqual(&#39;pedantic&#39;, a.bar[&#39;hello&#39;])
+        self.assertEqual(&#39;pedantic&#39;, shallow.bar[&#39;hello&#39;])
+
+    def test_copy_with_and_deep_copy_with(self):
+        a = A(foo=[1, 2], bar={&#39;hello&#39;: &#39;world&#39;}, values=(B(v={4, 5}), B(v={6})))
+        deep = a.deep_copy_with()
+
+        # manipulation
+        deep.bar[&#39;hello&#39;] = &#39;pedantic&#39;
+        deep.foo.append(3)
+
+        self.assertEqual([1, 2], a.foo)
+        self.assertEqual([1, 2, 3], deep.foo)
+        self.assertEqual(&#39;world&#39;, a.bar[&#39;hello&#39;])
+        self.assertEqual(&#39;pedantic&#39;, deep.bar[&#39;hello&#39;])</code></pre>
 </details>
 </section>
 <section>
@@ -192,6 +230,198 @@ class TestFrozenDataclass(unittest.TestCase):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="pedantic.tests.test_frozen_dataclass.A"><code class="flex name class">
+<span>class <span class="ident">A</span></span>
+<span>(</span><span>foo: List[int], bar: Dict[str, str], values: Tuple[<a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>, <a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A(foo: List[int], bar: Dict[str, str], values: Tuple[pedantic.tests.test_frozen_dataclass.B, pedantic.tests.test_frozen_dataclass.B])</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class A:
+    foo: List[int]
+    bar: Dict[str, str]
+    values: Tuple[B, B]</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pedantic.tests.test_frozen_dataclass.A.bar"><code class="name">var <span class="ident">bar</span> : Dict[str, str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.A.foo"><code class="name">var <span class="ident">foo</span> : List[int]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.A.values"><code class="name">var <span class="ident">values</span> : Tuple[<a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>, <a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pedantic.tests.test_frozen_dataclass.A.copy_with"><code class="name flex">
+<span>def <span class="ident">copy_with</span></span>(<span>self, **kwargs: Any) ‑> ~T</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+Keep in mind that this is a shallow copy!</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy_with(self, **kwargs: Any) -&gt; T:
+    &#34;&#34;&#34;
+        Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+        Keep in mind that this is a shallow copy!
+    &#34;&#34;&#34;
+
+    current_values = {field.name: getattr(self, field.name) for field in fields(self)}
+    return cls_(**{**current_values, **kwargs})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.A.deep_copy_with"><code class="name flex">
+<span>def <span class="ident">deep_copy_with</span></span>(<span>self, **kwargs: Any) ‑> ~T</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates a new immutable instance that by deep copying all fields of
+this instance replaced by the new values.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deep_copy_with(self, **kwargs: Any) -&gt; T:
+    &#34;&#34;&#34;
+        Creates a new immutable instance that by deep copying all fields of
+        this instance replaced by the new values.
+    &#34;&#34;&#34;
+
+    current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
+    return cls_(**{**current_values, **kwargs})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.A.validate_types"><code class="name flex">
+<span>def <span class="ident">validate_types</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks that all instance variable have the correct type.
+Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate_types(self) -&gt; None:
+    &#34;&#34;&#34;
+        Checks that all instance variable have the correct type.
+        Raises a [PedanticTypeCheckException] if at least one type is incorrect.
+    &#34;&#34;&#34;
+
+    props = fields(cls_)
+
+    for field in props:
+        assert_value_matches_type(
+            value=getattr(self, field.name),
+            type_=field.type,
+            err=f&#39;In dataclass &#34;{cls_.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
+            type_vars={},
+        )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.B"><code class="flex name class">
+<span>class <span class="ident">B</span></span>
+<span>(</span><span>v: Set[int])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>B(v: Set[int])</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class B:
+    v: Set[int]</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pedantic.tests.test_frozen_dataclass.B.v"><code class="name">var <span class="ident">v</span> : Set[int]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pedantic.tests.test_frozen_dataclass.B.copy_with"><code class="name flex">
+<span>def <span class="ident">copy_with</span></span>(<span>self, **kwargs: Any) ‑> ~T</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+Keep in mind that this is a shallow copy!</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy_with(self, **kwargs: Any) -&gt; T:
+    &#34;&#34;&#34;
+        Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+        Keep in mind that this is a shallow copy!
+    &#34;&#34;&#34;
+
+    current_values = {field.name: getattr(self, field.name) for field in fields(self)}
+    return cls_(**{**current_values, **kwargs})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.B.deep_copy_with"><code class="name flex">
+<span>def <span class="ident">deep_copy_with</span></span>(<span>self, **kwargs: Any) ‑> ~T</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates a new immutable instance that by deep copying all fields of
+this instance replaced by the new values.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deep_copy_with(self, **kwargs: Any) -&gt; T:
+    &#34;&#34;&#34;
+        Creates a new immutable instance that by deep copying all fields of
+        this instance replaced by the new values.
+    &#34;&#34;&#34;
+
+    current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
+    return cls_(**{**current_values, **kwargs})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.B.validate_types"><code class="name flex">
+<span>def <span class="ident">validate_types</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks that all instance variable have the correct type.
+Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate_types(self) -&gt; None:
+    &#34;&#34;&#34;
+        Checks that all instance variable have the correct type.
+        Raises a [PedanticTypeCheckException] if at least one type is incorrect.
+    &#34;&#34;&#34;
+
+    props = fields(cls_)
+
+    for field in props:
+        assert_value_matches_type(
+            value=getattr(self, field.name),
+            type_=field.type,
+            err=f&#39;In dataclass &#34;{cls_.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
+            type_vars={},
+        )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="pedantic.tests.test_frozen_dataclass.Foo"><code class="flex name class">
 <span>class <span class="ident">Foo</span></span>
 <span>(</span><span>a: int, b: str, c: bool)</span>
@@ -228,7 +458,8 @@ class TestFrozenDataclass(unittest.TestCase):
 <span>def <span class="ident">copy_with</span></span>(<span>self, **kwargs: Any) ‑> ~T</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates a new immutable instance that by copying all fields of this instance replaced by the new values.</p></div>
+<div class="desc"><p>Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+Keep in mind that this is a shallow copy!</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -236,9 +467,31 @@ class TestFrozenDataclass(unittest.TestCase):
 <pre><code class="python">def copy_with(self, **kwargs: Any) -&gt; T:
     &#34;&#34;&#34;
         Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+        Keep in mind that this is a shallow copy!
     &#34;&#34;&#34;
 
-    return cls_(**{**asdict(self), **kwargs})  # python &gt;= 3.9.0: cls(**(asdict(self) | kwargs))</code></pre>
+    current_values = {field.name: getattr(self, field.name) for field in fields(self)}
+    return cls_(**{**current_values, **kwargs})</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.Foo.deep_copy_with"><code class="name flex">
+<span>def <span class="ident">deep_copy_with</span></span>(<span>self, **kwargs: Any) ‑> ~T</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates a new immutable instance that by deep copying all fields of
+this instance replaced by the new values.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deep_copy_with(self, **kwargs: Any) -&gt; T:
+    &#34;&#34;&#34;
+        Creates a new immutable instance that by deep copying all fields of
+        this instance replaced by the new values.
+    &#34;&#34;&#34;
+
+    current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
+    return cls_(**{**current_values, **kwargs})</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.Foo.validate_types"><code class="name flex">
@@ -447,7 +700,33 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             a.copy_with(bar=11)
 
-        a.copy_with(foo=11, bar=True)</code></pre>
+        a.copy_with(foo=11, bar=True)
+
+    def test_copy_with_is_shallow(self):
+        a = A(foo=[1, 2], bar={&#39;hello&#39;: &#39;world&#39;}, values=(B(v={4, 5}), B(v={6})))
+        shallow = a.copy_with()
+
+        # manipulation
+        shallow.bar[&#39;hello&#39;] = &#39;pedantic&#39;
+        shallow.foo.append(3)
+
+        self.assertEqual([1, 2, 3], a.foo)
+        self.assertEqual([1, 2, 3], shallow.foo)
+        self.assertEqual(&#39;pedantic&#39;, a.bar[&#39;hello&#39;])
+        self.assertEqual(&#39;pedantic&#39;, shallow.bar[&#39;hello&#39;])
+
+    def test_copy_with_and_deep_copy_with(self):
+        a = A(foo=[1, 2], bar={&#39;hello&#39;: &#39;world&#39;}, values=(B(v={4, 5}), B(v={6})))
+        deep = a.deep_copy_with()
+
+        # manipulation
+        deep.bar[&#39;hello&#39;] = &#39;pedantic&#39;
+        deep.foo.append(3)
+
+        self.assertEqual([1, 2], a.foo)
+        self.assertEqual([1, 2, 3], deep.foo)
+        self.assertEqual(&#39;world&#39;, a.bar[&#39;hello&#39;])
+        self.assertEqual(&#39;pedantic&#39;, deep.bar[&#39;hello&#39;])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -493,6 +772,52 @@ not have a method with the specified name.</p></div>
     self.assertEqual(676676, copy_5.a)
     self.assertEqual(&#39;new&#39;, copy_5.b)
     self.assertEqual(False, copy_5.c)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_and_deep_copy_with"><code class="name flex">
+<span>def <span class="ident">test_copy_with_and_deep_copy_with</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_copy_with_and_deep_copy_with(self):
+    a = A(foo=[1, 2], bar={&#39;hello&#39;: &#39;world&#39;}, values=(B(v={4, 5}), B(v={6})))
+    deep = a.deep_copy_with()
+
+    # manipulation
+    deep.bar[&#39;hello&#39;] = &#39;pedantic&#39;
+    deep.foo.append(3)
+
+    self.assertEqual([1, 2], a.foo)
+    self.assertEqual([1, 2, 3], deep.foo)
+    self.assertEqual(&#39;world&#39;, a.bar[&#39;hello&#39;])
+    self.assertEqual(&#39;pedantic&#39;, deep.bar[&#39;hello&#39;])</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_is_shallow"><code class="name flex">
+<span>def <span class="ident">test_copy_with_is_shallow</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_copy_with_is_shallow(self):
+    a = A(foo=[1, 2], bar={&#39;hello&#39;: &#39;world&#39;}, values=(B(v={4, 5}), B(v={6})))
+    shallow = a.copy_with()
+
+    # manipulation
+    shallow.bar[&#39;hello&#39;] = &#39;pedantic&#39;
+    shallow.foo.append(3)
+
+    self.assertEqual([1, 2, 3], a.foo)
+    self.assertEqual([1, 2, 3], shallow.foo)
+    self.assertEqual(&#39;pedantic&#39;, a.bar[&#39;hello&#39;])
+    self.assertEqual(&#39;pedantic&#39;, shallow.bar[&#39;hello&#39;])</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_decorate_dataclass"><code class="name flex">
@@ -705,12 +1030,33 @@ not have a method with the specified name.</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="pedantic.tests.test_frozen_dataclass.Foo" href="#pedantic.tests.test_frozen_dataclass.Foo">Foo</a></code></h4>
+<h4><code><a title="pedantic.tests.test_frozen_dataclass.A" href="#pedantic.tests.test_frozen_dataclass.A">A</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pedantic.tests.test_frozen_dataclass.A.bar" href="#pedantic.tests.test_frozen_dataclass.A.bar">bar</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.A.copy_with" href="#pedantic.tests.test_frozen_dataclass.A.copy_with">copy_with</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.A.deep_copy_with" href="#pedantic.tests.test_frozen_dataclass.A.deep_copy_with">deep_copy_with</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.A.foo" href="#pedantic.tests.test_frozen_dataclass.A.foo">foo</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.A.validate_types" href="#pedantic.tests.test_frozen_dataclass.A.validate_types">validate_types</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.A.values" href="#pedantic.tests.test_frozen_dataclass.A.values">values</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a></code></h4>
 <ul class="">
+<li><code><a title="pedantic.tests.test_frozen_dataclass.B.copy_with" href="#pedantic.tests.test_frozen_dataclass.B.copy_with">copy_with</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.B.deep_copy_with" href="#pedantic.tests.test_frozen_dataclass.B.deep_copy_with">deep_copy_with</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.B.v" href="#pedantic.tests.test_frozen_dataclass.B.v">v</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.B.validate_types" href="#pedantic.tests.test_frozen_dataclass.B.validate_types">validate_types</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pedantic.tests.test_frozen_dataclass.Foo" href="#pedantic.tests.test_frozen_dataclass.Foo">Foo</a></code></h4>
+<ul class="two-column">
 <li><code><a title="pedantic.tests.test_frozen_dataclass.Foo.a" href="#pedantic.tests.test_frozen_dataclass.Foo.a">a</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.Foo.b" href="#pedantic.tests.test_frozen_dataclass.Foo.b">b</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.Foo.c" href="#pedantic.tests.test_frozen_dataclass.Foo.c">c</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.Foo.copy_with" href="#pedantic.tests.test_frozen_dataclass.Foo.copy_with">copy_with</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.Foo.deep_copy_with" href="#pedantic.tests.test_frozen_dataclass.Foo.deep_copy_with">deep_copy_with</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.Foo.validate_types" href="#pedantic.tests.test_frozen_dataclass.Foo.validate_types">validate_types</a></code></li>
 </ul>
 </li>
@@ -718,6 +1064,8 @@ not have a method with the specified name.</p></div>
 <h4><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass">TestFrozenDataclass</a></code></h4>
 <ul class="">
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with">test_copy_with</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_and_deep_copy_with" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_and_deep_copy_with">test_copy_with_and_deep_copy_with</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_is_shallow" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_is_shallow">test_copy_with_is_shallow</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_decorate_dataclass" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_decorate_dataclass">test_decorate_dataclass</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash">test_equals_and_hash</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_order" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_order">test_frozen_dataclass_order</a></code></li>

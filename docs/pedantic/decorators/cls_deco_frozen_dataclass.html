@@ -26,8 +26,9 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from dataclasses import dataclass, asdict, fields, is_dataclass
-from typing import Type, TypeVar, Any, Callable
+<pre><code class="python">from copy import deepcopy
+from dataclasses import dataclass, fields, is_dataclass
+from typing import Type, TypeVar, Any
 
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
 
@@ -55,6 +56,7 @@ def frozen_dataclass(cls: Type[T] = None, type_safe: bool = False, order: bool =
         - __hash__() is also needed for instance comparison
         - __repr__() gives you a nice output when you call &#34;print(foo)&#34;
         - copy_with() allows you to quickly create new similar frozen instances. Use this instead of setters.
+        - deep_copy_with() allows you to create deep copies and modify them.
         - validate_types() allows you to validate the types of the dataclass.
                            This is called automatically when [type_safe] is True.
 
@@ -94,9 +96,20 @@ def frozen_dataclass(cls: Type[T] = None, type_safe: bool = False, order: bool =
         def copy_with(self, **kwargs: Any) -&gt; T:
             &#34;&#34;&#34;
                 Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+                Keep in mind that this is a shallow copy!
             &#34;&#34;&#34;
 
-            return cls_(**{**asdict(self), **kwargs})  # python &gt;= 3.9.0: cls(**(asdict(self) | kwargs))
+            current_values = {field.name: getattr(self, field.name) for field in fields(self)}
+            return cls_(**{**current_values, **kwargs})
+
+        def deep_copy_with(self, **kwargs: Any) -&gt; T:
+            &#34;&#34;&#34;
+                Creates a new immutable instance that by deep copying all fields of
+                this instance replaced by the new values.
+            &#34;&#34;&#34;
+
+            current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
+            return cls_(**{**current_values, **kwargs})
 
         def validate_types(self) -&gt; None:
             &#34;&#34;&#34;
@@ -114,30 +127,22 @@ def frozen_dataclass(cls: Type[T] = None, type_safe: bool = False, order: bool =
                     type_vars={},
                 )
 
-        def _post_init(f: Callable[[T], None]) -&gt; Callable[[T], None]:
-            def wrapper(self) -&gt; None:
-                f(self)
-                self.validate_types()
-
-            return wrapper
-
         if is_dataclass(obj=cls_):
             raise AssertionError(f&#39;Dataclass &#34;{cls_}&#34; cannot be decorated with &#39;
                                  f&#39;&#34;@frozen_dataclass&#34; because it already is a dataclass.&#39;)
 
         setattr(cls_, copy_with.__name__, copy_with)
+        setattr(cls_, deep_copy_with.__name__, deep_copy_with)
         setattr(cls_, validate_types.__name__, validate_types)
 
         if type_safe:
-            post_init = &#39;__post_init__&#39;
+            old_post_init = getattr(cls_, &#39;__post_init__&#39;, lambda _: None)
 
-            if hasattr(cls_, post_init):
-                new_post_init = _post_init(f=getattr(cls_, post_init))
-            else:
-                def new_post_init(self):
-                    self.validate_types()
+            def new_post_init(self) -&gt; None:
+                old_post_init(self)
+                self.validate_types()
 
-            setattr(cls_, post_init, new_post_init)
+            setattr(cls_, &#39;__post_init__&#39;, new_post_init)
 
         return dataclass(frozen=True, order=order)(cls_)
 
@@ -174,6 +179,7 @@ Note this have a negative impact on the performance. It's recommend to use this 
 - <strong>hash</strong>() is also needed for instance comparison
 - <strong>repr</strong>() gives you a nice output when you call "print(foo)"
 - copy_with() allows you to quickly create new similar frozen instances. Use this instead of setters.
+- deep_copy_with() allows you to create deep copies and modify them.
 - validate_types() allows you to validate the types of the dataclass.
 This is called automatically when [type_safe] is True.</p>
 <p>If the [order] parameter is True (default is False), the following comparison methods
@@ -223,6 +229,7 @@ Foo(a=676676, b='new', c=False)
         - __hash__() is also needed for instance comparison
         - __repr__() gives you a nice output when you call &#34;print(foo)&#34;
         - copy_with() allows you to quickly create new similar frozen instances. Use this instead of setters.
+        - deep_copy_with() allows you to create deep copies and modify them.
         - validate_types() allows you to validate the types of the dataclass.
                            This is called automatically when [type_safe] is True.
 
@@ -262,9 +269,20 @@ Foo(a=676676, b='new', c=False)
         def copy_with(self, **kwargs: Any) -&gt; T:
             &#34;&#34;&#34;
                 Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
+                Keep in mind that this is a shallow copy!
             &#34;&#34;&#34;
 
-            return cls_(**{**asdict(self), **kwargs})  # python &gt;= 3.9.0: cls(**(asdict(self) | kwargs))
+            current_values = {field.name: getattr(self, field.name) for field in fields(self)}
+            return cls_(**{**current_values, **kwargs})
+
+        def deep_copy_with(self, **kwargs: Any) -&gt; T:
+            &#34;&#34;&#34;
+                Creates a new immutable instance that by deep copying all fields of
+                this instance replaced by the new values.
+            &#34;&#34;&#34;
+
+            current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
+            return cls_(**{**current_values, **kwargs})
 
         def validate_types(self) -&gt; None:
             &#34;&#34;&#34;
@@ -282,30 +300,22 @@ Foo(a=676676, b='new', c=False)
                     type_vars={},
                 )
 
-        def _post_init(f: Callable[[T], None]) -&gt; Callable[[T], None]:
-            def wrapper(self) -&gt; None:
-                f(self)
-                self.validate_types()
-
-            return wrapper
-
         if is_dataclass(obj=cls_):
             raise AssertionError(f&#39;Dataclass &#34;{cls_}&#34; cannot be decorated with &#39;
                                  f&#39;&#34;@frozen_dataclass&#34; because it already is a dataclass.&#39;)
 
         setattr(cls_, copy_with.__name__, copy_with)
+        setattr(cls_, deep_copy_with.__name__, deep_copy_with)
         setattr(cls_, validate_types.__name__, validate_types)
 
         if type_safe:
-            post_init = &#39;__post_init__&#39;
+            old_post_init = getattr(cls_, &#39;__post_init__&#39;, lambda _: None)
 
-            if hasattr(cls_, post_init):
-                new_post_init = _post_init(f=getattr(cls_, post_init))
-            else:
-                def new_post_init(self):
-                    self.validate_types()
+            def new_post_init(self) -&gt; None:
+                old_post_init(self)
+                self.validate_types()
 
-            setattr(cls_, post_init, new_post_init)
+            setattr(cls_, &#39;__post_init__&#39;, new_post_init)
 
         return dataclass(frozen=True, order=order)(cls_)
 
