@@ -99,10 +99,6 @@ def frozen_dataclass(cls: Type[T] = None, type_safe: bool = False, order: bool =
                     type_vars={},
                 )
 
-        if is_dataclass(obj=cls_):
-            raise AssertionError(f'Dataclass "{cls_}" cannot be decorated with '
-                                 f'"@frozen_dataclass" because it already is a dataclass.')
-
         setattr(cls_, copy_with.__name__, copy_with)
         setattr(cls_, deep_copy_with.__name__, deep_copy_with)
         setattr(cls_, validate_types.__name__, validate_types)

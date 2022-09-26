@@ -1,5 +1,5 @@
 import unittest
-from dataclasses import dataclass
+from dataclasses import dataclass, FrozenInstanceError
 from typing import List, Dict, Set, Tuple
 
 from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
@@ -79,17 +79,41 @@ class TestFrozenDataclass(unittest.TestCase):
                    'does not match expected type <class \'int\'>.'
         self.assertEqual(str(exc.exception), expected)
 
-    def test_decorate_dataclass(self):
-        with self.assertRaises(expected_exception=AssertionError) as exc:
-            @frozen_dataclass
-            @dataclass
-            class A:
-                foo: int
+    def test_frozen_dataclass_above_dataclass(self):
+        # This is the same behavior like
+        # >>> @dataclass(frozen=True)
+        # ... @dataclass
+        # ... class C:
+        # ...     foo: int
 
-        self.assertIn(
-            'cannot be decorated with "@frozen_dataclass" because it already is a dataclass',
-            str(exc.exception)
-        )
+        @frozen_dataclass
+        @dataclass
+        class A:
+            foo: int
+
+        with self.assertRaises(expected_exception=TypeError):
+            A()
+
+        with self.assertRaises(expected_exception=FrozenInstanceError):
+            A(foo=3)
+
+    def test_frozen_dataclass_below_dataclass(self):
+        @dataclass
+        @frozen_dataclass
+        class A:
+            foo: int
+
+        with self.assertRaises(expected_exception=TypeError):
+            A()
+
+        a = A(foo=3)
+
+        with self.assertRaises(expected_exception=FrozenInstanceError):
+            a.foo = 4
+
+        b = a.copy_with(foo=4)
+        self.assertEqual(4, b.foo)
+
 
     def test_frozen_typesafe_dataclass_with_post_init(self):
         b = 3
@@ -191,3 +215,64 @@ class TestFrozenDataclass(unittest.TestCase):
         self.assertEqual([1, 2, 3], deep.foo)
         self.assertEqual('world', a.bar['hello'])
         self.assertEqual('pedantic', deep.bar['hello'])
+
+    def test_frozen_dataclass_inheritance_override_post_init(self):
+        i = 1
+
+        @frozen_type_safe_dataclass
+        class A:
+            bar: int
+
+            def __post_init__(self):
+                nonlocal i
+                i += 1
+                print('hello a')
+
+        @frozen_type_safe_dataclass
+        class B(A):
+            foo: int
+
+            def __post_init__(self):
+                nonlocal i
+                i *= 10
+                print('hello b')
+
+        A(bar=3)
+        self.assertEqual(2, i)
+
+        b = B(bar=3, foo=42)
+        self.assertEqual(20, i)  # post init of A was not called
+        self.assertEqual(3, b.bar)
+        self.assertEqual(42, b.foo)
+
+        a = b.copy_with()
+        self.assertEqual(b, a)
+        self.assertEqual(200, i)
+
+    def test_frozen_dataclass_inheritance_not_override_post_init(self):
+        i = 1
+
+        @frozen_type_safe_dataclass
+        class A:
+            bar: int
+
+            def __post_init__(self):
+                nonlocal i
+                i += 1
+                print('hello a')
+
+        @frozen_type_safe_dataclass
+        class B(A):
+            foo: int
+
+        A(bar=3)
+        self.assertEqual(2, i)
+
+        b = B(bar=3, foo=42)
+        self.assertEqual(3, i)  # post init of A was called
+        self.assertEqual(3, b.bar)
+        self.assertEqual(42, b.foo)
+
+        a = b.copy_with()
+        self.assertEqual(b, a)
+        self.assertEqual(4, i)
