@@ -1,6 +1,7 @@
+import sys
 from copy import deepcopy
-from dataclasses import dataclass, fields, is_dataclass
-from typing import Type, TypeVar, Any
+from dataclasses import dataclass, fields
+from typing import Type, TypeVar, Any, Union, Callable
 
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
 
@@ -13,7 +14,11 @@ def frozen_type_safe_dataclass(cls: Type[T]) -> Type[T]:
     return frozen_dataclass(type_safe=True)(cls)
 
 
-def frozen_dataclass(cls: Type[T] = None, type_safe: bool = False, order: bool = False) -> Type[T]:
+def frozen_dataclass(
+        cls: Type[T] = None,
+        type_safe: bool = False,
+        order: bool = False,
+) -> Union[Type[T], Callable[[Type[T]], Type[T]]]:
     """
         Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
         decorator. Also adds useful copy_with() and validate_types() instance methods to this class (see below).
@@ -112,7 +117,12 @@ def frozen_dataclass(cls: Type[T] = None, type_safe: bool = False, order: bool =
 
             setattr(cls_, '__post_init__', new_post_init)
 
-        return dataclass(frozen=True, order=order)(cls_)
+        args = {'frozen': True, 'order': order}
+
+        if sys.version_info >= (3, 10):
+            args['kw_only'] = True
+
+        return dataclass(**args)(cls_)
 
     if cls is None:
         return decorator

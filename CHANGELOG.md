@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 1.12.5
+- fix type hints
+- use `kw_only=True` in `frozen_dataclass` and `frozen_type_safe_dataclass`
+
 ## Pedantic 1.12.4
 - fix inheritance bug in `frozen_dataclass` and `frozen_type_safe_dataclass`
 - added more badges to `README.md`

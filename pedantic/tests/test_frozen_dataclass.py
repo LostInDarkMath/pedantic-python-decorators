@@ -160,6 +160,14 @@ class TestFrozenDataclass(unittest.TestCase):
         a = A(foo=42)
         self.assertEqual(42, a.foo)
 
+    def test_frozen_dataclass_no_braces(self):
+        @frozen_dataclass
+        class A:
+            foo: int
+
+        a = A(foo=42)
+        self.assertEqual(42, a.foo)
+
     def test_frozen_dataclass_order(self):
         @frozen_dataclass(order=True)
         class A:

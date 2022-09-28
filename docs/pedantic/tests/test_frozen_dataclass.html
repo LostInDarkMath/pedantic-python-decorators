@@ -27,7 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import unittest
-from dataclasses import dataclass
+from dataclasses import dataclass, FrozenInstanceError
 from typing import List, Dict, Set, Tuple
 
 from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
@@ -107,17 +107,41 @@ class TestFrozenDataclass(unittest.TestCase):
                    &#39;does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;
         self.assertEqual(str(exc.exception), expected)
 
-    def test_decorate_dataclass(self):
-        with self.assertRaises(expected_exception=AssertionError) as exc:
-            @frozen_dataclass
-            @dataclass
-            class A:
-                foo: int
+    def test_frozen_dataclass_above_dataclass(self):
+        # This is the same behavior like
+        # &gt;&gt;&gt; @dataclass(frozen=True)
+        # ... @dataclass
+        # ... class C:
+        # ...     foo: int
 
-        self.assertIn(
-            &#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;,
-            str(exc.exception)
-        )
+        @frozen_dataclass
+        @dataclass
+        class A:
+            foo: int
+
+        with self.assertRaises(expected_exception=TypeError):
+            A()
+
+        with self.assertRaises(expected_exception=FrozenInstanceError):
+            A(foo=3)
+
+    def test_frozen_dataclass_below_dataclass(self):
+        @dataclass
+        @frozen_dataclass
+        class A:
+            foo: int
+
+        with self.assertRaises(expected_exception=TypeError):
+            A()
+
+        a = A(foo=3)
+
+        with self.assertRaises(expected_exception=FrozenInstanceError):
+            a.foo = 4
+
+        b = a.copy_with(foo=4)
+        self.assertEqual(4, b.foo)
+
 
     def test_frozen_typesafe_dataclass_with_post_init(self):
         b = 3
@@ -158,6 +182,14 @@ class TestFrozenDataclass(unittest.TestCase):
 
     def test_frozen_dataclass_with_empty_braces(self):
         @frozen_dataclass()
+        class A:
+            foo: int
+
+        a = A(foo=42)
+        self.assertEqual(42, a.foo)
+
+    def test_frozen_dataclass_no_braces(self):
+        @frozen_dataclass
         class A:
             foo: int
 
@@ -218,7 +250,68 @@ class TestFrozenDataclass(unittest.TestCase):
         self.assertEqual([1, 2], a.foo)
         self.assertEqual([1, 2, 3], deep.foo)
         self.assertEqual(&#39;world&#39;, a.bar[&#39;hello&#39;])
-        self.assertEqual(&#39;pedantic&#39;, deep.bar[&#39;hello&#39;])</code></pre>
+        self.assertEqual(&#39;pedantic&#39;, deep.bar[&#39;hello&#39;])
+
+    def test_frozen_dataclass_inheritance_override_post_init(self):
+        i = 1
+
+        @frozen_type_safe_dataclass
+        class A:
+            bar: int
+
+            def __post_init__(self):
+                nonlocal i
+                i += 1
+                print(&#39;hello a&#39;)
+
+        @frozen_type_safe_dataclass
+        class B(A):
+            foo: int
+
+            def __post_init__(self):
+                nonlocal i
+                i *= 10
+                print(&#39;hello b&#39;)
+
+        A(bar=3)
+        self.assertEqual(2, i)
+
+        b = B(bar=3, foo=42)
+        self.assertEqual(20, i)  # post init of A was not called
+        self.assertEqual(3, b.bar)
+        self.assertEqual(42, b.foo)
+
+        a = b.copy_with()
+        self.assertEqual(b, a)
+        self.assertEqual(200, i)
+
+    def test_frozen_dataclass_inheritance_not_override_post_init(self):
+        i = 1
+
+        @frozen_type_safe_dataclass
+        class A:
+            bar: int
+
+            def __post_init__(self):
+                nonlocal i
+                i += 1
+                print(&#39;hello a&#39;)
+
+        @frozen_type_safe_dataclass
+        class B(A):
+            foo: int
+
+        A(bar=3)
+        self.assertEqual(2, i)
+
+        b = B(bar=3, foo=42)
+        self.assertEqual(3, i)  # post init of A was called
+        self.assertEqual(3, b.bar)
+        self.assertEqual(42, b.foo)
+
+        a = b.copy_with()
+        self.assertEqual(b, a)
+        self.assertEqual(4, i)</code></pre>
 </details>
 </section>
 <section>
@@ -232,15 +325,16 @@ class TestFrozenDataclass(unittest.TestCase):
 <dl>
 <dt id="pedantic.tests.test_frozen_dataclass.A"><code class="flex name class">
 <span>class <span class="ident">A</span></span>
-<span>(</span><span>foo: List[int], bar: Dict[str, str], values: Tuple[<a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>, <a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>])</span>
+<span>(</span><span>*, foo: List[int], bar: Dict[str, str], values: Tuple[<a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>, <a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>])</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A(foo: List[int], bar: Dict[str, str], values: Tuple[pedantic.tests.test_frozen_dataclass.B, pedantic.tests.test_frozen_dataclass.B])</p></div>
+<div class="desc"><p>A(*, foo: List[int], bar: Dict[str, str], values: Tuple[pedantic.tests.test_frozen_dataclass.B, pedantic.tests.test_frozen_dataclass.B])</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class A:
+<pre><code class="python">@frozen_type_safe_dataclass
+class A:
     foo: List[int]
     bar: Dict[str, str]
     values: Tuple[B, B]</code></pre>
@@ -333,15 +427,16 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.B"><code class="flex name class">
 <span>class <span class="ident">B</span></span>
-<span>(</span><span>v: Set[int])</span>
+<span>(</span><span>*, v: Set[int])</span>
 </code></dt>
 <dd>
-<div class="desc"><p>B(v: Set[int])</p></div>
+<div class="desc"><p>B(*, v: Set[int])</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class B:
+<pre><code class="python">@frozen_type_safe_dataclass
+class B:
     v: Set[int]</code></pre>
 </details>
 <h3>Class variables</h3>
@@ -424,15 +519,16 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.Foo"><code class="flex name class">
 <span>class <span class="ident">Foo</span></span>
-<span>(</span><span>a: int, b: str, c: bool)</span>
+<span>(</span><span>*, a: int, b: str, c: bool)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Foo(a: int, b: str, c: bool)</p></div>
+<div class="desc"><p>Foo(*, a: int, b: str, c: bool)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Foo:
+<pre><code class="python">@frozen_dataclass
+class Foo:
     a: int
     b: str
     c: bool</code></pre>
@@ -615,17 +711,41 @@ not have a method with the specified name.</p></div>
                    &#39;does not match expected type &lt;class \&#39;int\&#39;&gt;.&#39;
         self.assertEqual(str(exc.exception), expected)
 
-    def test_decorate_dataclass(self):
-        with self.assertRaises(expected_exception=AssertionError) as exc:
-            @frozen_dataclass
-            @dataclass
-            class A:
-                foo: int
+    def test_frozen_dataclass_above_dataclass(self):
+        # This is the same behavior like
+        # &gt;&gt;&gt; @dataclass(frozen=True)
+        # ... @dataclass
+        # ... class C:
+        # ...     foo: int
 
-        self.assertIn(
-            &#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;,
-            str(exc.exception)
-        )
+        @frozen_dataclass
+        @dataclass
+        class A:
+            foo: int
+
+        with self.assertRaises(expected_exception=TypeError):
+            A()
+
+        with self.assertRaises(expected_exception=FrozenInstanceError):
+            A(foo=3)
+
+    def test_frozen_dataclass_below_dataclass(self):
+        @dataclass
+        @frozen_dataclass
+        class A:
+            foo: int
+
+        with self.assertRaises(expected_exception=TypeError):
+            A()
+
+        a = A(foo=3)
+
+        with self.assertRaises(expected_exception=FrozenInstanceError):
+            a.foo = 4
+
+        b = a.copy_with(foo=4)
+        self.assertEqual(4, b.foo)
+
 
     def test_frozen_typesafe_dataclass_with_post_init(self):
         b = 3
@@ -666,6 +786,14 @@ not have a method with the specified name.</p></div>
 
     def test_frozen_dataclass_with_empty_braces(self):
         @frozen_dataclass()
+        class A:
+            foo: int
+
+        a = A(foo=42)
+        self.assertEqual(42, a.foo)
+
+    def test_frozen_dataclass_no_braces(self):
+        @frozen_dataclass
         class A:
             foo: int
 
@@ -726,7 +854,68 @@ not have a method with the specified name.</p></div>
         self.assertEqual([1, 2], a.foo)
         self.assertEqual([1, 2, 3], deep.foo)
         self.assertEqual(&#39;world&#39;, a.bar[&#39;hello&#39;])
-        self.assertEqual(&#39;pedantic&#39;, deep.bar[&#39;hello&#39;])</code></pre>
+        self.assertEqual(&#39;pedantic&#39;, deep.bar[&#39;hello&#39;])
+
+    def test_frozen_dataclass_inheritance_override_post_init(self):
+        i = 1
+
+        @frozen_type_safe_dataclass
+        class A:
+            bar: int
+
+            def __post_init__(self):
+                nonlocal i
+                i += 1
+                print(&#39;hello a&#39;)
+
+        @frozen_type_safe_dataclass
+        class B(A):
+            foo: int
+
+            def __post_init__(self):
+                nonlocal i
+                i *= 10
+                print(&#39;hello b&#39;)
+
+        A(bar=3)
+        self.assertEqual(2, i)
+
+        b = B(bar=3, foo=42)
+        self.assertEqual(20, i)  # post init of A was not called
+        self.assertEqual(3, b.bar)
+        self.assertEqual(42, b.foo)
+
+        a = b.copy_with()
+        self.assertEqual(b, a)
+        self.assertEqual(200, i)
+
+    def test_frozen_dataclass_inheritance_not_override_post_init(self):
+        i = 1
+
+        @frozen_type_safe_dataclass
+        class A:
+            bar: int
+
+            def __post_init__(self):
+                nonlocal i
+                i += 1
+                print(&#39;hello a&#39;)
+
+        @frozen_type_safe_dataclass
+        class B(A):
+            foo: int
+
+        A(bar=3)
+        self.assertEqual(2, i)
+
+        b = B(bar=3, foo=42)
+        self.assertEqual(3, i)  # post init of A was called
+        self.assertEqual(3, b.bar)
+        self.assertEqual(42, b.foo)
+
+        a = b.copy_with()
+        self.assertEqual(b, a)
+        self.assertEqual(4, i)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -820,28 +1009,6 @@ not have a method with the specified name.</p></div>
     self.assertEqual(&#39;pedantic&#39;, shallow.bar[&#39;hello&#39;])</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_decorate_dataclass"><code class="name flex">
-<span>def <span class="ident">test_decorate_dataclass</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_decorate_dataclass(self):
-    with self.assertRaises(expected_exception=AssertionError) as exc:
-        @frozen_dataclass
-        @dataclass
-        class A:
-            foo: int
-
-    self.assertIn(
-        &#39;cannot be decorated with &#34;@frozen_dataclass&#34; because it already is a dataclass&#39;,
-        str(exc.exception)
-    )</code></pre>
-</details>
-</dd>
 <dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash"><code class="name flex">
 <span>def <span class="ident">test_equals_and_hash</span></span>(<span>self)</span>
 </code></dt>
@@ -861,6 +1028,160 @@ not have a method with the specified name.</p></div>
 
     self.assertNotEqual(a, c)
     self.assertNotEqual(hash(a), hash(c))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_above_dataclass"><code class="name flex">
+<span>def <span class="ident">test_frozen_dataclass_above_dataclass</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_dataclass_above_dataclass(self):
+    # This is the same behavior like
+    # &gt;&gt;&gt; @dataclass(frozen=True)
+    # ... @dataclass
+    # ... class C:
+    # ...     foo: int
+
+    @frozen_dataclass
+    @dataclass
+    class A:
+        foo: int
+
+    with self.assertRaises(expected_exception=TypeError):
+        A()
+
+    with self.assertRaises(expected_exception=FrozenInstanceError):
+        A(foo=3)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_below_dataclass"><code class="name flex">
+<span>def <span class="ident">test_frozen_dataclass_below_dataclass</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_dataclass_below_dataclass(self):
+    @dataclass
+    @frozen_dataclass
+    class A:
+        foo: int
+
+    with self.assertRaises(expected_exception=TypeError):
+        A()
+
+    a = A(foo=3)
+
+    with self.assertRaises(expected_exception=FrozenInstanceError):
+        a.foo = 4
+
+    b = a.copy_with(foo=4)
+    self.assertEqual(4, b.foo)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_inheritance_not_override_post_init"><code class="name flex">
+<span>def <span class="ident">test_frozen_dataclass_inheritance_not_override_post_init</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_dataclass_inheritance_not_override_post_init(self):
+    i = 1
+
+    @frozen_type_safe_dataclass
+    class A:
+        bar: int
+
+        def __post_init__(self):
+            nonlocal i
+            i += 1
+            print(&#39;hello a&#39;)
+
+    @frozen_type_safe_dataclass
+    class B(A):
+        foo: int
+
+    A(bar=3)
+    self.assertEqual(2, i)
+
+    b = B(bar=3, foo=42)
+    self.assertEqual(3, i)  # post init of A was called
+    self.assertEqual(3, b.bar)
+    self.assertEqual(42, b.foo)
+
+    a = b.copy_with()
+    self.assertEqual(b, a)
+    self.assertEqual(4, i)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_inheritance_override_post_init"><code class="name flex">
+<span>def <span class="ident">test_frozen_dataclass_inheritance_override_post_init</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_dataclass_inheritance_override_post_init(self):
+    i = 1
+
+    @frozen_type_safe_dataclass
+    class A:
+        bar: int
+
+        def __post_init__(self):
+            nonlocal i
+            i += 1
+            print(&#39;hello a&#39;)
+
+    @frozen_type_safe_dataclass
+    class B(A):
+        foo: int
+
+        def __post_init__(self):
+            nonlocal i
+            i *= 10
+            print(&#39;hello b&#39;)
+
+    A(bar=3)
+    self.assertEqual(2, i)
+
+    b = B(bar=3, foo=42)
+    self.assertEqual(20, i)  # post init of A was not called
+    self.assertEqual(3, b.bar)
+    self.assertEqual(42, b.foo)
+
+    a = b.copy_with()
+    self.assertEqual(b, a)
+    self.assertEqual(200, i)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_no_braces"><code class="name flex">
+<span>def <span class="ident">test_frozen_dataclass_no_braces</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_frozen_dataclass_no_braces(self):
+    @frozen_dataclass
+    class A:
+        foo: int
+
+    a = A(foo=42)
+    self.assertEqual(42, a.foo)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_order"><code class="name flex">
@@ -1066,8 +1387,12 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with">test_copy_with</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_and_deep_copy_with" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_and_deep_copy_with">test_copy_with_and_deep_copy_with</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_is_shallow" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_is_shallow">test_copy_with_is_shallow</a></code></li>
-<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_decorate_dataclass" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_decorate_dataclass">test_decorate_dataclass</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash">test_equals_and_hash</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_above_dataclass" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_above_dataclass">test_frozen_dataclass_above_dataclass</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_below_dataclass" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_below_dataclass">test_frozen_dataclass_below_dataclass</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_inheritance_not_override_post_init" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_inheritance_not_override_post_init">test_frozen_dataclass_inheritance_not_override_post_init</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_inheritance_override_post_init" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_inheritance_override_post_init">test_frozen_dataclass_inheritance_override_post_init</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_no_braces" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_no_braces">test_frozen_dataclass_no_braces</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_order" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_order">test_frozen_dataclass_order</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_with_empty_braces" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_with_empty_braces">test_frozen_dataclass_with_empty_braces</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_type_safe_dataclass_copy_with_check" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_type_safe_dataclass_copy_with_check">test_frozen_type_safe_dataclass_copy_with_check</a></code></li>

@@ -109,20 +109,20 @@ def _assert_constructor_called_with_generics(instance: Any) -> None:
     setattr(instance, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED, True)
 
 
-def _is_instance_of_generic_class(instance: Any) -> bool:
+def is_instance_of_generic_class(instance: Any) -> bool:
     """
         >>> class A: pass
         >>> a = A()
-        >>> _is_instance_of_generic_class(a)
+        >>> is_instance_of_generic_class(a)
         False
         >>> from typing import TypeVar, Generic
         >>> T = TypeVar('T')
         >>> class B(Generic[T]): pass
         >>> b = B()
-        >>> _is_instance_of_generic_class(b)
+        >>> is_instance_of_generic_class(b)
         True
         >>> b2 = B[int]()
-        >>> _is_instance_of_generic_class(b2)
+        >>> is_instance_of_generic_class(b2)
         True
     """
     return Generic in instance.__class__.__bases__

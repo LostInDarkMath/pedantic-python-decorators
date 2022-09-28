@@ -137,20 +137,20 @@ def _assert_constructor_called_with_generics(instance: Any) -&gt; None:
     setattr(instance, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED, True)
 
 
-def _is_instance_of_generic_class(instance: Any) -&gt; bool:
+def is_instance_of_generic_class(instance: Any) -&gt; bool:
     &#34;&#34;&#34;
         &gt;&gt;&gt; class A: pass
         &gt;&gt;&gt; a = A()
-        &gt;&gt;&gt; _is_instance_of_generic_class(a)
+        &gt;&gt;&gt; is_instance_of_generic_class(a)
         False
         &gt;&gt;&gt; from typing import TypeVar, Generic
         &gt;&gt;&gt; T = TypeVar(&#39;T&#39;)
         &gt;&gt;&gt; class B(Generic[T]): pass
         &gt;&gt;&gt; b = B()
-        &gt;&gt;&gt; _is_instance_of_generic_class(b)
+        &gt;&gt;&gt; is_instance_of_generic_class(b)
         True
         &gt;&gt;&gt; b2 = B[int]()
-        &gt;&gt;&gt; _is_instance_of_generic_class(b2)
+        &gt;&gt;&gt; is_instance_of_generic_class(b2)
         True
     &#34;&#34;&#34;
     return Generic in instance.__class__.__bases__
@@ -263,6 +263,47 @@ TypeError: Too few ...; actual 1, expected 2
     return type_vars</code></pre>
 </details>
 </dd>
+<dt id="pedantic.type_checking_logic.check_generic_classes.is_instance_of_generic_class"><code class="name flex">
+<span>def <span class="ident">is_instance_of_generic_class</span></span>(<span>instance: Any) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; class A: pass
+&gt;&gt;&gt; a = A()
+&gt;&gt;&gt; is_instance_of_generic_class(a)
+False
+&gt;&gt;&gt; from typing import TypeVar, Generic
+&gt;&gt;&gt; T = TypeVar('T')
+&gt;&gt;&gt; class B(Generic[T]): pass
+&gt;&gt;&gt; b = B()
+&gt;&gt;&gt; is_instance_of_generic_class(b)
+True
+&gt;&gt;&gt; b2 = B[int]()
+&gt;&gt;&gt; is_instance_of_generic_class(b2)
+True
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_instance_of_generic_class(instance: Any) -&gt; bool:
+    &#34;&#34;&#34;
+        &gt;&gt;&gt; class A: pass
+        &gt;&gt;&gt; a = A()
+        &gt;&gt;&gt; is_instance_of_generic_class(a)
+        False
+        &gt;&gt;&gt; from typing import TypeVar, Generic
+        &gt;&gt;&gt; T = TypeVar(&#39;T&#39;)
+        &gt;&gt;&gt; class B(Generic[T]): pass
+        &gt;&gt;&gt; b = B()
+        &gt;&gt;&gt; is_instance_of_generic_class(b)
+        True
+        &gt;&gt;&gt; b2 = B[int]()
+        &gt;&gt;&gt; is_instance_of_generic_class(b2)
+        True
+    &#34;&#34;&#34;
+    return Generic in instance.__class__.__bases__</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -282,6 +323,7 @@ TypeError: Too few ...; actual 1, expected 2
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pedantic.type_checking_logic.check_generic_classes.check_instance_of_generic_class_and_get_type_vars" href="#pedantic.type_checking_logic.check_generic_classes.check_instance_of_generic_class_and_get_type_vars">check_instance_of_generic_class_and_get_type_vars</a></code></li>
+<li><code><a title="pedantic.type_checking_logic.check_generic_classes.is_instance_of_generic_class" href="#pedantic.type_checking_logic.check_generic_classes.is_instance_of_generic_class">is_instance_of_generic_class</a></code></li>
 </ul>
 </li>
 </ul>

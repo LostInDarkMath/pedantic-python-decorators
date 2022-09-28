@@ -1,4 +1,4 @@
 #!/bin/bash
-pip install pdoc3
+pip3 install pdoc3
 pdoc3 --html --output-dir docs pedantic --force
 "docs/pedantic/index.html"

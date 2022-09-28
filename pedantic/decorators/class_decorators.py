@@ -1,18 +1,18 @@
 import enum
 from dataclasses import is_dataclass
-from typing import Callable, Any, Optional, Dict
+from typing import Callable, Any, Optional, Dict, Type
 import types
 
 from pedantic.env_var_logic import is_enabled
 from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, F, C
 from pedantic.type_checking_logic.check_generic_classes import check_instance_of_generic_class_and_get_type_vars, \
-    _is_instance_of_generic_class
+    is_instance_of_generic_class
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.decorators.fn_deco_pedantic import pedantic, pedantic_require_docstring
 from pedantic.decorators import timer, trace
 
 
-def for_all_methods(decorator: F) -> Callable[[C], C]:
+def for_all_methods(decorator: F) -> Callable[[Type[C]], Type[C]]:
     """
         Apples a decorator to all methods of a class.
 
@@ -79,7 +79,7 @@ def _get_wrapped(prop: Optional[F], decorator: F) -> Optional[F]:
 
 def _add_type_var_attr_and_method_to_class(cls: C) -> None:
     def type_vars(self) -> Dict:
-        if _is_instance_of_generic_class(instance=self):
+        if is_instance_of_generic_class(instance=self):
             type_vars_fifo = getattr(self, TYPE_VAR_ATTR_NAME) if hasattr(self, TYPE_VAR_ATTR_NAME) else {}
             type_vars_generics = check_instance_of_generic_class_and_get_type_vars(instance=self)
             setattr(self, TYPE_VAR_ATTR_NAME, _merge_dicts(first=type_vars_generics, second=type_vars_fifo))
