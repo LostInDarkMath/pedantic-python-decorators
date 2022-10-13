@@ -1,6 +1,7 @@
 from .fn_deco_count_calls import count_calls
 from .fn_deco_deprecated import deprecated
 from .fn_deco_does_same_as_function import does_same_as_function
+from .fn_deco_in_subprocess import in_subprocess, calculate_in_subprocess
 from .fn_deco_mock import mock
 from .fn_deco_overrides import overrides
 from .fn_deco_pedantic import pedantic, pedantic_require_docstring
