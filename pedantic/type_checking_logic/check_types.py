@@ -555,10 +555,12 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
     python_sub = _get_class_of_type_annotation(sub_type)
     python_super = _get_class_of_type_annotation(super_type)
 
-    if python_super == typing.Union or isinstance(python_super, types.UnionType):
+    is_union_type_available = hasattr(types, 'UnionType')  # true for Python >= 3.10
+
+    if python_super == typing.Union or (is_union_type_available and isinstance(python_super, types.UnionType)):
         type_args = get_type_arguments(cls=super_type)
 
-        if python_sub == typing.Union or isinstance(python_sub, types.UnionType):
+        if python_sub == typing.Union or (is_union_type_available and isinstance(python_sub, types.UnionType)):
             sub_type_args = get_type_arguments(cls=sub_type)
             return all([x in type_args for x in sub_type_args])
 
