@@ -1,6 +1,6 @@
 import unittest
 from dataclasses import dataclass, FrozenInstanceError
-from typing import List, Dict, Set, Tuple
+from typing import List, Dict, Set, Tuple, Awaitable, Callable
 
 from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from pedantic.exceptions import PedanticTypeCheckException
@@ -23,6 +23,7 @@ class A:
     foo: List[int]
     bar: Dict[str, str]
     values: Tuple[B, B]
+
 
 class TestFrozenDataclass(unittest.TestCase):
     def test_equals_and_hash(self):
@@ -284,3 +285,18 @@ class TestFrozenDataclass(unittest.TestCase):
         a = b.copy_with()
         self.assertEqual(b, a)
         self.assertEqual(4, i)
+
+    def test_type_safe_frozen_dataclass_with_awaitable(self):
+        @frozen_type_safe_dataclass
+        class A:
+            f: Callable[..., Awaitable[int]]
+
+        async def _cb() -> int:
+            return 42
+
+        async def _cb_2() -> str:
+            return '42'
+
+        A(f=_cb)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            A(f=_cb_2)

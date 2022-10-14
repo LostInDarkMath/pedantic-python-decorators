@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>pedantic.tests.tests_pedantic_async API documentation</title>
+<title>pedantic.tests.test_assert_value_matches_type API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,71 +19,91 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>pedantic.tests.tests_pedantic_async</code></h1>
+<h1 class="title">Module <code>pedantic.tests.test_assert_value_matches_type</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import asyncio
-import unittest
+<pre><code class="python">import unittest
+from dataclasses import dataclass
+from typing import Callable, Awaitable, Coroutine
 
-from pedantic.decorators.class_decorators import pedantic_class
 from pedantic.exceptions import PedanticTypeCheckException
-from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic.type_checking_logic.check_types import assert_value_matches_type
 
 
-class TestPedanticAsyncio(unittest.IsolatedAsyncioTestCase):
-    async def test_coroutine_correct_return_type(self):
-        @pedantic
-        async def foo() -&gt; str:
-            await asyncio.sleep(0)
-            return &#39;foo&#39;
+@dataclass
+class Foo:
+    value: int
 
-        await foo()
 
-    async def test_coroutine_wrong_return_type(self):
-        @pedantic
-        async def foo() -&gt; str:
-            await asyncio.sleep(0)
-            return 1
+class TestAssertValueMatchesType(unittest.TestCase):
+    def test_callable(self):
+        def _cb(foo: Foo) -&gt; str:
+            return str(foo.value)
 
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await foo()
-
-    async def test_coroutine_wrong_argument_type(self):
-        @pedantic
-        async def foo(x: int) -&gt; int:
-            await asyncio.sleep(0)
-            return 1 + x
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., str],
+            err=&#39;&#39;,
+            type_vars={},
+        )
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await foo(x=4.5)
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., int],
+                err=&#39;&#39;,
+                type_vars={},
+            )
 
-    async def test_static_async(self):
-        @pedantic_class
-        class Foo:
-            @staticmethod
-            async def staticmethod() -&gt; int:
-                await asyncio.sleep(0)
-                return &#39;foo&#39;
+    def test_callable_awaitable(self):
+        async def _cb(foo: Foo) -&gt; str:
+            return str(foo.value)
 
-            @classmethod
-            async def classmethod(cls) -&gt; int:
-                await asyncio.sleep(0)
-                return &#39;foo&#39;
-
-            async def method(self) -&gt; int:
-                await asyncio.sleep(0)
-                return &#39;foo&#39;
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[str]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await Foo.staticmethod()
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Awaitable[int]],
+                err=&#39;&#39;,
+                type_vars={},
+            )
+
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await Foo.classmethod()
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., str],
+                err=&#39;&#39;,
+                type_vars={},
+            )
+
+    def test_coroutine_awaitable(self):
+        async def _cb(foo: Foo) -&gt; str:
+            return str(foo.value)
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Coroutine[None, None, str]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await Foo().method()</code></pre>
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Coroutine[None, None, int]],
+                err=&#39;&#39;,
+                type_vars={},
+            )</code></pre>
 </details>
 </section>
 <section>
@@ -95,8 +115,30 @@ class TestPedanticAsyncio(unittest.IsolatedAsyncioTestCase):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio"><code class="flex name class">
-<span>class <span class="ident">TestPedanticAsyncio</span></span>
+<dt id="pedantic.tests.test_assert_value_matches_type.Foo"><code class="flex name class">
+<span>class <span class="ident">Foo</span></span>
+<span>(</span><span>value: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Foo(value: int)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class Foo:
+    value: int</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pedantic.tests.test_assert_value_matches_type.Foo.value"><code class="name">var <span class="ident">value</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType"><code class="flex name class">
+<span>class <span class="ident">TestAssertValueMatchesType</span></span>
 <span>(</span><span>methodName='runTest')</span>
 </code></dt>
 <dd>
@@ -132,66 +174,80 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TestPedanticAsyncio(unittest.IsolatedAsyncioTestCase):
-    async def test_coroutine_correct_return_type(self):
-        @pedantic
-        async def foo() -&gt; str:
-            await asyncio.sleep(0)
-            return &#39;foo&#39;
+<pre><code class="python">class TestAssertValueMatchesType(unittest.TestCase):
+    def test_callable(self):
+        def _cb(foo: Foo) -&gt; str:
+            return str(foo.value)
 
-        await foo()
-
-    async def test_coroutine_wrong_return_type(self):
-        @pedantic
-        async def foo() -&gt; str:
-            await asyncio.sleep(0)
-            return 1
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., str],
+            err=&#39;&#39;,
+            type_vars={},
+        )
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await foo()
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., int],
+                err=&#39;&#39;,
+                type_vars={},
+            )
 
-    async def test_coroutine_wrong_argument_type(self):
-        @pedantic
-        async def foo(x: int) -&gt; int:
-            await asyncio.sleep(0)
-            return 1 + x
+    def test_callable_awaitable(self):
+        async def _cb(foo: Foo) -&gt; str:
+            return str(foo.value)
 
-        with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await foo(x=4.5)
-
-    async def test_static_async(self):
-        @pedantic_class
-        class Foo:
-            @staticmethod
-            async def staticmethod() -&gt; int:
-                await asyncio.sleep(0)
-                return &#39;foo&#39;
-
-            @classmethod
-            async def classmethod(cls) -&gt; int:
-                await asyncio.sleep(0)
-                return &#39;foo&#39;
-
-            async def method(self) -&gt; int:
-                await asyncio.sleep(0)
-                return &#39;foo&#39;
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[str]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await Foo.staticmethod()
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Awaitable[int]],
+                err=&#39;&#39;,
+                type_vars={},
+            )
+
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await Foo.classmethod()
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., str],
+                err=&#39;&#39;,
+                type_vars={},
+            )
+
+    def test_coroutine_awaitable(self):
+        async def _cb(foo: Foo) -&gt; str:
+            return str(foo.value)
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Coroutine[None, None, str]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            await Foo().method()</code></pre>
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Coroutine[None, None, int]],
+                err=&#39;&#39;,
+                type_vars={},
+            )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>unittest.async_case.IsolatedAsyncioTestCase</li>
 <li>unittest.case.TestCase</li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_correct_return_type"><code class="name flex">
-<span>async def <span class="ident">test_coroutine_correct_return_type</span></span>(<span>self)</span>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable"><code class="name flex">
+<span>def <span class="ident">test_callable</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -199,17 +255,28 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def test_coroutine_correct_return_type(self):
-    @pedantic
-    async def foo() -&gt; str:
-        await asyncio.sleep(0)
-        return &#39;foo&#39;
+<pre><code class="python">def test_callable(self):
+    def _cb(foo: Foo) -&gt; str:
+        return str(foo.value)
 
-    await foo()</code></pre>
+    assert_value_matches_type(
+        value=_cb,
+        type_=Callable[..., str],
+        err=&#39;&#39;,
+        type_vars={},
+    )
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., int],
+            err=&#39;&#39;,
+            type_vars={},
+        )</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_argument_type"><code class="name flex">
-<span>async def <span class="ident">test_coroutine_wrong_argument_type</span></span>(<span>self)</span>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable"><code class="name flex">
+<span>def <span class="ident">test_callable_awaitable</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -217,18 +284,36 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def test_coroutine_wrong_argument_type(self):
-    @pedantic
-    async def foo(x: int) -&gt; int:
-        await asyncio.sleep(0)
-        return 1 + x
+<pre><code class="python">def test_callable_awaitable(self):
+    async def _cb(foo: Foo) -&gt; str:
+        return str(foo.value)
+
+    assert_value_matches_type(
+        value=_cb,
+        type_=Callable[..., Awaitable[str]],
+        err=&#39;&#39;,
+        type_vars={},
+    )
 
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        await foo(x=4.5)</code></pre>
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[int]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., str],
+            err=&#39;&#39;,
+            type_vars={},
+        )</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_return_type"><code class="name flex">
-<span>async def <span class="ident">test_coroutine_wrong_return_type</span></span>(<span>self)</span>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_coroutine_awaitable"><code class="name flex">
+<span>def <span class="ident">test_coroutine_awaitable</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -236,48 +321,24 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def test_coroutine_wrong_return_type(self):
-    @pedantic
-    async def foo() -&gt; str:
-        await asyncio.sleep(0)
-        return 1
+<pre><code class="python">def test_coroutine_awaitable(self):
+    async def _cb(foo: Foo) -&gt; str:
+        return str(foo.value)
+
+    assert_value_matches_type(
+        value=_cb,
+        type_=Callable[..., Coroutine[None, None, str]],
+        err=&#39;&#39;,
+        type_vars={},
+    )
 
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        await foo()</code></pre>
-</details>
-</dd>
-<dt id="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_static_async"><code class="name flex">
-<span>async def <span class="ident">test_static_async</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">async def test_static_async(self):
-    @pedantic_class
-    class Foo:
-        @staticmethod
-        async def staticmethod() -&gt; int:
-            await asyncio.sleep(0)
-            return &#39;foo&#39;
-
-        @classmethod
-        async def classmethod(cls) -&gt; int:
-            await asyncio.sleep(0)
-            return &#39;foo&#39;
-
-        async def method(self) -&gt; int:
-            await asyncio.sleep(0)
-            return &#39;foo&#39;
-
-    with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        await Foo.staticmethod()
-    with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        await Foo.classmethod()
-    with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        await Foo().method()</code></pre>
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Coroutine[None, None, int]],
+            err=&#39;&#39;,
+            type_vars={},
+        )</code></pre>
 </details>
 </dd>
 </dl>
@@ -299,12 +360,17 @@ not have a method with the specified name.</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio">TestPedanticAsyncio</a></code></h4>
+<h4><code><a title="pedantic.tests.test_assert_value_matches_type.Foo" href="#pedantic.tests.test_assert_value_matches_type.Foo">Foo</a></code></h4>
 <ul class="">
-<li><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_correct_return_type" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_correct_return_type">test_coroutine_correct_return_type</a></code></li>
-<li><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_argument_type" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_argument_type">test_coroutine_wrong_argument_type</a></code></li>
-<li><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_return_type" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_coroutine_wrong_return_type">test_coroutine_wrong_return_type</a></code></li>
-<li><code><a title="pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_static_async" href="#pedantic.tests.tests_pedantic_async.TestPedanticAsyncio.test_static_async">test_static_async</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.Foo.value" href="#pedantic.tests.test_assert_value_matches_type.Foo.value">value</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType">TestAssertValueMatchesType</a></code></h4>
+<ul class="">
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable">test_callable</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable">test_callable_awaitable</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_coroutine_awaitable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_coroutine_awaitable">test_coroutine_awaitable</a></code></li>
 </ul>
 </li>
 </ul>

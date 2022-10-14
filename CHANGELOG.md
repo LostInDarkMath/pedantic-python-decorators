@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.12.6
+- bugfix in type checking logic concerning `typing.Aewaitable` and `typing.Coroutine`
+
 ## Pedantic 1.12.5
 - fix type hints
 - use `kw_only=True` in `frozen_dataclass` and `frozen_type_safe_dataclass`

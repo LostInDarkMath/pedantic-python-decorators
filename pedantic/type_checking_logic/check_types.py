@@ -364,7 +364,7 @@ def _has_required_type_arguments(cls: Any) -> bool:
 
 def get_type_arguments(cls: Any) -> Tuple[Any, ...]:
     """ Works similar to typing.args()
-        >>> from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar, Optional
+        >>> from typing import Tuple, List, Union, Callable, Any, NewType, TypeVar, Optional, Awaitable, Coroutine
         >>> get_type_arguments(int)
         ()
         >>> get_type_arguments(List[float])
@@ -405,6 +405,10 @@ def get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (<class 'int'>, <class 'NoneType'>)
         >>> get_type_arguments(str | int) if sys.version_info >= (3, 10) else (str, int)
         (<class 'str'>, <class 'int'>)
+        >>> get_type_arguments(Awaitable[str])
+        (<class 'str'>,)
+        >>> get_type_arguments(Coroutine[int, bool, str])
+        (<class 'int'>, <class 'bool'>, <class 'str'>)
     """
 
     result = ()
@@ -430,7 +434,7 @@ def get_type_arguments(cls: Any) -> Tuple[Any, ...]:
 
 def get_base_generic(cls: Any) -> Any:
     """
-        >>> from typing import List, Union, Tuple, Callable, Dict, Set
+        >>> from typing import List, Union, Tuple, Callable, Dict, Set, Awaitable, Coroutine
         >>> get_base_generic(List)
         typing.List
         >>> get_base_generic(List[float])
@@ -461,6 +465,10 @@ def get_base_generic(cls: Any) -> Any:
         typing.Set
         >>> get_base_generic(Set[int])
         typing.Set
+        >>> get_base_generic(Awaitable[int])
+        typing.Awaitable
+        >>> get_base_generic(Coroutine[None, None, int])
+        typing.Coroutine
     """
 
     origin = cls.__origin__ if hasattr(cls, '__origin__') else None
@@ -867,7 +875,19 @@ def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
             if not _is_subtype(sub_type=param.annotation, super_type=expected_type):
                 return False
 
-    return _is_subtype(sub_type=sig.return_annotation, super_type=ret_type)
+    if not inspect.iscoroutinefunction(value):
+        return _is_subtype(sub_type=sig.return_annotation, super_type=ret_type)
+
+    base = get_base_generic(ret_type)
+
+    if base == typing.Awaitable:
+        arg = get_type_arguments(ret_type)[0]
+    elif base == typing.Coroutine:
+        arg = get_type_arguments(ret_type)[2]
+    else:
+        return False
+
+    return _is_subtype(sub_type=sig.return_annotation, super_type=arg)
 
 
 def _is_lambda(obj: Any) -> bool:
