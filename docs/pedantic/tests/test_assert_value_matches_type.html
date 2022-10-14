@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">import unittest
 from dataclasses import dataclass
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, Coroutine
 
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
@@ -73,7 +73,34 @@ class TestAssertValueMatchesType(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             assert_value_matches_type(
                 value=_cb,
-                type_=Callable[..., int],
+                type_=Callable[..., Awaitable[int]],
+                err=&#39;&#39;,
+                type_vars={},
+            )
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., str],
+                err=&#39;&#39;,
+                type_vars={},
+            )
+
+    def test_coroutine_awaitable(self):
+        async def _cb(foo: Foo) -&gt; str:
+            return str(foo.value)
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Coroutine[None, None, str]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Coroutine[None, None, int]],
                 err=&#39;&#39;,
                 type_vars={},
             )</code></pre>
@@ -181,7 +208,34 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             assert_value_matches_type(
                 value=_cb,
-                type_=Callable[..., int],
+                type_=Callable[..., Awaitable[int]],
+                err=&#39;&#39;,
+                type_vars={},
+            )
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., str],
+                err=&#39;&#39;,
+                type_vars={},
+            )
+
+    def test_coroutine_awaitable(self):
+        async def _cb(foo: Foo) -&gt; str:
+            return str(foo.value)
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Coroutine[None, None, str]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Coroutine[None, None, int]],
                 err=&#39;&#39;,
                 type_vars={},
             )</code></pre>
@@ -244,7 +298,44 @@ not have a method with the specified name.</p></div>
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
         assert_value_matches_type(
             value=_cb,
-            type_=Callable[..., int],
+            type_=Callable[..., Awaitable[int]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., str],
+            err=&#39;&#39;,
+            type_vars={},
+        )</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_coroutine_awaitable"><code class="name flex">
+<span>def <span class="ident">test_coroutine_awaitable</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_coroutine_awaitable(self):
+    async def _cb(foo: Foo) -&gt; str:
+        return str(foo.value)
+
+    assert_value_matches_type(
+        value=_cb,
+        type_=Callable[..., Coroutine[None, None, str]],
+        err=&#39;&#39;,
+        type_vars={},
+    )
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Coroutine[None, None, int]],
             err=&#39;&#39;,
             type_vars={},
         )</code></pre>
@@ -279,6 +370,7 @@ not have a method with the specified name.</p></div>
 <ul class="">
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable">test_callable</a></code></li>
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable">test_callable_awaitable</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_coroutine_awaitable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_coroutine_awaitable">test_coroutine_awaitable</a></code></li>
 </ul>
 </li>
 </ul>

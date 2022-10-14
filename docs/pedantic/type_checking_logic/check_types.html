@@ -497,7 +497,7 @@ def get_base_generic(cls: Any) -&gt; Any:
         &gt;&gt;&gt; get_base_generic(Awaitable[int])
         typing.Awaitable
         &gt;&gt;&gt; get_base_generic(Coroutine[None, None, int])
-        typing.Awaitable
+        typing.Coroutine
     &#34;&#34;&#34;
 
     origin = cls.__origin__ if hasattr(cls, &#39;__origin__&#39;) else None
@@ -1068,7 +1068,7 @@ typing.Set
 &gt;&gt;&gt; get_base_generic(Awaitable[int])
 typing.Awaitable
 &gt;&gt;&gt; get_base_generic(Coroutine[None, None, int])
-typing.Awaitable
+typing.Coroutine
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1110,7 +1110,7 @@ typing.Awaitable
         &gt;&gt;&gt; get_base_generic(Awaitable[int])
         typing.Awaitable
         &gt;&gt;&gt; get_base_generic(Coroutine[None, None, int])
-        typing.Awaitable
+        typing.Coroutine
     &#34;&#34;&#34;
 
     origin = cls.__origin__ if hasattr(cls, &#39;__origin__&#39;) else None
