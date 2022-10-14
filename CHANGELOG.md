@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.12.10
+- fix tests
+
 ## Pedantic 1.12.9
 - bugfix in type checking logic concerning `typing.Awaitable` and `typing.Coroutine` with return type `UnionType`
 
