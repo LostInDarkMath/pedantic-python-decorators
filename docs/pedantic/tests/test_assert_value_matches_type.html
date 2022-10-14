@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">import unittest
 from dataclasses import dataclass
-from typing import Callable, Awaitable, Coroutine
+from typing import Callable, Awaitable, Coroutine, Any
 
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
@@ -59,6 +59,17 @@ class TestAssertValueMatchesType(unittest.TestCase):
                 type_vars={},
             )
 
+    def test_callable_return_type_none(self):
+        def _cb(foo: Foo) -&gt; None:
+            return print(foo)
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., None],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
     def test_callable_awaitable(self):
         async def _cb(foo: Foo) -&gt; str:
             return str(foo.value)
@@ -66,6 +77,13 @@ class TestAssertValueMatchesType(unittest.TestCase):
         assert_value_matches_type(
             value=_cb,
             type_=Callable[..., Awaitable[str]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[Any]],
             err=&#39;&#39;,
             type_vars={},
         )
@@ -86,7 +104,7 @@ class TestAssertValueMatchesType(unittest.TestCase):
                 type_vars={},
             )
 
-    def test_coroutine_awaitable(self):
+    def test_callable_coroutine(self):
         async def _cb(foo: Foo) -&gt; str:
             return str(foo.value)
 
@@ -103,7 +121,25 @@ class TestAssertValueMatchesType(unittest.TestCase):
                 type_=Callable[..., Coroutine[None, None, int]],
                 err=&#39;&#39;,
                 type_vars={},
-            )</code></pre>
+            )
+
+    def test_callable_awaitable_with_none_return_type(self):
+        async def _cb(foo: Foo) -&gt; None:
+            print(foo)
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[None]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[Any]],
+            err=&#39;&#39;,
+            type_vars={},
+        )</code></pre>
 </details>
 </section>
 <section>
@@ -194,6 +230,17 @@ not have a method with the specified name.</p></div>
                 type_vars={},
             )
 
+    def test_callable_return_type_none(self):
+        def _cb(foo: Foo) -&gt; None:
+            return print(foo)
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., None],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
     def test_callable_awaitable(self):
         async def _cb(foo: Foo) -&gt; str:
             return str(foo.value)
@@ -201,6 +248,13 @@ not have a method with the specified name.</p></div>
         assert_value_matches_type(
             value=_cb,
             type_=Callable[..., Awaitable[str]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[Any]],
             err=&#39;&#39;,
             type_vars={},
         )
@@ -221,7 +275,7 @@ not have a method with the specified name.</p></div>
                 type_vars={},
             )
 
-    def test_coroutine_awaitable(self):
+    def test_callable_coroutine(self):
         async def _cb(foo: Foo) -&gt; str:
             return str(foo.value)
 
@@ -238,7 +292,25 @@ not have a method with the specified name.</p></div>
                 type_=Callable[..., Coroutine[None, None, int]],
                 err=&#39;&#39;,
                 type_vars={},
-            )</code></pre>
+            )
+
+    def test_callable_awaitable_with_none_return_type(self):
+        async def _cb(foo: Foo) -&gt; None:
+            print(foo)
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[None]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[Any]],
+            err=&#39;&#39;,
+            type_vars={},
+        )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -295,6 +367,13 @@ not have a method with the specified name.</p></div>
         type_vars={},
     )
 
+    assert_value_matches_type(
+        value=_cb,
+        type_=Callable[..., Awaitable[Any]],
+        err=&#39;&#39;,
+        type_vars={},
+    )
+
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
         assert_value_matches_type(
             value=_cb,
@@ -312,8 +391,8 @@ not have a method with the specified name.</p></div>
         )</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_coroutine_awaitable"><code class="name flex">
-<span>def <span class="ident">test_coroutine_awaitable</span></span>(<span>self)</span>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable_with_none_return_type"><code class="name flex">
+<span>def <span class="ident">test_callable_awaitable_with_none_return_type</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -321,7 +400,35 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_coroutine_awaitable(self):
+<pre><code class="python">def test_callable_awaitable_with_none_return_type(self):
+    async def _cb(foo: Foo) -&gt; None:
+        print(foo)
+
+    assert_value_matches_type(
+        value=_cb,
+        type_=Callable[..., Awaitable[None]],
+        err=&#39;&#39;,
+        type_vars={},
+    )
+
+    assert_value_matches_type(
+        value=_cb,
+        type_=Callable[..., Awaitable[Any]],
+        err=&#39;&#39;,
+        type_vars={},
+    )</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_coroutine"><code class="name flex">
+<span>def <span class="ident">test_callable_coroutine</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_callable_coroutine(self):
     async def _cb(foo: Foo) -&gt; str:
         return str(foo.value)
 
@@ -339,6 +446,27 @@ not have a method with the specified name.</p></div>
             err=&#39;&#39;,
             type_vars={},
         )</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_return_type_none"><code class="name flex">
+<span>def <span class="ident">test_callable_return_type_none</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_callable_return_type_none(self):
+    def _cb(foo: Foo) -&gt; None:
+        return print(foo)
+
+    assert_value_matches_type(
+        value=_cb,
+        type_=Callable[..., None],
+        err=&#39;&#39;,
+        type_vars={},
+    )</code></pre>
 </details>
 </dd>
 </dl>
@@ -370,7 +498,9 @@ not have a method with the specified name.</p></div>
 <ul class="">
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable">test_callable</a></code></li>
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable">test_callable_awaitable</a></code></li>
-<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_coroutine_awaitable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_coroutine_awaitable">test_coroutine_awaitable</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable_with_none_return_type" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_awaitable_with_none_return_type">test_callable_awaitable_with_none_return_type</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_coroutine" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_coroutine">test_callable_coroutine</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_return_type_none" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_return_type_none">test_callable_return_type_none</a></code></li>
 </ul>
 </li>
 </ul>

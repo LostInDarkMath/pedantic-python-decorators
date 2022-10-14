@@ -568,7 +568,14 @@ def _is_subtype(sub_type: Any, super_type: Any) -&gt; bool:
         &gt;&gt;&gt; class MyClass: pass
         &gt;&gt;&gt; _is_subtype(MyClass, Union[str, MyClass])
         True
+        &gt;&gt;&gt; _is_subtype(None, type(None))
+        True
+        &gt;&gt;&gt; _is_subtype(None, Any)
+        True
     &#34;&#34;&#34;
+
+    if sub_type is None:
+        sub_type = type(None)
 
     python_sub = _get_class_of_type_annotation(sub_type)
     python_super = _get_class_of_type_annotation(super_type)
