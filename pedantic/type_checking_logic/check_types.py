@@ -468,7 +468,7 @@ def get_base_generic(cls: Any) -> Any:
         >>> get_base_generic(Awaitable[int])
         typing.Awaitable
         >>> get_base_generic(Coroutine[None, None, int])
-        typing.Awaitable
+        typing.Coroutine
     """
 
     origin = cls.__origin__ if hasattr(cls, '__origin__') else None
