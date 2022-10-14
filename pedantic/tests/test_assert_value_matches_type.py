@@ -1,6 +1,7 @@
+import sys
 import unittest
 from dataclasses import dataclass
-from typing import Callable, Awaitable, Coroutine, Any
+from typing import Callable, Awaitable, Coroutine, Any, Union
 
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
@@ -109,6 +110,39 @@ class TestAssertValueMatchesType(unittest.TestCase):
         assert_value_matches_type(
             value=_cb,
             type_=Callable[..., Awaitable[Any]],
+            err='',
+            type_vars={},
+        )
+
+    def test_callable_with_old_union_type_hint(self):
+        async def _cb(machine_id: str) -> Union[int, None]:
+            return 42
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[Union[int, None]]],
+            err='',
+            type_vars={},
+        )
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Awaitable[int]],
+                err='',
+                type_vars={},
+            )
+
+    def test_callable_with_new_union_type_hint(self):
+        if sys.version_info < (3, 10):
+            return
+
+        async def _cb(machine_id: str) -> int | None:
+            return 42
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[int | None]],
             err='',
             type_vars={},
         )

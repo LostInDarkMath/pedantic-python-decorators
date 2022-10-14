@@ -543,6 +543,10 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
         True
         >>> _is_subtype(None, Any)
         True
+        >>> _is_subtype(Optional[int], Optional[int])
+        True
+        >>> _is_subtype(Optional[int], Union[int, float, None])
+        True
     """
 
     if sub_type is None:
@@ -551,8 +555,13 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
     python_sub = _get_class_of_type_annotation(sub_type)
     python_super = _get_class_of_type_annotation(super_type)
 
-    if python_super == typing.Union:
+    if python_super == typing.Union or isinstance(python_super, types.UnionType):
         type_args = get_type_arguments(cls=super_type)
+
+        if python_sub == typing.Union or isinstance(python_sub, types.UnionType):
+            sub_type_args = get_type_arguments(cls=sub_type)
+            return all([x in type_args for x in sub_type_args])
+
         return sub_type in type_args
 
     if not _is_generic(sub_type):

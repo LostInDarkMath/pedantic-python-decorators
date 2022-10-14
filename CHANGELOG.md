@@ -1,12 +1,15 @@
 # Changelog
+## Pedantic 1.12.9
+- bugfix in type checking logic concerning `typing.Awaitable` and `typing.Coroutine` with return type `UnionType`
+
 ## Pedantic 1.12.8
-- bugfix in type checking logic concerning `typing.Aewaitable` and `typing.Coroutine` with return type `None`
+- bugfix in type checking logic concerning `typing.Awaitable` and `typing.Coroutine` with return type `None`
 
 ## Pedantic 1.12.7
 - fix test coverage
 
 ## Pedantic 1.12.6
-- bugfix in type checking logic concerning `typing.Aewaitable` and `typing.Coroutine`
+- bugfix in type checking logic concerning `typing.Awaitable` and `typing.Coroutine`
 
 ## Pedantic 1.12.5
 - fix type hints
