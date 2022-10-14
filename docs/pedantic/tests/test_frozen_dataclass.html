@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">import unittest
 from dataclasses import dataclass, FrozenInstanceError
-from typing import List, Dict, Set, Tuple
+from typing import List, Dict, Set, Tuple, Awaitable, Callable
 
 from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from pedantic.exceptions import PedanticTypeCheckException
@@ -51,6 +51,7 @@ class A:
     foo: List[int]
     bar: Dict[str, str]
     values: Tuple[B, B]
+
 
 class TestFrozenDataclass(unittest.TestCase):
     def test_equals_and_hash(self):
@@ -311,7 +312,22 @@ class TestFrozenDataclass(unittest.TestCase):
 
         a = b.copy_with()
         self.assertEqual(b, a)
-        self.assertEqual(4, i)</code></pre>
+        self.assertEqual(4, i)
+
+    def test_type_safe_frozen_dataclass_with_awaitable(self):
+        @frozen_type_safe_dataclass
+        class A:
+            f: Callable[..., Awaitable[int]]
+
+        async def _cb() -&gt; int:
+            return 42
+
+        async def _cb_2() -&gt; str:
+            return &#39;42&#39;
+
+        A(f=_cb)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            A(f=_cb_2)</code></pre>
 </details>
 </section>
 <section>
@@ -915,7 +931,22 @@ not have a method with the specified name.</p></div>
 
         a = b.copy_with()
         self.assertEqual(b, a)
-        self.assertEqual(4, i)</code></pre>
+        self.assertEqual(4, i)
+
+    def test_type_safe_frozen_dataclass_with_awaitable(self):
+        @frozen_type_safe_dataclass
+        class A:
+            f: Callable[..., Awaitable[int]]
+
+        async def _cb() -&gt; int:
+            return 42
+
+        async def _cb_2() -&gt; str:
+            return &#39;42&#39;
+
+        A(f=_cb)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            A(f=_cb_2)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1309,6 +1340,31 @@ not have a method with the specified name.</p></div>
     )</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_type_safe_frozen_dataclass_with_awaitable"><code class="name flex">
+<span>def <span class="ident">test_type_safe_frozen_dataclass_with_awaitable</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_type_safe_frozen_dataclass_with_awaitable(self):
+    @frozen_type_safe_dataclass
+    class A:
+        f: Callable[..., Awaitable[int]]
+
+    async def _cb() -&gt; int:
+        return 42
+
+    async def _cb_2() -&gt; str:
+        return &#39;42&#39;
+
+    A(f=_cb)
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        A(f=_cb_2)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_validate_types"><code class="name flex">
 <span>def <span class="ident">test_validate_types</span></span>(<span>self)</span>
 </code></dt>
@@ -1398,6 +1454,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_type_safe_dataclass_copy_with_check" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_type_safe_dataclass_copy_with_check">test_frozen_type_safe_dataclass_copy_with_check</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_with_post_init" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_with_post_init">test_frozen_typesafe_dataclass_with_post_init</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_without_post_init" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_without_post_init">test_frozen_typesafe_dataclass_without_post_init</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_type_safe_frozen_dataclass_with_awaitable" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_type_safe_frozen_dataclass_with_awaitable">test_type_safe_frozen_dataclass_with_awaitable</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_validate_types" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_validate_types">test_validate_types</a></code></li>
 </ul>
 </li>

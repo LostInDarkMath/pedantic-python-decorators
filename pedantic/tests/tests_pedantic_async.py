@@ -1,6 +1,5 @@
 import asyncio
 import unittest
-from typing import Any, Coroutine
 
 from pedantic.decorators.class_decorators import pedantic_class
 from pedantic.exceptions import PedanticTypeCheckException
