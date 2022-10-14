@@ -173,7 +173,22 @@ class TestAssertValueMatchesType(unittest.TestCase):
             type_=Callable[..., Awaitable[int | None]],
             err=&#39;&#39;,
             type_vars={},
-        )</code></pre>
+        )
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[Any]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Awaitable[int]],
+                err=&#39;&#39;,
+                type_vars={},
+            )</code></pre>
 </details>
 </section>
 <section>
@@ -377,7 +392,22 @@ not have a method with the specified name.</p></div>
             type_=Callable[..., Awaitable[int | None]],
             err=&#39;&#39;,
             type_vars={},
-        )</code></pre>
+        )
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[Any]],
+            err=&#39;&#39;,
+            type_vars={},
+        )
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Awaitable[int]],
+                err=&#39;&#39;,
+                type_vars={},
+            )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -557,7 +587,22 @@ not have a method with the specified name.</p></div>
         type_=Callable[..., Awaitable[int | None]],
         err=&#39;&#39;,
         type_vars={},
-    )</code></pre>
+    )
+
+    assert_value_matches_type(
+        value=_cb,
+        type_=Callable[..., Awaitable[Any]],
+        err=&#39;&#39;,
+        type_vars={},
+    )
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[int]],
+            err=&#39;&#39;,
+            type_vars={},
+        )</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_with_old_union_type_hint"><code class="name flex">

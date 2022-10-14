@@ -146,3 +146,18 @@ class TestAssertValueMatchesType(unittest.TestCase):
             err='',
             type_vars={},
         )
+
+        assert_value_matches_type(
+            value=_cb,
+            type_=Callable[..., Awaitable[Any]],
+            err='',
+            type_vars={},
+        )
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            assert_value_matches_type(
+                value=_cb,
+                type_=Callable[..., Awaitable[int]],
+                err='',
+                type_vars={},
+            )

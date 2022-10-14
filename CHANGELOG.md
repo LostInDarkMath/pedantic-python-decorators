@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.12.11
+- bugfix in type checking logic 
+
 ## Pedantic 1.12.10
 - fix tests
 
