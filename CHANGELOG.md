@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.12.7
+- fix test coverage
+
 ## Pedantic 1.12.6
 - bugfix in type checking logic concerning `typing.Aewaitable` and `typing.Coroutine`
 
