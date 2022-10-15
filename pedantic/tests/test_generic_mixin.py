@@ -7,7 +7,7 @@ T = TypeVar('T')
 U = TypeVar('U')
 
 
-class TestGenericMixin(unittest.IsolatedAsyncioTestCase):
+class TestGenericMixin(unittest.TestCase):
     def test_single_type_var(self):
         class Foo(Generic[T], GenericMixin):
             value: T

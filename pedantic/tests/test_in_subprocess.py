@@ -38,7 +38,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
             return 42
 
         async def t() -> None:
-            while True:
+            for _ in range(6):
                 await asyncio.sleep(0.01)
                 nonlocal counter
                 counter += 1
@@ -47,7 +47,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         task = asyncio.create_task(t())
         assert await f() == 42
         assert counter >= 5
-        task.cancel()
+        await task
 
     async def test_in_subprocess_no_args_no_return(self):
         @in_subprocess
@@ -70,7 +70,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
             return 42
 
         async def t() -> None:
-            while True:
+            for _ in range(6):
                 await asyncio.sleep(0.05)
                 nonlocal counter
                 counter += 1
@@ -79,7 +79,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         task = asyncio.create_task(t())
         assert await f() == 42
         assert counter == 0
-        task.cancel()
+        await task
 
     async def test_in_subprocess_with_arguments(self):
         @in_subprocess
