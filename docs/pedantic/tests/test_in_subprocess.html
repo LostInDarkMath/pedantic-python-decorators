@@ -31,7 +31,10 @@ import time
 import unittest
 from typing import NoReturn
 
+from multiprocess import Queue
+
 from pedantic import in_subprocess
+from pedantic.decorators.fn_deco_in_subprocess import _inner, SubprocessError
 
 
 class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
@@ -66,7 +69,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
             return 42
 
         async def t() -&gt; None:
-            while True:
+            for _ in range(6):
                 await asyncio.sleep(0.01)
                 nonlocal counter
                 counter += 1
@@ -75,7 +78,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         task = asyncio.create_task(t())
         assert await f() == 42
         assert counter &gt;= 5
-        task.cancel()
+        await task
 
     async def test_in_subprocess_no_args_no_return(self):
         @in_subprocess
@@ -98,7 +101,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
             return 42
 
         async def t() -&gt; None:
-            while True:
+            for _ in range(6):
                 await asyncio.sleep(0.05)
                 nonlocal counter
                 counter += 1
@@ -107,7 +110,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         task = asyncio.create_task(t())
         assert await f() == 42
         assert counter == 0
-        task.cancel()
+        await task
 
     async def test_in_subprocess_with_arguments(self):
         @in_subprocess
@@ -116,7 +119,17 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
 
         assert await f(4, 5) == 9
         assert await f(a=4, b=5) == 9
-        </code></pre>
+
+    def test_inner_function(self):
+        &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
+
+        q = Queue()
+        _inner(q, lambda x: 1/x, x=42)
+        assert q.get() == 1/42
+
+        _inner(q, lambda x: 1 / x, x=0)
+        ex = q.get()
+        assert isinstance(ex, SubprocessError)</code></pre>
 </details>
 </section>
 <section>
@@ -197,7 +210,7 @@ not have a method with the specified name.</p></div>
             return 42
 
         async def t() -&gt; None:
-            while True:
+            for _ in range(6):
                 await asyncio.sleep(0.01)
                 nonlocal counter
                 counter += 1
@@ -206,7 +219,7 @@ not have a method with the specified name.</p></div>
         task = asyncio.create_task(t())
         assert await f() == 42
         assert counter &gt;= 5
-        task.cancel()
+        await task
 
     async def test_in_subprocess_no_args_no_return(self):
         @in_subprocess
@@ -229,7 +242,7 @@ not have a method with the specified name.</p></div>
             return 42
 
         async def t() -&gt; None:
-            while True:
+            for _ in range(6):
                 await asyncio.sleep(0.05)
                 nonlocal counter
                 counter += 1
@@ -238,7 +251,7 @@ not have a method with the specified name.</p></div>
         task = asyncio.create_task(t())
         assert await f() == 42
         assert counter == 0
-        task.cancel()
+        await task
 
     async def test_in_subprocess_with_arguments(self):
         @in_subprocess
@@ -246,7 +259,18 @@ not have a method with the specified name.</p></div>
             return a + b
 
         assert await f(4, 5) == 9
-        assert await f(a=4, b=5) == 9</code></pre>
+        assert await f(a=4, b=5) == 9
+
+    def test_inner_function(self):
+        &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
+
+        q = Queue()
+        _inner(q, lambda x: 1/x, x=42)
+        assert q.get() == 1/42
+
+        _inner(q, lambda x: 1 / x, x=0)
+        ex = q.get()
+        assert isinstance(ex, SubprocessError)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -310,7 +334,7 @@ not have a method with the specified name.</p></div>
         return 42
 
     async def t() -&gt; None:
-        while True:
+        for _ in range(6):
             await asyncio.sleep(0.01)
             nonlocal counter
             counter += 1
@@ -319,7 +343,7 @@ not have a method with the specified name.</p></div>
     task = asyncio.create_task(t())
     assert await f() == 42
     assert counter &gt;= 5
-    task.cancel()</code></pre>
+    await task</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_no_args_no_return"><code class="name flex">
@@ -390,6 +414,27 @@ not have a method with the specified name.</p></div>
     assert await f(a=4, b=5) == 9</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function"><code class="name flex">
+<span>def <span class="ident">test_inner_function</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Needed for line coverage</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_inner_function(self):
+    &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
+
+    q = Queue()
+    _inner(q, lambda x: 1/x, x=42)
+    assert q.get() == 1/42
+
+    _inner(q, lambda x: 1 / x, x=0)
+    ex = q.get()
+    assert isinstance(ex, SubprocessError)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_not_in_subprocess_blocks"><code class="name flex">
 <span>async def <span class="ident">test_not_in_subprocess_blocks</span></span>(<span>self)</span>
 </code></dt>
@@ -405,7 +450,7 @@ not have a method with the specified name.</p></div>
         return 42
 
     async def t() -&gt; None:
-        while True:
+        for _ in range(6):
             await asyncio.sleep(0.05)
             nonlocal counter
             counter += 1
@@ -414,7 +459,7 @@ not have a method with the specified name.</p></div>
     task = asyncio.create_task(t())
     assert await f() == 42
     assert counter == 0
-    task.cancel()</code></pre>
+    await task</code></pre>
 </details>
 </dd>
 </dl>
@@ -445,6 +490,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple">test_in_subprocess_simple</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple_async" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple_async">test_in_subprocess_simple_async</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_with_arguments" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_with_arguments">test_in_subprocess_with_arguments</a></code></li>
+<li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function">test_inner_function</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_not_in_subprocess_blocks" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_not_in_subprocess_blocks">test_not_in_subprocess_blocks</a></code></li>
 </ul>
 </li>

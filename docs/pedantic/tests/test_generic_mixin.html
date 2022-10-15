@@ -35,7 +35,7 @@ T = TypeVar(&#39;T&#39;)
 U = TypeVar(&#39;U&#39;)
 
 
-class TestGenericMixin(unittest.IsolatedAsyncioTestCase):
+class TestGenericMixin(unittest.TestCase):
     def test_single_type_var(self):
         class Foo(Generic[T], GenericMixin):
             value: T
@@ -146,7 +146,7 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TestGenericMixin(unittest.IsolatedAsyncioTestCase):
+<pre><code class="python">class TestGenericMixin(unittest.TestCase):
     def test_single_type_var(self):
         class Foo(Generic[T], GenericMixin):
             value: T
@@ -212,7 +212,6 @@ not have a method with the specified name.</p></div>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>unittest.async_case.IsolatedAsyncioTestCase</li>
 <li>unittest.case.TestCase</li>
 </ul>
 <h3>Methods</h3>

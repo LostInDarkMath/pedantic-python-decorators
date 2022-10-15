@@ -71,18 +71,8 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
             84
     """
 
-    def f(q: Queue, fun, *a, **kw_args) -> None:
-        """ This runs in another process. """
-
-        try:
-            res = fun(*a, **kw_args)
-        except Exception as ex:
-            q.put(obj=SubprocessError(ex=ex), block=False)
-        else:
-            q.put(obj=res, block=False)
-
     queue = Queue(maxsize=1)  # a queue with items of type T
-    process = Process(target=f, args=(queue, func, *args), kwargs=kwargs)
+    process = Process(target=_inner, args=(queue, func, *args), kwargs=kwargs)
     process.start()
 
     while queue.empty():  # do not use process.is_alive() as condition here
@@ -96,6 +86,17 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
         raise result.exception
 
     return result
+
+
+def _inner(q: Queue, fun: Callable[..., T], *a, **kw_args) -> None:
+    """ This runs in another process. """
+
+    try:
+        res = fun(*a, **kw_args)
+    except Exception as ex:
+        q.put(obj=SubprocessError(ex=ex), block=False)
+    else:
+        q.put(obj=res, block=False)
 
 
 if __name__ == '__main__':

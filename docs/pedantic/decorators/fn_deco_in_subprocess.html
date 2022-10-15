@@ -99,18 +99,8 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
             84
     &#34;&#34;&#34;
 
-    def f(q: Queue, fun, *a, **kw_args) -&gt; None:
-        &#34;&#34;&#34; This runs in another process. &#34;&#34;&#34;
-
-        try:
-            res = fun(*a, **kw_args)
-        except Exception as ex:
-            q.put(obj=SubprocessError(ex=ex), block=False)
-        else:
-            q.put(obj=res, block=False)
-
     queue = Queue(maxsize=1)  # a queue with items of type T
-    process = Process(target=f, args=(queue, func, *args), kwargs=kwargs)
+    process = Process(target=_inner, args=(queue, func, *args), kwargs=kwargs)
     process.start()
 
     while queue.empty():  # do not use process.is_alive() as condition here
@@ -124,6 +114,17 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
         raise result.exception
 
     return result
+
+
+def _inner(q: Queue, fun: Callable[..., T], *a, **kw_args) -&gt; None:
+    &#34;&#34;&#34; This runs in another process. &#34;&#34;&#34;
+
+    try:
+        res = fun(*a, **kw_args)
+    except Exception as ex:
+        q.put(obj=SubprocessError(ex=ex), block=False)
+    else:
+        q.put(obj=res, block=False)
 
 
 if __name__ == &#39;__main__&#39;:
@@ -192,18 +193,8 @@ Further reading: <a href="https://medium.com/devopss-hole/python-multiprocessing
             84
     &#34;&#34;&#34;
 
-    def f(q: Queue, fun, *a, **kw_args) -&gt; None:
-        &#34;&#34;&#34; This runs in another process. &#34;&#34;&#34;
-
-        try:
-            res = fun(*a, **kw_args)
-        except Exception as ex:
-            q.put(obj=SubprocessError(ex=ex), block=False)
-        else:
-            q.put(obj=res, block=False)
-
     queue = Queue(maxsize=1)  # a queue with items of type T
-    process = Process(target=f, args=(queue, func, *args), kwargs=kwargs)
+    process = Process(target=_inner, args=(queue, func, *args), kwargs=kwargs)
     process.start()
 
     while queue.empty():  # do not use process.is_alive() as condition here
