@@ -15,7 +15,9 @@ if sys.version_info >= (3, 8):
     from pedantic.tests.validate.test_validate import AsyncValidateTests
     from pedantic.tests.tests_small_method_decorators import AsyncSmallDecoratorTests
     from pedantic.tests.tests_pedantic_async import TestPedanticAsyncio
+    from pedantic.tests.test_in_subprocess import TestInSubprocess
 
+from pedantic.tests.test_generic_mixin import TestGenericMixin
 from pedantic.tests.test_assert_value_matches_type import TestAssertValueMatchesType
 from pedantic.tests.validate.test_validator_composite import TestValidatorComposite
 from pedantic.tests.validate.test_validator_datetime_unix_timestamp import TestValidatorDatetimeUnixTimestamp
@@ -50,6 +52,7 @@ from pedantic.tests.tests_generator import TestGenerator
 def run_all_tests() -> None:
     test_classes_to_run = [
         TestAssertValueMatchesType,
+        TestGenericMixin,
         TestRequireKwargs,
         TestClassDecorators,
         TestFrozenDataclass,
@@ -91,6 +94,7 @@ def run_all_tests() -> None:
             AsyncValidateTests,
             AsyncSmallDecoratorTests,
             TestPedanticAsyncio,
+            TestInSubprocess,
         ]
         test_classes_to_run.extend(async_test_classes_to_run)
 

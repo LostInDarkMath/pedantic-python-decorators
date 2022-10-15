@@ -1,18 +1,39 @@
 import asyncio
 import inspect
-import logging
 from functools import wraps
-from multiprocess import Process, Queue  # TODO add to requirements?
+from multiprocess import Process, Queue
 from typing import Callable, TypeVar, Any, Awaitable
 
 T = TypeVar('T')
 
 
+class SubprocessError:
+    """ Is returned by the subprocess if an error occurs in the subprocess. """
+
+    def __init__(self, ex: Exception) -> None:
+        self.exception = ex
+
+
 def in_subprocess(func: Callable[..., T]) -> Callable[..., Awaitable[T]]:
     """
-        TODO
+        Executes the decorated function in a subprocess and returns the return value of it.
+        Note that the decorated function will be replaced with an async function which returns
+        a coroutine that needs to be awaited.
+        This purpose of this is doing long-taking calculations without blocking the main thread
+        of your application synchronously. That ensures that other asyncio.Tasks can work without any problem
+        at the same time.
+
+        Example:
+            >>> import time
+            >>> import asyncio
+            >>> @in_subprocess
+            ... def f(value: int) -> int:
+            ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
+            ...     return 2 * value
+            >>> asyncio.run(f(value=42))
+            84
     """
-    # TODO docu
+
     if inspect.iscoroutinefunction(func):
         raise AssertionError(f'{func.__name__} should not be async!')
 
@@ -35,26 +56,48 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
         Returns:
              The calculated result of the function "func".
 
+        Raises:
+            Any Exception that is raised inside [func].
+
         Further reading: https://medium.com/devopss-hole/python-multiprocessing-pickle-issue-e2d35ccf96a9
+
+        Example:
+            >>> import time
+            >>> import asyncio
+            >>> def f(value: int) -> int:
+            ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
+            ...     return 2 * value
+            >>> asyncio.run(calculate_in_subprocess(func=f, value=42))
+            84
     """
 
     def f(q: Queue, fun, *a, **kw_args) -> None:
         """ This runs in another process. """
 
-        res = fun(*a, **kw_args)
-        q.put(obj=res, block=False)
+        try:
+            res = fun(*a, **kw_args)
+        except Exception as ex:
+            q.put(obj=SubprocessError(ex=ex), block=False)
+        else:
+            q.put(obj=res, block=False)
 
     queue = Queue(maxsize=1)  # a queue with items of type T
     process = Process(target=f, args=(queue, func, *args), kwargs=kwargs)
     process.start()
 
     while queue.empty():  # do not use process.is_alive() as condition here
-        logging.debug(process)
-        logging.debug(f'Waiting for process exit...')
         await asyncio.sleep(0.1)
 
     result = queue.get_nowait()
     process.join()  # this blocks synchronously! make sure that process is terminated before you call join()
-    logging.debug(f'Process has exited with code {process.exitcode}.')
     queue.close()
+
+    if isinstance(result, SubprocessError):
+        raise result.exception
+
     return result
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

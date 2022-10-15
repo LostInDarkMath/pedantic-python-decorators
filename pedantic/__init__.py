@@ -8,6 +8,8 @@ from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, tr
     pedantic_class_require_docstring, Rename, mock, frozen_dataclass, frozen_type_safe_dataclass, in_subprocess, \
     calculate_in_subprocess
 
+from pedantic.mixins import GenericMixin
+
 from pedantic.exceptions import NotImplementedException
 
 from pedantic.env_var_logic import disable_pedantic, enable_pedantic, is_enabled
