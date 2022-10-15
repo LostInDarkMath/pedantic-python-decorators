@@ -5,7 +5,7 @@ python: # https://docs.travis-ci.com/user/languages/python/#python-versions
   - "3.8"
   - "3.9"
   - "3.10.2"
-  - "3.11-dev"
+#   - "3.11-dev"  # temporarily disabled because it stucks in CI
 
 branches:
   only:
