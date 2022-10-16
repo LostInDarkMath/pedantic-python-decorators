@@ -112,7 +112,7 @@ class GeneratorWrapper:
 <dl>
 <dt id="pedantic.models.generator_wrapper.GeneratorWrapper"><code class="flex name class">
 <span>class <span class="ident">GeneratorWrapper</span></span>
-<span>(</span><span>wrapped: Generator, expected_type: Any, err_msg: str, type_vars: Dict[TypeVar, Any])</span>
+<span>(</span><span>wrapped: Generator[+T_co, -T_contra, +V_co], expected_type: Any, err_msg: str, type_vars: Dict[TypeVar, Any])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

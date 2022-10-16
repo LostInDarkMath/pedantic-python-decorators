@@ -5,7 +5,10 @@ assert sys.version_info >= (3, 7), f'Pedantic does not work with Python versions
 from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, trace, trace_if_returns, \
     does_same_as_function, deprecated, unimplemented, require_kwargs, pedantic, \
     pedantic_require_docstring, for_all_methods, trace_class, timer_class, pedantic_class, \
-    pedantic_class_require_docstring, Rename, mock, frozen_dataclass, frozen_type_safe_dataclass
+    pedantic_class_require_docstring, Rename, mock, frozen_dataclass, frozen_type_safe_dataclass, in_subprocess, \
+    calculate_in_subprocess
+
+from pedantic.mixins import GenericMixin
 
 from pedantic.exceptions import NotImplementedException
 

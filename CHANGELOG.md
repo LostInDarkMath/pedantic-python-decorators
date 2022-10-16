@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 1.13.0
+- added `GenericMixin`
+- added `@in_subprocess` decorator
+
 ## Pedantic 1.12.11
 - bugfix in type checking logic 
 

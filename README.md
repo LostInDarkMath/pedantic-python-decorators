@@ -132,8 +132,8 @@ def my_algorithm(value: float, config: Configuration) -> float:
         This method calculates something that depends on the given value with considering the configuration.
         Note how well this small piece of code is designed:
             - Fhe function my_algorithm() need a Configuration but has no knowledge where this come from.
-            - Furthermore, it need does not care about parameter validation.
-            - The ConfigurationValidator doesn't now anything about the creation of the data.
+            - Furthermore, it doesn't care about parameter validation.
+            - The ConfigurationValidator doesn't know anything about the creation of the data.
             - The @validate decorator is the only you need to change, if you want a different configuration source.
     """
     print(value)
@@ -160,6 +160,7 @@ if __name__ == '__main__':
 - [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/cls_deco_frozen_dataclass.html#pedantic.decorators.cls_deco_frozen_dataclass.frozen_dataclass)
 - [@frozen_type_safe_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/cls_deco_frozen_dataclass.html#pedantic.decorators.cls_deco_frozen_dataclass.frozen_type_safe_dataclass)
 - [@for_all_methods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.for_all_methods)
+- [@in_subprocess](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_in_subprocess.html)
 - [@mock](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_mock.html)
 - [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_overrides.html)
 - [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_pedantic.html#pedantic.decorators.fn_deco_pedantic.pedantic)
@@ -176,10 +177,14 @@ if __name__ == '__main__':
 - [@unimplemented](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_unimplemented.html)
 - [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate/fn_deco_validate.html)
 
+## List of all mixins in this package
+- [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mxins/generic_mixin.html)
+
 ## Dependencies
 There are no hard dependencies. But if you want to use some advanced features you need to install the following packages:
 - [Docstring-Parser](https://github.com/rr-/docstring_parser) if you need to verify your docstrings.
-- [flask](https://pypi.org/project/Flask/) if want to you the request validators which are designed for `Flask` (see unit tests for examples): 
+- [multiprocess](https://github.com/uqfoundation/multiprocess) if you want to use the `@in_subprocess` decorator
+- [flask](https://pypi.org/project/Flask/) if you want to you the request validators which are designed for `Flask` (see unit tests for examples): 
   - `FlaskParameter` (abstract class)
   - `FlaskJsonParameter`
   - `FlaskFormParameter`

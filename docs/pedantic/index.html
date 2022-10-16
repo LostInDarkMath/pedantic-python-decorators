@@ -33,7 +33,10 @@ assert sys.version_info &gt;= (3, 7), f&#39;Pedantic does not work with Python v
 from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, trace, trace_if_returns, \
     does_same_as_function, deprecated, unimplemented, require_kwargs, pedantic, \
     pedantic_require_docstring, for_all_methods, trace_class, timer_class, pedantic_class, \
-    pedantic_class_require_docstring, Rename, mock, frozen_dataclass, frozen_type_safe_dataclass
+    pedantic_class_require_docstring, Rename, mock, frozen_dataclass, frozen_type_safe_dataclass, in_subprocess, \
+    calculate_in_subprocess
+
+from pedantic.mixins import GenericMixin
 
 from pedantic.exceptions import NotImplementedException
 
@@ -72,6 +75,10 @@ from pedantic.decorators.fn_deco_validate.validators import *</code></pre>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="pedantic.mixins" href="mixins/index.html">pedantic.mixins</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="pedantic.models" href="models/index.html">pedantic.models</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -107,6 +114,7 @@ from pedantic.decorators.fn_deco_validate.validators import *</code></pre>
 <li><code><a title="pedantic.examples" href="examples/index.html">pedantic.examples</a></code></li>
 <li><code><a title="pedantic.exceptions" href="exceptions.html">pedantic.exceptions</a></code></li>
 <li><code><a title="pedantic.helper_methods" href="helper_methods.html">pedantic.helper_methods</a></code></li>
+<li><code><a title="pedantic.mixins" href="mixins/index.html">pedantic.mixins</a></code></li>
 <li><code><a title="pedantic.models" href="models/index.html">pedantic.models</a></code></li>
 <li><code><a title="pedantic.tests" href="tests/index.html">pedantic.tests</a></code></li>
 <li><code><a title="pedantic.type_checking_logic" href="type_checking_logic/index.html">pedantic.type_checking_logic</a></code></li>
