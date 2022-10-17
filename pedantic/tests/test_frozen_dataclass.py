@@ -1,29 +1,30 @@
 import unittest
+from abc import ABC
 from dataclasses import dataclass, FrozenInstanceError
-from typing import List, Dict, Set, Tuple, Awaitable, Callable
+from typing import List, Dict, Set, Tuple, Awaitable, Callable, Generic, TypeVar, Optional
 
 from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from pedantic.exceptions import PedanticTypeCheckException
 
 
-@frozen_dataclass
-class Foo:
-    a: int
-    b: str
-    c: bool
-
-
-@frozen_type_safe_dataclass
-class B:
-    v: Set[int]
-
-
-@frozen_type_safe_dataclass
-class A:
-    foo: List[int]
-    bar: Dict[str, str]
-    values: Tuple[B, B]
-
+# @frozen_dataclass
+# class Foo:
+#     a: int
+#     b: str
+#     c: bool
+#
+#
+# @frozen_type_safe_dataclass
+# class B:
+#     v: Set[int]
+#
+#
+# @frozen_type_safe_dataclass
+# class A:
+#     foo: List[int]
+#     bar: Dict[str, str]
+#     values: Tuple[B, B]
+#
 
 class TestFrozenDataclass(unittest.TestCase):
     def test_equals_and_hash(self):
@@ -300,3 +301,34 @@ class TestFrozenDataclass(unittest.TestCase):
         A(f=_cb)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             A(f=_cb_2)
+
+    def test_type_safe_frozen_dataclass_with_forward_ref(self):
+        # TODO
+        T = TypeVar('T')
+
+        class State(Generic[T], ABC):
+            pass
+
+        class StateMachine(Generic[T], ABC):
+            pass
+
+        @frozen_type_safe_dataclass
+        class StateChangeResult:
+            new_state: Optional['MachineState']
+
+        class MachineState(State['MachineStateMachine']):
+            pass
+
+        class OfflineMachineState(MachineState):
+            pass
+
+        class OnlineMachineState:
+            pass
+
+        class MachineStateMachine(StateMachine[MachineState]):
+            pass
+
+        StateChangeResult(new_state=OfflineMachineState())
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            StateChangeResult(new_state=OnlineMachineState())

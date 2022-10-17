@@ -17,6 +17,7 @@ if sys.version_info >= (3, 8):
     from pedantic.tests.tests_pedantic_async import TestPedanticAsyncio
     from pedantic.tests.test_in_subprocess import TestInSubprocess
 
+from pedantic.tests.test_resolve_forward_ref import TestResolveForwardRef
 from pedantic.tests.test_generic_mixin import TestGenericMixin
 from pedantic.tests.test_assert_value_matches_type import TestAssertValueMatchesType
 from pedantic.tests.validate.test_validator_composite import TestValidatorComposite
@@ -69,6 +70,7 @@ def run_all_tests() -> None:
         TestMock,
         TestGeneratorWrapper,
         TestRenameKwargs,
+        TestResolveForwardRef,
         # validate
         TestValidatorDatetimeIsoformat,
         TestFlaskParameters,

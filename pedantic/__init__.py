@@ -10,6 +10,8 @@ from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, tr
 
 from pedantic.mixins import GenericMixin
 
+from pedantic.type_checking_logic import assert_value_matches_type, resolve_forward_ref
+
 from pedantic.exceptions import NotImplementedException
 
 from pedantic.env_var_logic import disable_pedantic, enable_pedantic, is_enabled

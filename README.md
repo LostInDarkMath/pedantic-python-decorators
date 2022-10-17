@@ -178,7 +178,7 @@ if __name__ == '__main__':
 - [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate/fn_deco_validate.html)
 
 ## List of all mixins in this package
-- [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mxins/generic_mixin.html)
+- [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/generic_mixin.html)
 
 ## Dependencies
 There are no hard dependencies. But if you want to use some advanced features you need to install the following packages:

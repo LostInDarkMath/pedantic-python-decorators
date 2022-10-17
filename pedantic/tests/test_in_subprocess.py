@@ -102,3 +102,36 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         _inner(q, lambda x: 1 / x, x=0)
         ex = q.get()
         assert isinstance(ex, SubprocessError)
+
+    async def test_in_subprocess_instance_method(self):
+        class Foo:
+            async def pos_args(self) -> int:
+                return await self.f(4, 5)
+
+            async def kw_args(self) -> int:
+                return await self.f(a=4, b=5)
+
+            @in_subprocess
+            def f(self, a: int, b: int) -> int:
+                return a + b
+
+        foo = Foo()
+        assert await foo.pos_args() == 9
+        assert await foo.kw_args() == 9
+
+    async def test_in_subprocess_static_method(self):
+        class Foo:
+            async def pos_args(self) -> int:
+                return await self.f(4, 5)
+
+            async def kw_args(self) -> int:
+                return await self.f(a=4, b=5)
+
+            @staticmethod
+            @in_subprocess
+            def f(a: int, b: int) -> int:
+                return a + b
+
+        foo = Foo()
+        assert await foo.pos_args() == 9
+        assert await foo.kw_args() == 9

@@ -1,7 +1,8 @@
 import sys
 import unittest
+from abc import ABC
 from dataclasses import dataclass
-from typing import Callable, Awaitable, Coroutine, Any, Union
+from typing import Callable, Awaitable, Coroutine, Any, Union, Optional, Generic, TypeVar
 
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
@@ -161,3 +162,29 @@ class TestAssertValueMatchesType(unittest.TestCase):
                 err='',
                 type_vars={},
             )
+
+    def test_forward_ref_inheritance(self):
+        T = TypeVar('T')
+
+        class State(Generic[T], ABC):
+            pass
+
+        class StateMachine(Generic[T], ABC):
+            pass
+
+        class MachineState(State['MachineStateMachine']):
+            pass
+
+        class OfflineMachineState(MachineState):
+            pass
+
+        class MachineStateMachine(StateMachine[MachineState]):
+            pass
+
+        assert_value_matches_type(
+            value=OfflineMachineState(),
+            type_=Optional['MachineState'],
+            err='',
+            type_vars={},
+            context=locals(),
+        )

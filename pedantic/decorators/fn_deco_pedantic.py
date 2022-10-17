@@ -45,11 +45,16 @@ def pedantic(func: Optional[F] = None, require_docstring: bool = False) -> F:
        Use kwargs when you call function my_function. Args: (5, 4.0, 'hi')
    """
 
+    import sys
+    frame = sys._getframe(1)  # get parent frame
+
     def decorator(f: F) -> F:
+        nonlocal frame
+
         if not is_enabled():
             return f
 
-        decorated_func = DecoratedFunction(func=f)
+        decorated_func = DecoratedFunction(func=f, context={**frame.f_globals, **frame.f_locals})
 
         if decorated_func.docstring is not None and (require_docstring or len(decorated_func.docstring.params)) > 0:
             _check_docstring(decorated_func=decorated_func)
