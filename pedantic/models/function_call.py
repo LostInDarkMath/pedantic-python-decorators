@@ -1,5 +1,5 @@
 import inspect
-from typing import Dict, Tuple, Any, Union
+from typing import Dict, Tuple, Any, Union, Type
 
 from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
@@ -9,10 +9,11 @@ from pedantic.models.generator_wrapper import GeneratorWrapper
 
 
 class FunctionCall:
-    def __init__(self, func: DecoratedFunction, args: Tuple[Any, ...], kwargs: Dict[str, Any]) -> None:
+    def __init__(self, func: DecoratedFunction, args: Tuple[Any, ...], kwargs: Dict[str, Any], context: Dict[str, Type]) -> None:
         self._func = func
         self._args = args
         self._kwargs = kwargs
+        self._context = context
         self._instance = self.args[0] if self.func.is_instance_method else None
         self._type_vars = dict()
         self._params_without_self = {k: v for k, v in self.func.signature.parameters.items() if v.name != 'self'}
@@ -101,7 +102,7 @@ class FunctionCall:
                 err=self.func.err,
                 type_vars=self.type_vars,
                 key=key,
-                context=self.func.context,
+                context=self._context,
             )
 
     def _check_types_args(self, params: Dict[str, inspect.Parameter]) -> None:
@@ -116,7 +117,7 @@ class FunctionCall:
                 type_=expected,
                 err=self.func.err,
                 type_vars=self.type_vars,
-                context=self.func.context,
+                context=self._context,
             )
 
     def _check_types_kwargs(self, params: Dict[str, inspect.Parameter]) -> None:
@@ -134,7 +135,7 @@ class FunctionCall:
                 err=self.func.err,
                 type_vars=self.type_vars,
                 key=kwarg,
-                context=self.func.context,
+                context=self._context,
             )
 
     def _check_types_return(self, result: Any) -> Union[None, GeneratorWrapper]:
@@ -156,7 +157,7 @@ class FunctionCall:
             err=self.func.err,
             type_vars=self.type_vars,
             msg=msg,
-            context=self.func.context,
+            context=self._context,
         )
         return result
 

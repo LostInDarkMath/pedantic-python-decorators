@@ -3,6 +3,7 @@
 - fix `ImportError` of optional `multiprocess` package
 - fix typo in `README.md`
 - added more test for `@in_subprocess` decorator
+- improve resolving of `typing.ForwardRef`s
 
 ## Pedantic 1.13.0
 - added `GenericMixin`

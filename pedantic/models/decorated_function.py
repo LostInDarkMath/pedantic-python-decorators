@@ -20,9 +20,8 @@ FUNCTIONS_THAT_REQUIRE_KWARGS = [
 
 
 class DecoratedFunction:
-    def __init__(self, func: Callable[..., Any], context: Dict[str, Any] = None) -> None:
+    def __init__(self, func: Callable[..., Any]) -> None:
         self._func = func
-        self._context = context
 
         if not isinstance(func, (types.FunctionType, types.MethodType)):
             raise PedanticTypeCheckException(f'{self.full_name} should be a method or function.')
@@ -40,10 +39,6 @@ class DecoratedFunction:
     @property
     def func(self) -> Callable[..., Any]:
         return self._func
-
-    @property
-    def context(self) -> Dict[str, Any]:
-        return self._context
 
     @property
     def annotations(self) -> Dict[str, Any]:
