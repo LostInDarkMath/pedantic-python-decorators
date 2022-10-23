@@ -27,7 +27,7 @@ def require_kwargs(func: F) -> F:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
         decorated_func = DecoratedFunction(func=func)
-        call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs)
+        call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs, context={})
         call.assert_uses_kwargs()
         return func(*args, **kwargs)
     return wrapper

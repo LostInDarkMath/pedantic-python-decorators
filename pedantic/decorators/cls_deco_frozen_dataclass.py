@@ -1,8 +1,9 @@
 import sys
 from copy import deepcopy
 from dataclasses import dataclass, fields
-from typing import Type, TypeVar, Any, Union, Callable
+from typing import Type, TypeVar, Any, Union, Callable, Dict
 
+from pedantic.get_context import get_context
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
 
 T = TypeVar('T')
@@ -88,7 +89,7 @@ def frozen_dataclass(
             current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
             return cls_(**{**current_values, **kwargs})
 
-        def validate_types(self) -> None:
+        def validate_types(self, *, _context: Dict[str, Type] = None) -> None:
             """
                 Checks that all instance variable have the correct type.
                 Raises a [PedanticTypeCheckException] if at least one type is incorrect.
@@ -96,24 +97,31 @@ def frozen_dataclass(
 
             props = fields(cls_)
 
+            if _context is None:
+                # method was called by user
+                _context = get_context(depth=2)
+
             for field in props:
                 assert_value_matches_type(
                     value=getattr(self, field.name),
                     type_=field.type,
                     err=f'In dataclass "{cls_.__name__}" in field "{field.name}": ',
                     type_vars={},
+                    context=_context,
                 )
 
-        setattr(cls_, copy_with.__name__, copy_with)
-        setattr(cls_, deep_copy_with.__name__, deep_copy_with)
-        setattr(cls_, validate_types.__name__, validate_types)
+        methods_to_add = [copy_with, deep_copy_with, validate_types]
+
+        for method in methods_to_add:
+            setattr(cls_, method.__name__, method)
 
         if type_safe:
             old_post_init = getattr(cls_, '__post_init__', lambda _: None)
 
             def new_post_init(self) -> None:
                 old_post_init(self)
-                self.validate_types()
+                context = get_context(3)
+                self.validate_types(_context=context)
 
             setattr(cls_, '__post_init__', new_post_init)
 

@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tu
 import collections
 import sys
 
+from pedantic.type_checking_logic.resolve_forward_ref import resolve_forward_ref
 from pedantic.constants import TypeVar as TypeVar_
 from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
 
@@ -17,9 +18,10 @@ def assert_value_matches_type(
         err: str,
         type_vars: Dict[TypeVar_, Any],
         key: Optional[str] = None,
-        msg: Optional[str] = None
+        msg: Optional[str] = None,
+        context: Dict[str, Any] = None,
 ) -> None:
-    if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars):
+    if not _check_type(value=value, type_=type_, err=err, type_vars=type_vars, context=context):
         t = type(value)
         value = f'{key}={value}' if key is not None else str(value)
 
@@ -29,7 +31,7 @@ def assert_value_matches_type(
         raise PedanticTypeCheckException(msg)
 
 
-def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]) -> bool:
+def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
     """
         >>> from typing import List, Union, Optional, Callable, Any
         >>> _check_type(5, int, '', {})
@@ -125,7 +127,7 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         raise PedanticTypeCheckException(f'{err}Use "Type[]" instead of "type" as type hint.')
 
     try:
-        return _is_instance(obj=value, type_=type_, type_vars=type_vars)
+        return _is_instance(obj=value, type_=type_, type_vars=type_vars, context=context)
     except PedanticTypeCheckException as ex:
         raise PedanticTypeCheckException(f'{err} {ex}')
     except PedanticTypeVarMismatchException as ex:
@@ -136,7 +138,9 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
             f'{type_} Mostly this is caused by an incorrect type annotation. Details: {ex} ')
 
 
-def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
+def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
+    context = context or {}
+
     if not _has_required_type_arguments(type_):
         raise PedanticTypeCheckException(
             f'The type annotation "{type_}" misses some type arguments e.g. '
@@ -152,10 +156,10 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
 
         if name in _SPECIAL_INSTANCE_CHECKERS:
             validator = _SPECIAL_INSTANCE_CHECKERS[name]
-            return validator(obj, type_, type_vars)
+            return validator(obj, type_, type_vars, context)
 
     if hasattr(types, 'UnionType') and isinstance(type_, types.UnionType):
-        return _instancecheck_union(value=obj, type_=type_, type_vars=type_vars)
+        return _instancecheck_union(value=obj, type_=type_, type_vars=type_vars, context=context)
 
     if type_ == typing.BinaryIO:
         return isinstance(obj, (BytesIO, BufferedWriter))
@@ -173,7 +177,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
 
         if base in _ORIGIN_TYPE_CHECKERS:
             validator = _ORIGIN_TYPE_CHECKERS[base]
-            return validator(obj, type_args, type_vars)
+            return validator(obj, type_args, type_vars, context)
 
         assert base.__base__ == typing.Generic, f'Unknown base: {base}'
         return isinstance(obj, base)
@@ -185,7 +189,8 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
             return False
 
         if _is_forward_ref(type_=type_.__bound__):
-            return type(obj).__name__ == type_.__bound__.__forward_arg__
+            resolved = resolve_forward_ref(type_.__bound__.__forward_arg__, context=context)
+            return _is_instance(obj=obj, type_=resolved, type_vars=type_vars, context=context)
 
         if type_.__bound__ is not None and not isinstance(obj, type_.__bound__):
             return False
@@ -199,7 +204,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
                         f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} '
                         f'was previously matched to type {other}')
             else:
-                if not _is_instance(obj=obj, type_=other, type_vars=type_vars):
+                if not _is_instance(obj=obj, type_=other, type_vars=type_vars, context=context):
                     raise PedanticTypeVarMismatchException(
                         f'For TypeVar {type_} exists a type conflict: value {obj} has type {type(obj)} but TypeVar {type_} '
                         f'was previously matched to type {other}')
@@ -208,7 +213,8 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
         return True
 
     if _is_forward_ref(type_=type_):
-        return type(obj).__name__ == type_.__forward_arg__
+        resolved = resolve_forward_ref(type_.__forward_arg__, context=context)
+        return _is_instance(obj=obj, type_=resolved, type_vars=type_vars, context=context)
 
     if _is_type_new_type(type_):
         return isinstance(obj, type_.__supertype__)
@@ -224,7 +230,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
         if not obj._asdict().keys() == field_types.keys():
             return False
 
-        return all([_is_instance(obj=obj._asdict()[k], type_=v, type_vars=type_vars) for k, v in field_types.items()])
+        return all([_is_instance(obj=obj._asdict()[k], type_=v, type_vars=type_vars, context=context) for k, v in field_types.items()])
 
     return isinstance(obj, type_)
 
@@ -481,7 +487,7 @@ def get_base_generic(cls: Any) -> Any:
     return cls
 
 
-def _is_subtype(sub_type: Any, super_type: Any) -> bool:
+def _is_subtype(sub_type: Any, super_type: Any, context: Dict[str, Any] = None) -> bool:
     """
         >>> from typing import Any, List, Callable, Tuple, Union, Optional, Iterable
         >>> _is_subtype(float, float)
@@ -583,7 +589,8 @@ def _is_subtype(sub_type: Any, super_type: Any) -> bool:
 
     if len(sub_args) != len(super_args) and Ellipsis not in sub_args + super_args:
         return False
-    return all(_is_subtype(sub_type=sub_arg, super_type=super_arg) for sub_arg, super_arg in zip(sub_args, super_args))
+
+    return all(_is_subtype(sub_type=sub_arg, super_type=super_arg, context=context) for sub_arg, super_arg in zip(sub_args, super_args))
 
 
 def _get_class_of_type_annotation(annotation: Any) -> Any:
@@ -621,7 +628,7 @@ def _get_class_of_type_annotation(annotation: Any) -> Any:
     return annotation
 
 
-def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
+def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
     """
         >>> from typing import List, Any, Union
         >>> _instancecheck_iterable([1.0, -4.2, 5.4], (float,), {})
@@ -642,17 +649,17 @@ def _instancecheck_iterable(iterable: Iterable, type_args: Tuple, type_vars: Dic
         False
     """
     type_ = type_args[0]
-    return all(_is_instance(val, type_, type_vars=type_vars) for val in iterable)
+    return all(_is_instance(val, type_, type_vars=type_vars, context=context) for val in iterable)
 
 
-def _instancecheck_generator(generator: typing.Generator, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
+def _instancecheck_generator(generator: typing.Generator, type_args: Tuple, type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
     from pedantic.models import GeneratorWrapper
 
     assert isinstance(generator, GeneratorWrapper)
     return generator._yield_type == type_args[0] and generator._send_type == type_args[1] and generator._return_type == type_args[2]
 
 
-def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
+def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
     """
         >>> from typing import Any, Optional
         >>> _instancecheck_mapping({0: 1, 1: 2, 2: 3}, (int, Any), {})
@@ -670,10 +677,10 @@ def _instancecheck_mapping(mapping: Mapping, type_args: Tuple, type_vars: Dict[T
         >>> _instancecheck_mapping({0: 1, 1: 2, None: 3.0}, (int, Optional[int]), {})
         False
     """
-    return _instancecheck_items_view(mapping.items(), type_args, type_vars=type_vars)
+    return _instancecheck_items_view(mapping.items(), type_args, type_vars=type_vars, context=context)
 
 
-def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[TypeVar_, Any]) -> bool:
+def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
     """
         >>> from typing import Any, Optional
         >>> _instancecheck_items_view({0: 1, 1: 2, 2: 3}.items(), (int, Any), {})
@@ -692,12 +699,12 @@ def _instancecheck_items_view(items_view: ItemsView, type_args: Tuple, type_vars
         False
     """
     key_type, value_type = type_args
-    return all(_is_instance(obj=key, type_=key_type, type_vars=type_vars) and
-               _is_instance(obj=val, type_=value_type, type_vars=type_vars)
+    return all(_is_instance(obj=key, type_=key_type, type_vars=type_vars, context=context) and
+               _is_instance(obj=val, type_=value_type, type_vars=type_vars, context=context)
                for key, val in items_view)
 
 
-def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
+def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
     """
         >>> from typing import Any
         >>> _instancecheck_tuple(tup=(42.0, 43, 'hi', 'you'), type_args=(Any, Ellipsis), type_vars={})
@@ -712,7 +719,7 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[TypeVar_, A
         False
     """
     if Ellipsis in type_args:
-        return all(_is_instance(obj=val, type_=type_args[0], type_vars=type_vars) for val in tup)
+        return all(_is_instance(obj=val, type_=type_args[0], type_vars=type_vars, context=context) for val in tup)
 
     if tup == () and type_args == ((),):
         return True
@@ -720,10 +727,10 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[TypeVar_, A
     if len(tup) != len(type_args):
         return False
 
-    return all(_is_instance(obj=val, type_=type_, type_vars=type_vars) for val, type_ in zip(tup, type_args))
+    return all(_is_instance(obj=val, type_=type_, type_vars=type_vars, context=context) for val, type_ in zip(tup, type_args))
 
 
-def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
+def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
     """
         >>> from typing import Union, TypeVar, Any
         >>> NoneType = type(None)
@@ -824,22 +831,22 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any])
     """
 
     type_args = get_type_arguments(cls=type_)
-    return _check_union(value=value, type_args=type_args, type_vars=type_vars)
+    return _check_union(value=value, type_args=type_args, type_vars=type_vars, context=context)
 
 
-def _check_union(value: Any, type_args: Tuple[Any, ...], type_vars: Dict[TypeVar_, Any]) -> bool:
+def _check_union(value: Any, type_args: Tuple[Any, ...], type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
     args_non_type_vars = [type_arg for type_arg in type_args if not isinstance(type_arg, TypeVar)]
     args_type_vars = [type_arg for type_arg in type_args if isinstance(type_arg, TypeVar)]
     args_type_vars_bounded = [type_var for type_var in args_type_vars if type_var in type_vars]
     args_type_vars_unbounded = [type_var for type_var in args_type_vars if type_var not in args_type_vars_bounded]
-    matches_non_type_var = any([_is_instance(obj=value, type_=typ, type_vars=type_vars) for typ in args_non_type_vars])
+    matches_non_type_var = any([_is_instance(obj=value, type_=typ, type_vars=type_vars, context=context) for typ in args_non_type_vars])
 
     if matches_non_type_var:
         return True
 
     for bounded_type_var in args_type_vars_bounded:
         try:
-            _is_instance(obj=value, type_=bounded_type_var, type_vars=type_vars)
+            _is_instance(obj=value, type_=bounded_type_var, type_vars=type_vars, context=context)
             return True
         except PedanticException:
             pass
@@ -847,16 +854,16 @@ def _check_union(value: Any, type_args: Tuple[Any, ...], type_vars: Dict[TypeVar
     if not args_type_vars_unbounded:
         return False
     if len(args_type_vars_unbounded) == 1:
-        return _is_instance(obj=value, type_=args_type_vars_unbounded[0], type_vars=type_vars)
+        return _is_instance(obj=value, type_=args_type_vars_unbounded[0], type_vars=type_vars, context=context)
     return True  # it is impossible to figure out, how to bound these type variables correctly
 
 
-def _instancecheck_literal(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any]) -> bool:
+def _instancecheck_literal(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: Dict[str, Any] = None) -> bool:
     type_args = get_type_arguments(cls=type_)
     return value in type_args
 
 
-def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
+def _instancecheck_callable(value: Optional[Callable], type_: Any, _, context: Dict[str, Any] = None) -> bool:
     """
         >>> from typing import Tuple, Callable, Any
         >>> def f(x: int, y: float) -> Tuple[float, str]:
@@ -881,6 +888,7 @@ def _instancecheck_callable(value: Optional[Callable], type_: Any, _) -> bool:
 
     if value is None:
         return False
+
     if _is_lambda(obj=value):
         return True
 
@@ -915,13 +923,13 @@ def _is_lambda(obj: Any) -> bool:
     return callable(obj) and obj.__name__ == '<lambda>'
 
 
-def _instancecheck_type(value: Any, type_: Any, type_vars: Dict) -> bool:
+def _instancecheck_type(value: Any, type_: Any, type_vars: Dict, context: Dict[str, Any] = None) -> bool:
     type_ = type_[0]
 
     if type_ == Any or isinstance(type_, typing.TypeVar):
         return True
 
-    return _is_subtype(sub_type=value, super_type=type_)
+    return _is_subtype(sub_type=value, super_type=type_, context=context)
 
 
 _ORIGIN_TYPE_CHECKERS = {}
@@ -964,7 +972,7 @@ _SPECIAL_INSTANCE_CHECKERS = {
     'Optional': _instancecheck_union,
     'Literal': _instancecheck_literal,
     'Callable': _instancecheck_callable,
-    'Any': lambda v, t, tv: True,
+    'Any': lambda v, t, tv, c: True,
 }
 
 NUM_OF_REQUIRED_TYPE_ARGS_EXACT = {

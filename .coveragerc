@@ -8,4 +8,5 @@ exclude_lines =
     # Don't complain if non-runnable code isn't run:
     pragma: no cover
     except ImportError
+    raise ImportError
     if __name__ == .__main__.:

@@ -129,7 +129,40 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
 
         _inner(q, lambda x: 1 / x, x=0)
         ex = q.get()
-        assert isinstance(ex, SubprocessError)</code></pre>
+        assert isinstance(ex, SubprocessError)
+
+    async def test_in_subprocess_instance_method(self):
+        class Foo:
+            async def pos_args(self) -&gt; int:
+                return await self.f(4, 5)
+
+            async def kw_args(self) -&gt; int:
+                return await self.f(a=4, b=5)
+
+            @in_subprocess
+            def f(self, a: int, b: int) -&gt; int:
+                return a + b
+
+        foo = Foo()
+        assert await foo.pos_args() == 9
+        assert await foo.kw_args() == 9
+
+    async def test_in_subprocess_static_method(self):
+        class Foo:
+            async def pos_args(self) -&gt; int:
+                return await self.f(4, 5)
+
+            async def kw_args(self) -&gt; int:
+                return await self.f(a=4, b=5)
+
+            @staticmethod
+            @in_subprocess
+            def f(a: int, b: int) -&gt; int:
+                return a + b
+
+        foo = Foo()
+        assert await foo.pos_args() == 9
+        assert await foo.kw_args() == 9</code></pre>
 </details>
 </section>
 <section>
@@ -270,7 +303,40 @@ not have a method with the specified name.</p></div>
 
         _inner(q, lambda x: 1 / x, x=0)
         ex = q.get()
-        assert isinstance(ex, SubprocessError)</code></pre>
+        assert isinstance(ex, SubprocessError)
+
+    async def test_in_subprocess_instance_method(self):
+        class Foo:
+            async def pos_args(self) -&gt; int:
+                return await self.f(4, 5)
+
+            async def kw_args(self) -&gt; int:
+                return await self.f(a=4, b=5)
+
+            @in_subprocess
+            def f(self, a: int, b: int) -&gt; int:
+                return a + b
+
+        foo = Foo()
+        assert await foo.pos_args() == 9
+        assert await foo.kw_args() == 9
+
+    async def test_in_subprocess_static_method(self):
+        class Foo:
+            async def pos_args(self) -&gt; int:
+                return await self.f(4, 5)
+
+            async def kw_args(self) -&gt; int:
+                return await self.f(a=4, b=5)
+
+            @staticmethod
+            @in_subprocess
+            def f(a: int, b: int) -&gt; int:
+                return a + b
+
+        foo = Foo()
+        assert await foo.pos_args() == 9
+        assert await foo.kw_args() == 9</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -316,6 +382,32 @@ not have a method with the specified name.</p></div>
 
     with self.assertRaises(expected_exception=RuntimeError):
         await f()</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_instance_method"><code class="name flex">
+<span>async def <span class="ident">test_in_subprocess_instance_method</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def test_in_subprocess_instance_method(self):
+    class Foo:
+        async def pos_args(self) -&gt; int:
+            return await self.f(4, 5)
+
+        async def kw_args(self) -&gt; int:
+            return await self.f(a=4, b=5)
+
+        @in_subprocess
+        def f(self, a: int, b: int) -&gt; int:
+            return a + b
+
+    foo = Foo()
+    assert await foo.pos_args() == 9
+    assert await foo.kw_args() == 9</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_no_args"><code class="name flex">
@@ -394,6 +486,33 @@ not have a method with the specified name.</p></div>
         @in_subprocess
         async def f() -&gt; int:
             return 42</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_static_method"><code class="name flex">
+<span>async def <span class="ident">test_in_subprocess_static_method</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def test_in_subprocess_static_method(self):
+    class Foo:
+        async def pos_args(self) -&gt; int:
+            return await self.f(4, 5)
+
+        async def kw_args(self) -&gt; int:
+            return await self.f(a=4, b=5)
+
+        @staticmethod
+        @in_subprocess
+        def f(a: int, b: int) -&gt; int:
+            return a + b
+
+    foo = Foo()
+    assert await foo.pos_args() == 9
+    assert await foo.kw_args() == 9</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_with_arguments"><code class="name flex">
@@ -485,10 +604,12 @@ not have a method with the specified name.</p></div>
 <ul class="">
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_custom_object" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_custom_object">test_in_subprocess_custom_object</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_exception" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_exception">test_in_subprocess_exception</a></code></li>
+<li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_instance_method" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_instance_method">test_in_subprocess_instance_method</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_no_args" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_no_args">test_in_subprocess_no_args</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_no_args_no_return" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_no_args_no_return">test_in_subprocess_no_args_no_return</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple">test_in_subprocess_simple</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple_async" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple_async">test_in_subprocess_simple_async</a></code></li>
+<li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_static_method" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_static_method">test_in_subprocess_static_method</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_with_arguments" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_with_arguments">test_in_subprocess_with_arguments</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function">test_inner_function</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_not_in_subprocess_blocks" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_not_in_subprocess_blocks">test_not_in_subprocess_blocks</a></code></li>

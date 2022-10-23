@@ -1,6 +1,7 @@
 from functools import wraps
 from typing import Any, Optional
 
+from pedantic.get_context import get_context
 from pedantic.type_checking_logic.check_docstring import _check_docstring
 from pedantic.constants import ReturnType, F
 from pedantic.models.decorated_function import DecoratedFunction
@@ -56,12 +57,12 @@ def pedantic(func: Optional[F] = None, require_docstring: bool = False) -> F:
 
         @wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
-            call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs)
+            call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs, context=get_context(2))
             call.assert_uses_kwargs()
             return call.check_types()
 
         async def async_wrapper(*args: Any, **kwargs: Any) -> ReturnType:
-            call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs)
+            call = FunctionCall(func=decorated_func, args=args, kwargs=kwargs, context=get_context(2))
             call.assert_uses_kwargs()
             return await call.async_check_types()
 

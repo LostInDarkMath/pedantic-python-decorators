@@ -1,8 +1,13 @@
 import asyncio
 import inspect
 from functools import wraps
-from multiprocess import Process, Queue
-from typing import Callable, TypeVar, Any, Awaitable
+from typing import Callable, TypeVar, Any, Awaitable, Type, Optional
+
+try:
+    from multiprocess import Process, Queue
+except ImportError:
+    Process: Optional[Type] = None
+    Queue: Optional[Type] = None
 
 T = TypeVar('T')
 
@@ -70,6 +75,9 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
             >>> asyncio.run(calculate_in_subprocess(func=f, value=42))
             84
     """
+
+    if Queue is None:
+        raise ImportError('You need to install the multiprocess package to use this: pip install multiprocess')
 
     queue = Queue(maxsize=1)  # a queue with items of type T
     process = Process(target=_inner, args=(queue, func, *args), kwargs=kwargs)
