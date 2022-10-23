@@ -29,8 +29,13 @@
 <pre><code class="python">import asyncio
 import inspect
 from functools import wraps
-from multiprocess import Process, Queue
-from typing import Callable, TypeVar, Any, Awaitable
+from typing import Callable, TypeVar, Any, Awaitable, Type, Optional
+
+try:
+    from multiprocess import Process, Queue
+except ImportError:
+    Process: Optional[Type] = None
+    Queue: Optional[Type] = None
 
 T = TypeVar(&#39;T&#39;)
 
@@ -98,6 +103,9 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
             &gt;&gt;&gt; asyncio.run(calculate_in_subprocess(func=f, value=42))
             84
     &#34;&#34;&#34;
+
+    if Queue is None:
+        raise ImportError(&#39;You need to install the multiprocess package to use this: pip install multiprocess&#39;)
 
     queue = Queue(maxsize=1)  # a queue with items of type T
     process = Process(target=_inner, args=(queue, func, *args), kwargs=kwargs)
@@ -192,6 +200,9 @@ Further reading: <a href="https://medium.com/devopss-hole/python-multiprocessing
             &gt;&gt;&gt; asyncio.run(calculate_in_subprocess(func=f, value=42))
             84
     &#34;&#34;&#34;
+
+    if Queue is None:
+        raise ImportError(&#39;You need to install the multiprocess package to use this: pip install multiprocess&#39;)
 
     queue = Queue(maxsize=1)  # a queue with items of type T
     process = Process(target=_inner, args=(queue, func, *args), kwargs=kwargs)

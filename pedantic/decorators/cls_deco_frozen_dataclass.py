@@ -3,6 +3,7 @@ from copy import deepcopy
 from dataclasses import dataclass, fields
 from typing import Type, TypeVar, Any, Union, Callable, Dict
 
+from pedantic.get_context import get_context
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
 
 T = TypeVar('T')
@@ -11,15 +12,13 @@ T = TypeVar('T')
 def frozen_type_safe_dataclass(cls: Type[T]) -> Type[T]:
     """ Shortcut for @frozen_dataclass(type_safe=True) """
 
-    frame = sys._getframe(1)
-    return frozen_dataclass(type_safe=True, context=frame.f_locals)(cls)
+    return frozen_dataclass(type_safe=True)(cls)
 
 
 def frozen_dataclass(
         cls: Type[T] = None,
         type_safe: bool = False,
         order: bool = False,
-        context: Dict[str, Any] = None,
 ) -> Union[Type[T], Callable[[Type[T]], Type[T]]]:
     """
         Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
@@ -71,10 +70,6 @@ def frozen_dataclass(
         Foo(a=676676, b='new', c=False)
     """
 
-    if context is None:
-        frame = sys._getframe(1)  # get parent frame
-        context = frame.f_locals
-
     def decorator(cls_: Type[T]) -> Type[T]:
         def copy_with(self, **kwargs: Any) -> T:
             """
@@ -94,14 +89,17 @@ def frozen_dataclass(
             current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
             return cls_(**{**current_values, **kwargs})
 
-        def validate_types(self) -> None:
+        def validate_types(self, *, _context: Dict[str, Type] = None) -> None:
             """
                 Checks that all instance variable have the correct type.
                 Raises a [PedanticTypeCheckException] if at least one type is incorrect.
             """
 
             props = fields(cls_)
-            nonlocal context
+
+            if _context is None:
+                # method was called by user
+                _context = get_context(depth=2)
 
             for field in props:
                 assert_value_matches_type(
@@ -109,20 +107,21 @@ def frozen_dataclass(
                     type_=field.type,
                     err=f'In dataclass "{cls_.__name__}" in field "{field.name}": ',
                     type_vars={},
-                    context=cls_.__init__.__globals__,  # TODO
-                    # context=context,
+                    context=_context,
                 )
 
-        setattr(cls_, copy_with.__name__, copy_with)
-        setattr(cls_, deep_copy_with.__name__, deep_copy_with)
-        setattr(cls_, validate_types.__name__, validate_types)
+        methods_to_add = [copy_with, deep_copy_with, validate_types]
+
+        for method in methods_to_add:
+            setattr(cls_, method.__name__, method)
 
         if type_safe:
             old_post_init = getattr(cls_, '__post_init__', lambda _: None)
 
             def new_post_init(self) -> None:
                 old_post_init(self)
-                self.validate_types()
+                context = get_context(3)
+                self.validate_types(_context=context)
 
             setattr(cls_, '__post_init__', new_post_init)
 

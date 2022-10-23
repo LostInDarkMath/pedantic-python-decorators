@@ -28,8 +28,9 @@
 </summary>
 <pre><code class="python">import sys
 import unittest
+from abc import ABC
 from dataclasses import dataclass
-from typing import Callable, Awaitable, Coroutine, Any, Union
+from typing import Callable, Awaitable, Coroutine, Any, Union, Optional, Generic, TypeVar
 
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
@@ -188,7 +189,33 @@ class TestAssertValueMatchesType(unittest.TestCase):
                 type_=Callable[..., Awaitable[int]],
                 err=&#39;&#39;,
                 type_vars={},
-            )</code></pre>
+            )
+
+    def test_forward_ref_inheritance(self):
+        T = TypeVar(&#39;T&#39;)
+
+        class State(Generic[T], ABC):
+            pass
+
+        class StateMachine(Generic[T], ABC):
+            pass
+
+        class MachineState(State[&#39;MachineStateMachine&#39;]):
+            pass
+
+        class OfflineMachineState(MachineState):
+            pass
+
+        class MachineStateMachine(StateMachine[MachineState]):
+            pass
+
+        assert_value_matches_type(
+            value=OfflineMachineState(),
+            type_=Optional[&#39;MachineState&#39;],
+            err=&#39;&#39;,
+            type_vars={},
+            context=locals(),
+        )</code></pre>
 </details>
 </section>
 <section>
@@ -406,7 +433,33 @@ not have a method with the specified name.</p></div>
                 type_=Callable[..., Awaitable[int]],
                 err=&#39;&#39;,
                 type_vars={},
-            )</code></pre>
+            )
+
+    def test_forward_ref_inheritance(self):
+        T = TypeVar(&#39;T&#39;)
+
+        class State(Generic[T], ABC):
+            pass
+
+        class StateMachine(Generic[T], ABC):
+            pass
+
+        class MachineState(State[&#39;MachineStateMachine&#39;]):
+            pass
+
+        class OfflineMachineState(MachineState):
+            pass
+
+        class MachineStateMachine(StateMachine[MachineState]):
+            pass
+
+        assert_value_matches_type(
+            value=OfflineMachineState(),
+            type_=Optional[&#39;MachineState&#39;],
+            err=&#39;&#39;,
+            type_vars={},
+            context=locals(),
+        )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -633,6 +686,42 @@ not have a method with the specified name.</p></div>
         )</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_forward_ref_inheritance"><code class="name flex">
+<span>def <span class="ident">test_forward_ref_inheritance</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_forward_ref_inheritance(self):
+    T = TypeVar(&#39;T&#39;)
+
+    class State(Generic[T], ABC):
+        pass
+
+    class StateMachine(Generic[T], ABC):
+        pass
+
+    class MachineState(State[&#39;MachineStateMachine&#39;]):
+        pass
+
+    class OfflineMachineState(MachineState):
+        pass
+
+    class MachineStateMachine(StateMachine[MachineState]):
+        pass
+
+    assert_value_matches_type(
+        value=OfflineMachineState(),
+        type_=Optional[&#39;MachineState&#39;],
+        err=&#39;&#39;,
+        type_vars={},
+        context=locals(),
+    )</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -667,6 +756,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_return_type_none" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_return_type_none">test_callable_return_type_none</a></code></li>
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_with_new_union_type_hint" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_with_new_union_type_hint">test_callable_with_new_union_type_hint</a></code></li>
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_with_old_union_type_hint" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_with_old_union_type_hint">test_callable_with_old_union_type_hint</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_forward_ref_inheritance" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_forward_ref_inheritance">test_forward_ref_inheritance</a></code></li>
 </ul>
 </li>
 </ul>

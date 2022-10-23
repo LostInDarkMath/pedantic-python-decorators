@@ -27,8 +27,9 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import unittest
+from abc import ABC
 from dataclasses import dataclass, FrozenInstanceError
-from typing import List, Dict, Set, Tuple, Awaitable, Callable
+from typing import List, Dict, Set, Tuple, Awaitable, Callable, Generic, TypeVar, Optional
 
 from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from pedantic.exceptions import PedanticTypeCheckException
@@ -327,7 +328,40 @@ class TestFrozenDataclass(unittest.TestCase):
 
         A(f=_cb)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            A(f=_cb_2)</code></pre>
+            A(f=_cb_2)
+
+    def test_type_safe_frozen_dataclass_with_forward_ref(self):
+        # TODO
+        T = TypeVar(&#39;T&#39;)
+
+        class State(Generic[T], ABC):
+            pass
+
+        class StateMachine(Generic[T], ABC):
+            pass
+
+        @frozen_type_safe_dataclass
+        class StateChangeResult:
+            new_state: Optional[&#39;MachineState&#39;]
+
+        class MachineState(State[&#39;MachineStateMachine&#39;]):
+            pass
+
+        class OfflineMachineState(MachineState):
+            pass
+
+        class OnlineMachineState:
+            pass
+
+        class MachineStateMachine(StateMachine[MachineState]):
+            pass
+
+        s = StateChangeResult(new_state=OfflineMachineState())
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            StateChangeResult(new_state=OnlineMachineState())
+
+        s.validate_types()</code></pre>
 </details>
 </section>
 <section>
@@ -421,7 +455,7 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def validate_types(self) -&gt; None:
+<pre><code class="python">def validate_types(self, *, _context: Dict[str, Type] = None) -&gt; None:
     &#34;&#34;&#34;
         Checks that all instance variable have the correct type.
         Raises a [PedanticTypeCheckException] if at least one type is incorrect.
@@ -429,12 +463,17 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 
     props = fields(cls_)
 
+    if _context is None:
+        # method was called by user
+        _context = get_context(depth=2)
+
     for field in props:
         assert_value_matches_type(
             value=getattr(self, field.name),
             type_=field.type,
             err=f&#39;In dataclass &#34;{cls_.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
             type_vars={},
+            context=_context,
         )</code></pre>
 </details>
 </dd>
@@ -512,7 +551,7 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def validate_types(self) -&gt; None:
+<pre><code class="python">def validate_types(self, *, _context: Dict[str, Type] = None) -&gt; None:
     &#34;&#34;&#34;
         Checks that all instance variable have the correct type.
         Raises a [PedanticTypeCheckException] if at least one type is incorrect.
@@ -520,12 +559,17 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 
     props = fields(cls_)
 
+    if _context is None:
+        # method was called by user
+        _context = get_context(depth=2)
+
     for field in props:
         assert_value_matches_type(
             value=getattr(self, field.name),
             type_=field.type,
             err=f&#39;In dataclass &#34;{cls_.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
             type_vars={},
+            context=_context,
         )</code></pre>
 </details>
 </dd>
@@ -613,7 +657,7 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def validate_types(self) -&gt; None:
+<pre><code class="python">def validate_types(self, *, _context: Dict[str, Type] = None) -&gt; None:
     &#34;&#34;&#34;
         Checks that all instance variable have the correct type.
         Raises a [PedanticTypeCheckException] if at least one type is incorrect.
@@ -621,12 +665,17 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 
     props = fields(cls_)
 
+    if _context is None:
+        # method was called by user
+        _context = get_context(depth=2)
+
     for field in props:
         assert_value_matches_type(
             value=getattr(self, field.name),
             type_=field.type,
             err=f&#39;In dataclass &#34;{cls_.__name__}&#34; in field &#34;{field.name}&#34;: &#39;,
             type_vars={},
+            context=_context,
         )</code></pre>
 </details>
 </dd>
@@ -943,7 +992,40 @@ not have a method with the specified name.</p></div>
 
         A(f=_cb)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
-            A(f=_cb_2)</code></pre>
+            A(f=_cb_2)
+
+    def test_type_safe_frozen_dataclass_with_forward_ref(self):
+        # TODO
+        T = TypeVar(&#39;T&#39;)
+
+        class State(Generic[T], ABC):
+            pass
+
+        class StateMachine(Generic[T], ABC):
+            pass
+
+        @frozen_type_safe_dataclass
+        class StateChangeResult:
+            new_state: Optional[&#39;MachineState&#39;]
+
+        class MachineState(State[&#39;MachineStateMachine&#39;]):
+            pass
+
+        class OfflineMachineState(MachineState):
+            pass
+
+        class OnlineMachineState:
+            pass
+
+        class MachineStateMachine(StateMachine[MachineState]):
+            pass
+
+        s = StateChangeResult(new_state=OfflineMachineState())
+
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            StateChangeResult(new_state=OnlineMachineState())
+
+        s.validate_types()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1362,6 +1444,49 @@ not have a method with the specified name.</p></div>
         A(f=_cb_2)</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_type_safe_frozen_dataclass_with_forward_ref"><code class="name flex">
+<span>def <span class="ident">test_type_safe_frozen_dataclass_with_forward_ref</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_type_safe_frozen_dataclass_with_forward_ref(self):
+    # TODO
+    T = TypeVar(&#39;T&#39;)
+
+    class State(Generic[T], ABC):
+        pass
+
+    class StateMachine(Generic[T], ABC):
+        pass
+
+    @frozen_type_safe_dataclass
+    class StateChangeResult:
+        new_state: Optional[&#39;MachineState&#39;]
+
+    class MachineState(State[&#39;MachineStateMachine&#39;]):
+        pass
+
+    class OfflineMachineState(MachineState):
+        pass
+
+    class OnlineMachineState:
+        pass
+
+    class MachineStateMachine(StateMachine[MachineState]):
+        pass
+
+    s = StateChangeResult(new_state=OfflineMachineState())
+
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        StateChangeResult(new_state=OnlineMachineState())
+
+    s.validate_types()</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_validate_types"><code class="name flex">
 <span>def <span class="ident">test_validate_types</span></span>(<span>self)</span>
 </code></dt>
@@ -1452,6 +1577,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_with_post_init" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_with_post_init">test_frozen_typesafe_dataclass_with_post_init</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_without_post_init" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_typesafe_dataclass_without_post_init">test_frozen_typesafe_dataclass_without_post_init</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_type_safe_frozen_dataclass_with_awaitable" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_type_safe_frozen_dataclass_with_awaitable">test_type_safe_frozen_dataclass_with_awaitable</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_type_safe_frozen_dataclass_with_forward_ref" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_type_safe_frozen_dataclass_with_forward_ref">test_type_safe_frozen_dataclass_with_forward_ref</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_validate_types" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_validate_types">test_validate_types</a></code></li>
 </ul>
 </li>

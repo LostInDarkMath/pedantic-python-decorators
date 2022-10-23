@@ -7,24 +7,24 @@ from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, froz
 from pedantic.exceptions import PedanticTypeCheckException
 
 
-# @frozen_dataclass
-# class Foo:
-#     a: int
-#     b: str
-#     c: bool
-#
-#
-# @frozen_type_safe_dataclass
-# class B:
-#     v: Set[int]
-#
-#
-# @frozen_type_safe_dataclass
-# class A:
-#     foo: List[int]
-#     bar: Dict[str, str]
-#     values: Tuple[B, B]
-#
+@frozen_dataclass
+class Foo:
+    a: int
+    b: str
+    c: bool
+
+
+@frozen_type_safe_dataclass
+class B:
+    v: Set[int]
+
+
+@frozen_type_safe_dataclass
+class A:
+    foo: List[int]
+    bar: Dict[str, str]
+    values: Tuple[B, B]
+
 
 class TestFrozenDataclass(unittest.TestCase):
     def test_equals_and_hash(self):
@@ -328,7 +328,9 @@ class TestFrozenDataclass(unittest.TestCase):
         class MachineStateMachine(StateMachine[MachineState]):
             pass
 
-        StateChangeResult(new_state=OfflineMachineState())
+        s = StateChangeResult(new_state=OfflineMachineState())
 
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             StateChangeResult(new_state=OnlineMachineState())
+
+        s.validate_types()
