@@ -1,7 +1,7 @@
 import unittest
 from typing import Generic, TypeVar, Any, List, Optional, Union
 
-from pedantic.constants import TYPE_VAR_METHOD_NAME
+from pedantic.constants import TYPE_VAR_METHOD_NAME, TYPE_VAR_SELF
 from pedantic.decorators.class_decorators import pedantic_class
 from pedantic.exceptions import PedanticTypeVarMismatchException
 
@@ -60,7 +60,7 @@ class TestGenericClasses(unittest.TestCase):
 
         my_stack = Stack[str]()
         get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
-        self.assertEqual(get_type_vars(), {T: str})
+        self.assertEqual(get_type_vars(), {T: str, TYPE_VAR_SELF: Stack})
         with self.assertRaises(expected_exception=IndexError):
             my_stack.pop()
         self.assertIsNone(my_stack.top())
@@ -79,7 +79,7 @@ class TestGenericClasses(unittest.TestCase):
 
         my_other_stack = Stack[int]()
         get_type_vars = getattr(my_other_stack, TYPE_VAR_METHOD_NAME)
-        self.assertEqual(get_type_vars(), {T: int})
+        self.assertEqual(get_type_vars(), {T: int, TYPE_VAR_SELF: Stack})
         with self.assertRaises(expected_exception=IndexError):
             my_other_stack.pop()
         self.assertIsNone(my_other_stack.top())

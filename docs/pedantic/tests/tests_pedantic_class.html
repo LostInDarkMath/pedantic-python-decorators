@@ -457,12 +457,22 @@ class TestPedanticClass(unittest.TestCase):
 
         MyClass.do()
         MyClass.calc(x=5)
+        m = MyClass()
+        m.do()
+
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc(5)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc(x=5.1)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc(&#39;hi&#39;)
+
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
+            m.calc(5)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            m.calc(x=5.1)
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
+            m.calc(&#39;hi&#39;)
 
     def test_dataclass_inside(self):
         &#34;&#34;&#34;Pedantic cannot be used on dataclasses.&#34;&#34;&#34;
@@ -1018,12 +1028,22 @@ not have a method with the specified name.</p></div>
 
         MyClass.do()
         MyClass.calc(x=5)
+        m = MyClass()
+        m.do()
+
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc(5)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc(x=5.1)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc(&#39;hi&#39;)
+
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
+            m.calc(5)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            m.calc(x=5.1)
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
+            m.calc(&#39;hi&#39;)
 
     def test_dataclass_inside(self):
         &#34;&#34;&#34;Pedantic cannot be used on dataclasses.&#34;&#34;&#34;
@@ -1187,12 +1207,22 @@ not have a method with the specified name.</p></div>
 
     MyClass.do()
     MyClass.calc(x=5)
+    m = MyClass()
+    m.do()
+
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
         MyClass.calc(5)
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
         MyClass.calc(x=5.1)
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        MyClass.calc(&#39;hi&#39;)</code></pre>
+        MyClass.calc(&#39;hi&#39;)
+
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
+        m.calc(5)
+    with self.assertRaises(expected_exception=PedanticTypeCheckException):
+        m.calc(x=5.1)
+    with self.assertRaises(expected_exception=PedanticCallWithArgsException):
+        m.calc(&#39;hi&#39;)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.tests_pedantic_class.TestPedanticClass.test_class_method_type_annotation_missing"><code class="name flex">

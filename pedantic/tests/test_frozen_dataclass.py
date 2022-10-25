@@ -303,7 +303,6 @@ class TestFrozenDataclass(unittest.TestCase):
             A(f=_cb_2)
 
     def test_type_safe_frozen_dataclass_with_forward_ref(self):
-        # TODO
         T = TypeVar('T')
 
         class State(Generic[T], ABC):

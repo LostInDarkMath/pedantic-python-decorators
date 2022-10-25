@@ -8,7 +8,7 @@ import collections
 import sys
 
 from pedantic.type_checking_logic.resolve_forward_ref import resolve_forward_ref
-from pedantic.constants import TypeVar as TypeVar_
+from pedantic.constants import TypeVar as TypeVar_, TYPE_VAR_SELF
 from pedantic.exceptions import PedanticTypeCheckException, PedanticTypeVarMismatchException, PedanticException
 
 
@@ -165,22 +165,19 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
         return isinstance(obj, (BytesIO, BufferedWriter))
     elif type_ == typing.TextIO:
         return isinstance(obj, (StringIO, TextIOWrapper))
+    elif type_ == typing.NoReturn:
+        return False  # we expect an Exception here, but got a value
+    elif hasattr(typing, 'Never') and type_ == typing.Never:  # since Python 3.11
+        return False  # we expect an Exception here, but got a value
+    elif hasattr(typing, 'LiteralString') and type_ == typing.LiteralString:  # since Python 3.11
+        return isinstance(obj, str)  # we cannot distinguish str and LiteralString at runtime
+    elif hasattr(typing, 'Self') and type_ == typing.Self:  # since Python 3.11
+        t = type_vars[TYPE_VAR_SELF]
 
-    if _is_generic(type_):
-        python_type = type_.__origin__
+        if t is None:
+            return False  # the case if a function outside a class was type hinted with self
 
-        if not isinstance(obj, python_type):
-            return False
-
-        base = get_base_generic(type_)
-        type_args = get_type_arguments(cls=type_)
-
-        if base in _ORIGIN_TYPE_CHECKERS:
-            validator = _ORIGIN_TYPE_CHECKERS[base]
-            return validator(obj, type_args, type_vars, context)
-
-        assert base.__base__ == typing.Generic, f'Unknown base: {base}'
-        return isinstance(obj, base)
+        return _is_instance(obj=obj, type_=t, type_vars=type_vars, context=context)
 
     if isinstance(type_, TypeVar):
         constraints = type_.__constraints__
@@ -211,6 +208,25 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
 
         type_vars[type_] = type(obj)
         return True
+
+    if hasattr(typing, 'Unpack') and getattr(type_, '__origin__', None) == typing.Unpack:
+        return True  # it's too hard to check that at the moment
+
+    if _is_generic(type_):
+        python_type = type_.__origin__
+
+        if not isinstance(obj, python_type):
+            return False
+
+        base = get_base_generic(type_)
+        type_args = get_type_arguments(cls=type_)
+
+        if base in _ORIGIN_TYPE_CHECKERS:
+            validator = _ORIGIN_TYPE_CHECKERS[base]
+            return validator(obj, type_args, type_vars, context)
+
+        assert base.__base__ == typing.Generic, f'Unknown base: {base}'
+        return isinstance(obj, base)
 
     if _is_forward_ref(type_=type_):
         resolved = resolve_forward_ref(type_.__forward_arg__, context=context)

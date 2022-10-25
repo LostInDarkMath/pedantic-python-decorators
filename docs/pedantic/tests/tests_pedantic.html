@@ -2304,6 +2304,13 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo() -&gt; NoReturn:
             pass
 
+        @pedantic
+        def bar() -&gt; NoReturn:
+            raise ZeroDivisionError(&#39;bar&#39;)
+
+        with self.assertRaises(expected_exception=ZeroDivisionError):
+            bar()
+
         with self.assertRaises(PedanticTypeCheckException):
             foo()
 
@@ -4761,6 +4768,13 @@ not have a method with the specified name.</p></div>
         @pedantic
         def foo() -&gt; NoReturn:
             pass
+
+        @pedantic
+        def bar() -&gt; NoReturn:
+            raise ZeroDivisionError(&#39;bar&#39;)
+
+        with self.assertRaises(expected_exception=ZeroDivisionError):
+            bar()
 
         with self.assertRaises(PedanticTypeCheckException):
             foo()
@@ -7957,6 +7971,13 @@ arguments have default values.</p></div>
     @pedantic
     def foo() -&gt; NoReturn:
         pass
+
+    @pedantic
+    def bar() -&gt; NoReturn:
+        raise ZeroDivisionError(&#39;bar&#39;)
+
+    with self.assertRaises(expected_exception=ZeroDivisionError):
+        bar()
 
     with self.assertRaises(PedanticTypeCheckException):
         foo()</code></pre>

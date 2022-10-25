@@ -1,9 +1,21 @@
 # Changelog
+
+## Pedantic 1.14.0
+- Added support for Python 3.11:
+  - `typing.Self`
+  - `typing.Never`
+  - `typing.LiteralString`
+  - `typing.TypeVarTuple` is not supported yet, but it least it does not lead to errors ;)
+- Fix type checking of `typing.NoReturn`
+- Fix `@pedantic_class` behavior with `@classmethod`s
+- Changed Ubuntu version in CI from 20 to 22
+
 ## Pedantic 1.13.3
 - [again: fixes a bug in the type-checking of `frozen_dataclass` and `frozen_type_safe_dataclass` in context of `ForwardRef`s](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72) 
 
 ## Pedantic 1.13.2
 - [fixes a bug in the type-checking of `frozen_dataclass` and `frozen_type_safe_dataclass` in context of `ForwardRef`s](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72)
+
 
 ## Pedantic 1.13.1
 - fix `ImportError` of optional `multiprocess` package

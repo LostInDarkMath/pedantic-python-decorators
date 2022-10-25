@@ -1,7 +1,7 @@
 import inspect
-from typing import Dict, Tuple, Any, Union, Type
+from typing import Dict, Tuple, Any, Union, Type, Optional, ForwardRef
 
-from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
+from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType, TYPE_VAR_SELF
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
 from pedantic.models.decorated_function import DecoratedFunction
@@ -40,7 +40,31 @@ class FunctionCall:
     def type_vars(self) -> Dict[TypeVar, Any]:
         if hasattr(self._instance, TYPE_VAR_METHOD_NAME):
             self._get_type_vars = getattr(self._instance, TYPE_VAR_METHOD_NAME)
-        return self._get_type_vars()
+
+        res = self._get_type_vars()
+
+        if TYPE_VAR_SELF not in res:
+            res[TYPE_VAR_SELF] = self.clazz
+
+        return res
+
+    @property
+    def clazz(self) -> Optional[Type]:
+        """ Return the enclosing class of the called function if there is one. """
+
+        if self._instance is not None:
+            # case instance method
+            return type(self._instance)
+        elif self.func.is_class_method:
+            return self.func.func.__self__
+        elif self.func.is_static_method:
+            if not self.args:
+                # static method was called on class
+                class_name = self.func.full_name.split('.')[-2]
+                return ForwardRef(class_name)   # this ForwardRef is resolved later
+
+            # static method was called on instance
+            return type(self.args[0])
 
     @property
     def params_without_self(self) -> Dict[str, inspect.Parameter]:
@@ -166,13 +190,13 @@ class FunctionCall:
             raise PedanticTypeCheckException(f'{self.func.err}Parameter "{param.name}" should have a type hint.')
 
     def _get_return_value(self) -> Any:
-        if self.func.is_static_method:
+        if self.func.is_static_method or self.func.is_class_method:
             return self.func.func(**self.kwargs)
         else:
             return self.func.func(*self.args, **self.kwargs)
 
     async def _async_get_return_value(self) -> Any:
-        if self.func.is_static_method:
+        if self.func.is_static_method or self.func.is_class_method:
             return await self.func.func(**self.kwargs)
         else:
             return await self.func.func(*self.args, **self.kwargs)

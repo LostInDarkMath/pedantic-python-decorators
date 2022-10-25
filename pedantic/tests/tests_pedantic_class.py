@@ -429,12 +429,22 @@ class TestPedanticClass(unittest.TestCase):
 
         MyClass.do()
         MyClass.calc(x=5)
+        m = MyClass()
+        m.do()
+
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc(5)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc(x=5.1)
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             MyClass.calc('hi')
+
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
+            m.calc(5)
+        with self.assertRaises(expected_exception=PedanticTypeCheckException):
+            m.calc(x=5.1)
+        with self.assertRaises(expected_exception=PedanticCallWithArgsException):
+            m.calc('hi')
 
     def test_dataclass_inside(self):
         """Pedantic cannot be used on dataclasses."""
