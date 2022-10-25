@@ -17,6 +17,9 @@ if sys.version_info >= (3, 8):
     from pedantic.tests.tests_pedantic_async import TestPedanticAsyncio
     from pedantic.tests.test_in_subprocess import TestInSubprocess
 
+if sys.version_info >= (3, 11):
+    from pedantic.tests.tests_pedantic_python_311 import TestPedanticPython311AddedStuff
+
 from pedantic.tests.test_resolve_forward_ref import TestResolveForwardRef
 from pedantic.tests.test_generic_mixin import TestGenericMixin
 from pedantic.tests.test_assert_value_matches_type import TestAssertValueMatchesType
@@ -99,6 +102,9 @@ def run_all_tests() -> None:
             TestInSubprocess,
         ]
         test_classes_to_run.extend(async_test_classes_to_run)
+
+    if sys.version_info >= (3, 11):
+        test_classes_to_run.append(TestPedanticPython311AddedStuff)
 
     loader = unittest.TestLoader()
     suites_list = [get_doctest_test_suite()]
