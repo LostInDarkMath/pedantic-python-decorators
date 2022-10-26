@@ -48,9 +48,8 @@ FUNCTIONS_THAT_REQUIRE_KWARGS = [
 
 
 class DecoratedFunction:
-    def __init__(self, func: Callable[..., Any], context: Dict[str, Any] = None) -&gt; None:
+    def __init__(self, func: Callable[..., Any]) -&gt; None:
         self._func = func
-        self._context = context
 
         if not isinstance(func, (types.FunctionType, types.MethodType)):
             raise PedanticTypeCheckException(f&#39;{self.full_name} should be a method or function.&#39;)
@@ -68,10 +67,6 @@ class DecoratedFunction:
     @property
     def func(self) -&gt; Callable[..., Any]:
         return self._func
-
-    @property
-    def context(self) -&gt; Dict[str, Any]:
-        return self._context
 
     @property
     def annotations(self) -&gt; Dict[str, Any]:
@@ -162,7 +157,7 @@ class DecoratedFunction:
 <dl>
 <dt id="pedantic.models.decorated_function.DecoratedFunction"><code class="flex name class">
 <span>class <span class="ident">DecoratedFunction</span></span>
-<span>(</span><span>func: Callable[..., Any], context: Dict[str, Any] = None)</span>
+<span>(</span><span>func: Callable[..., Any])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -171,9 +166,8 @@ class DecoratedFunction:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DecoratedFunction:
-    def __init__(self, func: Callable[..., Any], context: Dict[str, Any] = None) -&gt; None:
+    def __init__(self, func: Callable[..., Any]) -&gt; None:
         self._func = func
-        self._context = context
 
         if not isinstance(func, (types.FunctionType, types.MethodType)):
             raise PedanticTypeCheckException(f&#39;{self.full_name} should be a method or function.&#39;)
@@ -191,10 +185,6 @@ class DecoratedFunction:
     @property
     def func(self) -&gt; Callable[..., Any]:
         return self._func
-
-    @property
-    def context(self) -&gt; Dict[str, Any]:
-        return self._context
 
     @property
     def annotations(self) -&gt; Dict[str, Any]:
@@ -285,18 +275,6 @@ class DecoratedFunction:
 <pre><code class="python">@property
 def annotations(self) -&gt; Dict[str, Any]:
     return self._full_arg_spec.annotations</code></pre>
-</details>
-</dd>
-<dt id="pedantic.models.decorated_function.DecoratedFunction.context"><code class="name">var <span class="ident">context</span> : Dict[str, Any]</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def context(self) -&gt; Dict[str, Any]:
-    return self._context</code></pre>
 </details>
 </dd>
 <dt id="pedantic.models.decorated_function.DecoratedFunction.docstring"><code class="name">var <span class="ident">docstring</span> : Optional[docstring_parser.common.Docstring]</code></dt>
@@ -535,7 +513,6 @@ def wants_args(self) -&gt; bool:
 <h4><code><a title="pedantic.models.decorated_function.DecoratedFunction" href="#pedantic.models.decorated_function.DecoratedFunction">DecoratedFunction</a></code></h4>
 <ul class="two-column">
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.annotations" href="#pedantic.models.decorated_function.DecoratedFunction.annotations">annotations</a></code></li>
-<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.context" href="#pedantic.models.decorated_function.DecoratedFunction.context">context</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.docstring" href="#pedantic.models.decorated_function.DecoratedFunction.docstring">docstring</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.err" href="#pedantic.models.decorated_function.DecoratedFunction.err">err</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.full_name" href="#pedantic.models.decorated_function.DecoratedFunction.full_name">full_name</a></code></li>

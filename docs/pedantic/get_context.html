@@ -27,16 +27,21 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import sys
-from typing import Type, Dict
+from typing import Type, Dict, List
 
 
-def get_context(depth: int = 1) -&gt; Dict[str, Type]:
+def get_context(depth: int = 1, increase_depth_if_name_matches: List[str] = None) -&gt; Dict[str, Type]:
     &#34;&#34;&#34;
         Get the context of a frame at the given depth of the current call stack.
         See also: https://docs.python.org/3/library/sys.html#sys._getframe
     &#34;&#34;&#34;
 
     frame = sys._getframe(depth)
+    name = frame.f_code.co_name
+
+    if name in (increase_depth_if_name_matches or []):
+        frame = sys._getframe(depth + 1)
+
     return {**frame.f_globals, **frame.f_locals}</code></pre>
 </details>
 </section>
@@ -48,7 +53,7 @@ def get_context(depth: int = 1) -&gt; Dict[str, Type]:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.get_context.get_context"><code class="name flex">
-<span>def <span class="ident">get_context</span></span>(<span>depth: int = 1) ‑> Dict[str, Type[+CT_co]]</span>
+<span>def <span class="ident">get_context</span></span>(<span>depth: int = 1, increase_depth_if_name_matches: List[str] = None) ‑> Dict[str, Type[+CT_co]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the context of a frame at the given depth of the current call stack.
@@ -57,13 +62,18 @@ See also: <a href="https://docs.python.org/3/library/sys.html#sys._getframe">htt
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_context(depth: int = 1) -&gt; Dict[str, Type]:
+<pre><code class="python">def get_context(depth: int = 1, increase_depth_if_name_matches: List[str] = None) -&gt; Dict[str, Type]:
     &#34;&#34;&#34;
         Get the context of a frame at the given depth of the current call stack.
         See also: https://docs.python.org/3/library/sys.html#sys._getframe
     &#34;&#34;&#34;
 
     frame = sys._getframe(depth)
+    name = frame.f_code.co_name
+
+    if name in (increase_depth_if_name_matches or []):
+        frame = sys._getframe(depth + 1)
+
     return {**frame.f_globals, **frame.f_locals}</code></pre>
 </details>
 </dd>

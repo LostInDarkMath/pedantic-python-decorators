@@ -334,3 +334,14 @@ class TestFrozenDataclass(unittest.TestCase):
             StateChangeResult(new_state=OnlineMachineState())
 
         s.validate_types()
+
+    def test_forward_ref_to_itself(self):
+        """ Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72 """
+
+        @frozen_type_safe_dataclass
+        class Comment:
+            replies: List['Comment']
+
+        comment = Comment(replies=[Comment(replies=[])])
+        comment.copy_with(replies=[Comment(replies=[])])
+        comment.validate_types()
