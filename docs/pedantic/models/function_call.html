@@ -27,7 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import inspect
-from typing import Dict, Tuple, Any, Union
+from typing import Dict, Tuple, Any, Union, Type
 
 from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
@@ -37,10 +37,11 @@ from pedantic.models.generator_wrapper import GeneratorWrapper
 
 
 class FunctionCall:
-    def __init__(self, func: DecoratedFunction, args: Tuple[Any, ...], kwargs: Dict[str, Any]) -&gt; None:
+    def __init__(self, func: DecoratedFunction, args: Tuple[Any, ...], kwargs: Dict[str, Any], context: Dict[str, Type]) -&gt; None:
         self._func = func
         self._args = args
         self._kwargs = kwargs
+        self._context = context
         self._instance = self.args[0] if self.func.is_instance_method else None
         self._type_vars = dict()
         self._params_without_self = {k: v for k, v in self.func.signature.parameters.items() if v.name != &#39;self&#39;}
@@ -129,7 +130,7 @@ class FunctionCall:
                 err=self.func.err,
                 type_vars=self.type_vars,
                 key=key,
-                context=self.func.context,
+                context=self._context,
             )
 
     def _check_types_args(self, params: Dict[str, inspect.Parameter]) -&gt; None:
@@ -144,7 +145,7 @@ class FunctionCall:
                 type_=expected,
                 err=self.func.err,
                 type_vars=self.type_vars,
-                context=self.func.context,
+                context=self._context,
             )
 
     def _check_types_kwargs(self, params: Dict[str, inspect.Parameter]) -&gt; None:
@@ -162,7 +163,7 @@ class FunctionCall:
                 err=self.func.err,
                 type_vars=self.type_vars,
                 key=kwarg,
-                context=self.func.context,
+                context=self._context,
             )
 
     def _check_types_return(self, result: Any) -&gt; Union[None, GeneratorWrapper]:
@@ -184,7 +185,7 @@ class FunctionCall:
             err=self.func.err,
             type_vars=self.type_vars,
             msg=msg,
-            context=self.func.context,
+            context=self._context,
         )
         return result
 
@@ -216,7 +217,7 @@ class FunctionCall:
 <dl>
 <dt id="pedantic.models.function_call.FunctionCall"><code class="flex name class">
 <span>class <span class="ident">FunctionCall</span></span>
-<span>(</span><span>func: <a title="pedantic.models.decorated_function.DecoratedFunction" href="decorated_function.html#pedantic.models.decorated_function.DecoratedFunction">DecoratedFunction</a>, args: Tuple[Any, ...], kwargs: Dict[str, Any])</span>
+<span>(</span><span>func: <a title="pedantic.models.decorated_function.DecoratedFunction" href="decorated_function.html#pedantic.models.decorated_function.DecoratedFunction">DecoratedFunction</a>, args: Tuple[Any, ...], kwargs: Dict[str, Any], context: Dict[str, Type[+CT_co]])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -225,10 +226,11 @@ class FunctionCall:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FunctionCall:
-    def __init__(self, func: DecoratedFunction, args: Tuple[Any, ...], kwargs: Dict[str, Any]) -&gt; None:
+    def __init__(self, func: DecoratedFunction, args: Tuple[Any, ...], kwargs: Dict[str, Any], context: Dict[str, Type]) -&gt; None:
         self._func = func
         self._args = args
         self._kwargs = kwargs
+        self._context = context
         self._instance = self.args[0] if self.func.is_instance_method else None
         self._type_vars = dict()
         self._params_without_self = {k: v for k, v in self.func.signature.parameters.items() if v.name != &#39;self&#39;}
@@ -317,7 +319,7 @@ class FunctionCall:
                 err=self.func.err,
                 type_vars=self.type_vars,
                 key=key,
-                context=self.func.context,
+                context=self._context,
             )
 
     def _check_types_args(self, params: Dict[str, inspect.Parameter]) -&gt; None:
@@ -332,7 +334,7 @@ class FunctionCall:
                 type_=expected,
                 err=self.func.err,
                 type_vars=self.type_vars,
-                context=self.func.context,
+                context=self._context,
             )
 
     def _check_types_kwargs(self, params: Dict[str, inspect.Parameter]) -&gt; None:
@@ -350,7 +352,7 @@ class FunctionCall:
                 err=self.func.err,
                 type_vars=self.type_vars,
                 key=kwarg,
-                context=self.func.context,
+                context=self._context,
             )
 
     def _check_types_return(self, result: Any) -&gt; Union[None, GeneratorWrapper]:
@@ -372,7 +374,7 @@ class FunctionCall:
             err=self.func.err,
             type_vars=self.type_vars,
             msg=msg,
-            context=self.func.context,
+            context=self._context,
         )
         return result
 

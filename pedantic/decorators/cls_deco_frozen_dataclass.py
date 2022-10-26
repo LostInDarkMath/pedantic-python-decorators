@@ -120,7 +120,10 @@ def frozen_dataclass(
 
             def new_post_init(self) -> None:
                 old_post_init(self)
-                context = get_context(3)
+                context = get_context(depth=3, increase_depth_if_name_matches=[
+                    copy_with.__name__,
+                    deep_copy_with.__name__,
+                ])
                 self.validate_types(_context=context)
 
             setattr(cls_, '__post_init__', new_post_init)

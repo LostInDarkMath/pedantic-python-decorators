@@ -361,7 +361,18 @@ class TestFrozenDataclass(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             StateChangeResult(new_state=OnlineMachineState())
 
-        s.validate_types()</code></pre>
+        s.validate_types()
+
+    def test_forward_ref_to_itself(self):
+        &#34;&#34;&#34; Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72 &#34;&#34;&#34;
+
+        @frozen_type_safe_dataclass
+        class Comment:
+            replies: List[&#39;Comment&#39;]
+
+        comment = Comment(replies=[Comment(replies=[])])
+        comment.copy_with(replies=[Comment(replies=[])])
+        comment.validate_types()</code></pre>
 </details>
 </section>
 <section>
@@ -1025,7 +1036,18 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             StateChangeResult(new_state=OnlineMachineState())
 
-        s.validate_types()</code></pre>
+        s.validate_types()
+
+    def test_forward_ref_to_itself(self):
+        &#34;&#34;&#34; Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72 &#34;&#34;&#34;
+
+        @frozen_type_safe_dataclass
+        class Comment:
+            replies: List[&#39;Comment&#39;]
+
+        comment = Comment(replies=[Comment(replies=[])])
+        comment.copy_with(replies=[Comment(replies=[])])
+        comment.validate_types()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1138,6 +1160,27 @@ not have a method with the specified name.</p></div>
 
     self.assertNotEqual(a, c)
     self.assertNotEqual(hash(a), hash(c))</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_forward_ref_to_itself"><code class="name flex">
+<span>def <span class="ident">test_forward_ref_to_itself</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Regression test for <a href="https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72">https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_forward_ref_to_itself(self):
+    &#34;&#34;&#34; Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72 &#34;&#34;&#34;
+
+    @frozen_type_safe_dataclass
+    class Comment:
+        replies: List[&#39;Comment&#39;]
+
+    comment = Comment(replies=[Comment(replies=[])])
+    comment.copy_with(replies=[Comment(replies=[])])
+    comment.validate_types()</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_above_dataclass"><code class="name flex">
@@ -1566,6 +1609,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_and_deep_copy_with" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_and_deep_copy_with">test_copy_with_and_deep_copy_with</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_is_shallow" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_copy_with_is_shallow">test_copy_with_is_shallow</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_equals_and_hash">test_equals_and_hash</a></code></li>
+<li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_forward_ref_to_itself" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_forward_ref_to_itself">test_forward_ref_to_itself</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_above_dataclass" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_above_dataclass">test_frozen_dataclass_above_dataclass</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_below_dataclass" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_below_dataclass">test_frozen_dataclass_below_dataclass</a></code></li>
 <li><code><a title="pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_inheritance_not_override_post_init" href="#pedantic.tests.test_frozen_dataclass.TestFrozenDataclass.test_frozen_dataclass_inheritance_not_override_post_init">test_frozen_dataclass_inheritance_not_override_post_init</a></code></li>
