@@ -101,6 +101,8 @@ def frozen_dataclass(
                 # method was called by user
                 _context = get_context(depth=2)
 
+            _context = {**_context, **self.__init__.__globals__, self.__class__.__name__: self.__class__}
+
             for field in props:
                 assert_value_matches_type(
                     value=getattr(self, field.name),

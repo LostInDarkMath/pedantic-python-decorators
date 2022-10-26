@@ -345,3 +345,22 @@ class TestFrozenDataclass(unittest.TestCase):
         comment = Comment(replies=[Comment(replies=[])])
         comment.copy_with(replies=[Comment(replies=[])])
         comment.validate_types()
+
+    def test_forward_ref_to_itself_while_class_not_in_scope(self):
+        """ Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72 """
+
+        def _scope():
+            @frozen_type_safe_dataclass
+            class Comment:
+                replies: List['Comment']
+
+            def _make(replies=None):
+                return Comment(replies=replies or [])
+
+            return _make
+
+        make = _scope()
+
+        comment = make(replies=[make(replies=[])])
+        comment.copy_with(replies=[make(replies=[])])
+        comment.validate_types()

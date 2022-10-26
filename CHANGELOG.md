@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.13.3
+- [again: fixes a bug in the type-checking of `frozen_dataclass` and `frozen_type_safe_dataclass` in context of `ForwardRef`s](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72) 
+
 ## Pedantic 1.13.2
 - [fixes a bug in the type-checking of `frozen_dataclass` and `frozen_type_safe_dataclass` in context of `ForwardRef`s](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72)
 
