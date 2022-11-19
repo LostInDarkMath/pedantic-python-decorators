@@ -15,9 +15,10 @@ branches:
 
 install:
   - pip install -U pip
+  - pip install -U setuptools
+  - pip install -U wheel
+  - pip install -U coveralls
   - pip install -r requirements.txt
-  - pip install wheel
-  - pip install coveralls
 
 # before_script:
 
