@@ -1,15 +1,15 @@
 import enum
-from dataclasses import is_dataclass
-from typing import Callable, Any, Optional, Dict, Type
 import types
+from dataclasses import is_dataclass
+from typing import Callable, Optional, Dict, Type
 
+from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, F, C, TYPE_VAR_SELF
+from pedantic.decorators import timer, trace
+from pedantic.decorators.fn_deco_pedantic import pedantic, pedantic_require_docstring
 from pedantic.env_var_logic import is_enabled
-from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, F, C
+from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_generic_classes import check_instance_of_generic_class_and_get_type_vars, \
     is_instance_of_generic_class
-from pedantic.exceptions import PedanticTypeCheckException
-from pedantic.decorators.fn_deco_pedantic import pedantic, pedantic_require_docstring
-from pedantic.decorators import timer, trace
 
 
 def for_all_methods(decorator: F) -> Callable[[Type[C]], Type[C]]:
@@ -79,19 +79,15 @@ def _get_wrapped(prop: Optional[F], decorator: F) -> Optional[F]:
 
 def _add_type_var_attr_and_method_to_class(cls: C) -> None:
     def type_vars(self) -> Dict:
+        t_vars = {TYPE_VAR_SELF: cls}
+
         if is_instance_of_generic_class(instance=self):
-            type_vars_fifo = getattr(self, TYPE_VAR_ATTR_NAME) if hasattr(self, TYPE_VAR_ATTR_NAME) else {}
+            type_vars_fifo = getattr(self, TYPE_VAR_ATTR_NAME, dict())
             type_vars_generics = check_instance_of_generic_class_and_get_type_vars(instance=self)
-            setattr(self, TYPE_VAR_ATTR_NAME, _merge_dicts(first=type_vars_generics, second=type_vars_fifo))
+            setattr(self, TYPE_VAR_ATTR_NAME, {**type_vars_fifo, **type_vars_generics, **t_vars})
         else:
-            setattr(self, TYPE_VAR_ATTR_NAME, dict())
+            setattr(self, TYPE_VAR_ATTR_NAME, t_vars)
+
         return getattr(self, TYPE_VAR_ATTR_NAME)
+
     setattr(cls, TYPE_VAR_METHOD_NAME, type_vars)
-
-
-def _merge_dicts(first: Dict[Any, Any], second: Dict[Any, Any]) -> Dict[Any, Any]:
-    for key in second:
-        if key not in first:
-            first[key] = second[key]
-
-    return first

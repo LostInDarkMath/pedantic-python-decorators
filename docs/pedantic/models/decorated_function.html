@@ -107,6 +107,8 @@ class DecoratedFunction:
 
     @property
     def is_static_method(self) -&gt; bool:
+        &#34;&#34;&#34; I honestly have no idea how to do this better :( &#34;&#34;&#34;
+
         return &#39;@staticmethod&#39; in self.source
 
     @property
@@ -128,6 +130,15 @@ class DecoratedFunction:
     @property
     def is_instance_method(self) -&gt; bool:
         return self._full_arg_spec.args != [] and self._full_arg_spec.args[0] == &#39;self&#39;
+
+    @property
+    def is_class_method(self) -&gt; bool:
+        &#34;&#34;&#34;
+            Returns true if the function is decoratorated with the @classmethod decorator.
+            See also: https://stackoverflow.com/questions/19227724/check-if-a-function-uses-classmethod
+        &#34;&#34;&#34;
+
+        return inspect.ismethod(self._func)
 
     @property
     def num_of_decorators(self) -&gt; int:
@@ -225,6 +236,8 @@ class DecoratedFunction:
 
     @property
     def is_static_method(self) -&gt; bool:
+        &#34;&#34;&#34; I honestly have no idea how to do this better :( &#34;&#34;&#34;
+
         return &#39;@staticmethod&#39; in self.source
 
     @property
@@ -246,6 +259,15 @@ class DecoratedFunction:
     @property
     def is_instance_method(self) -&gt; bool:
         return self._full_arg_spec.args != [] and self._full_arg_spec.args[0] == &#39;self&#39;
+
+    @property
+    def is_class_method(self) -&gt; bool:
+        &#34;&#34;&#34;
+            Returns true if the function is decoratorated with the @classmethod decorator.
+            See also: https://stackoverflow.com/questions/19227724/check-if-a-function-uses-classmethod
+        &#34;&#34;&#34;
+
+        return inspect.ismethod(self._func)
 
     @property
     def num_of_decorators(self) -&gt; int:
@@ -331,6 +353,24 @@ def func(self) -&gt; Callable[..., Any]:
     return self._func</code></pre>
 </details>
 </dd>
+<dt id="pedantic.models.decorated_function.DecoratedFunction.is_class_method"><code class="name">var <span class="ident">is_class_method</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>Returns true if the function is decoratorated with the @classmethod decorator.
+See also: <a href="https://stackoverflow.com/questions/19227724/check-if-a-function-uses-classmethod">https://stackoverflow.com/questions/19227724/check-if-a-function-uses-classmethod</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_class_method(self) -&gt; bool:
+    &#34;&#34;&#34;
+        Returns true if the function is decoratorated with the @classmethod decorator.
+        See also: https://stackoverflow.com/questions/19227724/check-if-a-function-uses-classmethod
+    &#34;&#34;&#34;
+
+    return inspect.ismethod(self._func)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.models.decorated_function.DecoratedFunction.is_coroutine"><code class="name">var <span class="ident">is_coroutine</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
@@ -393,13 +433,15 @@ def is_property_setter(self) -&gt; bool:
 </dd>
 <dt id="pedantic.models.decorated_function.DecoratedFunction.is_static_method"><code class="name">var <span class="ident">is_static_method</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>I honestly have no idea how to do this better :(</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def is_static_method(self) -&gt; bool:
+    &#34;&#34;&#34; I honestly have no idea how to do this better :( &#34;&#34;&#34;
+
     return &#39;@staticmethod&#39; in self.source</code></pre>
 </details>
 </dd>
@@ -517,6 +559,7 @@ def wants_args(self) -&gt; bool:
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.err" href="#pedantic.models.decorated_function.DecoratedFunction.err">err</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.full_name" href="#pedantic.models.decorated_function.DecoratedFunction.full_name">full_name</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.func" href="#pedantic.models.decorated_function.DecoratedFunction.func">func</a></code></li>
+<li><code><a title="pedantic.models.decorated_function.DecoratedFunction.is_class_method" href="#pedantic.models.decorated_function.DecoratedFunction.is_class_method">is_class_method</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.is_coroutine" href="#pedantic.models.decorated_function.DecoratedFunction.is_coroutine">is_coroutine</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.is_generator" href="#pedantic.models.decorated_function.DecoratedFunction.is_generator">is_generator</a></code></li>
 <li><code><a title="pedantic.models.decorated_function.DecoratedFunction.is_instance_method" href="#pedantic.models.decorated_function.DecoratedFunction.is_instance_method">is_instance_method</a></code></li>

@@ -1,11 +1,11 @@
-dist: focal
+dist: jammy
 language: python
 python: # https://docs.travis-ci.com/user/languages/python/#python-versions
   - "3.7"
   - "3.8"
   - "3.9"
-  - "3.10.2"
-#   - "3.11-dev"  # temporarily disabled because it stucks in CI
+  - "3.10"
+  - "3.11"
 
 branches:
   only:
@@ -14,9 +14,11 @@ branches:
 # before_install:
 
 install:
+  - pip install -U pip
+  - pip install -U setuptools
+  - pip install -U wheel
+  - pip install -U coveralls
   - pip install -r requirements.txt
-  - pip install wheel
-  - pip install coveralls
 
 # before_script:
 

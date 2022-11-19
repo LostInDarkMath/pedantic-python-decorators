@@ -19,6 +19,8 @@ def frozen_dataclass(
         cls: Type[T] = None,
         type_safe: bool = False,
         order: bool = False,
+        kw_only: bool = True,
+        slots: bool = False,
 ) -> Union[Type[T], Callable[[Type[T]], Type[T]]]:
     """
         Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
@@ -47,6 +49,8 @@ def frozen_dataclass(
 
         These compare the class as if it were a tuple of its fields, in order.
         Both instances in the comparison must be of the identical type.
+
+        The parameters slots and kw_only are only applied if the Python version is greater or equal to 3.10.
 
         Example:
 
@@ -133,7 +137,8 @@ def frozen_dataclass(
         args = {'frozen': True, 'order': order}
 
         if sys.version_info >= (3, 10):
-            args['kw_only'] = True
+            args['kw_only'] = kw_only
+            args['slots'] = slots
 
         return dataclass(**args)(cls_)
 

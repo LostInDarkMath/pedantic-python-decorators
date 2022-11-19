@@ -331,7 +331,6 @@ class TestFrozenDataclass(unittest.TestCase):
             A(f=_cb_2)
 
     def test_type_safe_frozen_dataclass_with_forward_ref(self):
-        # TODO
         T = TypeVar(&#39;T&#39;)
 
         class State(Generic[T], ABC):
@@ -405,16 +404,15 @@ class TestFrozenDataclass(unittest.TestCase):
 <dl>
 <dt id="pedantic.tests.test_frozen_dataclass.A"><code class="flex name class">
 <span>class <span class="ident">A</span></span>
-<span>(</span><span>*, foo: List[int], bar: Dict[str, str], values: Tuple[<a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>, <a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>])</span>
+<span>(</span><span>foo: List[int], bar: Dict[str, str], values: Tuple[<a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>, <a title="pedantic.tests.test_frozen_dataclass.B" href="#pedantic.tests.test_frozen_dataclass.B">B</a>])</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A(*, foo: List[int], bar: Dict[str, str], values: Tuple[pedantic.tests.test_frozen_dataclass.B, pedantic.tests.test_frozen_dataclass.B])</p></div>
+<div class="desc"><p>A(foo: List[int], bar: Dict[str, str], values: Tuple[pedantic.tests.test_frozen_dataclass.B, pedantic.tests.test_frozen_dataclass.B])</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@frozen_type_safe_dataclass
-class A:
+<pre><code class="python">class A:
     foo: List[int]
     bar: Dict[str, str]
     values: Tuple[B, B]</code></pre>
@@ -514,16 +512,15 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.B"><code class="flex name class">
 <span>class <span class="ident">B</span></span>
-<span>(</span><span>*, v: Set[int])</span>
+<span>(</span><span>v: Set[int])</span>
 </code></dt>
 <dd>
-<div class="desc"><p>B(*, v: Set[int])</p></div>
+<div class="desc"><p>B(v: Set[int])</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@frozen_type_safe_dataclass
-class B:
+<pre><code class="python">class B:
     v: Set[int]</code></pre>
 </details>
 <h3>Class variables</h3>
@@ -613,16 +610,15 @@ Raises a [PedanticTypeCheckException] if at least one type is incorrect.</p></di
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.Foo"><code class="flex name class">
 <span>class <span class="ident">Foo</span></span>
-<span>(</span><span>*, a: int, b: str, c: bool)</span>
+<span>(</span><span>a: int, b: str, c: bool)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Foo(*, a: int, b: str, c: bool)</p></div>
+<div class="desc"><p>Foo(a: int, b: str, c: bool)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@frozen_dataclass
-class Foo:
+<pre><code class="python">class Foo:
     a: int
     b: str
     c: bool</code></pre>
@@ -1034,7 +1030,6 @@ not have a method with the specified name.</p></div>
             A(f=_cb_2)
 
     def test_type_safe_frozen_dataclass_with_forward_ref(self):
-        # TODO
         T = TypeVar(&#39;T&#39;)
 
         class State(Generic[T], ABC):
@@ -1573,7 +1568,6 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_type_safe_frozen_dataclass_with_forward_ref(self):
-    # TODO
     T = TypeVar(&#39;T&#39;)
 
     class State(Generic[T], ABC):

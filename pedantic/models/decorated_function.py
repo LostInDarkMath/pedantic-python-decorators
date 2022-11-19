@@ -79,6 +79,8 @@ class DecoratedFunction:
 
     @property
     def is_static_method(self) -> bool:
+        """ I honestly have no idea how to do this better :( """
+
         return '@staticmethod' in self.source
 
     @property
@@ -100,6 +102,15 @@ class DecoratedFunction:
     @property
     def is_instance_method(self) -> bool:
         return self._full_arg_spec.args != [] and self._full_arg_spec.args[0] == 'self'
+
+    @property
+    def is_class_method(self) -> bool:
+        """
+            Returns true if the function is decoratorated with the @classmethod decorator.
+            See also: https://stackoverflow.com/questions/19227724/check-if-a-function-uses-classmethod
+        """
+
+        return inspect.ismethod(self._func)
 
     @property
     def num_of_decorators(self) -> int:

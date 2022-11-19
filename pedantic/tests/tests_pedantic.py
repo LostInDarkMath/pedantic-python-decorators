@@ -2276,6 +2276,13 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo() -> NoReturn:
             pass
 
+        @pedantic
+        def bar() -> NoReturn:
+            raise ZeroDivisionError('bar')
+
+        with self.assertRaises(expected_exception=ZeroDivisionError):
+            bar()
+
         with self.assertRaises(PedanticTypeCheckException):
             foo()
 

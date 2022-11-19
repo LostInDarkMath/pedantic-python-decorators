@@ -27,9 +27,9 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import inspect
-from typing import Dict, Tuple, Any, Union, Type
+from typing import Dict, Tuple, Any, Union, Type, Optional, ForwardRef
 
-from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType
+from pedantic.constants import TypeVar, TYPE_VAR_METHOD_NAME, ReturnType, TYPE_VAR_SELF
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
 from pedantic.models.decorated_function import DecoratedFunction
@@ -68,7 +68,31 @@ class FunctionCall:
     def type_vars(self) -&gt; Dict[TypeVar, Any]:
         if hasattr(self._instance, TYPE_VAR_METHOD_NAME):
             self._get_type_vars = getattr(self._instance, TYPE_VAR_METHOD_NAME)
-        return self._get_type_vars()
+
+        res = self._get_type_vars()
+
+        if TYPE_VAR_SELF not in res:
+            res[TYPE_VAR_SELF] = self.clazz
+
+        return res
+
+    @property
+    def clazz(self) -&gt; Optional[Type]:
+        &#34;&#34;&#34; Return the enclosing class of the called function if there is one. &#34;&#34;&#34;
+
+        if self._instance is not None:
+            # case instance method
+            return type(self._instance)
+        elif self.func.is_class_method:
+            return self.func.func.__self__
+        elif self.func.is_static_method:
+            if not self.args:
+                # static method was called on class
+                class_name = self.func.full_name.split(&#39;.&#39;)[-2]
+                return ForwardRef(class_name)   # this ForwardRef is resolved later
+
+            # static method was called on instance
+            return type(self.args[0])
 
     @property
     def params_without_self(self) -&gt; Dict[str, inspect.Parameter]:
@@ -194,13 +218,13 @@ class FunctionCall:
             raise PedanticTypeCheckException(f&#39;{self.func.err}Parameter &#34;{param.name}&#34; should have a type hint.&#39;)
 
     def _get_return_value(self) -&gt; Any:
-        if self.func.is_static_method:
+        if self.func.is_static_method or self.func.is_class_method:
             return self.func.func(**self.kwargs)
         else:
             return self.func.func(*self.args, **self.kwargs)
 
     async def _async_get_return_value(self) -&gt; Any:
-        if self.func.is_static_method:
+        if self.func.is_static_method or self.func.is_class_method:
             return await self.func.func(**self.kwargs)
         else:
             return await self.func.func(*self.args, **self.kwargs)</code></pre>
@@ -257,7 +281,31 @@ class FunctionCall:
     def type_vars(self) -&gt; Dict[TypeVar, Any]:
         if hasattr(self._instance, TYPE_VAR_METHOD_NAME):
             self._get_type_vars = getattr(self._instance, TYPE_VAR_METHOD_NAME)
-        return self._get_type_vars()
+
+        res = self._get_type_vars()
+
+        if TYPE_VAR_SELF not in res:
+            res[TYPE_VAR_SELF] = self.clazz
+
+        return res
+
+    @property
+    def clazz(self) -&gt; Optional[Type]:
+        &#34;&#34;&#34; Return the enclosing class of the called function if there is one. &#34;&#34;&#34;
+
+        if self._instance is not None:
+            # case instance method
+            return type(self._instance)
+        elif self.func.is_class_method:
+            return self.func.func.__self__
+        elif self.func.is_static_method:
+            if not self.args:
+                # static method was called on class
+                class_name = self.func.full_name.split(&#39;.&#39;)[-2]
+                return ForwardRef(class_name)   # this ForwardRef is resolved later
+
+            # static method was called on instance
+            return type(self.args[0])
 
     @property
     def params_without_self(self) -&gt; Dict[str, inspect.Parameter]:
@@ -383,13 +431,13 @@ class FunctionCall:
             raise PedanticTypeCheckException(f&#39;{self.func.err}Parameter &#34;{param.name}&#34; should have a type hint.&#39;)
 
     def _get_return_value(self) -&gt; Any:
-        if self.func.is_static_method:
+        if self.func.is_static_method or self.func.is_class_method:
             return self.func.func(**self.kwargs)
         else:
             return self.func.func(*self.args, **self.kwargs)
 
     async def _async_get_return_value(self) -&gt; Any:
-        if self.func.is_static_method:
+        if self.func.is_static_method or self.func.is_class_method:
             return await self.func.func(**self.kwargs)
         else:
             return await self.func.func(*self.args, **self.kwargs)</code></pre>
@@ -423,6 +471,32 @@ def args_without_self(self) -&gt; Tuple[Any, ...]:
     if self.func.is_instance_method or self.func.is_static_method or uses_multiple_decorators:
         return self.args[1:]  # self is always the first argument if present
     return self.args</code></pre>
+</details>
+</dd>
+<dt id="pedantic.models.function_call.FunctionCall.clazz"><code class="name">var <span class="ident">clazz</span> : Optional[Type[+CT_co]]</code></dt>
+<dd>
+<div class="desc"><p>Return the enclosing class of the called function if there is one.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def clazz(self) -&gt; Optional[Type]:
+    &#34;&#34;&#34; Return the enclosing class of the called function if there is one. &#34;&#34;&#34;
+
+    if self._instance is not None:
+        # case instance method
+        return type(self._instance)
+    elif self.func.is_class_method:
+        return self.func.func.__self__
+    elif self.func.is_static_method:
+        if not self.args:
+            # static method was called on class
+            class_name = self.func.full_name.split(&#39;.&#39;)[-2]
+            return ForwardRef(class_name)   # this ForwardRef is resolved later
+
+        # static method was called on instance
+        return type(self.args[0])</code></pre>
 </details>
 </dd>
 <dt id="pedantic.models.function_call.FunctionCall.func"><code class="name">var <span class="ident">func</span> : <a title="pedantic.models.decorated_function.DecoratedFunction" href="decorated_function.html#pedantic.models.decorated_function.DecoratedFunction">DecoratedFunction</a></code></dt>
@@ -484,7 +558,13 @@ def params_without_self(self) -&gt; Dict[str, inspect.Parameter]:
 def type_vars(self) -&gt; Dict[TypeVar, Any]:
     if hasattr(self._instance, TYPE_VAR_METHOD_NAME):
         self._get_type_vars = getattr(self._instance, TYPE_VAR_METHOD_NAME)
-    return self._get_type_vars()</code></pre>
+
+    res = self._get_type_vars()
+
+    if TYPE_VAR_SELF not in res:
+        res[TYPE_VAR_SELF] = self.clazz
+
+    return res</code></pre>
 </details>
 </dd>
 </dl>
@@ -559,6 +639,7 @@ def type_vars(self) -&gt; Dict[TypeVar, Any]:
 <li><code><a title="pedantic.models.function_call.FunctionCall.assert_uses_kwargs" href="#pedantic.models.function_call.FunctionCall.assert_uses_kwargs">assert_uses_kwargs</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.async_check_types" href="#pedantic.models.function_call.FunctionCall.async_check_types">async_check_types</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.check_types" href="#pedantic.models.function_call.FunctionCall.check_types">check_types</a></code></li>
+<li><code><a title="pedantic.models.function_call.FunctionCall.clazz" href="#pedantic.models.function_call.FunctionCall.clazz">clazz</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.func" href="#pedantic.models.function_call.FunctionCall.func">func</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.kwargs" href="#pedantic.models.function_call.FunctionCall.kwargs">kwargs</a></code></li>
 <li><code><a title="pedantic.models.function_call.FunctionCall.not_yet_check_kwargs" href="#pedantic.models.function_call.FunctionCall.not_yet_check_kwargs">not_yet_check_kwargs</a></code></li>
