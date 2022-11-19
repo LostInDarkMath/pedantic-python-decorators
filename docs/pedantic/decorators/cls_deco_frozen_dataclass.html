@@ -47,6 +47,8 @@ def frozen_dataclass(
         cls: Type[T] = None,
         type_safe: bool = False,
         order: bool = False,
+        kw_only: bool = True,
+        slots: bool = False,
 ) -&gt; Union[Type[T], Callable[[Type[T]], Type[T]]]:
     &#34;&#34;&#34;
         Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
@@ -75,6 +77,8 @@ def frozen_dataclass(
 
         These compare the class as if it were a tuple of its fields, in order.
         Both instances in the comparison must be of the identical type.
+
+        The parameters slots and kw_only are only applied if the Python version is greater or equal to 3.10.
 
         Example:
 
@@ -161,7 +165,8 @@ def frozen_dataclass(
         args = {&#39;frozen&#39;: True, &#39;order&#39;: order}
 
         if sys.version_info &gt;= (3, 10):
-            args[&#39;kw_only&#39;] = True
+            args[&#39;kw_only&#39;] = kw_only
+            args[&#39;slots&#39;] = slots
 
         return dataclass(**args)(cls_)
 
@@ -184,7 +189,7 @@ if __name__ == &#39;__main__&#39;:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.decorators.cls_deco_frozen_dataclass.frozen_dataclass"><code class="name flex">
-<span>def <span class="ident">frozen_dataclass</span></span>(<span>cls: Type[~T] = None, type_safe: bool = False, order: bool = False) ‑> Union[Type[~T], Callable[[Type[~T]], Type[~T]]]</span>
+<span>def <span class="ident">frozen_dataclass</span></span>(<span>cls: Type[~T] = None, type_safe: bool = False, order: bool = False, kw_only: bool = True, slots: bool = False) ‑> Union[Type[~T], Callable[[Type[~T]], Type[~T]]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
@@ -209,6 +214,7 @@ will be added additionally:
 - <strong>ge</strong>() lets you compare instance like "a &gt;= b"</p>
 <p>These compare the class as if it were a tuple of its fields, in order.
 Both instances in the comparison must be of the identical type.</p>
+<p>The parameters slots and kw_only are only applied if the Python version is greater or equal to 3.10.</p>
 <p>Example:</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; @frozen_dataclass
 ... class Foo:
@@ -237,6 +243,8 @@ Foo(a=676676, b='new', c=False)
         cls: Type[T] = None,
         type_safe: bool = False,
         order: bool = False,
+        kw_only: bool = True,
+        slots: bool = False,
 ) -&gt; Union[Type[T], Callable[[Type[T]], Type[T]]]:
     &#34;&#34;&#34;
         Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
@@ -265,6 +273,8 @@ Foo(a=676676, b='new', c=False)
 
         These compare the class as if it were a tuple of its fields, in order.
         Both instances in the comparison must be of the identical type.
+
+        The parameters slots and kw_only are only applied if the Python version is greater or equal to 3.10.
 
         Example:
 
@@ -351,7 +361,8 @@ Foo(a=676676, b='new', c=False)
         args = {&#39;frozen&#39;: True, &#39;order&#39;: order}
 
         if sys.version_info &gt;= (3, 10):
-            args[&#39;kw_only&#39;] = True
+            args[&#39;kw_only&#39;] = kw_only
+            args[&#39;slots&#39;] = slots
 
         return dataclass(**args)(cls_)
 

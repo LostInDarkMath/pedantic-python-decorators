@@ -77,7 +77,7 @@ if __name__ == &#34;__main__&#34;:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.decorators.fn_deco_overrides.overrides"><code class="name flex">
-<span>def <span class="ident">overrides</span></span>(<span>base_class: Type) ‑> Callable[..., ~ReturnType]</span>
+<span>def <span class="ident">overrides</span></span>(<span>base_class: Type[+CT_co]) ‑> Callable[..., ~ReturnType]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This is used for marking methods that overrides methods of the base class which makes the code more readable.

@@ -9,6 +9,7 @@
 - Fix type checking of `typing.NoReturn`
 - Fix `@pedantic_class` behavior with `@classmethod`s
 - Changed Ubuntu version in CI from 20 to 22
+- Added arguments `slots` and `kw_only` to `frozen_dataclass`
 
 ## Pedantic 1.13.3
 - [again: fixes a bug in the type-checking of `frozen_dataclass` and `frozen_type_safe_dataclass` in context of `ForwardRef`s](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72) 

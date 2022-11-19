@@ -626,9 +626,6 @@ def _is_subtype(sub_type: Any, super_type: Any, context: Dict[str, Any] = None) 
     if not issubclass(python_sub, python_super):
         return False
 
-    if not _is_generic(super_type):
-        return True
-
     sub_args = get_type_arguments(cls=sub_type)
     super_args = get_type_arguments(cls=super_type)
 
