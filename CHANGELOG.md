@@ -1,5 +1,9 @@
 # Changelog
 
+## Pedantic 1.14.1
+- [Fix type checking bug with callables](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74)
+- Fix deployment (CI)
+
 ## Pedantic 1.14.0
 - Added support for Python 3.11:
   - `typing.Self`

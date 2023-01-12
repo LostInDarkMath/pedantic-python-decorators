@@ -2,7 +2,8 @@ import sys
 import unittest
 from abc import ABC
 from dataclasses import dataclass
-from typing import Callable, Awaitable, Coroutine, Any, Union, Optional, Generic, TypeVar
+from datetime import datetime
+from typing import Callable, Awaitable, Coroutine, Any, Union, Optional, Generic, TypeVar, Tuple
 
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
@@ -184,6 +185,28 @@ class TestAssertValueMatchesType(unittest.TestCase):
         assert_value_matches_type(
             value=OfflineMachineState(),
             type_=Optional['MachineState'],
+            err='',
+            type_vars={},
+            context=locals(),
+        )
+
+    def test_tuple_with_ellipsis(self):
+        """ Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/75 """
+
+        assert_value_matches_type(
+            value=(1, 2.0, 'hello'),
+            type_=Tuple[Any, ...],
+            err='',
+            type_vars={},
+            context=locals(),
+        )
+
+    def test_union_of_callable(self):
+        """ Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74 """
+
+        assert_value_matches_type(
+            value=datetime.now(),
+            type_=Union[datetime, Callable[[], datetime]],
             err='',
             type_vars={},
             context=locals(),

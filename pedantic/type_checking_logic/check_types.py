@@ -906,7 +906,12 @@ def _instancecheck_callable(value: Optional[Callable], type_: Any, _, context: D
         return True
 
     param_types, ret_type = get_type_arguments(cls=type_)
-    sig = inspect.signature(obj=value)
+
+    try:
+        sig = inspect.signature(obj=value)
+    except TypeError:
+        return False
+
     non_optional_params = {k: v for k, v in sig.parameters.items() if v.default == sig.empty}
 
     if param_types is not Ellipsis:
