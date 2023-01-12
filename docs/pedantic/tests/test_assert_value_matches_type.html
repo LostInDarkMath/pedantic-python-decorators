@@ -30,7 +30,8 @@
 import unittest
 from abc import ABC
 from dataclasses import dataclass
-from typing import Callable, Awaitable, Coroutine, Any, Union, Optional, Generic, TypeVar
+from datetime import datetime
+from typing import Callable, Awaitable, Coroutine, Any, Union, Optional, Generic, TypeVar, Tuple
 
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type
@@ -215,6 +216,28 @@ class TestAssertValueMatchesType(unittest.TestCase):
             err=&#39;&#39;,
             type_vars={},
             context=locals(),
+        )
+
+    def test_tuple_with_ellipsis(self):
+        &#34;&#34;&#34; Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/75 &#34;&#34;&#34;
+
+        assert_value_matches_type(
+            value=(1, 2.0, &#39;hello&#39;),
+            type_=Tuple[Any, ...],
+            err=&#39;&#39;,
+            type_vars={},
+            context=locals(),
+        )
+
+    def test_union_of_callable(self):
+        &#34;&#34;&#34; Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74 &#34;&#34;&#34;
+
+        assert_value_matches_type(
+            value=datetime.now(),
+            type_=Union[datetime, Callable[[], datetime]],
+            err=&#39;&#39;,
+            type_vars={},
+            context=locals(),
         )</code></pre>
 </details>
 </section>
@@ -237,7 +260,8 @@ class TestAssertValueMatchesType(unittest.TestCase):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Foo:
+<pre><code class="python">@dataclass
+class Foo:
     value: int</code></pre>
 </details>
 <h3>Class variables</h3>
@@ -456,6 +480,28 @@ not have a method with the specified name.</p></div>
         assert_value_matches_type(
             value=OfflineMachineState(),
             type_=Optional[&#39;MachineState&#39;],
+            err=&#39;&#39;,
+            type_vars={},
+            context=locals(),
+        )
+
+    def test_tuple_with_ellipsis(self):
+        &#34;&#34;&#34; Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/75 &#34;&#34;&#34;
+
+        assert_value_matches_type(
+            value=(1, 2.0, &#39;hello&#39;),
+            type_=Tuple[Any, ...],
+            err=&#39;&#39;,
+            type_vars={},
+            context=locals(),
+        )
+
+    def test_union_of_callable(self):
+        &#34;&#34;&#34; Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74 &#34;&#34;&#34;
+
+        assert_value_matches_type(
+            value=datetime.now(),
+            type_=Union[datetime, Callable[[], datetime]],
             err=&#39;&#39;,
             type_vars={},
             context=locals(),
@@ -722,6 +768,48 @@ not have a method with the specified name.</p></div>
     )</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_tuple_with_ellipsis"><code class="name flex">
+<span>def <span class="ident">test_tuple_with_ellipsis</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Regression test for <a href="https://github.com/LostInDarkMath/pedantic-python-decorators/issues/75">https://github.com/LostInDarkMath/pedantic-python-decorators/issues/75</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_tuple_with_ellipsis(self):
+    &#34;&#34;&#34; Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/75 &#34;&#34;&#34;
+
+    assert_value_matches_type(
+        value=(1, 2.0, &#39;hello&#39;),
+        type_=Tuple[Any, ...],
+        err=&#39;&#39;,
+        type_vars={},
+        context=locals(),
+    )</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_union_of_callable"><code class="name flex">
+<span>def <span class="ident">test_union_of_callable</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Regression test for <a href="https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74">https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_union_of_callable(self):
+    &#34;&#34;&#34; Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74 &#34;&#34;&#34;
+
+    assert_value_matches_type(
+        value=datetime.now(),
+        type_=Union[datetime, Callable[[], datetime]],
+        err=&#39;&#39;,
+        type_vars={},
+        context=locals(),
+    )</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -757,6 +845,8 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_with_new_union_type_hint" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_with_new_union_type_hint">test_callable_with_new_union_type_hint</a></code></li>
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_with_old_union_type_hint" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_callable_with_old_union_type_hint">test_callable_with_old_union_type_hint</a></code></li>
 <li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_forward_ref_inheritance" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_forward_ref_inheritance">test_forward_ref_inheritance</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_tuple_with_ellipsis" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_tuple_with_ellipsis">test_tuple_with_ellipsis</a></code></li>
+<li><code><a title="pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_union_of_callable" href="#pedantic.tests.test_assert_value_matches_type.TestAssertValueMatchesType.test_union_of_callable">test_union_of_callable</a></code></li>
 </ul>
 </li>
 </ul>
