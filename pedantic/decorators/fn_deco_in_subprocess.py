@@ -1,13 +1,15 @@
 import asyncio
 import inspect
 from functools import wraps
-from typing import Callable, TypeVar, Any, Awaitable, Type, Optional
+from typing import Callable, TypeVar, Any, Awaitable, Optional, Type
 
 try:
-    from multiprocess import Process, Queue
+    from multiprocess import Process, Pipe
+    from multiprocess.connection import Connection
 except ImportError:
     Process: Optional[Type] = None
-    Queue: Optional[Type] = None
+    Pipe: Optional[Type] = None
+    Connection: Optional[Type] = None
 
 T = TypeVar('T')
 
@@ -76,19 +78,19 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
             84
     """
 
-    if Queue is None:
+    if Pipe is None:
         raise ImportError('You need to install the multiprocess package to use this: pip install multiprocess')
 
-    queue = Queue(maxsize=1)  # a queue with items of type T
-    process = Process(target=_inner, args=(queue, func, *args), kwargs=kwargs)
+    rx, tx = Pipe(duplex=False)  # receiver & transmitter ; Pipe is one-way only
+    process = Process(target=_inner, args=(tx, func, *args), kwargs=kwargs)
     process.start()
 
-    while queue.empty():  # do not use process.is_alive() as condition here
+    while not rx.poll():  # do not use process.is_alive() as condition here
         await asyncio.sleep(0.1)
 
-    result = queue.get_nowait()
+    result = rx.recv()
     process.join()  # this blocks synchronously! make sure that process is terminated before you call join()
-    queue.close()
+    rx.close()
 
     if isinstance(result, SubprocessError):
         raise result.exception
@@ -96,15 +98,15 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
     return result
 
 
-def _inner(q: Queue, fun: Callable[..., T], *a, **kw_args) -> None:
+def _inner(tx: Connection, fun: Callable[..., T], *a, **kw_args) -> None:
     """ This runs in another process. """
 
     try:
         res = fun(*a, **kw_args)
     except Exception as ex:
-        q.put(obj=SubprocessError(ex=ex), block=False)
+        tx.send(SubprocessError(ex=ex))
     else:
-        q.put(obj=res, block=False)
+        tx.send(res)
 
 
 if __name__ == '__main__':

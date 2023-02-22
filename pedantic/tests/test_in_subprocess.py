@@ -3,7 +3,7 @@ import time
 import unittest
 from typing import NoReturn
 
-from multiprocess import Queue
+from multiprocess import Pipe
 
 from pedantic import in_subprocess
 from pedantic.decorators.fn_deco_in_subprocess import _inner, SubprocessError
@@ -95,12 +95,12 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
     def test_inner_function(self):
         """ Needed for line coverage"""
 
-        q = Queue()
-        _inner(q, lambda x: 1/x, x=42)
-        assert q.get() == 1/42
+        rx, tx = Pipe(duplex=False)
+        _inner(tx, lambda x: 1 / x, x=42)
+        assert rx.recv() == 1 / 42
 
-        _inner(q, lambda x: 1 / x, x=0)
-        ex = q.get()
+        _inner(tx, lambda x: 1 / x, x=0)
+        ex = rx.recv()
         assert isinstance(ex, SubprocessError)
 
     async def test_in_subprocess_instance_method(self):
