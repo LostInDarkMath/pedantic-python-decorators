@@ -256,7 +256,7 @@ def class_name(self) -&gt; str:
     return type(self).__name__</code></pre>
 </details>
 </dd>
-<dt id="pedantic.mixins.generic_mixin.GenericMixin.type_var"><code class="name">var <span class="ident">type_var</span> : Type[+CT_co]</code></dt>
+<dt id="pedantic.mixins.generic_mixin.GenericMixin.type_var"><code class="name">var <span class="ident">type_var</span> : Type</code></dt>
 <dd>
 <div class="desc"><p>Get the type variable for this class.
 Use this for convenience if your class has only one type parameter.</p>
@@ -294,7 +294,7 @@ def type_var(self) -&gt; Type:
     return list(types.values())[0]  # type: ignore</code></pre>
 </details>
 </dd>
-<dt id="pedantic.mixins.generic_mixin.GenericMixin.type_vars"><code class="name">var <span class="ident">type_vars</span> : Dict[TypeVar, Type[+CT_co]]</code></dt>
+<dt id="pedantic.mixins.generic_mixin.GenericMixin.type_vars"><code class="name">var <span class="ident">type_vars</span> : Dict[TypeVar, Type]</code></dt>
 <dd>
 <div class="desc"><p>Returns the mapping of type variables to types.</p>
 <h2 id="example">Example</h2>

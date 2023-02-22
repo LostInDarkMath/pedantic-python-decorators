@@ -145,27 +145,27 @@ class TestPedanticPython311AddedStuff(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             f()
 
-    # def test_type_var_tuple(self):
-    #     if sys.version_info &lt; (3, 11):
-    #         return
-    #
-    #     from typing import TypeVarTuple, Generic
-    #
-    #     Ts = TypeVarTuple(&#39;Ts&#39;)
-    #
-    #     @pedantic_class
-    #     class Array(Generic[*Ts]):
-    #         def __init__(self, *args: *Ts) -&gt; None:
-    #             self._values = args
-    #
-    #     @pedantic
-    #     def add_dimension(a: Array[*Ts], value: int) -&gt; Array[int, *Ts]:
-    #         return Array[int, *Ts](value, *a._values)
-    #
-    #     array = Array[int, float](42, 3.4)
-    #     array_2 = Array[bool, int, float, str](True, 4, 3.4, &#39;hi&#39;)
-    #     extended_array = add_dimension(a=array, value=42)
-    #     assert extended_array._values == (42, 42, 3.4)
+    def test_type_var_tuple(self):
+        if sys.version_info &lt; (3, 11):
+            return
+
+        from typing import TypeVarTuple, Generic
+
+        Ts = TypeVarTuple(&#39;Ts&#39;)
+
+        @pedantic_class
+        class Array(Generic[*Ts]):
+            def __init__(self, *args: *Ts) -&gt; None:
+                self._values = args
+
+        @pedantic
+        def add_dimension(a: Array[*Ts], value: int) -&gt; Array[int, *Ts]:
+            return Array[int, *Ts](value, *a._values)
+
+        array = Array[int, float](42, 3.4)
+        array_2 = Array[bool, int, float, str](True, 4, 3.4, &#39;hi&#39;)
+        extended_array = add_dimension(a=array, value=42)
+        assert extended_array._values == (42, 42, 3.4)
 
         # this is too complicated at the moment
         # with self.assertRaises(expected_exception=PedanticTypeCheckException):
@@ -330,27 +330,27 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=PedanticTypeCheckException):
             f()
 
-    # def test_type_var_tuple(self):
-    #     if sys.version_info &lt; (3, 11):
-    #         return
-    #
-    #     from typing import TypeVarTuple, Generic
-    #
-    #     Ts = TypeVarTuple(&#39;Ts&#39;)
-    #
-    #     @pedantic_class
-    #     class Array(Generic[*Ts]):
-    #         def __init__(self, *args: *Ts) -&gt; None:
-    #             self._values = args
-    #
-    #     @pedantic
-    #     def add_dimension(a: Array[*Ts], value: int) -&gt; Array[int, *Ts]:
-    #         return Array[int, *Ts](value, *a._values)
-    #
-    #     array = Array[int, float](42, 3.4)
-    #     array_2 = Array[bool, int, float, str](True, 4, 3.4, &#39;hi&#39;)
-    #     extended_array = add_dimension(a=array, value=42)
-    #     assert extended_array._values == (42, 42, 3.4)
+    def test_type_var_tuple(self):
+        if sys.version_info &lt; (3, 11):
+            return
+
+        from typing import TypeVarTuple, Generic
+
+        Ts = TypeVarTuple(&#39;Ts&#39;)
+
+        @pedantic_class
+        class Array(Generic[*Ts]):
+            def __init__(self, *args: *Ts) -&gt; None:
+                self._values = args
+
+        @pedantic
+        def add_dimension(a: Array[*Ts], value: int) -&gt; Array[int, *Ts]:
+            return Array[int, *Ts](value, *a._values)
+
+        array = Array[int, float](42, 3.4)
+        array_2 = Array[bool, int, float, str](True, 4, 3.4, &#39;hi&#39;)
+        extended_array = add_dimension(a=array, value=42)
+        assert extended_array._values == (42, 42, 3.4)
 
         # this is too complicated at the moment
         # with self.assertRaises(expected_exception=PedanticTypeCheckException):
@@ -453,6 +453,42 @@ not have a method with the specified name.</p></div>
         Foo.h_2()</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_type_var_tuple"><code class="name flex">
+<span>def <span class="ident">test_type_var_tuple</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_type_var_tuple(self):
+    if sys.version_info &lt; (3, 11):
+        return
+
+    from typing import TypeVarTuple, Generic
+
+    Ts = TypeVarTuple(&#39;Ts&#39;)
+
+    @pedantic_class
+    class Array(Generic[*Ts]):
+        def __init__(self, *args: *Ts) -&gt; None:
+            self._values = args
+
+    @pedantic
+    def add_dimension(a: Array[*Ts], value: int) -&gt; Array[int, *Ts]:
+        return Array[int, *Ts](value, *a._values)
+
+    array = Array[int, float](42, 3.4)
+    array_2 = Array[bool, int, float, str](True, 4, 3.4, &#39;hi&#39;)
+    extended_array = add_dimension(a=array, value=42)
+    assert extended_array._values == (42, 42, 3.4)
+
+    # this is too complicated at the moment
+    # with self.assertRaises(expected_exception=PedanticTypeCheckException):
+    #     Array[int, float](4.2, 3.4)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_typing_never"><code class="name flex">
 <span>def <span class="ident">test_typing_never</span></span>(<span>self)</span>
 </code></dt>
@@ -510,33 +546,7 @@ not have a method with the specified name.</p></div>
         return &#39;hi&#39;
 
     with self.assertRaises(expected_exception=PedanticTypeCheckException):
-        f()
-
-# def test_type_var_tuple(self):
-#     if sys.version_info &lt; (3, 11):
-#         return
-#
-#     from typing import TypeVarTuple, Generic
-#
-#     Ts = TypeVarTuple(&#39;Ts&#39;)
-#
-#     @pedantic_class
-#     class Array(Generic[*Ts]):
-#         def __init__(self, *args: *Ts) -&gt; None:
-#             self._values = args
-#
-#     @pedantic
-#     def add_dimension(a: Array[*Ts], value: int) -&gt; Array[int, *Ts]:
-#         return Array[int, *Ts](value, *a._values)
-#
-#     array = Array[int, float](42, 3.4)
-#     array_2 = Array[bool, int, float, str](True, 4, 3.4, &#39;hi&#39;)
-#     extended_array = add_dimension(a=array, value=42)
-#     assert extended_array._values == (42, 42, 3.4)
-
-    # this is too complicated at the moment
-    # with self.assertRaises(expected_exception=PedanticTypeCheckException):
-    #     Array[int, float](4.2, 3.4)</code></pre>
+        f()</code></pre>
 </details>
 </dd>
 </dl>
@@ -562,6 +572,7 @@ not have a method with the specified name.</p></div>
 <ul class="">
 <li><code><a title="pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_literal_string" href="#pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_literal_string">test_literal_string</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_self_type" href="#pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_self_type">test_self_type</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_type_var_tuple" href="#pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_type_var_tuple">test_type_var_tuple</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_typing_never" href="#pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_typing_never">test_typing_never</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_using_self_type_annotation_outside_class" href="#pedantic.tests.tests_pedantic_python_311.TestPedanticPython311AddedStuff.test_using_self_type_annotation_outside_class">test_using_self_type_annotation_outside_class</a></code></li>
 </ul>

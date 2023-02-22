@@ -29,13 +29,15 @@
 <pre><code class="python">import asyncio
 import inspect
 from functools import wraps
-from typing import Callable, TypeVar, Any, Awaitable, Type, Optional
+from typing import Callable, TypeVar, Any, Awaitable, Optional, Type
 
 try:
-    from multiprocess import Process, Queue
+    from multiprocess import Process, Pipe
+    from multiprocess.connection import Connection
 except ImportError:
     Process: Optional[Type] = None
-    Queue: Optional[Type] = None
+    Pipe: Optional[Type] = None
+    Connection: Optional[Type] = None
 
 T = TypeVar(&#39;T&#39;)
 
@@ -66,9 +68,6 @@ def in_subprocess(func: Callable[..., T]) -&gt; Callable[..., Awaitable[T]]:
             &gt;&gt;&gt; asyncio.run(f(value=42))
             84
     &#34;&#34;&#34;
-
-    if inspect.iscoroutinefunction(func):
-        raise AssertionError(f&#39;{func.__name__} should not be async!&#39;)
 
     @wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -&gt; T:
@@ -104,19 +103,19 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
             84
     &#34;&#34;&#34;
 
-    if Queue is None:
+    if Pipe is None:
         raise ImportError(&#39;You need to install the multiprocess package to use this: pip install multiprocess&#39;)
 
-    queue = Queue(maxsize=1)  # a queue with items of type T
-    process = Process(target=_inner, args=(queue, func, *args), kwargs=kwargs)
+    rx, tx = Pipe(duplex=False)  # receiver &amp; transmitter ; Pipe is one-way only
+    process = Process(target=_inner, args=(tx, func, *args), kwargs=kwargs)
     process.start()
 
-    while queue.empty():  # do not use process.is_alive() as condition here
+    while not rx.poll():  # do not use process.is_alive() as condition here
         await asyncio.sleep(0.1)
 
-    result = queue.get_nowait()
+    result = rx.recv()
     process.join()  # this blocks synchronously! make sure that process is terminated before you call join()
-    queue.close()
+    rx.close()
 
     if isinstance(result, SubprocessError):
         raise result.exception
@@ -124,19 +123,28 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
     return result
 
 
-def _inner(q: Queue, fun: Callable[..., T], *a, **kw_args) -&gt; None:
+def _inner(tx: Connection, fun: Callable[..., T], *a, **kw_args) -&gt; None:
     &#34;&#34;&#34; This runs in another process. &#34;&#34;&#34;
 
+    event_loop = None
+    if inspect.iscoroutinefunction(fun):
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+
     try:
-        res = fun(*a, **kw_args)
+        if event_loop is not None:
+            res = event_loop.run_until_complete(fun(*a, **kw_args))
+        else:
+            res = fun(*a, **kw_args)
     except Exception as ex:
-        q.put(obj=SubprocessError(ex=ex), block=False)
+        tx.send(SubprocessError(ex=ex))
     else:
-        q.put(obj=res, block=False)
+        tx.send(res)
 
 
 if __name__ == &#39;__main__&#39;:
     import doctest
+
     doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)</code></pre>
 </details>
 </section>
@@ -201,19 +209,19 @@ Further reading: <a href="https://medium.com/devopss-hole/python-multiprocessing
             84
     &#34;&#34;&#34;
 
-    if Queue is None:
+    if Pipe is None:
         raise ImportError(&#39;You need to install the multiprocess package to use this: pip install multiprocess&#39;)
 
-    queue = Queue(maxsize=1)  # a queue with items of type T
-    process = Process(target=_inner, args=(queue, func, *args), kwargs=kwargs)
+    rx, tx = Pipe(duplex=False)  # receiver &amp; transmitter ; Pipe is one-way only
+    process = Process(target=_inner, args=(tx, func, *args), kwargs=kwargs)
     process.start()
 
-    while queue.empty():  # do not use process.is_alive() as condition here
+    while not rx.poll():  # do not use process.is_alive() as condition here
         await asyncio.sleep(0.1)
 
-    result = queue.get_nowait()
+    result = rx.recv()
     process.join()  # this blocks synchronously! make sure that process is terminated before you call join()
-    queue.close()
+    rx.close()
 
     if isinstance(result, SubprocessError):
         raise result.exception
@@ -264,9 +272,6 @@ at the same time.</p>
             &gt;&gt;&gt; asyncio.run(f(value=42))
             84
     &#34;&#34;&#34;
-
-    if inspect.iscoroutinefunction(func):
-        raise AssertionError(f&#39;{func.__name__} should not be async!&#39;)
 
     @wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -&gt; T:

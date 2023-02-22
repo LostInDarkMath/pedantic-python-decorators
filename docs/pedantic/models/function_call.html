@@ -241,7 +241,7 @@ class FunctionCall:
 <dl>
 <dt id="pedantic.models.function_call.FunctionCall"><code class="flex name class">
 <span>class <span class="ident">FunctionCall</span></span>
-<span>(</span><span>func: <a title="pedantic.models.decorated_function.DecoratedFunction" href="decorated_function.html#pedantic.models.decorated_function.DecoratedFunction">DecoratedFunction</a>, args: Tuple[Any, ...], kwargs: Dict[str, Any], context: Dict[str, Type[+CT_co]])</span>
+<span>(</span><span>func: <a title="pedantic.models.decorated_function.DecoratedFunction" href="decorated_function.html#pedantic.models.decorated_function.DecoratedFunction">DecoratedFunction</a>, args: Tuple[Any, ...], kwargs: Dict[str, Any], context: Dict[str, Type])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -473,7 +473,7 @@ def args_without_self(self) -&gt; Tuple[Any, ...]:
     return self.args</code></pre>
 </details>
 </dd>
-<dt id="pedantic.models.function_call.FunctionCall.clazz"><code class="name">var <span class="ident">clazz</span> : Optional[Type[+CT_co]]</code></dt>
+<dt id="pedantic.models.function_call.FunctionCall.clazz"><code class="name">var <span class="ident">clazz</span> : Optional[Type]</code></dt>
 <dd>
 <div class="desc"><p>Return the enclosing class of the called function if there is one.</p></div>
 <details class="source">
