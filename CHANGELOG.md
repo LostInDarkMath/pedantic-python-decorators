@@ -1,5 +1,9 @@
 # Changelog
 
+## Pedantic 1.14.2
+- allow async functions for `@in_subprocess`
+- use Pipe instead of Queue for subprocess communication
+
 ## Pedantic 1.14.1
 - [Fix type checking bug with callables](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74)
 - Fix deployment (CI)
