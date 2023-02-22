@@ -41,9 +41,6 @@ def in_subprocess(func: Callable[..., T]) -> Callable[..., Awaitable[T]]:
             84
     """
 
-    if inspect.iscoroutinefunction(func):
-        raise AssertionError(f'{func.__name__} should not be async!')
-
     @wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> T:
         return await calculate_in_subprocess(func, *args, **kwargs)
@@ -101,8 +98,16 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
 def _inner(tx: Connection, fun: Callable[..., T], *a, **kw_args) -> None:
     """ This runs in another process. """
 
+    event_loop = None
+    if inspect.iscoroutinefunction(fun):
+        event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(event_loop)
+
     try:
-        res = fun(*a, **kw_args)
+        if event_loop is not None:
+            res = event_loop.run_until_complete(fun(*a, **kw_args))
+        else:
+            res = fun(*a, **kw_args)
     except Exception as ex:
         tx.send(SubprocessError(ex=ex))
     else:
@@ -111,4 +116,5 @@ def _inner(tx: Connection, fun: Callable[..., T], *a, **kw_args) -> None:
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
