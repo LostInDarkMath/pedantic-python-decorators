@@ -28,11 +28,12 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
 
         assert (await f())._value == 42
 
-    def test_in_subprocess_simple_async(self):
-        with self.assertRaises(expected_exception=AssertionError):
-            @in_subprocess
-            async def f() -> int:
-                return 42
+    async def test_in_subprocess_simple_async(self):
+        @in_subprocess
+        async def f() -> int:
+            return 42
+
+        assert await f() == 42
 
     async def test_in_subprocess_no_args(self):
         @in_subprocess
