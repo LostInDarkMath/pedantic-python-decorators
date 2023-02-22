@@ -121,7 +121,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         assert await f(4, 5) == 9
         assert await f(a=4, b=5) == 9
 
-    def test_inner_function(self):
+    def test_inner_function_sync(self):
         &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
 
         rx, tx = Pipe(duplex=False)
@@ -129,6 +129,20 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         assert rx.recv() == 1 / 42
 
         _inner(tx, lambda x: 1 / x, x=0)
+        ex = rx.recv()
+        assert isinstance(ex, SubprocessError)
+
+    def test_inner_function_async(self):
+        &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
+
+        async def foo(x):
+            return 1/x
+
+        rx, tx = Pipe(duplex=False)
+        _inner(tx, foo, x=42)
+        assert rx.recv() == 1 / 42
+
+        _inner(tx, foo, x=0)
         ex = rx.recv()
         assert isinstance(ex, SubprocessError)
 
@@ -296,7 +310,7 @@ not have a method with the specified name.</p></div>
         assert await f(4, 5) == 9
         assert await f(a=4, b=5) == 9
 
-    def test_inner_function(self):
+    def test_inner_function_sync(self):
         &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
 
         rx, tx = Pipe(duplex=False)
@@ -304,6 +318,20 @@ not have a method with the specified name.</p></div>
         assert rx.recv() == 1 / 42
 
         _inner(tx, lambda x: 1 / x, x=0)
+        ex = rx.recv()
+        assert isinstance(ex, SubprocessError)
+
+    def test_inner_function_async(self):
+        &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
+
+        async def foo(x):
+            return 1/x
+
+        rx, tx = Pipe(duplex=False)
+        _inner(tx, foo, x=42)
+        assert rx.recv() == 1 / 42
+
+        _inner(tx, foo, x=0)
         ex = rx.recv()
         assert isinstance(ex, SubprocessError)
 
@@ -536,8 +564,8 @@ not have a method with the specified name.</p></div>
     assert await f(a=4, b=5) == 9</code></pre>
 </details>
 </dd>
-<dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function"><code class="name flex">
-<span>def <span class="ident">test_inner_function</span></span>(<span>self)</span>
+<dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function_async"><code class="name flex">
+<span>def <span class="ident">test_inner_function_async</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Needed for line coverage</p></div>
@@ -545,7 +573,31 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_inner_function(self):
+<pre><code class="python">def test_inner_function_async(self):
+    &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
+
+    async def foo(x):
+        return 1/x
+
+    rx, tx = Pipe(duplex=False)
+    _inner(tx, foo, x=42)
+    assert rx.recv() == 1 / 42
+
+    _inner(tx, foo, x=0)
+    ex = rx.recv()
+    assert isinstance(ex, SubprocessError)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function_sync"><code class="name flex">
+<span>def <span class="ident">test_inner_function_sync</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Needed for line coverage</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_inner_function_sync(self):
     &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
 
     rx, tx = Pipe(duplex=False)
@@ -614,7 +666,8 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple_async" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple_async">test_in_subprocess_simple_async</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_static_method" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_static_method">test_in_subprocess_static_method</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_with_arguments" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_with_arguments">test_in_subprocess_with_arguments</a></code></li>
-<li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function">test_inner_function</a></code></li>
+<li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function_async" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function_async">test_inner_function_async</a></code></li>
+<li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function_sync" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_inner_function_sync">test_inner_function_sync</a></code></li>
 <li><code><a title="pedantic.tests.test_in_subprocess.TestInSubprocess.test_not_in_subprocess_blocks" href="#pedantic.tests.test_in_subprocess.TestInSubprocess.test_not_in_subprocess_blocks">test_not_in_subprocess_blocks</a></code></li>
 </ul>
 </li>
