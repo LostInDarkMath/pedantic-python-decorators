@@ -1,7 +1,7 @@
 import asyncio
 import inspect
 from functools import wraps
-from typing import Callable, TypeVar, Any, Awaitable, Optional, Type
+from typing import Callable, TypeVar, Any, Awaitable, Optional, Type, Union
 
 try:
     from multiprocess import Process, Pipe
@@ -21,7 +21,7 @@ class SubprocessError:
         self.exception = ex
 
 
-def in_subprocess(func: Callable[..., T | Awaitable[T]]) -> Callable[..., Awaitable[T]]:
+def in_subprocess(func: Callable[..., Union[T, Awaitable[T]]]) -> Callable[..., Awaitable[T]]:
     """
         Executes the decorated function in a subprocess and returns the return value of it.
         Note that the decorated function will be replaced with an async function which returns
@@ -48,7 +48,7 @@ def in_subprocess(func: Callable[..., T | Awaitable[T]]) -> Callable[..., Awaita
     return wrapper
 
 
-async def calculate_in_subprocess(func: Callable[..., T | Awaitable[T]], *args: Any, **kwargs: Any) -> T:
+async def calculate_in_subprocess(func: Callable[..., Union[T, Awaitable[T]]], *args: Any, **kwargs: Any) -> T:
     """
         Calculates the result of a synchronous function in subprocess without blocking the current thread.
 
@@ -95,7 +95,7 @@ async def calculate_in_subprocess(func: Callable[..., T | Awaitable[T]], *args: 
     return result
 
 
-def _inner(tx: Connection, fun: Callable[..., T | Awaitable[T]], *a, **kw_args) -> None:
+def _inner(tx: Connection, fun: Callable[..., Union[T, Awaitable[T]]], *a, **kw_args) -> None:
     """ This runs in another process. """
 
     event_loop = None
