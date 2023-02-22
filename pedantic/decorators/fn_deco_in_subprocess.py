@@ -21,7 +21,7 @@ class SubprocessError:
         self.exception = ex
 
 
-def in_subprocess(func: Callable[..., T]) -> Callable[..., Awaitable[T]]:
+def in_subprocess(func: Callable[..., T | Awaitable[T]]) -> Callable[..., Awaitable[T]]:
     """
         Executes the decorated function in a subprocess and returns the return value of it.
         Note that the decorated function will be replaced with an async function which returns
@@ -48,12 +48,12 @@ def in_subprocess(func: Callable[..., T]) -> Callable[..., Awaitable[T]]:
     return wrapper
 
 
-async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
+async def calculate_in_subprocess(func: Callable[..., T | Awaitable[T]], *args: Any, **kwargs: Any) -> T:
     """
         Calculates the result of a synchronous function in subprocess without blocking the current thread.
 
         Arguments:
-            func: The synchronous function that will be called in a subprocess.
+            func: The function that will be called in a subprocess.
             args: Positional arguments that will be passed to the function.
             kwargs: Keyword arguments that will be passed to the function.
 
@@ -95,7 +95,7 @@ async def calculate_in_subprocess(func: Callable[..., T], *args: Any, **kwargs: 
     return result
 
 
-def _inner(tx: Connection, fun: Callable[..., T], *a, **kw_args) -> None:
+def _inner(tx: Connection, fun: Callable[..., T | Awaitable[T]], *a, **kw_args) -> None:
     """ This runs in another process. """
 
     event_loop = None

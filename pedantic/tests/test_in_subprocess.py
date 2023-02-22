@@ -93,7 +93,7 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         assert await f(4, 5) == 9
         assert await f(a=4, b=5) == 9
 
-    def test_inner_function(self):
+    def test_inner_function_sync(self):
         """ Needed for line coverage"""
 
         rx, tx = Pipe(duplex=False)
@@ -101,6 +101,20 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         assert rx.recv() == 1 / 42
 
         _inner(tx, lambda x: 1 / x, x=0)
+        ex = rx.recv()
+        assert isinstance(ex, SubprocessError)
+
+    def test_inner_function_async(self):
+        """ Needed for line coverage"""
+
+        async def foo(x):
+            return 1/x
+
+        rx, tx = Pipe(duplex=False)
+        _inner(tx, foo, x=42)
+        assert rx.recv() == 1 / 42
+
+        _inner(tx, foo, x=0)
         ex = rx.recv()
         assert isinstance(ex, SubprocessError)
 
