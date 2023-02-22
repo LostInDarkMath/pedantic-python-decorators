@@ -31,7 +31,7 @@ import time
 import unittest
 from typing import NoReturn
 
-from multiprocess import Queue
+from multiprocess import Pipe
 
 from pedantic import in_subprocess
 from pedantic.decorators.fn_deco_in_subprocess import _inner, SubprocessError
@@ -56,11 +56,12 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
 
         assert (await f())._value == 42
 
-    def test_in_subprocess_simple_async(self):
-        with self.assertRaises(expected_exception=AssertionError):
-            @in_subprocess
-            async def f() -&gt; int:
-                return 42
+    async def test_in_subprocess_simple_async(self):
+        @in_subprocess
+        async def f() -&gt; int:
+            return 42
+
+        assert await f() == 42
 
     async def test_in_subprocess_no_args(self):
         @in_subprocess
@@ -123,12 +124,12 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
     def test_inner_function(self):
         &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
 
-        q = Queue()
-        _inner(q, lambda x: 1/x, x=42)
-        assert q.get() == 1/42
+        rx, tx = Pipe(duplex=False)
+        _inner(tx, lambda x: 1 / x, x=42)
+        assert rx.recv() == 1 / 42
 
-        _inner(q, lambda x: 1 / x, x=0)
-        ex = q.get()
+        _inner(tx, lambda x: 1 / x, x=0)
+        ex = rx.recv()
         assert isinstance(ex, SubprocessError)
 
     async def test_in_subprocess_instance_method(self):
@@ -230,11 +231,12 @@ not have a method with the specified name.</p></div>
 
         assert (await f())._value == 42
 
-    def test_in_subprocess_simple_async(self):
-        with self.assertRaises(expected_exception=AssertionError):
-            @in_subprocess
-            async def f() -&gt; int:
-                return 42
+    async def test_in_subprocess_simple_async(self):
+        @in_subprocess
+        async def f() -&gt; int:
+            return 42
+
+        assert await f() == 42
 
     async def test_in_subprocess_no_args(self):
         @in_subprocess
@@ -297,12 +299,12 @@ not have a method with the specified name.</p></div>
     def test_inner_function(self):
         &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
 
-        q = Queue()
-        _inner(q, lambda x: 1/x, x=42)
-        assert q.get() == 1/42
+        rx, tx = Pipe(duplex=False)
+        _inner(tx, lambda x: 1 / x, x=42)
+        assert rx.recv() == 1 / 42
 
-        _inner(q, lambda x: 1 / x, x=0)
-        ex = q.get()
+        _inner(tx, lambda x: 1 / x, x=0)
+        ex = rx.recv()
         assert isinstance(ex, SubprocessError)
 
     async def test_in_subprocess_instance_method(self):
@@ -473,7 +475,7 @@ not have a method with the specified name.</p></div>
 </details>
 </dd>
 <dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_simple_async"><code class="name flex">
-<span>def <span class="ident">test_in_subprocess_simple_async</span></span>(<span>self)</span>
+<span>async def <span class="ident">test_in_subprocess_simple_async</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -481,11 +483,12 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def test_in_subprocess_simple_async(self):
-    with self.assertRaises(expected_exception=AssertionError):
-        @in_subprocess
-        async def f() -&gt; int:
-            return 42</code></pre>
+<pre><code class="python">async def test_in_subprocess_simple_async(self):
+    @in_subprocess
+    async def f() -&gt; int:
+        return 42
+
+    assert await f() == 42</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_in_subprocess.TestInSubprocess.test_in_subprocess_static_method"><code class="name flex">
@@ -545,12 +548,12 @@ not have a method with the specified name.</p></div>
 <pre><code class="python">def test_inner_function(self):
     &#34;&#34;&#34; Needed for line coverage&#34;&#34;&#34;
 
-    q = Queue()
-    _inner(q, lambda x: 1/x, x=42)
-    assert q.get() == 1/42
+    rx, tx = Pipe(duplex=False)
+    _inner(tx, lambda x: 1 / x, x=42)
+    assert rx.recv() == 1 / 42
 
-    _inner(q, lambda x: 1 / x, x=0)
-    ex = q.get()
+    _inner(tx, lambda x: 1 / x, x=0)
+    ex = rx.recv()
     assert isinstance(ex, SubprocessError)</code></pre>
 </details>
 </dd>
