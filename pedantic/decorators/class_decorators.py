@@ -14,7 +14,7 @@ from pedantic.type_checking_logic.check_generic_classes import check_instance_of
 
 def for_all_methods(decorator: F) -> Callable[[Type[C]], Type[C]]:
     """
-        Apples a decorator to all methods of a class.
+        Applies a decorator to all methods of a class.
 
         Example:
 
