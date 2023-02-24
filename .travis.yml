@@ -47,12 +47,15 @@ before_deploy:
     else
       git tag $TRAVIS_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
     fi
+  - source get_changelog.sh
 
 deploy:
   - provider: releases  # use Github pages instead: pages 
     token: $GITHUB_TOKEN
     file_glob: true # enable wild cards '*'
     file: dist/*.whl
+    name: $RELEASE_NAME
+    body: $RELEASE_BODY
     skip_cleanup: true
     overwrite: true
     on:
