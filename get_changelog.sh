@@ -5,10 +5,10 @@ SEARCH_TERM="## Pedantic"
 FROM=$(
 # get lines with the string <## Pedantic> in it (Header lines) together with line numbers
 grep "${SEARCH_TERM}" CHANGELOG.md --line-number |
-  # only take the first occurance
+  # only take the first occurrence
   head -n 1 |
-  # only keep the line numbers 
-  sed 's/\(.*\):.*/\1/' 
+  # only keep the line numbers
+  sed 's/\(.*\):.*/\1/'
 )
 
 # get line number of second latest Release Header
@@ -19,7 +19,7 @@ grep "${SEARCH_TERM}" CHANGELOG.md --line-number |
   head -n 2 |
   tail -n 1 |
   # same as above
-  sed 's/\(.*\):.*/\1/' 
+  sed 's/\(.*\):.*/\1/'
 )
 
 echo "Take lines ${FROM} - ${TO}"
@@ -40,7 +40,8 @@ cat CHANGELOG.md |
   head -n $((TO - 1)) |
   # throw away the body and only keep the header
   tail -n $((TO - FROM)) |
-  head -n 1
+  head -n 1 |
+    sed 's/## //'  # remove leading hashtags
 )
 
 echo "Found Release Details:"
