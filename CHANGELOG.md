@@ -1,5 +1,8 @@
 # Changelog
 
+## Pedantic 1.14.3
+- added release notes to GitHub releases (CI)
+
 ## Pedantic 1.14.2
 - allow async functions for `@in_subprocess`
 - use Pipe instead of Queue for subprocess communication
