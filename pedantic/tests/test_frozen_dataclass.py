@@ -363,3 +363,11 @@ class TestFrozenDataclass(unittest.TestCase):
         comment = make(replies=[make(replies=[])])
         comment.copy_with(replies=[make(replies=[])])
         comment.validate_types()
+
+    def test_slots_work_with_equals(self):
+        @frozen_dataclass(slots=True)
+        class Foo:
+            a: int
+
+        o = Foo(a=0)
+        assert o == o.copy_with()

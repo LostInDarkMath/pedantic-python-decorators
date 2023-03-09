@@ -103,6 +103,27 @@ def frozen_dataclass(
     &#34;&#34;&#34;
 
     def decorator(cls_: Type[T]) -&gt; Type[T]:
+        args = {&#39;frozen&#39;: True, &#39;order&#39;: order}
+
+        if sys.version_info &gt;= (3, 10):
+            args[&#39;kw_only&#39;] = kw_only
+            args[&#39;slots&#39;] = slots
+
+        if type_safe:
+            old_post_init = getattr(cls_, &#39;__post_init__&#39;, lambda _: None)
+
+            def new_post_init(self) -&gt; None:
+                old_post_init(self)
+                context = get_context(depth=3, increase_depth_if_name_matches=[
+                    copy_with.__name__,
+                    deep_copy_with.__name__,
+                ])
+                self.validate_types(_context=context)
+
+            setattr(cls_, &#39;__post_init__&#39;, new_post_init)  # must be done before applying dataclass()
+
+        new_class = dataclass(**args)(cls_)  # slots = True will create a new class!
+
         def copy_with(self, **kwargs: Any) -&gt; T:
             &#34;&#34;&#34;
                 Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
@@ -110,7 +131,7 @@ def frozen_dataclass(
             &#34;&#34;&#34;
 
             current_values = {field.name: getattr(self, field.name) for field in fields(self)}
-            return cls_(**{**current_values, **kwargs})
+            return new_class(**{**current_values, **kwargs})
 
         def deep_copy_with(self, **kwargs: Any) -&gt; T:
             &#34;&#34;&#34;
@@ -119,7 +140,7 @@ def frozen_dataclass(
             &#34;&#34;&#34;
 
             current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
-            return cls_(**{**current_values, **kwargs})
+            return new_class(**{**current_values, **kwargs})
 
         def validate_types(self, *, _context: Dict[str, Type] = None) -&gt; None:
             &#34;&#34;&#34;
@@ -127,7 +148,7 @@ def frozen_dataclass(
                 Raises a [PedanticTypeCheckException] if at least one type is incorrect.
             &#34;&#34;&#34;
 
-            props = fields(cls_)
+            props = fields(new_class)
 
             if _context is None:
                 # method was called by user
@@ -147,28 +168,9 @@ def frozen_dataclass(
         methods_to_add = [copy_with, deep_copy_with, validate_types]
 
         for method in methods_to_add:
-            setattr(cls_, method.__name__, method)
+            setattr(new_class, method.__name__, method)
 
-        if type_safe:
-            old_post_init = getattr(cls_, &#39;__post_init__&#39;, lambda _: None)
-
-            def new_post_init(self) -&gt; None:
-                old_post_init(self)
-                context = get_context(depth=3, increase_depth_if_name_matches=[
-                    copy_with.__name__,
-                    deep_copy_with.__name__,
-                ])
-                self.validate_types(_context=context)
-
-            setattr(cls_, &#39;__post_init__&#39;, new_post_init)
-
-        args = {&#39;frozen&#39;: True, &#39;order&#39;: order}
-
-        if sys.version_info &gt;= (3, 10):
-            args[&#39;kw_only&#39;] = kw_only
-            args[&#39;slots&#39;] = slots
-
-        return dataclass(**args)(cls_)
+        return new_class
 
     if cls is None:
         return decorator
@@ -299,6 +301,27 @@ Foo(a=676676, b='new', c=False)
     &#34;&#34;&#34;
 
     def decorator(cls_: Type[T]) -&gt; Type[T]:
+        args = {&#39;frozen&#39;: True, &#39;order&#39;: order}
+
+        if sys.version_info &gt;= (3, 10):
+            args[&#39;kw_only&#39;] = kw_only
+            args[&#39;slots&#39;] = slots
+
+        if type_safe:
+            old_post_init = getattr(cls_, &#39;__post_init__&#39;, lambda _: None)
+
+            def new_post_init(self) -&gt; None:
+                old_post_init(self)
+                context = get_context(depth=3, increase_depth_if_name_matches=[
+                    copy_with.__name__,
+                    deep_copy_with.__name__,
+                ])
+                self.validate_types(_context=context)
+
+            setattr(cls_, &#39;__post_init__&#39;, new_post_init)  # must be done before applying dataclass()
+
+        new_class = dataclass(**args)(cls_)  # slots = True will create a new class!
+
         def copy_with(self, **kwargs: Any) -&gt; T:
             &#34;&#34;&#34;
                 Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
@@ -306,7 +329,7 @@ Foo(a=676676, b='new', c=False)
             &#34;&#34;&#34;
 
             current_values = {field.name: getattr(self, field.name) for field in fields(self)}
-            return cls_(**{**current_values, **kwargs})
+            return new_class(**{**current_values, **kwargs})
 
         def deep_copy_with(self, **kwargs: Any) -&gt; T:
             &#34;&#34;&#34;
@@ -315,7 +338,7 @@ Foo(a=676676, b='new', c=False)
             &#34;&#34;&#34;
 
             current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
-            return cls_(**{**current_values, **kwargs})
+            return new_class(**{**current_values, **kwargs})
 
         def validate_types(self, *, _context: Dict[str, Type] = None) -&gt; None:
             &#34;&#34;&#34;
@@ -323,7 +346,7 @@ Foo(a=676676, b='new', c=False)
                 Raises a [PedanticTypeCheckException] if at least one type is incorrect.
             &#34;&#34;&#34;
 
-            props = fields(cls_)
+            props = fields(new_class)
 
             if _context is None:
                 # method was called by user
@@ -343,28 +366,9 @@ Foo(a=676676, b='new', c=False)
         methods_to_add = [copy_with, deep_copy_with, validate_types]
 
         for method in methods_to_add:
-            setattr(cls_, method.__name__, method)
+            setattr(new_class, method.__name__, method)
 
-        if type_safe:
-            old_post_init = getattr(cls_, &#39;__post_init__&#39;, lambda _: None)
-
-            def new_post_init(self) -&gt; None:
-                old_post_init(self)
-                context = get_context(depth=3, increase_depth_if_name_matches=[
-                    copy_with.__name__,
-                    deep_copy_with.__name__,
-                ])
-                self.validate_types(_context=context)
-
-            setattr(cls_, &#39;__post_init__&#39;, new_post_init)
-
-        args = {&#39;frozen&#39;: True, &#39;order&#39;: order}
-
-        if sys.version_info &gt;= (3, 10):
-            args[&#39;kw_only&#39;] = kw_only
-            args[&#39;slots&#39;] = slots
-
-        return dataclass(**args)(cls_)
+        return new_class
 
     if cls is None:
         return decorator

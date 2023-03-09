@@ -66,7 +66,7 @@ class InvalidHeader(ParameterException):
 
 
 class TooManyArguments(ValidateException):
-    """ Is raised if function got more arguments then expected. """
+    """ Is raised if the function got more arguments than expected. """
 
 
 class ConversionError(ValidateException):

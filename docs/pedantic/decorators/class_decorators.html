@@ -42,7 +42,7 @@ from pedantic.type_checking_logic.check_generic_classes import check_instance_of
 
 def for_all_methods(decorator: F) -&gt; Callable[[Type[C]], Type[C]]:
     &#34;&#34;&#34;
-        Apples a decorator to all methods of a class.
+        Applies a decorator to all methods of a class.
 
         Example:
 
@@ -132,7 +132,7 @@ def _add_type_var_attr_and_method_to_class(cls: C) -&gt; None:
 <span>def <span class="ident">for_all_methods</span></span>(<span>decorator: Callable[..., ~ReturnType]) ‑> Callable[[Type[~C]], Type[~C]]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Apples a decorator to all methods of a class.</p>
+<div class="desc"><p>Applies a decorator to all methods of a class.</p>
 <p>Example:</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; @for_all_methods(pedantic)
 ... class MyClass(object):
@@ -145,7 +145,7 @@ def _add_type_var_attr_and_method_to_class(cls: C) -&gt; None:
 </summary>
 <pre><code class="python">def for_all_methods(decorator: F) -&gt; Callable[[Type[C]], Type[C]]:
     &#34;&#34;&#34;
-        Apples a decorator to all methods of a class.
+        Applies a decorator to all methods of a class.
 
         Example:
 

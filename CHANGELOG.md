@@ -1,5 +1,8 @@
 # Changelog
 
+## Pedantic 1.14.5
+- fix issue that appears when using `slots=True` in the `frozen_dataclass` decorator
+
 ## Pedantic 1.14.4
 - added release notes to GitHub releases (CI)
 

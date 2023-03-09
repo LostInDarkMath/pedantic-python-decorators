@@ -75,6 +75,27 @@ def frozen_dataclass(
     """
 
     def decorator(cls_: Type[T]) -> Type[T]:
+        args = {'frozen': True, 'order': order}
+
+        if sys.version_info >= (3, 10):
+            args['kw_only'] = kw_only
+            args['slots'] = slots
+
+        if type_safe:
+            old_post_init = getattr(cls_, '__post_init__', lambda _: None)
+
+            def new_post_init(self) -> None:
+                old_post_init(self)
+                context = get_context(depth=3, increase_depth_if_name_matches=[
+                    copy_with.__name__,
+                    deep_copy_with.__name__,
+                ])
+                self.validate_types(_context=context)
+
+            setattr(cls_, '__post_init__', new_post_init)  # must be done before applying dataclass()
+
+        new_class = dataclass(**args)(cls_)  # slots = True will create a new class!
+
         def copy_with(self, **kwargs: Any) -> T:
             """
                 Creates a new immutable instance that by copying all fields of this instance replaced by the new values.
@@ -82,7 +103,7 @@ def frozen_dataclass(
             """
 
             current_values = {field.name: getattr(self, field.name) for field in fields(self)}
-            return cls_(**{**current_values, **kwargs})
+            return new_class(**{**current_values, **kwargs})
 
         def deep_copy_with(self, **kwargs: Any) -> T:
             """
@@ -91,7 +112,7 @@ def frozen_dataclass(
             """
 
             current_values = {field.name: deepcopy(getattr(self, field.name)) for field in fields(self)}
-            return cls_(**{**current_values, **kwargs})
+            return new_class(**{**current_values, **kwargs})
 
         def validate_types(self, *, _context: Dict[str, Type] = None) -> None:
             """
@@ -99,7 +120,7 @@ def frozen_dataclass(
                 Raises a [PedanticTypeCheckException] if at least one type is incorrect.
             """
 
-            props = fields(cls_)
+            props = fields(new_class)
 
             if _context is None:
                 # method was called by user
@@ -119,28 +140,9 @@ def frozen_dataclass(
         methods_to_add = [copy_with, deep_copy_with, validate_types]
 
         for method in methods_to_add:
-            setattr(cls_, method.__name__, method)
+            setattr(new_class, method.__name__, method)
 
-        if type_safe:
-            old_post_init = getattr(cls_, '__post_init__', lambda _: None)
-
-            def new_post_init(self) -> None:
-                old_post_init(self)
-                context = get_context(depth=3, increase_depth_if_name_matches=[
-                    copy_with.__name__,
-                    deep_copy_with.__name__,
-                ])
-                self.validate_types(_context=context)
-
-            setattr(cls_, '__post_init__', new_post_init)
-
-        args = {'frozen': True, 'order': order}
-
-        if sys.version_info >= (3, 10):
-            args['kw_only'] = kw_only
-            args['slots'] = slots
-
-        return dataclass(**args)(cls_)
+        return new_class
 
     if cls is None:
         return decorator
