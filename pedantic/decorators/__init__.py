@@ -1,3 +1,4 @@
+from .fn_deco_context_manager import safe_contextmanager, safe_async_contextmanager
 from .fn_deco_count_calls import count_calls
 from .fn_deco_deprecated import deprecated
 from .fn_deco_does_same_as_function import does_same_as_function
