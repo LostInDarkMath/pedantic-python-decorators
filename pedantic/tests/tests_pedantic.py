@@ -8,7 +8,7 @@ from functools import wraps
 from io import BytesIO, StringIO
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
     AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO, Iterable, Container, \
-    NoReturn, ClassVar
+    NoReturn, ClassVar, Literal
 from enum import Enum, IntEnum
 
 from pedantic import pedantic_class
@@ -2287,11 +2287,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             foo()
 
     def test_literal(self):
-        if sys.version_info < (3, 8):
-            return
-
-        from typing import Literal
-
         @pedantic
         def foo(a: Literal[1, True, 'x', b'y', 404]) -> None:
             print(a)
@@ -2304,11 +2299,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             foo(a=4)
 
     def test_literal_union(self):
-        if sys.version_info < (3, 8):
-            return
-
-        from typing import Literal
-
         @pedantic
         def foo(a: Union[str, Literal[1, 6, 8]]) -> None:
             print(a)
@@ -2319,11 +2309,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             foo(a=4)
 
     def test_literal_illegal_value(self):
-        if sys.version_info < (3, 8):
-            return
-
-        from typing import Literal
-
         @pedantic
         def foo(a: Literal[1, 1.1]) -> None:
             print(a)

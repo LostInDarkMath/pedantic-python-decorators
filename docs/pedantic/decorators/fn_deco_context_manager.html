@@ -95,6 +95,8 @@ def safe_async_contextmanager(f: Callable[..., AsyncIterator[T]]) -&gt; Callable
     &#34;&#34;&#34;
     @safe_async_contextmanager decorator.
 
+    Note: You need Python 3.10 or newer for this.
+
          Typical usage:
 
             @safe_async_contextmanager
@@ -162,6 +164,7 @@ def safe_async_contextmanager(f: Callable[..., AsyncIterator[T]]) -&gt; Callable
 </code></dt>
 <dd>
 <div class="desc"><p>@safe_async_contextmanager decorator.</p>
+<p>Note: You need Python 3.10 or newer for this.</p>
 <pre><code> Typical usage:
 
     @safe_async_contextmanager
@@ -201,6 +204,8 @@ equivalent to this:
 <pre><code class="python">def safe_async_contextmanager(f: Callable[..., AsyncIterator[T]]) -&gt; Callable[..., AsyncContextManager[T]]:
     &#34;&#34;&#34;
     @safe_async_contextmanager decorator.
+
+    Note: You need Python 3.10 or newer for this.
 
          Typical usage:
 

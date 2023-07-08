@@ -11,12 +11,11 @@ from pedantic.tests.validate.test_flask_parameters import TestFlaskParameters
 from pedantic.tests.validate.test_parameter_environment_variable import TestParameterEnvironmentVariable
 from pedantic.tests.validate.test_validate import TestValidate
 
-if sys.version_info >= (3, 8):
-    from pedantic.tests.validate.test_validate import AsyncValidateTests
-    from pedantic.tests.tests_small_method_decorators import AsyncSmallDecoratorTests
-    from pedantic.tests.tests_pedantic_async import TestPedanticAsyncio
-    from pedantic.tests.test_in_subprocess import TestInSubprocess
-    from pedantic.tests.test_async_context_manager import TestAsyncContextManager
+from pedantic.tests.validate.test_validate import AsyncValidateTests
+from pedantic.tests.tests_small_method_decorators import AsyncSmallDecoratorTests
+from pedantic.tests.tests_pedantic_async import TestPedanticAsyncio
+from pedantic.tests.test_in_subprocess import TestInSubprocess
+from pedantic.tests.test_async_context_manager import TestAsyncContextManager
 
 if sys.version_info >= (3, 11):
     from pedantic.tests.tests_pedantic_python_311 import TestPedanticPython311AddedStuff
@@ -95,17 +94,16 @@ def run_all_tests() -> None:
         TestValidatorMin,
         TestValidatorMinLength,
         TestValidatorNotEmpty,
+
+        # async
+        AsyncValidateTests,
+        AsyncSmallDecoratorTests,
+        TestPedanticAsyncio,
+        TestInSubprocess,
     ]
 
-    if sys.version_info >= (3, 8):
-        async_test_classes_to_run = [
-            TestAsyncContextManager,
-            AsyncValidateTests,
-            AsyncSmallDecoratorTests,
-            TestPedanticAsyncio,
-            TestInSubprocess,
-        ]
-        test_classes_to_run.extend(async_test_classes_to_run)
+    if sys.version_info >= (3, 10):
+        test_classes_to_run.append(TestAsyncContextManager)
 
     if sys.version_info >= (3, 11):
         test_classes_to_run.append(TestPedanticPython311AddedStuff)
