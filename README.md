@@ -24,8 +24,6 @@ The `@pedantic` decorator does the following things:
 - The decorated function must have [type annotations](https://docs.python.org/3/library/typing.html).
 - Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
 As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
-- If the decorated function has a docstring which lists the arguments, the docstring is parsed and compared with the type annotations. In other words, pedantic ensures that the docstring is everytime up-to-date.
-Currently, only docstrings in the [Google style](https://google.github.io/styleguide/pyguide.html) are supported. **Note:** you need install the [docstring-parser](https://github.com/rr-/docstring_parser) to make this work. 
 
 In a nutshell:
 `@pedantic` raises an `PedanticException` if one of the following happened:
@@ -33,7 +31,6 @@ In a nutshell:
 - The function has no type annotation for their return type or one or more parameters do not have type annotations.
 - A type annotation is incorrect.
 - A type annotation misses type arguments, e.g. `typing.List` instead of `typing.List[int]`.
-- The documented arguments do not match the argument list or their type annotations.
 
 ### Minimal example
 ```python
@@ -164,9 +161,7 @@ if __name__ == '__main__':
 - [@mock](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_mock.html)
 - [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_overrides.html)
 - [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_pedantic.html#pedantic.decorators.fn_deco_pedantic.pedantic)
-- [@pedantic_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_pedantic.html#pedantic.decorators.fn_deco_pedantic.pedantic_require_docstring)
 - [@pedantic_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.pedantic_class)
-- [@pedantic_class_require_docstring](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.pedantic_class_require_docstring)
 - [@rename_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_rename_kwargs.html)
 - [@require_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_require_kwargs.html)
 - [@timer](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_timer.html)
@@ -182,7 +177,6 @@ if __name__ == '__main__':
 
 ## Dependencies
 There are no hard dependencies. But if you want to use some advanced features you need to install the following packages:
-- [Docstring-Parser](https://github.com/rr-/docstring_parser) if you need to verify your docstrings.
 - [multiprocess](https://github.com/uqfoundation/multiprocess) if you want to use the `@in_subprocess` decorator
 - [flask](https://pypi.org/project/Flask/) if you want to you the request validators which are designed for `Flask` (see unit tests for examples): 
   - `FlaskParameter` (abstract class)

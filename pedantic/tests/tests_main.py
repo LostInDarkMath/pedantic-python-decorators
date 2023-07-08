@@ -16,6 +16,7 @@ if sys.version_info >= (3, 8):
     from pedantic.tests.tests_small_method_decorators import AsyncSmallDecoratorTests
     from pedantic.tests.tests_pedantic_async import TestPedanticAsyncio
     from pedantic.tests.test_in_subprocess import TestInSubprocess
+    from pedantic.tests.test_async_context_manager import TestAsyncContextManager
 
 if sys.version_info >= (3, 11):
     from pedantic.tests.tests_pedantic_python_311 import TestPedanticPython311AddedStuff
@@ -51,6 +52,7 @@ from pedantic.tests.tests_decorated_function import TestDecoratedFunction
 from pedantic.tests.tests_environment_variables import TestEnvironmentVariables
 from pedantic.tests.tests_generic_classes import TestGenericClasses
 from pedantic.tests.tests_generator import TestGenerator
+from pedantic.tests.test_context_manager import TestContextManager
 
 
 def run_all_tests() -> None:
@@ -59,6 +61,7 @@ def run_all_tests() -> None:
         TestGenericMixin,
         TestRequireKwargs,
         TestClassDecorators,
+        TestContextManager,
         TestFrozenDataclass,
         TestPedanticClass,
         TestDecoratorRequireKwargsAndTypeCheck,
@@ -96,6 +99,7 @@ def run_all_tests() -> None:
 
     if sys.version_info >= (3, 8):
         async_test_classes_to_run = [
+            TestAsyncContextManager,
             AsyncValidateTests,
             AsyncSmallDecoratorTests,
             TestPedanticAsyncio,
