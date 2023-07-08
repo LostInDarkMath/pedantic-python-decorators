@@ -67,6 +67,8 @@ def safe_async_contextmanager(f: Callable[..., AsyncIterator[T]]) -> Callable[..
     """
     @safe_async_contextmanager decorator.
 
+    Note: You need Python 3.10 or newer for this.
+
          Typical usage:
 
             @safe_async_contextmanager

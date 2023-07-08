@@ -36,7 +36,7 @@ from functools import wraps
 from io import BytesIO, StringIO
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
     AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO, Iterable, Container, \
-    NoReturn, ClassVar
+    NoReturn, ClassVar, Literal
 from enum import Enum, IntEnum
 
 from pedantic import pedantic_class
@@ -2315,11 +2315,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             foo()
 
     def test_literal(self):
-        if sys.version_info &lt; (3, 8):
-            return
-
-        from typing import Literal
-
         @pedantic
         def foo(a: Literal[1, True, &#39;x&#39;, b&#39;y&#39;, 404]) -&gt; None:
             print(a)
@@ -2332,11 +2327,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             foo(a=4)
 
     def test_literal_union(self):
-        if sys.version_info &lt; (3, 8):
-            return
-
-        from typing import Literal
-
         @pedantic
         def foo(a: Union[str, Literal[1, 6, 8]]) -&gt; None:
             print(a)
@@ -2347,11 +2337,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             foo(a=4)
 
     def test_literal_illegal_value(self):
-        if sys.version_info &lt; (3, 8):
-            return
-
-        from typing import Literal
-
         @pedantic
         def foo(a: Literal[1, 1.1]) -&gt; None:
             print(a)
@@ -4780,11 +4765,6 @@ not have a method with the specified name.</p></div>
             foo()
 
     def test_literal(self):
-        if sys.version_info &lt; (3, 8):
-            return
-
-        from typing import Literal
-
         @pedantic
         def foo(a: Literal[1, True, &#39;x&#39;, b&#39;y&#39;, 404]) -&gt; None:
             print(a)
@@ -4797,11 +4777,6 @@ not have a method with the specified name.</p></div>
             foo(a=4)
 
     def test_literal_union(self):
-        if sys.version_info &lt; (3, 8):
-            return
-
-        from typing import Literal
-
         @pedantic
         def foo(a: Union[str, Literal[1, 6, 8]]) -&gt; None:
             print(a)
@@ -4812,11 +4787,6 @@ not have a method with the specified name.</p></div>
             foo(a=4)
 
     def test_literal_illegal_value(self):
-        if sys.version_info &lt; (3, 8):
-            return
-
-        from typing import Literal
-
         @pedantic
         def foo(a: Literal[1, 1.1]) -&gt; None:
             print(a)
@@ -7229,11 +7199,6 @@ arguments have default values.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_literal(self):
-    if sys.version_info &lt; (3, 8):
-        return
-
-    from typing import Literal
-
     @pedantic
     def foo(a: Literal[1, True, &#39;x&#39;, b&#39;y&#39;, 404]) -&gt; None:
         print(a)
@@ -7256,11 +7221,6 @@ arguments have default values.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_literal_illegal_value(self):
-    if sys.version_info &lt; (3, 8):
-        return
-
-    from typing import Literal
-
     @pedantic
     def foo(a: Literal[1, 1.1]) -&gt; None:
         print(a)
@@ -7279,11 +7239,6 @@ arguments have default values.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_literal_union(self):
-    if sys.version_info &lt; (3, 8):
-        return
-
-    from typing import Literal
-
     @pedantic
     def foo(a: Union[str, Literal[1, 6, 8]]) -&gt; None:
         print(a)

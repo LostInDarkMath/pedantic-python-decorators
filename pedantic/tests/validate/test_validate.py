@@ -1,11 +1,8 @@
 import os
-import sys
 from datetime import datetime
 from typing import Optional, Any
+from unittest import IsolatedAsyncioTestCase
 from unittest import TestCase
-
-if sys.version_info >= (3, 8):
-    from unittest import IsolatedAsyncioTestCase  # exists since Python 3.8
 
 from pedantic import DateTimeUnixTimestamp
 from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, ParameterException, \
@@ -405,31 +402,27 @@ class TestValidate(TestCase):
         self.assertEqual(t, bar())
 
 
-if sys.version_info >= (3, 8):
-    # IsolatedAsyncioTestCase exists since Python 3.8
+class AsyncValidateTests(IsolatedAsyncioTestCase):
+    async def test_async_instance_method(self) -> None:
+        class Foo:
+            @validate(Parameter(name='k', value_type=int, validators=[Min(42)]),
+                      return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+            async def bar(self, k):
+                return k
 
+            @validate(Parameter(name='k', value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+            async def bar_2(self, k):
+                return k
 
-    class AsyncValidateTests(IsolatedAsyncioTestCase):
-        async def test_async_instance_method(self) -> None:
-            class Foo:
-                @validate(Parameter(name='k', value_type=int, validators=[Min(42)]),
-                          return_as=ReturnAs.KWARGS_WITHOUT_NONE)
-                async def bar(self, k):
-                    return k
+        f = Foo()
+        res = await f.bar(k=42)
+        self.assertEqual(42, res)
 
-                @validate(Parameter(name='k', value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
-                async def bar_2(self, k):
-                    return k
+        with self.assertRaises(expected_exception=ParameterException):
+            await f.bar(k=41)
 
-            f = Foo()
-            res = await f.bar(k=42)
-            self.assertEqual(42, res)
+        res = await f.bar_2(k=42)
+        self.assertEqual(42, res)
 
-            with self.assertRaises(expected_exception=ParameterException):
-                await f.bar(k=41)
-
-            res = await f.bar_2(k=42)
-            self.assertEqual(42, res)
-
-            with self.assertRaises(expected_exception=ParameterException):
-                await f.bar_2(k=41)
+        with self.assertRaises(expected_exception=ParameterException):
+            await f.bar_2(k=41)
