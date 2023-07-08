@@ -1,4 +1,6 @@
 # Changelog
+## Pedantic 1.15.0
+- added `@safe_contextmanager` and `@safe_async_contextmanager` decorators
 
 ## Pedantic 1.14.6
 - [move Deserializable out of flask_parameters.py](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/86)
