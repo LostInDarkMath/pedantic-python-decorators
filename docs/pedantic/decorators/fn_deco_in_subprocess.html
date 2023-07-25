@@ -110,8 +110,15 @@ async def calculate_in_subprocess(func: Callable[..., Union[T, Awaitable[T]]], *
     process = Process(target=_inner, args=(tx, func, *args), kwargs=kwargs)
     process.start()
 
-    while not rx.poll():  # do not use process.is_alive() as condition here
-        await asyncio.sleep(0.1)
+    event = asyncio.Event()
+    loop = asyncio.get_event_loop()
+    loop.add_reader(fd=rx.fileno(), callback=event.set)
+
+    if not rx.poll():  # do not use process.is_alive() as condition here
+        await event.wait()
+
+    loop.remove_reader(fd=rx.fileno())
+    event.clear()
 
     result = rx.recv()
     process.join()  # this blocks synchronously! make sure that process is terminated before you call join()
@@ -216,8 +223,15 @@ Further reading: <a href="https://medium.com/devopss-hole/python-multiprocessing
     process = Process(target=_inner, args=(tx, func, *args), kwargs=kwargs)
     process.start()
 
-    while not rx.poll():  # do not use process.is_alive() as condition here
-        await asyncio.sleep(0.1)
+    event = asyncio.Event()
+    loop = asyncio.get_event_loop()
+    loop.add_reader(fd=rx.fileno(), callback=event.set)
+
+    if not rx.poll():  # do not use process.is_alive() as condition here
+        await event.wait()
+
+    loop.remove_reader(fd=rx.fileno())
+    event.clear()
 
     result = rx.recv()
     process.join()  # this blocks synchronously! make sure that process is terminated before you call join()

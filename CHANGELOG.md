@@ -2,6 +2,7 @@
 ## Pedantic 1.15.0
 - added `@safe_contextmanager` and `@safe_async_contextmanager` decorators
 - drop support for Python 3.7
+- improve implementation of `@in_subprocess` decorator
 
 ## Pedantic 1.14.6
 - [move Deserializable out of flask_parameters.py](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/86)
