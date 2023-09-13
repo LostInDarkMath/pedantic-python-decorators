@@ -6,6 +6,7 @@ from flask import request
 from pedantic.decorators.fn_deco_validate.exceptions import InvalidHeader, ParameterException, ValidatorException
 from pedantic.decorators.fn_deco_overrides import overrides
 from pedantic.decorators.fn_deco_validate.parameters import ExternalParameter, Parameter
+from pedantic.decorators.fn_deco_validate.parameters.deserializable import Deserializable
 
 
 class FlaskParameter(ExternalParameter, ABC):
@@ -67,15 +68,6 @@ class FlaskHeaderParameter(FlaskParameter):
     @overrides(FlaskParameter)
     def get_dict(self) -> Dict:
         return request.headers
-
-
-class Deserializable(ABC):
-    """ A tiny interface which has a static from_json() method which acts like a named constructor. """
-
-    @staticmethod
-    @abstractmethod
-    def from_json(data: Dict[str, Any]) -> 'Deserializable':
-        """ A named constructor which creates an object from JSON. """
 
 
 class GenericFlaskDeserializer(ExternalParameter):
