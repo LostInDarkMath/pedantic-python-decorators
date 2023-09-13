@@ -1,5 +1,8 @@
 # Changelog
 
+## Pedantic 1.14.6
+- [move Deserializable out of flask_parameters.py](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/86)
+
 ## Pedantic 1.14.5
 - fix issue that appears when using `slots=True` in the `frozen_dataclass` decorator
 
