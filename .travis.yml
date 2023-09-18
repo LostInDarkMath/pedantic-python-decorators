@@ -49,7 +49,7 @@ before_deploy:
   - source get_changelog.sh
   - echo $RELEASE_NAME
   - echo $RELEASE_BODY
-  - echo RELEASE_BODY_NO_LINE_BREAKS
+  - echo $RELEASE_BODY_NO_LINE_BREAKS
 
 deploy:
   - provider: releases  # use Github pages instead: pages
@@ -57,7 +57,7 @@ deploy:
     file_glob: true # enable wild cards '*'
     file: dist/*.whl
     name: ${RELEASE_NAME}
-    body: ${RELEASE_BODY_NO_LINE_BREAKS}
+  #  body: ${$RELEASE_BODY}  # TODO: does not work with multi lines
     skip_cleanup: true
     overwrite: true
     on:
