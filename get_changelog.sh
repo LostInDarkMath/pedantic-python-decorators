@@ -49,3 +49,5 @@ echo ""
 echo "${RELEASE_NAME}"
 echo ""
 echo "${RELEASE_BODY}"
+
+export RELEASE_BODY_NO_LINE_BREAKS=$RELEASE_BODY | tr '\n' ' '
