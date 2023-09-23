@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.15.1
+- [fix the `pedantic-x.y.z.tar.gz` file that is deployed to Pypi](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/89)
+
 ## Pedantic 1.15.0
 - added `@safe_contextmanager` and `@safe_async_contextmanager` decorators
 - drop support for Python 3.7

@@ -25,9 +25,10 @@ script:
   - coverage run --branch pedantic/tests/tests_main.py
   - python setup.py bdist_wheel  # needs to be done during "script"
   - coveralls # push coverage before removing it
-  - rm -r pedantic
+  - mv pedantic pedantic_src
   - pip install dist/*.whl
   - python test_deployment.py
+  - mv pedantic_src pedantic
 
 # after_success:
 
