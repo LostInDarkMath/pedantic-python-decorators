@@ -91,15 +91,15 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         >>> _check_type([1, 2, 3], list, '', {})
         Traceback (most recent call last):
         ...
-        pedantic.exceptions.PedanticTypeCheckException: Use "List[]" instead of "list" as type hint.
+        pedantic.exceptions.PedanticTypeCheckException:  Missing type arguments
         >>> _check_type((1, 2, 3), tuple, '', {})
         Traceback (most recent call last):
         ...
-        pedantic.exceptions.PedanticTypeCheckException: Use "Tuple[]" instead of "tuple" as type hint.
+        pedantic.exceptions.PedanticTypeCheckException:  Missing type arguments
         >>> _check_type({1: 1.0, 2: 2.0, 3: 3.0}, dict, '', {})
         Traceback (most recent call last):
         ...
-        pedantic.exceptions.PedanticTypeCheckException: Use "Dict[]" instead of "dict" as type hint.
+        pedantic.exceptions.PedanticTypeCheckException:  Missing type arguments
     """
 
     if type_ is None:
@@ -232,6 +232,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
         return all([_is_instance(obj=obj._asdict()[k], type_=v, type_vars=type_vars, context=context) for k, v in field_types.items()])
 
     if type_ in {list, set, dict, frozenset, tuple, type}:
+        raise PedanticTypeCheckException('Missing type arguments')
         return False
 
     if isinstance(type_, types.GenericAlias):
