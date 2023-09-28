@@ -1038,17 +1038,17 @@ def convert_to_typing_types(x: typing.Type) -> typing.Type:
     args = [convert_to_typing_types(a) for a in x.__args__]  # type: ignore
 
     if origin is list:
-        return typing.List[*args]
+        return typing.List[tuple(args)]
     elif origin is set:
-        return typing.Set[*args]
+        return typing.Set[tuple(args)]
     elif origin is dict:
-        return typing.Dict[*args]
+        return typing.Dict[tuple(args)]
     elif origin is tuple:
-        return typing.Tuple[*args]
+        return typing.Tuple[tuple(args)]
     elif origin is frozenset:
-        return typing.FrozenSet[*args]
+        return typing.FrozenSet[tuple(args)]
     elif origin is type:
-        return typing.Type[*args]
+        return typing.Type[tuple(args)]
 
     raise RuntimeError(x)
 
