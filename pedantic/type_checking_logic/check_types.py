@@ -109,23 +109,6 @@ def _check_type(value: Any, type_: Any, err: str, type_vars: Dict[TypeVar_, Any]
         base_class_name = value.__class__.__base__.__name__
         return class_name == type_ or base_class_name == type_
 
-    if isinstance(type_, tuple):
-        raise PedanticTypeCheckException(f'{err}Use "Tuple[]" instead of "{type_}" as type hint.')
-    if isinstance(type_, list):
-        raise PedanticTypeCheckException(f'{err}Use "List[]" instead of "{type_}" as type hint.')
-    if type_ is tuple:
-        raise PedanticTypeCheckException(f'{err}Use "Tuple[]" instead of "tuple" as type hint.')
-    if type_ is list:
-        raise PedanticTypeCheckException(f'{err}Use "List[]" instead of "list" as type hint.')
-    if type_ is dict:
-        raise PedanticTypeCheckException(f'{err}Use "Dict[]" instead of "dict" as type hint.')
-    if type_ is set:
-        raise PedanticTypeCheckException(f'{err}Use "Set[]" instead of "set" as type hint.')
-    if type_ is frozenset:
-        raise PedanticTypeCheckException(f'{err}Use "FrozenSet[]" instead of "frozenset" as type hint.')
-    if type_ is type:
-        raise PedanticTypeCheckException(f'{err}Use "Type[]" instead of "type" as type hint.')
-
     try:
         return _is_instance(obj=value, type_=type_, type_vars=type_vars, context=context)
     except PedanticTypeCheckException as ex:
@@ -247,6 +230,12 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
             return False
 
         return all([_is_instance(obj=obj._asdict()[k], type_=v, type_vars=type_vars, context=context) for k, v in field_types.items()])
+
+    if type_ in {list, set, dict, frozenset, tuple, type}:
+        return False
+
+    if isinstance(type_, types.GenericAlias):
+        return _is_instance(obj=obj, type_=convert_to_typing_types(type_), type_vars=type_vars, context=context)
 
     return isinstance(obj, type_)
 
@@ -1007,6 +996,60 @@ NUM_OF_REQUIRED_TYPE_ARGS_MIN = {
     'Tuple': 1,
     'Union': 2,
 }
+
+
+def convert_to_typing_types(x: typing.Type) -> typing.Type:
+    """
+        Example:
+        >>> convert_to_typing_types(int)
+        <class 'int'>
+        >>> convert_to_typing_types(list)
+        Traceback (most recent call last):
+        ...
+        ValueError: Missing type arguments
+        >>> convert_to_typing_types(list[int])
+        typing.List[int]
+        >>> convert_to_typing_types(set[int])
+        typing.Set[int]
+        >>> convert_to_typing_types(frozenset[int])
+        typing.FrozenSet[int]
+        >>> convert_to_typing_types(tuple[int])
+        typing.Tuple[int]
+        >>> convert_to_typing_types(type[int])
+        typing.Type[int]
+        >>> convert_to_typing_types(tuple[int, float])
+        typing.Tuple[int, float]
+        >>> convert_to_typing_types(dict[int, float])
+        typing.Dict[int, float]
+        >>> convert_to_typing_types(list[dict[int, float]])
+        typing.List[typing.Dict[int, float]]
+        >>> convert_to_typing_types(list[dict[int, tuple[float, str]]])
+        typing.List[typing.Dict[int, typing.Tuple[float, str]]]
+    """
+
+    if x in {list, set, dict, frozenset, tuple, type}:
+        raise ValueError('Missing type arguments')
+
+    if not hasattr(x, '__origin__'):
+        return x
+
+    origin = x.__origin__  # type: ignore # checked above
+    args = [convert_to_typing_types(a) for a in x.__args__]  # type: ignore
+
+    if origin is list:
+        return typing.List[*args]
+    elif origin is set:
+        return typing.Set[*args]
+    elif origin is dict:
+        return typing.Dict[*args]
+    elif origin is tuple:
+        return typing.Tuple[*args]
+    elif origin is frozenset:
+        return typing.FrozenSet[*args]
+    elif origin is type:
+        return typing.Type[*args]
+
+    raise RuntimeError(x)
 
 
 if __name__ == "__main__":

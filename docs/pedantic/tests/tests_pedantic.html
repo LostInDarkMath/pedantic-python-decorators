@@ -1828,6 +1828,10 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo_3(a: list) -&gt; None:
             print(a)
 
+        @pedantic
+        def foo_4(a: list[int]) -&gt; None:
+            print(a)
+
         foo_1(a=[1, 2])
 
         with self.assertRaises(PedanticTypeCheckException):
@@ -1835,6 +1839,9 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         with self.assertRaises(PedanticTypeCheckException):
             foo_3(a=[1, 2])
+
+
+        foo_4(a=[1, 2])
 
     def test_dict(self):
         @pedantic
@@ -1849,13 +1856,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo_3(a: dict) -&gt; None:
             print(a)
 
+        @pedantic
+        def foo_4(a: dict[str, int]) -&gt; None:
+            print(a)
+
         foo_1(a={&#39;x&#39;: 2})
 
         with self.assertRaises(PedanticTypeCheckException):
-            foo_3(a={&#39;x&#39;: 2})
+            foo_2(a={&#39;x&#39;: 2})
 
         with self.assertRaises(PedanticTypeCheckException):
             foo_3(a={&#39;x&#39;: 2})
+
+        foo_4(a={&#39;x&#39;: 2})
 
     def test_sequence(self):
         @pedantic
@@ -2406,7 +2419,23 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         Genders(value=12)
 
         with self.assertRaises(PedanticTypeCheckException):
-            Genders(value=Child())</code></pre>
+            Genders(value=Child())
+
+    def test_primitive_list_dict_tuple(self):
+        @pedantic
+        def f(x: list[dict[int, tuple[float, str]]]) -&gt; list[Any]:
+            return x
+
+        f(x=[{3: (3.24, &#39;hi&#39;)}])
+
+        for value in [
+            [{3, (3, &#39;hi&#39;)}],
+            [{3: (3, &#39;hi&#39;)}],
+            [{3: (3.24, 3)}],
+            [{3: (3.24, &#39;hi&#39;)}, {0}],
+        ]:
+            with self.assertRaises(PedanticTypeCheckException):
+                f(x=value)</code></pre>
 </details>
 </section>
 <section>
@@ -4278,6 +4307,10 @@ not have a method with the specified name.</p></div>
         def foo_3(a: list) -&gt; None:
             print(a)
 
+        @pedantic
+        def foo_4(a: list[int]) -&gt; None:
+            print(a)
+
         foo_1(a=[1, 2])
 
         with self.assertRaises(PedanticTypeCheckException):
@@ -4285,6 +4318,9 @@ not have a method with the specified name.</p></div>
 
         with self.assertRaises(PedanticTypeCheckException):
             foo_3(a=[1, 2])
+
+
+        foo_4(a=[1, 2])
 
     def test_dict(self):
         @pedantic
@@ -4299,13 +4335,19 @@ not have a method with the specified name.</p></div>
         def foo_3(a: dict) -&gt; None:
             print(a)
 
+        @pedantic
+        def foo_4(a: dict[str, int]) -&gt; None:
+            print(a)
+
         foo_1(a={&#39;x&#39;: 2})
 
         with self.assertRaises(PedanticTypeCheckException):
-            foo_3(a={&#39;x&#39;: 2})
+            foo_2(a={&#39;x&#39;: 2})
 
         with self.assertRaises(PedanticTypeCheckException):
             foo_3(a={&#39;x&#39;: 2})
+
+        foo_4(a={&#39;x&#39;: 2})
 
     def test_sequence(self):
         @pedantic
@@ -4856,7 +4898,23 @@ not have a method with the specified name.</p></div>
         Genders(value=12)
 
         with self.assertRaises(PedanticTypeCheckException):
-            Genders(value=Child())</code></pre>
+            Genders(value=Child())
+
+    def test_primitive_list_dict_tuple(self):
+        @pedantic
+        def f(x: list[dict[int, tuple[float, str]]]) -&gt; list[Any]:
+            return x
+
+        f(x=[{3: (3.24, &#39;hi&#39;)}])
+
+        for value in [
+            [{3, (3, &#39;hi&#39;)}],
+            [{3: (3, &#39;hi&#39;)}],
+            [{3: (3.24, 3)}],
+            [{3: (3.24, &#39;hi&#39;)}, {0}],
+        ]:
+            with self.assertRaises(PedanticTypeCheckException):
+                f(x=value)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -5973,13 +6031,19 @@ arguments have default values.</p></div>
     def foo_3(a: dict) -&gt; None:
         print(a)
 
+    @pedantic
+    def foo_4(a: dict[str, int]) -&gt; None:
+        print(a)
+
     foo_1(a={&#39;x&#39;: 2})
+
+    with self.assertRaises(PedanticTypeCheckException):
+        foo_2(a={&#39;x&#39;: 2})
 
     with self.assertRaises(PedanticTypeCheckException):
         foo_3(a={&#39;x&#39;: 2})
 
-    with self.assertRaises(PedanticTypeCheckException):
-        foo_3(a={&#39;x&#39;: 2})</code></pre>
+    foo_4(a={&#39;x&#39;: 2})</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dict_bad_key_type"><code class="name flex">
@@ -7088,13 +7152,20 @@ arguments have default values.</p></div>
     def foo_3(a: list) -&gt; None:
         print(a)
 
+    @pedantic
+    def foo_4(a: list[int]) -&gt; None:
+        print(a)
+
     foo_1(a=[1, 2])
 
     with self.assertRaises(PedanticTypeCheckException):
         foo_2(a=[1, 2])
 
     with self.assertRaises(PedanticTypeCheckException):
-        foo_3(a=[1, 2])</code></pre>
+        foo_3(a=[1, 2])
+
+
+    foo_4(a=[1, 2])</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_list_bad_element"><code class="name flex">
@@ -8183,6 +8254,32 @@ arguments have default values.</p></div>
 
     with self.assertRaises(PedanticTypeCheckException):
         foo(a=4, b=2)</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_primitive_list_dict_tuple"><code class="name flex">
+<span>def <span class="ident">test_primitive_list_dict_tuple</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_primitive_list_dict_tuple(self):
+    @pedantic
+    def f(x: list[dict[int, tuple[float, str]]]) -&gt; list[Any]:
+        return x
+
+    f(x=[{3: (3.24, &#39;hi&#39;)}])
+
+    for value in [
+        [{3, (3, &#39;hi&#39;)}],
+        [{3: (3, &#39;hi&#39;)}],
+        [{3: (3.24, 3)}],
+        [{3: (3.24, &#39;hi&#39;)}, {0}],
+    ]:
+        with self.assertRaises(PedanticTypeCheckException):
+            f(x=value)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_return_generator"><code class="name flex">
@@ -9686,6 +9783,7 @@ arguments have default values.</p></div>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_on_class" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_on_class">test_pedantic_on_class</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_return_type_fail" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_return_type_fail">test_pedantic_return_type_fail</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_return_type_var_fail" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_pedantic_return_type_var_fail">test_pedantic_return_type_var_fail</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_primitive_list_dict_tuple" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_primitive_list_dict_tuple">test_primitive_list_dict_tuple</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_return_generator" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_return_generator">test_return_generator</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_return_type_none" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_return_type_none">test_return_type_none</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sequence" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_sequence">test_sequence</a></code></li>

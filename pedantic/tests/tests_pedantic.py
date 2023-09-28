@@ -1800,6 +1800,10 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo_3(a: list) -> None:
             print(a)
 
+        @pedantic
+        def foo_4(a: list[int]) -> None:
+            print(a)
+
         foo_1(a=[1, 2])
 
         with self.assertRaises(PedanticTypeCheckException):
@@ -1807,6 +1811,9 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         with self.assertRaises(PedanticTypeCheckException):
             foo_3(a=[1, 2])
+
+
+        foo_4(a=[1, 2])
 
     def test_dict(self):
         @pedantic
@@ -1821,13 +1828,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo_3(a: dict) -> None:
             print(a)
 
+        @pedantic
+        def foo_4(a: dict[str, int]) -> None:
+            print(a)
+
         foo_1(a={'x': 2})
 
         with self.assertRaises(PedanticTypeCheckException):
-            foo_3(a={'x': 2})
+            foo_2(a={'x': 2})
 
         with self.assertRaises(PedanticTypeCheckException):
             foo_3(a={'x': 2})
+
+        foo_4(a={'x': 2})
 
     def test_sequence(self):
         @pedantic
@@ -2379,3 +2392,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
 
         with self.assertRaises(PedanticTypeCheckException):
             Genders(value=Child())
+
+    def test_primitive_list_dict_tuple(self):
+        @pedantic
+        def f(x: list[dict[int, tuple[float, str]]]) -> list[Any]:
+            return x
+
+        f(x=[{3: (3.24, 'hi')}])
+
+        for value in [
+            [{3, (3, 'hi')}],
+            [{3: (3, 'hi')}],
+            [{3: (3.24, 3)}],
+            [{3: (3.24, 'hi')}, {0}],
+        ]:
+            with self.assertRaises(PedanticTypeCheckException):
+                f(x=value)
