@@ -1,10 +1,10 @@
 dist: focal  # jammy does not work in deployment
 language: python
 python: # https://docs.travis-ci.com/user/languages/python/#python-versions
-  - "3.8"
   - "3.9"
   - "3.10"
   - "3.11"
+  - "3.12-dev"
 
 branches:
   only:
@@ -62,7 +62,7 @@ deploy:
     skip_cleanup: true
     overwrite: true
     on:
-      python: 3.8  # specify the job that should build a release. If not specified, all jobs would create releases.
+      python: 3.9  # specify the job that should build a release. If not specified, all jobs would create releases.
       branch: master
       # tags: false
   - provider: pypi
@@ -73,7 +73,7 @@ deploy:
     skip_cleanup: true
     overwrite: true
     on:
-      python: 3.8
+      python: 3.9
       branch: master
 
 # after_deploy:
