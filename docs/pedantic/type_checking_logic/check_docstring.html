@@ -128,17 +128,13 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -&gt; 
     typing.Union[int, float, str]
     &gt;&gt;&gt; _parse_documented_type(type_=&#39;Callable[[int, bool, str], float]&#39;, context={}, err=&#39;&#39;)
     typing.Callable[[int, bool, str], float]
-    &gt;&gt;&gt; _parse_documented_type(type_=&#39;Optional[List[Dict[str, float]]]&#39;, context={}, err=&#39;&#39;) \
-        if sys.version_info &lt; (3, 9) else print(&#39;typing.Union[typing.List[typing.Dict[str, float]], NoneType]&#39;)
+    &gt;&gt;&gt; _parse_documented_type(type_=&#39;Optional[List[Dict[str, float]]]&#39;, context={}, err=&#39;&#39;)
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
-    &gt;&gt;&gt; _parse_documented_type(type_=&#39;Optional[List[Dict[str, float]]]&#39;, context={}, err=&#39;&#39;) \
-        if sys.version_info &gt;= (3, 9) else print(&#39;typing.Optional[typing.List[typing.Dict[str, float]]]&#39;)
+    &gt;&gt;&gt; _parse_documented_type(type_=&#39;Optional[List[Dict[str, float]]]&#39;, context={}, err=&#39;&#39;)
     typing.Optional[typing.List[typing.Dict[str, float]]]
-    &gt;&gt;&gt; _parse_documented_type(type_=&#39;Union[List[Dict[str, float]], None]&#39;, context={}, err=&#39;&#39;) \
-        if sys.version_info &lt; (3, 9) else print(&#39;typing.Union[typing.List[typing.Dict[str, float]], NoneType]&#39;)
+    &gt;&gt;&gt; _parse_documented_type(type_=&#39;Union[List[Dict[str, float]], None]&#39;, context={}, err=&#39;&#39;)
     typing.Union[typing.List[typing.Dict[str, float]], NoneType]
-    &gt;&gt;&gt; _parse_documented_type(type_=&#39;Union[List[Dict[str, float]], None]&#39;, context={}, err=&#39;&#39;) \
-        if sys.version_info &gt;= (3, 9) else print(&#39;typing.Optional[typing.List[typing.Dict[str, float]]]&#39;)
+    &gt;&gt;&gt; _parse_documented_type(type_=&#39;Union[List[Dict[str, float]], None]&#39;, context={}, err=&#39;&#39;)
     typing.Optional[typing.List[typing.Dict[str, float]]]
     &gt;&gt;&gt; _parse_documented_type(type_=&#39;MyClass&#39;, context={}, err=&#39;&#39;)
     Traceback (most recent call last):

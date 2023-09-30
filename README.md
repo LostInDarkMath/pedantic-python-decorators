@@ -3,8 +3,7 @@
 This packages includes many decorators that will make you write cleaner Python code. 
 
 ## Getting Started
-This package requires Python 3.8 or later.
-Python 3.6 is only supported by `pedantic` 1.9.1 or lower.
+This package requires Python 3.9 or later.
 There are multiple options for installing this package.
 
 ### Option 1: Installing with pip from [Pypi](https://pypi.org/)

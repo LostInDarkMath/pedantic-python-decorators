@@ -1,6 +1,7 @@
 # Changelog
 ## Pedantic 1.16.0
 - allow type hints like `list[int], dict[str, float], ...`
+- drop support for Python 3.8
 
 ## Pedantic 1.15.1
 - [fix the `pedantic-x.y.z.tar.gz` file that is deployed to Pypi](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/89)
