@@ -1,4 +1,4 @@
-# pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators.svg?branch=master)](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators)  [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic) [![Last Commit](https://badgen.net/github/last-commit/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Stars](https://badgen.net/github/stars/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Open Issues](https://badgen.net/github/open-issues/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/issues) [![Open PRs](https://badgen.net/github/open-prs/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/pulls)
+# pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators.svg?branch=master)](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators)  [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic) [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pedantic.svg)](https://anaconda.org/conda-forge/pedantic) [![Last Commit](https://badgen.net/github/last-commit/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Stars](https://badgen.net/github/stars/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Open Issues](https://badgen.net/github/open-issues/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/issues) [![Open PRs](https://badgen.net/github/open-prs/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/pulls)
 
 This packages includes many decorators that will make you write cleaner Python code. 
 
@@ -9,11 +9,14 @@ There are multiple options for installing this package.
 ### Option 1: Installing with pip from [Pypi](https://pypi.org/)
 Run `pip install pedantic`.
 
-### Option 2: Installing with pip and git
+### Option 2: Installing with conda from [conda-forge](conda-forge.org)
+Run `conda install -c conda-forge pedantic`
+
+### Option 3: Installing with pip and git
 1. Install [Git](https://git-scm.com/downloads) if you don't have it already.
 2. Run `pip install git+https://github.com/LostInDarkMath/pedantic-python-decorators.git@master`
 
-### Option 3: Offline installation using wheel
+### Option 4: Offline installation using wheel
 1. Download the [latest release here](https://github.com/LostInDarkMath/PythonHelpers/releases/latest) by clicking on `pedantic-python-decorators-x.y.z-py-none-any.whl`.
 2. Execute `pip install pedantic-python-decorators-x.y.z-py3-none-any.whl`.
 
