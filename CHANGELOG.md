@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.16.1
+- bump `flask` and `werkzeug` to version `3.0.0`
+
 ## Pedantic 1.16.0
 - allow type hints like `list[int], dict[str, float], ...`
 - drop support for Python 3.8
