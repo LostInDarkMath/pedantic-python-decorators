@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.16.2
+- [add conda-forge install instructions and version](https://github.com/LostInDarkMath/pedantic-python-decorators/pull/93)
+
 ## Pedantic 1.16.1
 - bump `flask` and `werkzeug` to version `3.0.0`
 
