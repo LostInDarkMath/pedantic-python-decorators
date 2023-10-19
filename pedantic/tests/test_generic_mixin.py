@@ -21,8 +21,7 @@ class TestGenericMixin(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError) as err:
             invalid.type_var
 
-        self.assertEqual(err.exception.args[0], f'You need to instantiate this class with type parameters! '
-                                                f'Example: Foo[int]()')
+        assert f'You need to instantiate this class with type parameters! Example: Foo[int]()' in err.exception.args[0]
 
     def test_multiple_type_vars(self):
         class Foo(Generic[T, U], GenericMixin):
@@ -44,8 +43,7 @@ class TestGenericMixin(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError) as err:
             invalid.type_var
 
-        self.assertEqual(err.exception.args[0], f'You need to instantiate this class with type parameters! '
-                                                f'Example: Foo[int]()')
+        assert f'You need to instantiate this class with type parameters! Example: Foo[int]()' in err.exception.args[0]
 
     def test_non_generic_class(self):
         class Foo(GenericMixin):
@@ -70,3 +68,13 @@ class TestGenericMixin(unittest.TestCase):
 
         self.assertEqual(err.exception.args[0], f'Foo is not a generic class. To make it generic, declare it like: '
                                                 f'class Foo(Generic[T], GenericMixin):...')
+
+    def test_call_type_var_in_constructor(self):
+        class Foo(Generic[T], GenericMixin):
+            def __init__(self) -> None:
+                self.x = self.type_var()
+
+        with self.assertRaises(expected_exception=AssertionError) as err:
+            Foo[str]()
+
+        assert 'make sure that you do not call this in the __init__() method' in err.exception.args[0]

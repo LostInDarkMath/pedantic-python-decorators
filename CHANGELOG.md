@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.16.3
+- improve error message for the case that you call `GenericMixin.type_var()` in the `__init__()` method.
+
 ## Pedantic 1.16.2
 - [add conda-forge install instructions and version](https://github.com/LostInDarkMath/pedantic-python-decorators/pull/93)
 

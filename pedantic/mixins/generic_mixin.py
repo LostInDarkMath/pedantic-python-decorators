@@ -77,7 +77,9 @@ class GenericMixin:
 
         if not hasattr(self, '__orig_class__'):
             raise AssertionError(
-                f'You need to instantiate this class with type parameters! Example: {self.class_name}[int]()')
+                f'You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n'
+                f'Also make sure that you do not call this in the __init__() method of your class! '
+                f'See also https://github.com/python/cpython/issues/90899')
 
         types = self.__orig_class__.__args__  # type: ignore
         type_vars = generic_base.__args__
