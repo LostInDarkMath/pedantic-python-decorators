@@ -27,7 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from types import GenericAlias
-from typing import List, Type, TypeVar, Dict, Generic, Any
+from typing import List, Type, TypeVar, Dict, Generic, Any, Optional
 
 
 class GenericMixin:
@@ -125,7 +125,7 @@ class GenericMixin:
         return type(self).__name__
 
 
-def get_generic_base(obj: Any) -&gt; GenericAlias | None:
+def get_generic_base(obj: Any) -&gt; Optional[GenericAlias]:
     generic_bases = [c for c in obj.__orig_bases__ if hasattr(c, &#39;__origin__&#39;) and c.__origin__ == Generic]
 
     if generic_bases:
@@ -146,7 +146,7 @@ if __name__ == &#39;__main__&#39;:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.mixins.generic_mixin.get_generic_base"><code class="name flex">
-<span>def <span class="ident">get_generic_base</span></span>(<span>obj: Any) ‑> <class 'types.GenericAlias'> | None</span>
+<span>def <span class="ident">get_generic_base</span></span>(<span>obj: Any) ‑> Optional[types.GenericAlias]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -154,7 +154,7 @@ if __name__ == &#39;__main__&#39;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_generic_base(obj: Any) -&gt; GenericAlias | None:
+<pre><code class="python">def get_generic_base(obj: Any) -&gt; Optional[GenericAlias]:
     generic_bases = [c for c in obj.__orig_bases__ if hasattr(c, &#39;__origin__&#39;) and c.__origin__ == Generic]
 
     if generic_bases:
@@ -282,6 +282,10 @@ if __name__ == &#39;__main__&#39;:
 
         return type(self).__name__</code></pre>
 </details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pedantic.mixins.with_decorated_methods.WithDecoratedMethods" href="with_decorated_methods.html#pedantic.mixins.with_decorated_methods.WithDecoratedMethods">WithDecoratedMethods</a></li>
+</ul>
 <h3>Instance variables</h3>
 <dl>
 <dt id="pedantic.mixins.generic_mixin.GenericMixin.class_name"><code class="name">var <span class="ident">class_name</span> : str</code></dt>

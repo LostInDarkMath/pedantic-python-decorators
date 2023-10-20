@@ -36,7 +36,7 @@ from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, tr
     pedantic_class_require_docstring, Rename, mock, frozen_dataclass, frozen_type_safe_dataclass, in_subprocess, \
     calculate_in_subprocess
 
-from pedantic.mixins import GenericMixin
+from pedantic.mixins import GenericMixin, create_decorator, DecoratorType, WithDecoratedMethods
 
 from pedantic.type_checking_logic import assert_value_matches_type, resolve_forward_ref
 

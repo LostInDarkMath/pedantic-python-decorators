@@ -15,7 +15,7 @@ author = "Willi Sontopski"
 
 setup(
     name="pedantic",
-    version="1.16.4",
+    version="1.17.0",
     python_requires='>=3.9.0',
     packages=find_packages(),
     install_requires=[],

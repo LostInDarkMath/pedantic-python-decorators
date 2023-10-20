@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.17.0
+- add Mixin `WithDecoratedMethods` that makes it easy to find out which method is decorated with which specific parametrized decorator
+
 ## Pedantic 1.16.4
 - fix `GenericMixin` bug that appears when using inheritance
 

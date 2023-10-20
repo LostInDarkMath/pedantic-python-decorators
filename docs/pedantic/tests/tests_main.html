@@ -30,6 +30,8 @@
 import sys
 import os
 
+from pedantic.tests.test_with_decorated_methods import TestWithDecoratedMethods
+
 sys.path.append(os.getcwd())
 
 from pedantic.tests.validate.test_convert_value import TestConvertValue
@@ -86,6 +88,7 @@ def run_all_tests() -&gt; None:
     test_classes_to_run = [
         TestAssertValueMatchesType,
         TestGenericMixin,
+        TestWithDecoratedMethods,
         TestRequireKwargs,
         TestClassDecorators,
         TestContextManager,
@@ -173,6 +176,7 @@ if __name__ == &#39;__main__&#39;:
     test_classes_to_run = [
         TestAssertValueMatchesType,
         TestGenericMixin,
+        TestWithDecoratedMethods,
         TestRequireKwargs,
         TestClassDecorators,
         TestContextManager,

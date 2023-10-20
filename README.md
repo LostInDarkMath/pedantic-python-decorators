@@ -176,6 +176,7 @@ if __name__ == '__main__':
 
 ## List of all mixins in this package
 - [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/generic_mixin.html)
+- [WithDecoratedMethods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/with_decorated_methods.html)
 
 ## Dependencies
 There are no hard dependencies. But if you want to use some advanced features you need to install the following packages:
