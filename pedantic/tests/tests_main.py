@@ -2,10 +2,9 @@ import unittest
 import sys
 import os
 
-from pedantic.tests.test_with_decorated_methods import TestWithDecoratedMethods
-
 sys.path.append(os.getcwd())
 
+from pedantic.tests.test_with_decorated_methods import TestWithDecoratedMethods
 from pedantic.tests.validate.test_convert_value import TestConvertValue
 from pedantic.tests.test_rename_kwargs import TestRenameKwargs
 from pedantic.tests.validate.test_datetime_isoformat import TestValidatorDatetimeIsoformat
