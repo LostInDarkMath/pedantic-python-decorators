@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import List, Type, TypeVar, Dict, Generic
+<pre><code class="python">from types import GenericAlias
+from typing import List, Type, TypeVar, Dict, Generic, Any
 
 
 class GenericMixin:
@@ -96,20 +97,24 @@ class GenericMixin:
         if not hasattr(self, &#39;__orig_bases__&#39;):
             raise non_generic_error
 
-        generic_bases = [c for c in self.__orig_bases__ if hasattr(c, &#39;__origin__&#39;) and c.__origin__ == Generic]
+        generic_base = get_generic_base(obj=self)
 
-        if not generic_bases:
-            raise non_generic_error
+        if not generic_base:
+            for base in self.__orig_bases__:  # type: ignore # (we checked existence above)
+                generic_base = get_generic_base(base.__origin__)
 
-        generic_base = generic_bases[0]  # this is safe because a class can have at most one &#34;Generic&#34; superclass
+                if generic_base:
+                    types = base.__args__
+                    break
+        else:
+            if not hasattr(self, &#39;__orig_class__&#39;):
+                raise AssertionError(
+                    f&#39;You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n&#39;
+                    f&#39;Also make sure that you do not call this in the __init__() method of your class! &#39;
+                    f&#39;See also https://github.com/python/cpython/issues/90899&#39;)
 
-        if not hasattr(self, &#39;__orig_class__&#39;):
-            raise AssertionError(
-                f&#39;You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n&#39;
-                f&#39;Also make sure that you do not call this in the __init__() method of your class! &#39;
-                f&#39;See also https://github.com/python/cpython/issues/90899&#39;)
+            types = self.__orig_class__.__args__  # type: ignore
 
-        types = self.__orig_class__.__args__  # type: ignore
         type_vars = generic_base.__args__
         return {v: t for v, t in zip(type_vars, types)}
 
@@ -119,6 +124,14 @@ class GenericMixin:
 
         return type(self).__name__
 
+
+def get_generic_base(obj: Any) -&gt; GenericAlias | None:
+    generic_bases = [c for c in obj.__orig_bases__ if hasattr(c, &#39;__origin__&#39;) and c.__origin__ == Generic]
+
+    if generic_bases:
+        return generic_bases[0]  # this is safe because a class can have at most one &#34;Generic&#34; superclass
+
+    return None
 
 if __name__ == &#39;__main__&#39;:
     import doctest
@@ -130,6 +143,27 @@ if __name__ == &#39;__main__&#39;:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pedantic.mixins.generic_mixin.get_generic_base"><code class="name flex">
+<span>def <span class="ident">get_generic_base</span></span>(<span>obj: Any) ‑> <class 'types.GenericAlias'> | None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_generic_base(obj: Any) -&gt; GenericAlias | None:
+    generic_bases = [c for c in obj.__orig_bases__ if hasattr(c, &#39;__origin__&#39;) and c.__origin__ == Generic]
+
+    if generic_bases:
+        return generic_bases[0]  # this is safe because a class can have at most one &#34;Generic&#34; superclass
+
+    return None</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -221,20 +255,24 @@ if __name__ == &#39;__main__&#39;:
         if not hasattr(self, &#39;__orig_bases__&#39;):
             raise non_generic_error
 
-        generic_bases = [c for c in self.__orig_bases__ if hasattr(c, &#39;__origin__&#39;) and c.__origin__ == Generic]
+        generic_base = get_generic_base(obj=self)
 
-        if not generic_bases:
-            raise non_generic_error
+        if not generic_base:
+            for base in self.__orig_bases__:  # type: ignore # (we checked existence above)
+                generic_base = get_generic_base(base.__origin__)
 
-        generic_base = generic_bases[0]  # this is safe because a class can have at most one &#34;Generic&#34; superclass
+                if generic_base:
+                    types = base.__args__
+                    break
+        else:
+            if not hasattr(self, &#39;__orig_class__&#39;):
+                raise AssertionError(
+                    f&#39;You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n&#39;
+                    f&#39;Also make sure that you do not call this in the __init__() method of your class! &#39;
+                    f&#39;See also https://github.com/python/cpython/issues/90899&#39;)
 
-        if not hasattr(self, &#39;__orig_class__&#39;):
-            raise AssertionError(
-                f&#39;You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n&#39;
-                f&#39;Also make sure that you do not call this in the __init__() method of your class! &#39;
-                f&#39;See also https://github.com/python/cpython/issues/90899&#39;)
+            types = self.__orig_class__.__args__  # type: ignore
 
-        types = self.__orig_class__.__args__  # type: ignore
         type_vars = generic_base.__args__
         return {v: t for v, t in zip(type_vars, types)}
 
@@ -350,6 +388,11 @@ def type_vars(self) -&gt; Dict[TypeVar, Type]:
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="pedantic.mixins" href="index.html">pedantic.mixins</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pedantic.mixins.generic_mixin.get_generic_base" href="#pedantic.mixins.generic_mixin.get_generic_base">get_generic_base</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

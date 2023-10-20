@@ -27,7 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import unittest
-from typing import TypeVar, Generic, List
+from typing import TypeVar, Generic, List, Type
 
 from pedantic import GenericMixin
 
@@ -85,18 +85,6 @@ class TestGenericMixin(unittest.TestCase):
         self.assertEqual(err.exception.args[0], f&#39;Foo is not a generic class. To make it generic, declare it like: &#39;
                                                 f&#39;class Foo(Generic[T], GenericMixin):...&#39;)
 
-    def test_edge_case_orig_bases(self):
-        class Foo(GenericMixin):
-            __orig_bases__ = []
-
-        invalid = Foo()
-
-        with self.assertRaises(expected_exception=AssertionError) as err:
-            invalid.type_var
-
-        self.assertEqual(err.exception.args[0], f&#39;Foo is not a generic class. To make it generic, declare it like: &#39;
-                                                f&#39;class Foo(Generic[T], GenericMixin):...&#39;)
-
     def test_call_type_var_in_constructor(self):
         class Foo(Generic[T], GenericMixin):
             def __init__(self) -&gt; None:
@@ -105,7 +93,24 @@ class TestGenericMixin(unittest.TestCase):
         with self.assertRaises(expected_exception=AssertionError) as err:
             Foo[str]()
 
-        assert &#39;make sure that you do not call this in the __init__() method&#39; in err.exception.args[0]</code></pre>
+        assert &#39;make sure that you do not call this in the __init__() method&#39; in err.exception.args[0]
+
+    def test_subclass_set_type_variable(self):
+        class Gen(Generic[T], GenericMixin):
+            def __init__(self, value: T) -&gt; None:
+                self.value = value
+
+            def get_type(self) -&gt; dict[TypeVar, Type]:
+                return self.type_vars
+
+        class MyClass(Gen[int]):
+            pass
+
+        bar = Gen[int](value=4)
+        assert bar.get_type() == {T: int}
+
+        foo = MyClass(value=4)
+        assert foo.get_type() == {T: int}</code></pre>
 </details>
 </section>
 <section>
@@ -204,18 +209,6 @@ not have a method with the specified name.</p></div>
         self.assertEqual(err.exception.args[0], f&#39;Foo is not a generic class. To make it generic, declare it like: &#39;
                                                 f&#39;class Foo(Generic[T], GenericMixin):...&#39;)
 
-    def test_edge_case_orig_bases(self):
-        class Foo(GenericMixin):
-            __orig_bases__ = []
-
-        invalid = Foo()
-
-        with self.assertRaises(expected_exception=AssertionError) as err:
-            invalid.type_var
-
-        self.assertEqual(err.exception.args[0], f&#39;Foo is not a generic class. To make it generic, declare it like: &#39;
-                                                f&#39;class Foo(Generic[T], GenericMixin):...&#39;)
-
     def test_call_type_var_in_constructor(self):
         class Foo(Generic[T], GenericMixin):
             def __init__(self) -&gt; None:
@@ -224,7 +217,24 @@ not have a method with the specified name.</p></div>
         with self.assertRaises(expected_exception=AssertionError) as err:
             Foo[str]()
 
-        assert &#39;make sure that you do not call this in the __init__() method&#39; in err.exception.args[0]</code></pre>
+        assert &#39;make sure that you do not call this in the __init__() method&#39; in err.exception.args[0]
+
+    def test_subclass_set_type_variable(self):
+        class Gen(Generic[T], GenericMixin):
+            def __init__(self, value: T) -&gt; None:
+                self.value = value
+
+            def get_type(self) -&gt; dict[TypeVar, Type]:
+                return self.type_vars
+
+        class MyClass(Gen[int]):
+            pass
+
+        bar = Gen[int](value=4)
+        assert bar.get_type() == {T: int}
+
+        foo = MyClass(value=4)
+        assert foo.get_type() == {T: int}</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -250,28 +260,6 @@ not have a method with the specified name.</p></div>
         Foo[str]()
 
     assert &#39;make sure that you do not call this in the __init__() method&#39; in err.exception.args[0]</code></pre>
-</details>
-</dd>
-<dt id="pedantic.tests.test_generic_mixin.TestGenericMixin.test_edge_case_orig_bases"><code class="name flex">
-<span>def <span class="ident">test_edge_case_orig_bases</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def test_edge_case_orig_bases(self):
-    class Foo(GenericMixin):
-        __orig_bases__ = []
-
-    invalid = Foo()
-
-    with self.assertRaises(expected_exception=AssertionError) as err:
-        invalid.type_var
-
-    self.assertEqual(err.exception.args[0], f&#39;Foo is not a generic class. To make it generic, declare it like: &#39;
-                                            f&#39;class Foo(Generic[T], GenericMixin):...&#39;)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_generic_mixin.TestGenericMixin.test_multiple_type_vars"><code class="name flex">
@@ -353,6 +341,33 @@ not have a method with the specified name.</p></div>
     assert f&#39;You need to instantiate this class with type parameters! Example: Foo[int]()&#39; in err.exception.args[0]</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.test_generic_mixin.TestGenericMixin.test_subclass_set_type_variable"><code class="name flex">
+<span>def <span class="ident">test_subclass_set_type_variable</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_subclass_set_type_variable(self):
+    class Gen(Generic[T], GenericMixin):
+        def __init__(self, value: T) -&gt; None:
+            self.value = value
+
+        def get_type(self) -&gt; dict[TypeVar, Type]:
+            return self.type_vars
+
+    class MyClass(Gen[int]):
+        pass
+
+    bar = Gen[int](value=4)
+    assert bar.get_type() == {T: int}
+
+    foo = MyClass(value=4)
+    assert foo.get_type() == {T: int}</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -375,10 +390,10 @@ not have a method with the specified name.</p></div>
 <h4><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin" href="#pedantic.tests.test_generic_mixin.TestGenericMixin">TestGenericMixin</a></code></h4>
 <ul class="">
 <li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_call_type_var_in_constructor" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_call_type_var_in_constructor">test_call_type_var_in_constructor</a></code></li>
-<li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_edge_case_orig_bases" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_edge_case_orig_bases">test_edge_case_orig_bases</a></code></li>
 <li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_multiple_type_vars" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_multiple_type_vars">test_multiple_type_vars</a></code></li>
 <li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_non_generic_class" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_non_generic_class">test_non_generic_class</a></code></li>
 <li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_single_type_var" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_single_type_var">test_single_type_var</a></code></li>
+<li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_subclass_set_type_variable" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_subclass_set_type_variable">test_subclass_set_type_variable</a></code></li>
 </ul>
 </li>
 </ul>

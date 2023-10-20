@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 1.16.4
+- fix `GenericMixin` bug that appears when using inheritance
+
 ## Pedantic 1.16.3
 - improve error message for the case that you call `GenericMixin.type_var()` in the `__init__()` method.
 

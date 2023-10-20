@@ -1,4 +1,5 @@
-from typing import List, Type, TypeVar, Dict, Generic
+from types import GenericAlias
+from typing import List, Type, TypeVar, Dict, Generic, Any
 
 
 class GenericMixin:
@@ -68,20 +69,24 @@ class GenericMixin:
         if not hasattr(self, '__orig_bases__'):
             raise non_generic_error
 
-        generic_bases = [c for c in self.__orig_bases__ if hasattr(c, '__origin__') and c.__origin__ == Generic]
+        generic_base = get_generic_base(obj=self)
 
-        if not generic_bases:
-            raise non_generic_error
+        if not generic_base:
+            for base in self.__orig_bases__:  # type: ignore # (we checked existence above)
+                generic_base = get_generic_base(base.__origin__)
 
-        generic_base = generic_bases[0]  # this is safe because a class can have at most one "Generic" superclass
+                if generic_base:
+                    types = base.__args__
+                    break
+        else:
+            if not hasattr(self, '__orig_class__'):
+                raise AssertionError(
+                    f'You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n'
+                    f'Also make sure that you do not call this in the __init__() method of your class! '
+                    f'See also https://github.com/python/cpython/issues/90899')
 
-        if not hasattr(self, '__orig_class__'):
-            raise AssertionError(
-                f'You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n'
-                f'Also make sure that you do not call this in the __init__() method of your class! '
-                f'See also https://github.com/python/cpython/issues/90899')
+            types = self.__orig_class__.__args__  # type: ignore
 
-        types = self.__orig_class__.__args__  # type: ignore
         type_vars = generic_base.__args__
         return {v: t for v, t in zip(type_vars, types)}
 
@@ -91,6 +96,14 @@ class GenericMixin:
 
         return type(self).__name__
 
+
+def get_generic_base(obj: Any) -> GenericAlias | None:
+    generic_bases = [c for c in obj.__orig_bases__ if hasattr(c, '__origin__') and c.__origin__ == Generic]
+
+    if generic_bases:
+        return generic_bases[0]  # this is safe because a class can have at most one "Generic" superclass
+
+    return None
 
 if __name__ == '__main__':
     import doctest

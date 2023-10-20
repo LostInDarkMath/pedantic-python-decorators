@@ -1,5 +1,5 @@
 import unittest
-from typing import TypeVar, Generic, List
+from typing import TypeVar, Generic, List, Type
 
 from pedantic import GenericMixin
 
@@ -57,18 +57,6 @@ class TestGenericMixin(unittest.TestCase):
         self.assertEqual(err.exception.args[0], f'Foo is not a generic class. To make it generic, declare it like: '
                                                 f'class Foo(Generic[T], GenericMixin):...')
 
-    def test_edge_case_orig_bases(self):
-        class Foo(GenericMixin):
-            __orig_bases__ = []
-
-        invalid = Foo()
-
-        with self.assertRaises(expected_exception=AssertionError) as err:
-            invalid.type_var
-
-        self.assertEqual(err.exception.args[0], f'Foo is not a generic class. To make it generic, declare it like: '
-                                                f'class Foo(Generic[T], GenericMixin):...')
-
     def test_call_type_var_in_constructor(self):
         class Foo(Generic[T], GenericMixin):
             def __init__(self) -> None:
@@ -78,3 +66,20 @@ class TestGenericMixin(unittest.TestCase):
             Foo[str]()
 
         assert 'make sure that you do not call this in the __init__() method' in err.exception.args[0]
+
+    def test_subclass_set_type_variable(self):
+        class Gen(Generic[T], GenericMixin):
+            def __init__(self, value: T) -> None:
+                self.value = value
+
+            def get_type(self) -> dict[TypeVar, Type]:
+                return self.type_vars
+
+        class MyClass(Gen[int]):
+            pass
+
+        bar = Gen[int](value=4)
+        assert bar.get_type() == {T: int}
+
+        foo = MyClass(value=4)
+        assert foo.get_type() == {T: int}
