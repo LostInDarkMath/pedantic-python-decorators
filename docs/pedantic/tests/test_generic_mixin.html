@@ -110,6 +110,26 @@ class TestGenericMixin(unittest.TestCase):
         assert bar.get_type() == {T: int}
 
         foo = MyClass(value=4)
+        assert foo.get_type() == {T: int}
+
+    def test_subclass_with_multiple_parents(self):
+        class Gen(Generic[T], GenericMixin):
+            def __init__(self, value: T) -&gt; None:
+                self.value = value
+
+            def get_type(self) -&gt; dict[TypeVar, Type]:
+                return self.type_vars
+
+        class MyMixin:
+            value = 42
+
+        class MyClass(MyMixin, Gen[int]):
+            pass
+
+        bar = Gen[int](value=4)
+        assert bar.get_type() == {T: int}
+
+        foo = MyClass(value=4)
         assert foo.get_type() == {T: int}</code></pre>
 </details>
 </section>
@@ -228,6 +248,26 @@ not have a method with the specified name.</p></div>
                 return self.type_vars
 
         class MyClass(Gen[int]):
+            pass
+
+        bar = Gen[int](value=4)
+        assert bar.get_type() == {T: int}
+
+        foo = MyClass(value=4)
+        assert foo.get_type() == {T: int}
+
+    def test_subclass_with_multiple_parents(self):
+        class Gen(Generic[T], GenericMixin):
+            def __init__(self, value: T) -&gt; None:
+                self.value = value
+
+            def get_type(self) -&gt; dict[TypeVar, Type]:
+                return self.type_vars
+
+        class MyMixin:
+            value = 42
+
+        class MyClass(MyMixin, Gen[int]):
             pass
 
         bar = Gen[int](value=4)
@@ -368,6 +408,36 @@ not have a method with the specified name.</p></div>
     assert foo.get_type() == {T: int}</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.test_generic_mixin.TestGenericMixin.test_subclass_with_multiple_parents"><code class="name flex">
+<span>def <span class="ident">test_subclass_with_multiple_parents</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_subclass_with_multiple_parents(self):
+    class Gen(Generic[T], GenericMixin):
+        def __init__(self, value: T) -&gt; None:
+            self.value = value
+
+        def get_type(self) -&gt; dict[TypeVar, Type]:
+            return self.type_vars
+
+    class MyMixin:
+        value = 42
+
+    class MyClass(MyMixin, Gen[int]):
+        pass
+
+    bar = Gen[int](value=4)
+    assert bar.get_type() == {T: int}
+
+    foo = MyClass(value=4)
+    assert foo.get_type() == {T: int}</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -394,6 +464,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_non_generic_class" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_non_generic_class">test_non_generic_class</a></code></li>
 <li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_single_type_var" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_single_type_var">test_single_type_var</a></code></li>
 <li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_subclass_set_type_variable" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_subclass_set_type_variable">test_subclass_set_type_variable</a></code></li>
+<li><code><a title="pedantic.tests.test_generic_mixin.TestGenericMixin.test_subclass_with_multiple_parents" href="#pedantic.tests.test_generic_mixin.TestGenericMixin.test_subclass_with_multiple_parents">test_subclass_with_multiple_parents</a></code></li>
 </ul>
 </li>
 </ul>

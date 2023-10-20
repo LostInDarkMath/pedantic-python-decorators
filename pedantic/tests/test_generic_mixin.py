@@ -83,3 +83,23 @@ class TestGenericMixin(unittest.TestCase):
 
         foo = MyClass(value=4)
         assert foo.get_type() == {T: int}
+
+    def test_subclass_with_multiple_parents(self):
+        class Gen(Generic[T], GenericMixin):
+            def __init__(self, value: T) -> None:
+                self.value = value
+
+            def get_type(self) -> dict[TypeVar, Type]:
+                return self.type_vars
+
+        class MyMixin:
+            value = 42
+
+        class MyClass(MyMixin, Gen[int]):
+            pass
+
+        bar = Gen[int](value=4)
+        assert bar.get_type() == {T: int}
+
+        foo = MyClass(value=4)
+        assert foo.get_type() == {T: int}

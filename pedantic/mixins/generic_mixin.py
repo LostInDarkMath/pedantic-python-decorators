@@ -73,6 +73,9 @@ class GenericMixin:
 
         if not generic_base:
             for base in self.__orig_bases__:  # type: ignore # (we checked existence above)
+                if not hasattr(base, '__origin__'):
+                    continue
+
                 generic_base = get_generic_base(base.__origin__)
 
                 if generic_base:
