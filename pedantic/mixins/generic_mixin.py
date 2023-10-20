@@ -1,5 +1,5 @@
 from types import GenericAlias
-from typing import List, Type, TypeVar, Dict, Generic, Any
+from typing import List, Type, TypeVar, Dict, Generic, Any, Optional
 
 
 class GenericMixin:
@@ -97,7 +97,7 @@ class GenericMixin:
         return type(self).__name__
 
 
-def get_generic_base(obj: Any) -> GenericAlias | None:
+def get_generic_base(obj: Any) -> Optional[GenericAlias]:
     generic_bases = [c for c in obj.__orig_bases__ if hasattr(c, '__origin__') and c.__origin__ == Generic]
 
     if generic_bases:
