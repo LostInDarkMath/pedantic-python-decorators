@@ -34,7 +34,6 @@ import typing
 from io import BytesIO, StringIO, BufferedWriter, TextIOWrapper
 from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType
 import collections
-import sys
 
 from pedantic.type_checking_logic.resolve_forward_ref import resolve_forward_ref
 from pedantic.constants import TypeVar as TypeVar_, TYPE_VAR_SELF
@@ -262,7 +261,6 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
 
     if type_ in {list, set, dict, frozenset, tuple, type}:
         raise PedanticTypeCheckException(&#39;Missing type arguments&#39;)
-        return False
 
     if isinstance(type_, types.GenericAlias):
         return _is_instance(obj=obj, type_=convert_to_typing_types(type_), type_vars=type_vars, context=context)
@@ -413,9 +411,7 @@ def get_type_arguments(cls: Any) -&gt; Tuple[Any, ...]:
         &gt;&gt;&gt; get_type_arguments(List[int])
         (&lt;class &#39;int&#39;&gt;,)
         &gt;&gt;&gt; UserId = NewType(&#39;UserId&#39;, int)
-        &gt;&gt;&gt; get_type_arguments(List[UserId]) if sys.version_info &lt; (3, 10) else print(&#39;(&lt;function NewType.&lt;locals&gt;.new_type at ...,)&#39;)
-        (&lt;function NewType.&lt;locals&gt;.new_type at ...,)
-        &gt;&gt;&gt; get_type_arguments(List[UserId]) if sys.version_info &gt;= (3, 10) else print(&#39;(pedantic.type_checking_logic.check_types.UserId,)&#39;)
+        &gt;&gt;&gt; get_type_arguments(List[UserId])
         (pedantic.type_checking_logic.check_types.UserId,)
         &gt;&gt;&gt; get_type_arguments(List)
         ()
@@ -444,7 +440,7 @@ def get_type_arguments(cls: Any) -&gt; Tuple[Any, ...]:
         (Ellipsis, &lt;class &#39;str&#39;&gt;)
         &gt;&gt;&gt; get_type_arguments(Optional[int])
         (&lt;class &#39;int&#39;&gt;, &lt;class &#39;NoneType&#39;&gt;)
-        &gt;&gt;&gt; get_type_arguments(str | int) if sys.version_info &gt;= (3, 10) else (str, int)
+        &gt;&gt;&gt; get_type_arguments(str | int)
         (&lt;class &#39;str&#39;&gt;, &lt;class &#39;int&#39;&gt;)
         &gt;&gt;&gt; get_type_arguments(Awaitable[str])
         (&lt;class &#39;str&#39;&gt;,)
@@ -813,52 +809,52 @@ def _instancecheck_union(value: Any, type_: Any, type_vars: Dict[TypeVar_, Any],
         True
         &gt;&gt;&gt; _instancecheck_union(None, Optional[Callable[[float], float]], {})
         True
-        &gt;&gt;&gt; _instancecheck_union(3.0, int | float, {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(3.0, int | float, {})
         True
-        &gt;&gt;&gt; _instancecheck_union(3, int | float, {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(3, int | float, {})
         True
-        &gt;&gt;&gt; _instancecheck_union(&#39;3&#39;, int | float, {}) if sys.version_info &gt;= (3, 10) else False
+        &gt;&gt;&gt; _instancecheck_union(&#39;3&#39;, int | float, {})
         False
-        &gt;&gt;&gt; _instancecheck_union(None, int | NoneType, {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(None, int | NoneType, {})
         True
-        &gt;&gt;&gt; _instancecheck_union(None, float | NoneType, {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(None, float | NoneType, {})
         True
         &gt;&gt;&gt; S = TypeVar(&#39;S&#39;)
         &gt;&gt;&gt; T = TypeVar(&#39;T&#39;)
         &gt;&gt;&gt; U = TypeVar(&#39;U&#39;)
-        &gt;&gt;&gt; _instancecheck_union(42, T | NoneType, {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(42, T | NoneType, {})
         True
-        &gt;&gt;&gt; _instancecheck_union(None, T | NoneType, {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(None, T | NoneType, {})
         True
-        &gt;&gt;&gt; _instancecheck_union(None, T | NoneType, {T: int}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(None, T | NoneType, {T: int})
         True
-        &gt;&gt;&gt; _instancecheck_union(&#39;None&#39;, T | NoneType, {T: int}) if sys.version_info &gt;= (3, 10) else False
+        &gt;&gt;&gt; _instancecheck_union(&#39;None&#39;, T | NoneType, {T: int})
         False
-        &gt;&gt;&gt; _instancecheck_union(42, T | S, {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {})
         True
-        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: int}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: int})
         True
-        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: str}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: str})
         True
-        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: int, S: float}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: int, S: float})
         True
-        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: str, S: float}) if sys.version_info &gt;= (3, 10) else False
+        &gt;&gt;&gt; _instancecheck_union(42, T | S, {T: str, S: float})
         False
-        &gt;&gt;&gt; _instancecheck_union(42.8, T | S, {T: str, S: float}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(42.8, T | S, {T: str, S: float})
         True
-        &gt;&gt;&gt; _instancecheck_union(None, T | S, {T: str, S: float}) if sys.version_info &gt;= (3, 10) else False
+        &gt;&gt;&gt; _instancecheck_union(None, T | S, {T: str, S: float})
         False
-        &gt;&gt;&gt; _instancecheck_union(None, T | S, {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(None, T | S, {})
         True
-        &gt;&gt;&gt; _instancecheck_union(None, T | NoneType, {T: int}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(None, T | NoneType, {T: int})
         True
-        &gt;&gt;&gt; _instancecheck_union(&#39;None&#39;, T | NoneType | S, {T: int}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(&#39;None&#39;, T | NoneType | S, {T: int})
         True
-        &gt;&gt;&gt; _instancecheck_union(42, T | Any, {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(42, T | Any, {})
         True
-        &gt;&gt;&gt; _instancecheck_union(42, T | Any, {T: float}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(42, T | Any, {T: float})
         True
-        &gt;&gt;&gt; _instancecheck_union(None, Optional[Callable[[float], float]], {}) if sys.version_info &gt;= (3, 10) else True
+        &gt;&gt;&gt; _instancecheck_union(None, Optional[Callable[[float], float]], {})
         True
     &#34;&#34;&#34;
 
@@ -1316,9 +1312,7 @@ typing.Coroutine
 &gt;&gt;&gt; get_type_arguments(List[int])
 (&lt;class 'int'&gt;,)
 &gt;&gt;&gt; UserId = NewType('UserId', int)
-&gt;&gt;&gt; get_type_arguments(List[UserId]) if sys.version_info &lt; (3, 10) else print('(&lt;function NewType.&lt;locals&gt;.new_type at ...,)')
-(&lt;function NewType.&lt;locals&gt;.new_type at ...,)
-&gt;&gt;&gt; get_type_arguments(List[UserId]) if sys.version_info &gt;= (3, 10) else print('(pedantic.type_checking_logic.check_types.UserId,)')
+&gt;&gt;&gt; get_type_arguments(List[UserId])
 (pedantic.type_checking_logic.check_types.UserId,)
 &gt;&gt;&gt; get_type_arguments(List)
 ()
@@ -1347,7 +1341,7 @@ typing.Union[bool, int, float]
 (Ellipsis, &lt;class 'str'&gt;)
 &gt;&gt;&gt; get_type_arguments(Optional[int])
 (&lt;class 'int'&gt;, &lt;class 'NoneType'&gt;)
-&gt;&gt;&gt; get_type_arguments(str | int) if sys.version_info &gt;= (3, 10) else (str, int)
+&gt;&gt;&gt; get_type_arguments(str | int)
 (&lt;class 'str'&gt;, &lt;class 'int'&gt;)
 &gt;&gt;&gt; get_type_arguments(Awaitable[str])
 (&lt;class 'str'&gt;,)
@@ -1368,9 +1362,7 @@ typing.Union[bool, int, float]
         &gt;&gt;&gt; get_type_arguments(List[int])
         (&lt;class &#39;int&#39;&gt;,)
         &gt;&gt;&gt; UserId = NewType(&#39;UserId&#39;, int)
-        &gt;&gt;&gt; get_type_arguments(List[UserId]) if sys.version_info &lt; (3, 10) else print(&#39;(&lt;function NewType.&lt;locals&gt;.new_type at ...,)&#39;)
-        (&lt;function NewType.&lt;locals&gt;.new_type at ...,)
-        &gt;&gt;&gt; get_type_arguments(List[UserId]) if sys.version_info &gt;= (3, 10) else print(&#39;(pedantic.type_checking_logic.check_types.UserId,)&#39;)
+        &gt;&gt;&gt; get_type_arguments(List[UserId])
         (pedantic.type_checking_logic.check_types.UserId,)
         &gt;&gt;&gt; get_type_arguments(List)
         ()
@@ -1399,7 +1391,7 @@ typing.Union[bool, int, float]
         (Ellipsis, &lt;class &#39;str&#39;&gt;)
         &gt;&gt;&gt; get_type_arguments(Optional[int])
         (&lt;class &#39;int&#39;&gt;, &lt;class &#39;NoneType&#39;&gt;)
-        &gt;&gt;&gt; get_type_arguments(str | int) if sys.version_info &gt;= (3, 10) else (str, int)
+        &gt;&gt;&gt; get_type_arguments(str | int)
         (&lt;class &#39;str&#39;&gt;, &lt;class &#39;int&#39;&gt;)
         &gt;&gt;&gt; get_type_arguments(Awaitable[str])
         (&lt;class &#39;str&#39;&gt;,)

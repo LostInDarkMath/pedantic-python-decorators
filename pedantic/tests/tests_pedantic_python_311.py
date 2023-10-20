@@ -1,4 +1,3 @@
-import sys
 import unittest
 
 from pedantic import pedantic, pedantic_class
@@ -7,9 +6,6 @@ from pedantic.exceptions import PedanticTypeCheckException
 
 class TestPedanticPython311AddedStuff(unittest.TestCase):
     def test_typing_never(self):
-        if sys.version_info < (3, 11):
-            return
-
         from typing import Never
 
         @pedantic
@@ -34,9 +30,6 @@ class TestPedanticPython311AddedStuff(unittest.TestCase):
             never_call_me(arg='42')
 
     def test_literal_string(self):
-        if sys.version_info < (3, 11):
-            return
-
         from typing import LiteralString
 
         @pedantic
@@ -50,9 +43,6 @@ class TestPedanticPython311AddedStuff(unittest.TestCase):
             foo(s=3)
 
     def test_self_type(self):
-        if sys.version_info < (3, 11):
-            return
-
         from typing import Self
 
         class Bar:
@@ -105,9 +95,6 @@ class TestPedanticPython311AddedStuff(unittest.TestCase):
             Foo.h_2()
 
     def test_using_self_type_annotation_outside_class(self):
-        if sys.version_info < (3, 11):
-            return
-
         from typing import Self
 
         @pedantic
@@ -118,9 +105,6 @@ class TestPedanticPython311AddedStuff(unittest.TestCase):
             f()
 
     def test_type_var_tuple(self):
-        if sys.version_info < (3, 11):
-            return
-
         from typing import TypeVarTuple, Generic
 
         Ts = TypeVarTuple('Ts')

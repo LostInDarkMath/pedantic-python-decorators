@@ -1481,9 +1481,6 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             foo(a=value)
 
     def test_union_new_syntax(self):
-        if sys.version_info &lt; (3, 10):
-            return
-
         @pedantic
         def foo(a: str | int) -&gt; None:
             pass
@@ -1989,11 +1986,8 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo(a: Tuple[()]) -&gt; None:
             print(a)
 
-        if sys.version_info &lt; (3, 11):
+        with self.assertRaises(PedanticTypeCheckException):
             foo(a=())
-        else:
-            with self.assertRaises(PedanticTypeCheckException):
-                foo(a=())
 
     def test_class(self):
         @pedantic
@@ -3960,9 +3954,6 @@ not have a method with the specified name.</p></div>
             foo(a=value)
 
     def test_union_new_syntax(self):
-        if sys.version_info &lt; (3, 10):
-            return
-
         @pedantic
         def foo(a: str | int) -&gt; None:
             pass
@@ -4468,11 +4459,8 @@ not have a method with the specified name.</p></div>
         def foo(a: Tuple[()]) -&gt; None:
             print(a)
 
-        if sys.version_info &lt; (3, 11):
+        with self.assertRaises(PedanticTypeCheckException):
             foo(a=())
-        else:
-            with self.assertRaises(PedanticTypeCheckException):
-                foo(a=())
 
     def test_class(self):
         @pedantic
@@ -6201,11 +6189,8 @@ arguments have default values.</p></div>
     def foo(a: Tuple[()]) -&gt; None:
         print(a)
 
-    if sys.version_info &lt; (3, 11):
-        foo(a=())
-    else:
-        with self.assertRaises(PedanticTypeCheckException):
-            foo(a=())</code></pre>
+    with self.assertRaises(PedanticTypeCheckException):
+        foo(a=())</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_enum"><code class="name flex">
@@ -9338,9 +9323,6 @@ arguments have default values.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_union_new_syntax(self):
-    if sys.version_info &lt; (3, 10):
-        return
-
     @pedantic
     def foo(a: str | int) -&gt; None:
         pass

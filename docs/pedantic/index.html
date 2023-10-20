@@ -26,11 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import sys
-
-assert sys.version_info &gt;= (3, 9), f&#39;Pedantic does not work with Python versions below 3.8.&#39;
-
-from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, trace, trace_if_returns, \
+<pre><code class="python">from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, trace, trace_if_returns, \
     does_same_as_function, deprecated, unimplemented, require_kwargs, pedantic, \
     pedantic_require_docstring, for_all_methods, trace_class, timer_class, pedantic_class, \
     pedantic_class_require_docstring, Rename, mock, frozen_dataclass, frozen_type_safe_dataclass, in_subprocess, \

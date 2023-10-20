@@ -1,4 +1,3 @@
-import sys
 import unittest
 from abc import ABC
 from dataclasses import dataclass
@@ -136,9 +135,6 @@ class TestAssertValueMatchesType(unittest.TestCase):
             )
 
     def test_callable_with_new_union_type_hint(self):
-        if sys.version_info < (3, 10):
-            return
-
         async def _cb(machine_id: str) -> int | None:
             return 42
 

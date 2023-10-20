@@ -1,4 +1,3 @@
-import sys
 from copy import deepcopy
 from dataclasses import dataclass, fields
 from typing import Type, TypeVar, Any, Union, Callable, Dict
@@ -75,11 +74,7 @@ def frozen_dataclass(
     """
 
     def decorator(cls_: Type[T]) -> Type[T]:
-        args = {'frozen': True, 'order': order}
-
-        if sys.version_info >= (3, 10):
-            args['kw_only'] = kw_only
-            args['slots'] = slots
+        args = {'frozen': True, 'order': order, 'kw_only': kw_only, 'slots': slots}
 
         if type_safe:
             old_post_init = getattr(cls_, '__post_init__', lambda _: None)
