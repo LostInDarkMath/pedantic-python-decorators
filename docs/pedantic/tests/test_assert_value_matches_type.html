@@ -26,8 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import sys
-import unittest
+<pre><code class="python">import unittest
 from abc import ABC
 from dataclasses import dataclass
 from datetime import datetime
@@ -164,9 +163,6 @@ class TestAssertValueMatchesType(unittest.TestCase):
             )
 
     def test_callable_with_new_union_type_hint(self):
-        if sys.version_info &lt; (3, 10):
-            return
-
         async def _cb(machine_id: str) -&gt; int | None:
             return 42
 
@@ -431,9 +427,6 @@ not have a method with the specified name.</p></div>
             )
 
     def test_callable_with_new_union_type_hint(self):
-        if sys.version_info &lt; (3, 10):
-            return
-
         async def _cb(machine_id: str) -&gt; int | None:
             return 42
 
@@ -674,9 +667,6 @@ not have a method with the specified name.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_callable_with_new_union_type_hint(self):
-    if sys.version_info &lt; (3, 10):
-        return
-
     async def _cb(machine_id: str) -&gt; int | None:
         return 42
 

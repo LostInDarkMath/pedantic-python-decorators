@@ -26,8 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import sys
-from copy import deepcopy
+<pre><code class="python">from copy import deepcopy
 from dataclasses import dataclass, fields
 from typing import Type, TypeVar, Any, Union, Callable, Dict
 
@@ -103,11 +102,7 @@ def frozen_dataclass(
     &#34;&#34;&#34;
 
     def decorator(cls_: Type[T]) -&gt; Type[T]:
-        args = {&#39;frozen&#39;: True, &#39;order&#39;: order}
-
-        if sys.version_info &gt;= (3, 10):
-            args[&#39;kw_only&#39;] = kw_only
-            args[&#39;slots&#39;] = slots
+        args = {&#39;frozen&#39;: True, &#39;order&#39;: order, &#39;kw_only&#39;: kw_only, &#39;slots&#39;: slots}
 
         if type_safe:
             old_post_init = getattr(cls_, &#39;__post_init__&#39;, lambda _: None)
@@ -301,11 +296,7 @@ Foo(a=676676, b='new', c=False)
     &#34;&#34;&#34;
 
     def decorator(cls_: Type[T]) -&gt; Type[T]:
-        args = {&#39;frozen&#39;: True, &#39;order&#39;: order}
-
-        if sys.version_info &gt;= (3, 10):
-            args[&#39;kw_only&#39;] = kw_only
-            args[&#39;slots&#39;] = slots
+        args = {&#39;frozen&#39;: True, &#39;order&#39;: order, &#39;kw_only&#39;: kw_only, &#39;slots&#39;: slots}
 
         if type_safe:
             old_post_init = getattr(cls_, &#39;__post_init__&#39;, lambda _: None)
