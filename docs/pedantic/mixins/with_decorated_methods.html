@@ -88,16 +88,16 @@ class WithDecoratedMethods(ABC, Generic[E], GenericMixin):
         &gt;&gt;&gt; instance.get_decorated_functions()
         {
             &lt;Decorators.FOO: &#39;_foo&#39;&gt;: {
-                42: &lt;bound method MyClass.m1 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;,
-                43: &lt;bound method MyClass.m2 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;
+                &lt;bound method MyClass.m1 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 42,
+                &lt;bound method MyClass.m2 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 43,
             },
             &lt;Decorators.BAR: &#39;_bar&#39;&gt;: {
-                44: &lt;bound method MyClass.m3 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;
+                &lt;bound method MyClass.m3 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 44,
             }
         }
     &#34;&#34;&#34;
 
-    def get_decorated_functions(self) -&gt; dict[E, dict[T, C]]:
+    def get_decorated_functions(self) -&gt; dict[E, dict[C, T]]:
         decorator_types = self.type_var
         decorated_functions = {t: dict() for t in decorator_types}  # type: ignore
 
@@ -109,7 +109,7 @@ class WithDecoratedMethods(ABC, Generic[E], GenericMixin):
 
             for decorator_type in decorator_types:  # type: ignore
                 if hasattr(attribute, decorator_type):
-                    decorated_functions[decorator_type][getattr(attribute, decorator_type)] = attribute
+                    decorated_functions[decorator_type][attribute] = getattr(attribute, decorator_type)
 
         return decorated_functions</code></pre>
 </details>
@@ -214,11 +214,11 @@ So I would recommend naming them with a leading underscore to keep them private 
 &gt;&gt;&gt; instance.get_decorated_functions()
 {
     &lt;Decorators.FOO: '_foo'&gt;: {
-        42: &lt;bound method MyClass.m1 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;,
-        43: &lt;bound method MyClass.m2 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;
+        &lt;bound method MyClass.m1 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 42,
+        &lt;bound method MyClass.m2 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 43,
     },
     &lt;Decorators.BAR: '_bar'&gt;: {
-        44: &lt;bound method MyClass.m3 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;
+        &lt;bound method MyClass.m3 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 44,
     }
 }
 </code></pre></div>
@@ -251,16 +251,16 @@ So I would recommend naming them with a leading underscore to keep them private 
         &gt;&gt;&gt; instance.get_decorated_functions()
         {
             &lt;Decorators.FOO: &#39;_foo&#39;&gt;: {
-                42: &lt;bound method MyClass.m1 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;,
-                43: &lt;bound method MyClass.m2 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;
+                &lt;bound method MyClass.m1 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 42,
+                &lt;bound method MyClass.m2 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 43,
             },
             &lt;Decorators.BAR: &#39;_bar&#39;&gt;: {
-                44: &lt;bound method MyClass.m3 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;
+                &lt;bound method MyClass.m3 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 44,
             }
         }
     &#34;&#34;&#34;
 
-    def get_decorated_functions(self) -&gt; dict[E, dict[T, C]]:
+    def get_decorated_functions(self) -&gt; dict[E, dict[C, T]]:
         decorator_types = self.type_var
         decorated_functions = {t: dict() for t in decorator_types}  # type: ignore
 
@@ -272,7 +272,7 @@ So I would recommend naming them with a leading underscore to keep them private 
 
             for decorator_type in decorator_types:  # type: ignore
                 if hasattr(attribute, decorator_type):
-                    decorated_functions[decorator_type][getattr(attribute, decorator_type)] = attribute
+                    decorated_functions[decorator_type][attribute] = getattr(attribute, decorator_type)
 
         return decorated_functions</code></pre>
 </details>
@@ -285,7 +285,7 @@ So I would recommend naming them with a leading underscore to keep them private 
 <h3>Methods</h3>
 <dl>
 <dt id="pedantic.mixins.with_decorated_methods.WithDecoratedMethods.get_decorated_functions"><code class="name flex">
-<span>def <span class="ident">get_decorated_functions</span></span>(<span>self) ‑> dict[~E, dict[~T, ~C]]</span>
+<span>def <span class="ident">get_decorated_functions</span></span>(<span>self) ‑> dict[~E, dict[~C, ~T]]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -293,7 +293,7 @@ So I would recommend naming them with a leading underscore to keep them private 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_decorated_functions(self) -&gt; dict[E, dict[T, C]]:
+<pre><code class="python">def get_decorated_functions(self) -&gt; dict[E, dict[C, T]]:
     decorator_types = self.type_var
     decorated_functions = {t: dict() for t in decorator_types}  # type: ignore
 
@@ -305,7 +305,7 @@ So I would recommend naming them with a leading underscore to keep them private 
 
         for decorator_type in decorator_types:  # type: ignore
             if hasattr(attribute, decorator_type):
-                decorated_functions[decorator_type][getattr(attribute, decorator_type)] = attribute
+                decorated_functions[decorator_type][attribute] = getattr(attribute, decorator_type)
 
     return decorated_functions</code></pre>
 </details>

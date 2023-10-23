@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.0.2
+- improve API of `WithDecoratedMethods.get_decorated_functions()` 
+
 ## Pedantic 2.0.1
 - fix bug in `GenericMixin` that appears when using multiple inheritance 
 

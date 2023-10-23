@@ -30,11 +30,11 @@ class TestWithDecoratedMethods(unittest.TestCase):
         instance = MyClass()
         expected = {
             Decorators.FOO: {
-                42: instance.m1,
-                43: instance.m2,
+                instance.m1: 42,
+                instance.m2: 43,
             },
             Decorators.BAR: {
-                44: instance.m3,
+                instance.m3: 44,
             }
         }
         assert instance.get_decorated_functions() == expected
@@ -56,11 +56,11 @@ class TestWithDecoratedMethods(unittest.TestCase):
         instance = MyClass()
         expected = {
             Decorators.FOO: {
-                42: instance.m1,
-                43: instance.m2,
+                instance.m1: 42,
+                instance.m2: 43,
             },
             Decorators.BAR: {
-                44: instance.m3,
+                instance.m3: 44,
             }
         }
         assert instance.get_decorated_functions() == expected

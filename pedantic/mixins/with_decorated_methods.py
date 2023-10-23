@@ -60,16 +60,16 @@ class WithDecoratedMethods(ABC, Generic[E], GenericMixin):
         >>> instance.get_decorated_functions()
         {
             <Decorators.FOO: '_foo'>: {
-                42: <bound method MyClass.m1 of <__main__.MyClass object at 0x7fea7a6e2610>>,
-                43: <bound method MyClass.m2 of <__main__.MyClass object at 0x7fea7a6e2610>>
+                <bound method MyClass.m1 of <__main__.MyClass object at 0x7fea7a6e2610>>: 42,
+                <bound method MyClass.m2 of <__main__.MyClass object at 0x7fea7a6e2610>>: 43,
             },
             <Decorators.BAR: '_bar'>: {
-                44: <bound method MyClass.m3 of <__main__.MyClass object at 0x7fea7a6e2610>>
+                <bound method MyClass.m3 of <__main__.MyClass object at 0x7fea7a6e2610>>: 44,
             }
         }
     """
 
-    def get_decorated_functions(self) -> dict[E, dict[T, C]]:
+    def get_decorated_functions(self) -> dict[E, dict[C, T]]:
         decorator_types = self.type_var
         decorated_functions = {t: dict() for t in decorator_types}  # type: ignore
 
@@ -81,6 +81,6 @@ class WithDecoratedMethods(ABC, Generic[E], GenericMixin):
 
             for decorator_type in decorator_types:  # type: ignore
                 if hasattr(attribute, decorator_type):
-                    decorated_functions[decorator_type][getattr(attribute, decorator_type)] = attribute
+                    decorated_functions[decorator_type][attribute] = getattr(attribute, decorator_type)
 
         return decorated_functions
