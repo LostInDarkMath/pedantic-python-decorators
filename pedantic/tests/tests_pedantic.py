@@ -3,6 +3,7 @@ import sys
 import types
 import typing
 import unittest
+from dataclasses import dataclass
 from datetime import datetime, date
 from functools import wraps
 from io import BytesIO, StringIO
@@ -2402,3 +2403,17 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         ]:
             with self.assertRaises(PedanticTypeCheckException):
                 f(x=value)
+
+    def test_dataclass_protocol(self):
+        class IsDataclass(typing.Protocol):
+            __dataclass_fields__: ClassVar[Dict]
+
+        @dataclass
+        class Foo:
+            v: int
+
+        @pedantic
+        def foo(x: IsDataclass) -> IsDataclass:
+            return x
+
+        foo(x=Foo(v=42))

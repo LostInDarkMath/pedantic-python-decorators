@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.1.1
+- make `@pedantic` work with `typing.Protocol` (at least do not raise a false-positive error)
+
 ## Pedantic 2.1.0
 - add `retry` decorator
 - update example in `README.md`

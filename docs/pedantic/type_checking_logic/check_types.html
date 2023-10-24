@@ -265,7 +265,13 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
     if isinstance(type_, types.GenericAlias):
         return _is_instance(obj=obj, type_=convert_to_typing_types(type_), type_vars=type_vars, context=context)
 
-    return isinstance(obj, type_)
+    try:
+        return isinstance(obj, type_)
+    except TypeError:
+        if issubclass(type_, typing.Protocol):
+            return True  # we do not check this
+
+        raise
 
 
 def _is_forward_ref(type_: Any) -&gt; bool:
