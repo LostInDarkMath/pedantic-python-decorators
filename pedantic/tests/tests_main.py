@@ -4,6 +4,7 @@ import os
 
 sys.path.append(os.getcwd())
 
+from pedantic.tests.test_retry import TestRetry
 from pedantic.tests.test_with_decorated_methods import TestWithDecoratedMethods
 from pedantic.tests.validate.test_convert_value import TestConvertValue
 from pedantic.tests.test_rename_kwargs import TestRenameKwargs
@@ -73,6 +74,7 @@ def run_all_tests() -> None:
         TestMock,
         TestGeneratorWrapper,
         TestRenameKwargs,
+        TestRetry,
         TestResolveForwardRef,
         # validate
         TestValidatorDatetimeIsoformat,

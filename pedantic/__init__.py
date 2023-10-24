@@ -2,7 +2,7 @@ from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, tr
     does_same_as_function, deprecated, unimplemented, require_kwargs, pedantic, \
     pedantic_require_docstring, for_all_methods, trace_class, timer_class, pedantic_class, \
     pedantic_class_require_docstring, Rename, mock, frozen_dataclass, frozen_type_safe_dataclass, in_subprocess, \
-    calculate_in_subprocess
+    calculate_in_subprocess, retry
 
 from pedantic.mixins import GenericMixin, create_decorator, DecoratorType, WithDecoratedMethods
 

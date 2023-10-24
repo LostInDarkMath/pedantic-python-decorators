@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 2.1.0
+- add `retry` decorator
+- update example in `README.md`
+
 ## Pedantic 2.0.2
 - improve API of `WithDecoratedMethods.get_decorated_functions()` 
 

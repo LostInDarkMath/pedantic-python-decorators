@@ -36,24 +36,15 @@ In a nutshell:
 
 ### Minimal example
 ```python
-from typing import Union, List
-from pedantic import pedantic, pedantic_class
+from pedantic import pedantic
+
 
 @pedantic
-def get_sum_of(values: List[Union[int, float]]) -> Union[int, float]:
+def get_sum_of(values: list[int | float]) -> int:
     return sum(values)
 
-@pedantic_class
-class MyClass:
-    def __init__(self, x: float, y: int) -> None:
-        self.x = x
-        self.y = y
-
-    def print_sum(self) -> None:
-        print(get_sum_of(values=[self.x, self.y]))
-
-m = MyClass(x=3.14, y=2)
-m.print_sum()
+get_sum_of(values=[0, 1.2, 3, 5.4])  # this raises the following runtime error: 
+# Type hint of return value is incorrect: Expected type <class 'int'> but 10.0 of type <class 'float'> was the return value which does not match.
 ```
 
 
@@ -166,6 +157,7 @@ if __name__ == '__main__':
 - [@pedantic_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.pedantic_class)
 - [@rename_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_rename_kwargs.html)
 - [@require_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_require_kwargs.html)
+- [@retry](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_retry.html)
 - [@timer](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_timer.html)
 - [@timer_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.timer_class)
 - [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_trace.html)

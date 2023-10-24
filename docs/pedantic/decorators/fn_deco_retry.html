@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>pedantic API documentation</title>
+<title>pedantic.decorators.fn_deco_retry API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,85 +19,149 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>pedantic</code></h1>
+<h1 class="title">Module <code>pedantic.decorators.fn_deco_retry</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from pedantic.decorators import overrides, rename_kwargs, timer, count_calls, trace, trace_if_returns, \
-    does_same_as_function, deprecated, unimplemented, require_kwargs, pedantic, \
-    pedantic_require_docstring, for_all_methods, trace_class, timer_class, pedantic_class, \
-    pedantic_class_require_docstring, Rename, mock, frozen_dataclass, frozen_type_safe_dataclass, in_subprocess, \
-    calculate_in_subprocess, retry
+<pre><code class="python">import logging
+import time
+from datetime import timedelta
+from functools import wraps
+from logging import Logger
+from typing import Callable, TypeVar, TypeVarTuple, Any
 
-from pedantic.mixins import GenericMixin, create_decorator, DecoratorType, WithDecoratedMethods
+C = TypeVar(&#39;C&#39;, bound=Callable)
+Ts = TypeVarTuple(&#39;Ts&#39;)
 
-from pedantic.type_checking_logic import assert_value_matches_type, resolve_forward_ref
 
-from pedantic.exceptions import NotImplementedException
+def retry(
+    *,
+    attempts: int,
+    exceptions: type[Exception] | tuple[type[Exception], ...] = None,
+    sleep_time: timedelta = timedelta(seconds=0),
+    logger: Logger = None,
+) -&gt; Callable[[C], C]:
+    &#34;&#34;&#34;
+    Retries the wrapped function/method `attempts` times if the exceptions listed
+    in [exceptions] are thrown.
 
-from pedantic.env_var_logic import disable_pedantic, enable_pedantic, is_enabled
+    Parameters:
+        attempts: The number of times to repeat the wrapped function/method
+        exceptions: Lists of exceptions that trigger a retry attempt.
+        sleep_time: The time to wait between the retry attempts.
+        logger: The logger used for logging.
 
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
-from pedantic.decorators.fn_deco_validate.exceptions import *
-from pedantic.decorators.fn_deco_validate.parameters import *
-from pedantic.decorators.fn_deco_validate.validators import *</code></pre>
+    Example:
+        &gt;&gt;&gt; @retry(attempts=3, exceptions=(ValueError, TypeError))
+        ... def foo():
+        ...     raise ValueError(&#39;Some error&#39;)
+        &gt;&gt;&gt; foo()
+    &#34;&#34;&#34;
+
+    if exceptions is None:
+        exceptions = Exception
+
+    if logger is None:
+        logger = logging.getLogger()
+
+    def decorator(func: C) -&gt; C:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -&gt; Any:
+            attempt = 1
+
+            while attempt &lt; attempts:
+                try:
+                    return func(*args, **kwargs)
+                except exceptions:
+                    logger.warning(f&#39;Exception thrown when attempting to run {func.__name__}, &#39;
+                                   f&#39;attempt {attempt} of {attempts}&#39;)
+                    attempt += 1
+                    time.sleep(sleep_time.total_seconds())
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt><code class="name"><a title="pedantic.constants" href="constants.html">pedantic.constants</a></code></dt>
+<dt id="pedantic.decorators.fn_deco_retry.retry"><code class="name flex">
+<span>def <span class="ident">retry</span></span>(<span>*, attempts: int, exceptions: type[Exception] | tuple[type[Exception], ...] = None, sleep_time: datetime.timedelta = datetime.timedelta(0), logger: logging.Logger = None) ‑> Callable[[~C], ~C]</span>
+</code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.decorators" href="decorators/index.html">pedantic.decorators</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.env_var_logic" href="env_var_logic.html">pedantic.env_var_logic</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.examples" href="examples/index.html">pedantic.examples</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.exceptions" href="exceptions.html">pedantic.exceptions</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.get_context" href="get_context.html">pedantic.get_context</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.helper_methods" href="helper_methods.html">pedantic.helper_methods</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.mixins" href="mixins/index.html">pedantic.mixins</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.models" href="models/index.html">pedantic.models</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.tests" href="tests/index.html">pedantic.tests</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pedantic.type_checking_logic" href="type_checking_logic/index.html">pedantic.type_checking_logic</a></code></dt>
-<dd>
-<div class="desc"></div>
+<div class="desc"><p>Retries the wrapped function/method <code>attempts</code> times if the exceptions listed
+in [exceptions] are thrown.</p>
+<h2 id="parameters">Parameters</h2>
+<p>attempts: The number of times to repeat the wrapped function/method
+exceptions: Lists of exceptions that trigger a retry attempt.
+sleep_time: The time to wait between the retry attempts.
+logger: The logger used for logging.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; @retry(attempts=3, exceptions=(ValueError, TypeError))
+... def foo():
+...     raise ValueError('Some error')
+&gt;&gt;&gt; foo()
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def retry(
+    *,
+    attempts: int,
+    exceptions: type[Exception] | tuple[type[Exception], ...] = None,
+    sleep_time: timedelta = timedelta(seconds=0),
+    logger: Logger = None,
+) -&gt; Callable[[C], C]:
+    &#34;&#34;&#34;
+    Retries the wrapped function/method `attempts` times if the exceptions listed
+    in [exceptions] are thrown.
+
+    Parameters:
+        attempts: The number of times to repeat the wrapped function/method
+        exceptions: Lists of exceptions that trigger a retry attempt.
+        sleep_time: The time to wait between the retry attempts.
+        logger: The logger used for logging.
+
+    Example:
+        &gt;&gt;&gt; @retry(attempts=3, exceptions=(ValueError, TypeError))
+        ... def foo():
+        ...     raise ValueError(&#39;Some error&#39;)
+        &gt;&gt;&gt; foo()
+    &#34;&#34;&#34;
+
+    if exceptions is None:
+        exceptions = Exception
+
+    if logger is None:
+        logger = logging.getLogger()
+
+    def decorator(func: C) -&gt; C:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -&gt; Any:
+            attempt = 1
+
+            while attempt &lt; attempts:
+                try:
+                    return func(*args, **kwargs)
+                except exceptions:
+                    logger.warning(f&#39;Exception thrown when attempting to run {func.__name__}, &#39;
+                                   f&#39;attempt {attempt} of {attempts}&#39;)
+                    attempt += 1
+                    time.sleep(sleep_time.total_seconds())
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator</code></pre>
+</details>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
 </section>
 <section>
 </section>
@@ -108,19 +172,14 @@ from pedantic.decorators.fn_deco_validate.validators import *</code></pre>
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="pedantic.constants" href="constants.html">pedantic.constants</a></code></li>
-<li><code><a title="pedantic.decorators" href="decorators/index.html">pedantic.decorators</a></code></li>
-<li><code><a title="pedantic.env_var_logic" href="env_var_logic.html">pedantic.env_var_logic</a></code></li>
-<li><code><a title="pedantic.examples" href="examples/index.html">pedantic.examples</a></code></li>
-<li><code><a title="pedantic.exceptions" href="exceptions.html">pedantic.exceptions</a></code></li>
-<li><code><a title="pedantic.get_context" href="get_context.html">pedantic.get_context</a></code></li>
-<li><code><a title="pedantic.helper_methods" href="helper_methods.html">pedantic.helper_methods</a></code></li>
-<li><code><a title="pedantic.mixins" href="mixins/index.html">pedantic.mixins</a></code></li>
-<li><code><a title="pedantic.models" href="models/index.html">pedantic.models</a></code></li>
-<li><code><a title="pedantic.tests" href="tests/index.html">pedantic.tests</a></code></li>
-<li><code><a title="pedantic.type_checking_logic" href="type_checking_logic/index.html">pedantic.type_checking_logic</a></code></li>
+<li><code><a title="pedantic.decorators" href="index.html">pedantic.decorators</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pedantic.decorators.fn_deco_retry.retry" href="#pedantic.decorators.fn_deco_retry.retry">retry</a></code></li>
 </ul>
 </li>
 </ul>
