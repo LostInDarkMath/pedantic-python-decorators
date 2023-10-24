@@ -3,7 +3,8 @@ import inspect
 import types
 import typing
 from io import BytesIO, StringIO, BufferedWriter, TextIOWrapper
-from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType
+from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType, \
+    _ProtocolMeta
 import collections
 
 from pedantic.type_checking_logic.resolve_forward_ref import resolve_forward_ref
@@ -239,7 +240,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
     try:
         return isinstance(obj, type_)
     except TypeError:
-        if issubclass(type_, typing.Protocol):
+        if type(type_) == _ProtocolMeta:
             return True  # we do not check this
 
         raise
@@ -561,6 +562,12 @@ def _is_subtype(sub_type: Any, super_type: Any, context: Dict[str, Any] = None) 
         True
         >>> _is_subtype(Optional[int], Union[int, float, None])
         True
+        >>> _is_subtype(int | None, int | None)
+        True
+        >>> _is_subtype(int, int | None)
+        True
+        >>> _is_subtype(int | None, int)
+        False
     """
 
     if sub_type is None:
@@ -572,19 +579,23 @@ def _is_subtype(sub_type: Any, super_type: Any, context: Dict[str, Any] = None) 
     if python_super is object:
         return True
 
-    is_union_type_available = hasattr(types, 'UnionType')  # true for Python >= 3.10
-
-    if python_super == typing.Union or (is_union_type_available and isinstance(python_super, types.UnionType)):
+    if python_super == typing.Union or isinstance(python_super, types.UnionType):
         type_args = get_type_arguments(cls=super_type)
 
-        if python_sub == typing.Union or (is_union_type_available and isinstance(python_sub, types.UnionType)):
+        if python_sub == typing.Union or isinstance(python_sub, types.UnionType):
             sub_type_args = get_type_arguments(cls=sub_type)
             return all([x in type_args for x in sub_type_args])
 
         return sub_type in type_args
 
     if not _is_generic(sub_type):
-        return issubclass(python_sub, python_super)
+        try:
+            return issubclass(python_sub, python_super)
+        except TypeError:
+            if type(python_super) == _ProtocolMeta:
+                return True
+
+            return False
 
     if not issubclass(python_sub, python_super):
         return False
