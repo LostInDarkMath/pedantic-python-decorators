@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.1.3
+- bugfix `@pedantic` together with `typing.Protocol` 
+
 ## Pedantic 2.1.2
 - bugfix `@pedantic` together with `typing.Protocol` 
 

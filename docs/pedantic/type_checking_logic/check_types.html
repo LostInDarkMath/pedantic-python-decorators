@@ -615,6 +615,9 @@ def _is_subtype(sub_type: Any, super_type: Any, context: Dict[str, Any] = None) 
             sub_type_args = get_type_arguments(cls=sub_type)
             return all([x in type_args for x in sub_type_args])
 
+        if any([type(ta) == _ProtocolMeta for ta in type_args]):
+            return True  # shortcut
+
         return sub_type in type_args
 
     if not _is_generic(sub_type):

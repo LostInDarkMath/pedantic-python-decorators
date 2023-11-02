@@ -2458,6 +2458,20 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
         def foo(x: type[IsDataclass]) -&gt; IsDataclass:
             return x
 
+        assert foo(x=Foo) == Foo
+
+    def test_dataclass_protocol_in_type_with_union(self):
+        class IsDataclass(typing.Protocol):
+            __dataclass_fields__: ClassVar[Dict]
+
+        @dataclass
+        class Foo:
+            v: int
+
+        @pedantic
+        def foo(x: type[None | bool | IsDataclass]) -&gt; IsDataclass:
+            return x
+
         assert foo(x=Foo) == Foo</code></pre>
 </details>
 </section>
@@ -4959,6 +4973,20 @@ not have a method with the specified name.</p></div>
         def foo(x: type[IsDataclass]) -&gt; IsDataclass:
             return x
 
+        assert foo(x=Foo) == Foo
+
+    def test_dataclass_protocol_in_type_with_union(self):
+        class IsDataclass(typing.Protocol):
+            __dataclass_fields__: ClassVar[Dict]
+
+        @dataclass
+        class Foo:
+            v: int
+
+        @pedantic
+        def foo(x: type[None | bool | IsDataclass]) -&gt; IsDataclass:
+            return x
+
         assert foo(x=Foo) == Foo</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -6076,6 +6104,30 @@ arguments have default values.</p></div>
 
     @pedantic
     def foo(x: type[IsDataclass]) -&gt; IsDataclass:
+        return x
+
+    assert foo(x=Foo) == Foo</code></pre>
+</details>
+</dd>
+<dt id="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dataclass_protocol_in_type_with_union"><code class="name flex">
+<span>def <span class="ident">test_dataclass_protocol_in_type_with_union</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_dataclass_protocol_in_type_with_union(self):
+    class IsDataclass(typing.Protocol):
+        __dataclass_fields__: ClassVar[Dict]
+
+    @dataclass
+    class Foo:
+        v: int
+
+    @pedantic
+    def foo(x: type[None | bool | IsDataclass]) -&gt; IsDataclass:
         return x
 
     assert foo(x=Foo) == Foo</code></pre>
@@ -9765,6 +9817,7 @@ arguments have default values.</p></div>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_coroutine_wrong_return_type" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_coroutine_wrong_return_type">test_coroutine_wrong_return_type</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dataclass_protocol" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dataclass_protocol">test_dataclass_protocol</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dataclass_protocol_in_type" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dataclass_protocol_in_type">test_dataclass_protocol_in_type</a></code></li>
+<li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dataclass_protocol_in_type_with_union" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dataclass_protocol_in_type_with_union">test_dataclass_protocol_in_type_with_union</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_date_datetime" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_date_datetime">test_date_datetime</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dict" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dict">test_dict</a></code></li>
 <li><code><a title="pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dict_bad_key_type" href="#pedantic.tests.tests_pedantic.TestDecoratorRequireKwargsAndTypeCheck.test_dict_bad_key_type">test_dict_bad_key_type</a></code></li>

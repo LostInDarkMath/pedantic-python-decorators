@@ -2431,3 +2431,17 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return x
 
         assert foo(x=Foo) == Foo
+
+    def test_dataclass_protocol_in_type_with_union(self):
+        class IsDataclass(typing.Protocol):
+            __dataclass_fields__: ClassVar[Dict]
+
+        @dataclass
+        class Foo:
+            v: int
+
+        @pedantic
+        def foo(x: type[None | bool | IsDataclass]) -> IsDataclass:
+            return x
+
+        assert foo(x=Foo) == Foo
