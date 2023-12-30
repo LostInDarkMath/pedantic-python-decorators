@@ -1,5 +1,5 @@
 from copy import deepcopy
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, replace
 from typing import Type, TypeVar, Any, Union, Callable, Dict
 
 from pedantic.get_context import get_context
@@ -97,8 +97,7 @@ def frozen_dataclass(
                 Keep in mind that this is a shallow copy!
             """
 
-            current_values = {field.name: getattr(self, field.name) for field in fields(self)}
-            return new_class(**{**current_values, **kwargs})
+            return replace(self, **kwargs)
 
         def deep_copy_with(self, **kwargs: Any) -> T:
             """

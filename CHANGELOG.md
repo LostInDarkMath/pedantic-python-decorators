@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.1.4
+- improve implementation of `copy_with()`
+
 ## Pedantic 2.1.3
 - bugfix `@pedantic` together with `typing.Protocol` 
 
