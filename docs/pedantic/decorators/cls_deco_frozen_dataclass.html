@@ -27,7 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from copy import deepcopy
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, replace
 from typing import Type, TypeVar, Any, Union, Callable, Dict
 
 from pedantic.get_context import get_context
@@ -125,8 +125,7 @@ def frozen_dataclass(
                 Keep in mind that this is a shallow copy!
             &#34;&#34;&#34;
 
-            current_values = {field.name: getattr(self, field.name) for field in fields(self)}
-            return new_class(**{**current_values, **kwargs})
+            return replace(self, **kwargs)
 
         def deep_copy_with(self, **kwargs: Any) -&gt; T:
             &#34;&#34;&#34;
@@ -319,8 +318,7 @@ Foo(a=676676, b='new', c=False)
                 Keep in mind that this is a shallow copy!
             &#34;&#34;&#34;
 
-            current_values = {field.name: getattr(self, field.name) for field in fields(self)}
-            return new_class(**{**current_values, **kwargs})
+            return replace(self, **kwargs)
 
         def deep_copy_with(self, **kwargs: Any) -&gt; T:
             &#34;&#34;&#34;
