@@ -95,6 +95,7 @@ async def calculate_in_subprocess(func: Callable[..., Union[T, Awaitable[T]]], *
     result = rx.recv()
     process.join()  # this blocks synchronously! make sure that process is terminated before you call join()
     rx.close()
+    tx.close()
 
     if isinstance(result, SubprocessError):
         raise result.exception

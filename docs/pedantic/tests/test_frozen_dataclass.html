@@ -459,8 +459,7 @@ Keep in mind that this is a shallow copy!</p></div>
         Keep in mind that this is a shallow copy!
     &#34;&#34;&#34;
 
-    current_values = {field.name: getattr(self, field.name) for field in fields(self)}
-    return new_class(**{**current_values, **kwargs})</code></pre>
+    return replace(self, **kwargs)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.A.deep_copy_with"><code class="name flex">
@@ -558,8 +557,7 @@ Keep in mind that this is a shallow copy!</p></div>
         Keep in mind that this is a shallow copy!
     &#34;&#34;&#34;
 
-    current_values = {field.name: getattr(self, field.name) for field in fields(self)}
-    return new_class(**{**current_values, **kwargs})</code></pre>
+    return replace(self, **kwargs)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.B.deep_copy_with"><code class="name flex">
@@ -667,8 +665,7 @@ Keep in mind that this is a shallow copy!</p></div>
         Keep in mind that this is a shallow copy!
     &#34;&#34;&#34;
 
-    current_values = {field.name: getattr(self, field.name) for field in fields(self)}
-    return new_class(**{**current_values, **kwargs})</code></pre>
+    return replace(self, **kwargs)</code></pre>
 </details>
 </dd>
 <dt id="pedantic.tests.test_frozen_dataclass.Foo.deep_copy_with"><code class="name flex">
