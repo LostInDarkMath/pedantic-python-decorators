@@ -28,10 +28,8 @@ jobs:
     - name: Run tests
       run: |
         coverage run --branch pedantic/tests/tests_main.py
-        coveralls
     - name: Coveralls
       uses: coverallsapp/github-action@v2.2.3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         file: coverage.xml
