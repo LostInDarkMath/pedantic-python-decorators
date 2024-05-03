@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -U coveralls twine
+        pip install -U coveralls twine wheel
         pip install -r requirements.txt
     - name: Run tests
       run: |
