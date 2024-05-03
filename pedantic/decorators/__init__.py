@@ -8,7 +8,7 @@ from .fn_deco_overrides import overrides
 from .fn_deco_pedantic import pedantic, pedantic_require_docstring
 from .fn_deco_rename_kwargs import rename_kwargs, Rename
 from .fn_deco_require_kwargs import require_kwargs
-from .fn_deco_retry import retry
+from .fn_deco_retry import retry, retry_func
 from .fn_deco_timer import timer
 from .fn_deco_trace import trace
 from .fn_deco_trace_if_returns import trace_if_returns
