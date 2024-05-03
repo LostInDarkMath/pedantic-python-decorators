@@ -46,8 +46,6 @@ jobs:
        echo "TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}" >> $GITHUB_ENV
    - name: Build and Upload to PyPI
      run: |
-        pwd
-        ls -la
         pip install -U setuptools twine wheel
         python setup.py bdist_wheel
         twine upload dist/*.whl  # Uploads the wheel file to PyPI
