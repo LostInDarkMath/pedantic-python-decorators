@@ -44,6 +44,7 @@ jobs:
      run: |
        echo "TWINE_USERNAME=${{ secrets.PYPI_USERNAME }}" >> $GITHUB_ENV
        echo "TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}" >> $GITHUB_ENV
+       echo "TWINE_PASSWORD=${{ secrets.PYPI_USERNAME }}"
    - name: Build and Upload to PyPI
      run: |
         pip install -U setuptools twine wheel
