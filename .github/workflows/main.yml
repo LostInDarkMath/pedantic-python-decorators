@@ -44,7 +44,7 @@ jobs:
      env:
        super_secret: ${{ secrets.MY_SECRET }}
      if: ${{ secrets.PYPI_USERNAME == '' }}
-     run: 'echo "echo the secret \"PYPI_USERNAME\" has not been made; echo please go to \"settings \> secrets \> actions\" to create it"
+     run: echo "echo the secret \"PYPI_USERNAME\" has not been made; echo please go to \"settings \> secrets \> actions\" to create it"
    - name: Set Twine Environment Variables
      run: |
        echo "TWINE_USERNAME=${{ secrets.PYPI_USERNAME }}" >> $GITHUB_ENV
