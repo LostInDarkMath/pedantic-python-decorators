@@ -2,6 +2,7 @@
 ## Pedantic 2.1.5
 - Close `multiprocess.connection.Connection` correctly in `@in_subprocess` decorator
 - Updated dependencies
+- added `retry_func()` function
 
 ## Pedantic 2.1.4
 - improve implementation of `copy_with()`
