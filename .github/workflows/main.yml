@@ -42,8 +42,8 @@ jobs:
        python-version: 3.12 # Specify the Python version you want to use for deployment
    - name: check PYPI USERNAME exists
      env:
-       super_secret: ${{ secrets.MY_SECRET }}
-     if: ${{ secrets.PYPI_USERNAME == '' }}
+       super_secret: ${{ secrets.PYPI_USERNAME }}
+     if: ${{ env.super_secret == '' }}
      run: echo "echo the secret \"PYPI_USERNAME\" has not been made; echo please go to \"settings \> secrets \> actions\" to create it"
    - name: Set Twine Environment Variables
      run: |
