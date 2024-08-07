@@ -2,7 +2,6 @@ from typing import Type
 
 from pedantic.constants import F
 from pedantic.exceptions import PedanticOverrideException
-from pedantic.models.decorated_function import DecoratedFunction
 
 
 def overrides(base_class: Type) -> F:
@@ -22,16 +21,12 @@ def overrides(base_class: Type) -> F:
     """
 
     def decorator(func: F) -> F:
-        deco_func = DecoratedFunction(func=func)
-        uses_multiple_decorators = deco_func.num_of_decorators > 1
+        name = func.__name__
 
-        if not deco_func.is_instance_method and not uses_multiple_decorators:
+        if name not in dir(base_class):
             raise PedanticOverrideException(
-                f'{deco_func.err} Function "{deco_func.name}" should be an instance method of a class!')
-
-        if deco_func.name not in dir(base_class):
-            raise PedanticOverrideException(
-                f'{deco_func.err} Base class "{base_class.__name__}" does not have such a method "{deco_func.name}".')
+                f'In function {func.__qualname__}:\n '
+                f'Base class "{base_class.__name__}" does not have such a method "{name}".')
         return func
     return decorator
 

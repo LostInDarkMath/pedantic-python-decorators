@@ -31,16 +31,17 @@ import time
 from datetime import timedelta
 from functools import wraps
 from logging import Logger
-from typing import Callable, TypeVar, TypeVarTuple, Any
+from typing import Callable, TypeVar, Any, ParamSpec
 
 C = TypeVar(&#39;C&#39;, bound=Callable)
-Ts = TypeVarTuple(&#39;Ts&#39;)
+P = ParamSpec(&#39;P&#39;)
+R = TypeVar(&#39;R&#39;)
 
 
 def retry(
     *,
     attempts: int,
-    exceptions: type[Exception] | tuple[type[Exception], ...] = None,
+    exceptions: type[Exception] | tuple[type[Exception], ...] = Exception,
     sleep_time: timedelta = timedelta(seconds=0),
     logger: Logger = None,
 ) -&gt; Callable[[C], C]:
@@ -61,28 +62,46 @@ def retry(
         &gt;&gt;&gt; foo()
     &#34;&#34;&#34;
 
-    if exceptions is None:
-        exceptions = Exception
+    def decorator(func: C) -&gt; C:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -&gt; Any:
+            return retry_func(
+                func,
+                *args,
+                attempts=attempts,
+                exceptions=exceptions,
+                sleep_time=sleep_time,
+                logger=logger,
+                **kwargs,
+            )
+        return wrapper
+    return decorator
+
+
+def retry_func(
+    func: Callable[P, R],
+    *args: P.args,
+    attempts: int,
+    exceptions: type[Exception] | tuple[type[Exception], ...] = Exception,
+    sleep_time: timedelta = timedelta(seconds=0),
+    logger: Logger = None,
+    **kwargs: P.kwargs,
+) -&gt; R:
+    attempt = 1
 
     if logger is None:
         logger = logging.getLogger()
 
-    def decorator(func: C) -&gt; C:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -&gt; Any:
-            attempt = 1
-
-            while attempt &lt; attempts:
-                try:
-                    return func(*args, **kwargs)
-                except exceptions:
-                    logger.warning(f&#39;Exception thrown when attempting to run {func.__name__}, &#39;
-                                   f&#39;attempt {attempt} of {attempts}&#39;)
-                    attempt += 1
-                    time.sleep(sleep_time.total_seconds())
+    while attempt &lt; attempts:
+        try:
             return func(*args, **kwargs)
-        return wrapper
-    return decorator</code></pre>
+        except exceptions:
+            logger.warning(f&#39;Exception thrown when attempting to run {func.__name__}, &#39;
+                           f&#39;attempt {attempt} of {attempts}&#39;)
+            attempt += 1
+            time.sleep(sleep_time.total_seconds())
+
+    return func(*args, **kwargs)</code></pre>
 </details>
 </section>
 <section>
@@ -93,7 +112,7 @@ def retry(
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.decorators.fn_deco_retry.retry"><code class="name flex">
-<span>def <span class="ident">retry</span></span>(<span>*, attempts: int, exceptions: type[Exception] | tuple[type[Exception], ...] = None, sleep_time: datetime.timedelta = datetime.timedelta(0), logger: logging.Logger = None) ‑> Callable[[~C], ~C]</span>
+<span>def <span class="ident">retry</span></span>(<span>*, attempts: int, exceptions: type[Exception] | tuple[type[Exception], ...] = builtins.Exception, sleep_time: datetime.timedelta = datetime.timedelta(0), logger: logging.Logger = None) ‑> Callable[[~C], ~C]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Retries the wrapped function/method <code>attempts</code> times if the exceptions listed
@@ -116,7 +135,7 @@ logger: The logger used for logging.</p>
 <pre><code class="python">def retry(
     *,
     attempts: int,
-    exceptions: type[Exception] | tuple[type[Exception], ...] = None,
+    exceptions: type[Exception] | tuple[type[Exception], ...] = Exception,
     sleep_time: timedelta = timedelta(seconds=0),
     logger: Logger = None,
 ) -&gt; Callable[[C], C]:
@@ -137,28 +156,55 @@ logger: The logger used for logging.</p>
         &gt;&gt;&gt; foo()
     &#34;&#34;&#34;
 
-    if exceptions is None:
-        exceptions = Exception
+    def decorator(func: C) -&gt; C:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -&gt; Any:
+            return retry_func(
+                func,
+                *args,
+                attempts=attempts,
+                exceptions=exceptions,
+                sleep_time=sleep_time,
+                logger=logger,
+                **kwargs,
+            )
+        return wrapper
+    return decorator</code></pre>
+</details>
+</dd>
+<dt id="pedantic.decorators.fn_deco_retry.retry_func"><code class="name flex">
+<span>def <span class="ident">retry_func</span></span>(<span>func: Callable[~P, ~R], *args: P.args, attempts: int, exceptions: type[Exception] | tuple[type[Exception], ...] = builtins.Exception, sleep_time: datetime.timedelta = datetime.timedelta(0), logger: logging.Logger = None, **kwargs: P.kwargs) ‑> ~R</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def retry_func(
+    func: Callable[P, R],
+    *args: P.args,
+    attempts: int,
+    exceptions: type[Exception] | tuple[type[Exception], ...] = Exception,
+    sleep_time: timedelta = timedelta(seconds=0),
+    logger: Logger = None,
+    **kwargs: P.kwargs,
+) -&gt; R:
+    attempt = 1
 
     if logger is None:
         logger = logging.getLogger()
 
-    def decorator(func: C) -&gt; C:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -&gt; Any:
-            attempt = 1
-
-            while attempt &lt; attempts:
-                try:
-                    return func(*args, **kwargs)
-                except exceptions:
-                    logger.warning(f&#39;Exception thrown when attempting to run {func.__name__}, &#39;
-                                   f&#39;attempt {attempt} of {attempts}&#39;)
-                    attempt += 1
-                    time.sleep(sleep_time.total_seconds())
+    while attempt &lt; attempts:
+        try:
             return func(*args, **kwargs)
-        return wrapper
-    return decorator</code></pre>
+        except exceptions:
+            logger.warning(f&#39;Exception thrown when attempting to run {func.__name__}, &#39;
+                           f&#39;attempt {attempt} of {attempts}&#39;)
+            attempt += 1
+            time.sleep(sleep_time.total_seconds())
+
+    return func(*args, **kwargs)</code></pre>
 </details>
 </dd>
 </dl>
@@ -180,6 +226,7 @@ logger: The logger used for logging.</p>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pedantic.decorators.fn_deco_retry.retry" href="#pedantic.decorators.fn_deco_retry.retry">retry</a></code></li>
+<li><code><a title="pedantic.decorators.fn_deco_retry.retry_func" href="#pedantic.decorators.fn_deco_retry.retry_func">retry_func</a></code></li>
 </ul>
 </li>
 </ul>

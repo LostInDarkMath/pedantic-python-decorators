@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.1.6
+- Remove `inspect.getsource()` call from `@overrides`
+
 ## Pedantic 2.1.5
 - Close `multiprocess.connection.Connection` correctly in `@in_subprocess` decorator
 - Updated dependencies

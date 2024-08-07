@@ -28,7 +28,7 @@ class DecoratedFunction:
 
         self._full_arg_spec = inspect.getfullargspec(func)
         self._signature = inspect.signature(func)
-        self._err = f'In function {func.__qualname__}:' + '\n'
+        self._err = f'In function {func.__qualname__}:\n'
         self._source: str = inspect.getsource(object=func)
 
         if IS_DOCSTRING_PARSER_INSTALLED:

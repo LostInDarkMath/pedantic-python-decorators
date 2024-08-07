@@ -30,7 +30,6 @@
 
 from pedantic.constants import F
 from pedantic.exceptions import PedanticOverrideException
-from pedantic.models.decorated_function import DecoratedFunction
 
 
 def overrides(base_class: Type) -&gt; F:
@@ -50,16 +49,12 @@ def overrides(base_class: Type) -&gt; F:
     &#34;&#34;&#34;
 
     def decorator(func: F) -&gt; F:
-        deco_func = DecoratedFunction(func=func)
-        uses_multiple_decorators = deco_func.num_of_decorators &gt; 1
+        name = func.__name__
 
-        if not deco_func.is_instance_method and not uses_multiple_decorators:
+        if name not in dir(base_class):
             raise PedanticOverrideException(
-                f&#39;{deco_func.err} Function &#34;{deco_func.name}&#34; should be an instance method of a class!&#39;)
-
-        if deco_func.name not in dir(base_class):
-            raise PedanticOverrideException(
-                f&#39;{deco_func.err} Base class &#34;{base_class.__name__}&#34; does not have such a method &#34;{deco_func.name}&#34;.&#39;)
+                f&#39;In function {func.__qualname__}:\n &#39;
+                f&#39;Base class &#34;{base_class.__name__}&#34; does not have such a method &#34;{name}&#34;.&#39;)
         return func
     return decorator
 
@@ -112,16 +107,12 @@ This decorator raises an Exception if the decorated method is not a method in th
     &#34;&#34;&#34;
 
     def decorator(func: F) -&gt; F:
-        deco_func = DecoratedFunction(func=func)
-        uses_multiple_decorators = deco_func.num_of_decorators &gt; 1
+        name = func.__name__
 
-        if not deco_func.is_instance_method and not uses_multiple_decorators:
+        if name not in dir(base_class):
             raise PedanticOverrideException(
-                f&#39;{deco_func.err} Function &#34;{deco_func.name}&#34; should be an instance method of a class!&#39;)
-
-        if deco_func.name not in dir(base_class):
-            raise PedanticOverrideException(
-                f&#39;{deco_func.err} Base class &#34;{base_class.__name__}&#34; does not have such a method &#34;{deco_func.name}&#34;.&#39;)
+                f&#39;In function {func.__qualname__}:\n &#39;
+                f&#39;Base class &#34;{base_class.__name__}&#34; does not have such a method &#34;{name}&#34;.&#39;)
         return func
     return decorator</code></pre>
 </details>
