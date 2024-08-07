@@ -67,8 +67,7 @@ class TestValidatorIsEnum(TestCase):
 
     def test_validator_is_enum_to_upper_case_disabled(self) -> None:
         @validate(Parameter(name='x', validators=[IsEnum(MyEnum, convert=False, to_upper_case=False)]))
-        def foo(x):
-            return x
+        def foo(x): print(x)
 
         for value in ['red', 'blue', 'Red', 'bLUe']:
             with self.assertRaises(expected_exception=ParameterException):
