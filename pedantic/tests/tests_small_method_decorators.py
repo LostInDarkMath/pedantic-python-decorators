@@ -1,6 +1,7 @@
 import asyncio
 import unittest
 import warnings
+from abc import abstractmethod
 from unittest import IsolatedAsyncioTestCase
 
 from pedantic import overrides, timer, count_calls, trace, trace_if_returns, does_same_as_function, deprecated, \
@@ -16,13 +17,11 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         with self.assertRaises(expected_exception=PedanticOverrideException):
             class MyClassB(MyClassA):
                 @overrides(MyClassA)
-                def operation(self):
-                    return 42
+                def operation(self): pass
 
     def test_overrides_all_good(self):
         class MyClassA:
-            def operation(self):
-                pass
+            def operation(self): pass
 
         class MyClassB(MyClassA):
             @overrides(MyClassA)
@@ -35,8 +34,7 @@ class TestSmallDecoratorMethods(unittest.TestCase):
     def test_overrides_static_method(self):
         class MyClassA:
             @staticmethod
-            def operation():
-                pass
+            def operation(): pass
 
         class MyClassB(MyClassA):
             @staticmethod
@@ -51,8 +49,8 @@ class TestSmallDecoratorMethods(unittest.TestCase):
     def test_overrides_below_property(self):
         class MyClassA:
             @property
-            def operation(self):
-                return 42
+            @abstractmethod
+            def operation(self): pass
 
         class MyClassB(MyClassA):
             @property
@@ -69,13 +67,11 @@ class TestSmallDecoratorMethods(unittest.TestCase):
 
         with self.assertRaises(expected_exception=PedanticOverrideException):
             @overrides(MyClassA)
-            def operation():
-                return 42
+            def operation(): return 42
 
     def test_deprecated_1(self):
         @deprecated
-        def old_method(i: int) -> str:
-            return str(i)
+        def old_method(i: int) -> str: return str(i)
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -156,8 +152,7 @@ class TestSmallDecoratorMethods(unittest.TestCase):
 class AsyncSmallDecoratorTests(IsolatedAsyncioTestCase):
     async def test_overrides_async_instance_method(self) -> None:
         class MyClassA:
-            async def operation(self):
-                pass
+            async def operation(self): pass
 
         class MyClassB(MyClassA):
             @overrides(MyClassA)
@@ -175,8 +170,7 @@ class AsyncSmallDecoratorTests(IsolatedAsyncioTestCase):
         with self.assertRaises(expected_exception=PedanticOverrideException):
             class MyClassB(MyClassA):
                 @overrides(MyClassA)
-                async def operation(self):
-                    return 42
+                async def operation(self): return 42
 
     async def test_count_calls_async(self):
         @count_calls
@@ -266,9 +260,7 @@ class AsyncSmallDecoratorTests(IsolatedAsyncioTestCase):
 
     async def test_mock_async(self) -> None:
         @mock(return_value=42)
-        async def my_function(a, b, c):
-            await asyncio.sleep(0)
-            return a + b + c
+        async def my_function(a, b, c): return a + b + c
 
         assert await my_function(1, 2, 3) == 42
         assert await my_function(100, 200, 300) == 42
