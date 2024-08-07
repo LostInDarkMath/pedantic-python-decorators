@@ -48,6 +48,21 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         self.assertEqual(b.operation(), 42)
         self.assertEqual(MyClassB.operation(), 42)
 
+    def test_overrides_below_property(self):
+        class MyClassA:
+            @property
+            def operation(self):
+                return 42
+
+        class MyClassB(MyClassA):
+            @property
+            @overrides(MyClassA)   # Note: it does not work the other way around
+            def operation(self):
+                return 43
+
+        b = MyClassB()
+        self.assertEqual(b.operation, 43)
+
     def test_overrides_function(self):
         class MyClassA:
             pass
@@ -136,7 +151,6 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         other_method(0, 2, 0)
         with self.assertRaises(expected_exception=AssertionError):
             other_method(4, 5, 6)
-
 
 
 class AsyncSmallDecoratorTests(IsolatedAsyncioTestCase):

@@ -76,6 +76,21 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         self.assertEqual(b.operation(), 42)
         self.assertEqual(MyClassB.operation(), 42)
 
+    def test_overrides_below_property(self):
+        class MyClassA:
+            @property
+            def operation(self):
+                return 42
+
+        class MyClassB(MyClassA):
+            @property
+            @overrides(MyClassA)   # Note: it does not work the other way around
+            def operation(self):
+                return 43
+
+        b = MyClassB()
+        self.assertEqual(b.operation, 43)
+
     def test_overrides_function(self):
         class MyClassA:
             pass
@@ -164,7 +179,6 @@ class TestSmallDecoratorMethods(unittest.TestCase):
         other_method(0, 2, 0)
         with self.assertRaises(expected_exception=AssertionError):
             other_method(4, 5, 6)
-
 
 
 class AsyncSmallDecoratorTests(IsolatedAsyncioTestCase):
@@ -809,6 +823,21 @@ not have a method with the specified name.</p></div>
         self.assertEqual(b.operation(), 42)
         self.assertEqual(MyClassB.operation(), 42)
 
+    def test_overrides_below_property(self):
+        class MyClassA:
+            @property
+            def operation(self):
+                return 42
+
+        class MyClassB(MyClassA):
+            @property
+            @overrides(MyClassA)   # Note: it does not work the other way around
+            def operation(self):
+                return 43
+
+        b = MyClassB()
+        self.assertEqual(b.operation, 43)
+
     def test_overrides_function(self):
         class MyClassA:
             pass
@@ -1028,6 +1057,31 @@ not have a method with the specified name.</p></div>
     b.operation()</code></pre>
 </details>
 </dd>
+<dt id="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_below_property"><code class="name flex">
+<span>def <span class="ident">test_overrides_below_property</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_overrides_below_property(self):
+    class MyClassA:
+        @property
+        def operation(self):
+            return 42
+
+    class MyClassB(MyClassA):
+        @property
+        @overrides(MyClassA)   # Note: it does not work the other way around
+        def operation(self):
+            return 43
+
+    b = MyClassB()
+    self.assertEqual(b.operation, 43)</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_function"><code class="name flex">
 <span>def <span class="ident">test_overrides_function</span></span>(<span>self)</span>
 </code></dt>
@@ -1206,6 +1260,7 @@ not have a method with the specified name.</p></div>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_does_same_as_function" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_does_same_as_function">test_does_same_as_function</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_does_same_as_function_wrong" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_does_same_as_function_wrong">test_does_same_as_function_wrong</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_all_good" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_all_good">test_overrides_all_good</a></code></li>
+<li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_below_property" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_below_property">test_overrides_below_property</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_function" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_function">test_overrides_function</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_parent_has_no_such_method" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_parent_has_no_such_method">test_overrides_parent_has_no_such_method</a></code></li>
 <li><code><a title="pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_static_method" href="#pedantic.tests.tests_small_method_decorators.TestSmallDecoratorMethods.test_overrides_static_method">test_overrides_static_method</a></code></li>
