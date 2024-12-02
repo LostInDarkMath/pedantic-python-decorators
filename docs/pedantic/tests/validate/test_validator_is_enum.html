@@ -95,8 +95,7 @@ class TestValidatorIsEnum(TestCase):
 
     def test_validator_is_enum_to_upper_case_disabled(self) -&gt; None:
         @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=False, to_upper_case=False)]))
-        def foo(x):
-            return x
+        def foo(x): print(x)
 
         for value in [&#39;red&#39;, &#39;blue&#39;, &#39;Red&#39;, &#39;bLUe&#39;]:
             with self.assertRaises(expected_exception=ParameterException):
@@ -311,8 +310,7 @@ not have a method with the specified name.</p></div>
 
     def test_validator_is_enum_to_upper_case_disabled(self) -&gt; None:
         @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=False, to_upper_case=False)]))
-        def foo(x):
-            return x
+        def foo(x): print(x)
 
         for value in [&#39;red&#39;, &#39;blue&#39;, &#39;Red&#39;, &#39;bLUe&#39;]:
             with self.assertRaises(expected_exception=ParameterException):
@@ -422,8 +420,7 @@ not have a method with the specified name.</p></div>
 </summary>
 <pre><code class="python">def test_validator_is_enum_to_upper_case_disabled(self) -&gt; None:
     @validate(Parameter(name=&#39;x&#39;, validators=[IsEnum(MyEnum, convert=False, to_upper_case=False)]))
-    def foo(x):
-        return x
+    def foo(x): print(x)
 
     for value in [&#39;red&#39;, &#39;blue&#39;, &#39;Red&#39;, &#39;bLUe&#39;]:
         with self.assertRaises(expected_exception=ParameterException):

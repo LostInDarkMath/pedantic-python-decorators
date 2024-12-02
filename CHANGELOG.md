@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.1.7
+- add `transformation` parameter to `create_decorator` to make adding custom behavior easier
+
 ## Pedantic 2.1.6
 - Remove `inspect.getsource()` call from `@overrides`
 

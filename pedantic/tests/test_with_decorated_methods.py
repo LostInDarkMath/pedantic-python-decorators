@@ -1,4 +1,5 @@
 import unittest
+from functools import wraps
 
 from pedantic import DecoratorType, create_decorator, WithDecoratedMethods
 
@@ -64,3 +65,31 @@ class TestWithDecoratedMethods(unittest.TestCase):
             }
         }
         assert instance.get_decorated_functions() == expected
+
+
+    def test_with_custom_transformation(self):
+        def my_transformation(f):
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                f(*args, **kwargs)
+                return 4422  # we add a return value
+
+            return wrapper
+
+        my_decorator = create_decorator(decorator_type=Decorators.BAR, transformation=my_transformation)
+
+        class MyClass(WithDecoratedMethods[Decorators]):
+            @my_decorator(42)
+            def m1(self) -> int:
+                return 1
+
+        instance = MyClass()
+        expected = {
+            Decorators.BAR: {
+                instance.m1: 42,
+            },
+            Decorators.FOO: {},
+        }
+        assert instance.get_decorated_functions() == expected
+
+        assert instance.m1() == 4422  # check that transformation was applied
