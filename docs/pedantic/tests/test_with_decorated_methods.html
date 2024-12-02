@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import unittest
+from functools import wraps
 
 from pedantic import DecoratorType, create_decorator, WithDecoratedMethods
 
@@ -91,7 +92,35 @@ class TestWithDecoratedMethods(unittest.TestCase):
                 instance.m3: 44,
             }
         }
-        assert instance.get_decorated_functions() == expected</code></pre>
+        assert instance.get_decorated_functions() == expected
+
+
+    def test_with_custom_transformation(self):
+        def my_transformation(f):
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                f(*args, **kwargs)
+                return 4422  # we add a return value
+
+            return wrapper
+
+        my_decorator = create_decorator(decorator_type=Decorators.BAR, transformation=my_transformation)
+
+        class MyClass(WithDecoratedMethods[Decorators]):
+            @my_decorator(42)
+            def m1(self) -&gt; int:
+                return 1
+
+        instance = MyClass()
+        expected = {
+            Decorators.BAR: {
+                instance.m1: 42,
+            },
+            Decorators.FOO: {},
+        }
+        assert instance.get_decorated_functions() == expected
+
+        assert instance.m1() == 4422  # check that transformation was applied</code></pre>
 </details>
 </section>
 <section>
@@ -231,7 +260,35 @@ not have a method with the specified name.</p></div>
                 instance.m3: 44,
             }
         }
-        assert instance.get_decorated_functions() == expected</code></pre>
+        assert instance.get_decorated_functions() == expected
+
+
+    def test_with_custom_transformation(self):
+        def my_transformation(f):
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                f(*args, **kwargs)
+                return 4422  # we add a return value
+
+            return wrapper
+
+        my_decorator = create_decorator(decorator_type=Decorators.BAR, transformation=my_transformation)
+
+        class MyClass(WithDecoratedMethods[Decorators]):
+            @my_decorator(42)
+            def m1(self) -&gt; int:
+                return 1
+
+        instance = MyClass()
+        expected = {
+            Decorators.BAR: {
+                instance.m1: 42,
+            },
+            Decorators.FOO: {},
+        }
+        assert instance.get_decorated_functions() == expected
+
+        assert instance.m1() == 4422  # check that transformation was applied</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -239,6 +296,43 @@ not have a method with the specified name.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods.test_with_custom_transformation"><code class="name flex">
+<span>def <span class="ident">test_with_custom_transformation</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_with_custom_transformation(self):
+    def my_transformation(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            f(*args, **kwargs)
+            return 4422  # we add a return value
+
+        return wrapper
+
+    my_decorator = create_decorator(decorator_type=Decorators.BAR, transformation=my_transformation)
+
+    class MyClass(WithDecoratedMethods[Decorators]):
+        @my_decorator(42)
+        def m1(self) -&gt; int:
+            return 1
+
+    instance = MyClass()
+    expected = {
+        Decorators.BAR: {
+            instance.m1: 42,
+        },
+        Decorators.FOO: {},
+    }
+    assert instance.get_decorated_functions() == expected
+
+    assert instance.m1() == 4422  # check that transformation was applied</code></pre>
+</details>
+</dd>
 <dt id="pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods.test_with_decorated_methods_async"><code class="name flex">
 <span>def <span class="ident">test_with_decorated_methods_async</span></span>(<span>self)</span>
 </code></dt>
@@ -339,6 +433,7 @@ not have a method with the specified name.</p></div>
 <li>
 <h4><code><a title="pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods" href="#pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods">TestWithDecoratedMethods</a></code></h4>
 <ul class="">
+<li><code><a title="pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods.test_with_custom_transformation" href="#pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods.test_with_custom_transformation">test_with_custom_transformation</a></code></li>
 <li><code><a title="pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods.test_with_decorated_methods_async" href="#pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods.test_with_decorated_methods_async">test_with_decorated_methods_async</a></code></li>
 <li><code><a title="pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods.test_with_decorated_methods_sync" href="#pedantic.tests.test_with_decorated_methods.TestWithDecoratedMethods.test_with_decorated_methods_sync">test_with_decorated_methods_sync</a></code></li>
 </ul>
