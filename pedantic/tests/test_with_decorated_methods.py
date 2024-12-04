@@ -68,7 +68,10 @@ class TestWithDecoratedMethods(unittest.TestCase):
 
 
     def test_with_custom_transformation(self):
-        def my_transformation(f):
+        def my_transformation(f, decorator_type, value):
+            assert decorator_type == Decorators.BAR
+            assert value == 42
+
             @wraps(f)
             def wrapper(*args, **kwargs):
                 f(*args, **kwargs)

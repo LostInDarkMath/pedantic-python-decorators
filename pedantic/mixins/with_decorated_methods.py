@@ -24,7 +24,7 @@ C = TypeVar('C', bound=Callable)
 
 def create_decorator(
     decorator_type: DecoratorType,
-    transformation: Callable[[C], C] = None,
+    transformation: Callable[[C, DecoratorType, T], C] = None,
 ) -> Callable[[T], Callable[[C], C]]:
     """
     Creates a new decorator that is parametrized with one argument of an arbitrary type.
@@ -38,7 +38,7 @@ def create_decorator(
             if transformation is None:
                 return f
 
-            return transformation(f)
+            return transformation(f, decorator_type, value)
 
         return fun  # we do not need functools.wraps, because we return the original function here
 
