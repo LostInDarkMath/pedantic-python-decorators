@@ -52,7 +52,7 @@ C = TypeVar(&#39;C&#39;, bound=Callable)
 
 def create_decorator(
     decorator_type: DecoratorType,
-    transformation: Callable[[C], C] = None,
+    transformation: Callable[[C, DecoratorType, T], C] = None,
 ) -&gt; Callable[[T], Callable[[C], C]]:
     &#34;&#34;&#34;
     Creates a new decorator that is parametrized with one argument of an arbitrary type.
@@ -66,7 +66,7 @@ def create_decorator(
             if transformation is None:
                 return f
 
-            return transformation(f)
+            return transformation(f, decorator_type, value)
 
         return fun  # we do not need functools.wraps, because we return the original function here
 
@@ -132,7 +132,7 @@ class WithDecoratedMethods(ABC, Generic[E], GenericMixin):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.mixins.with_decorated_methods.create_decorator"><code class="name flex">
-<span>def <span class="ident">create_decorator</span></span>(<span>decorator_type: <a title="pedantic.mixins.with_decorated_methods.DecoratorType" href="#pedantic.mixins.with_decorated_methods.DecoratorType">DecoratorType</a>, transformation: Callable[[~C], ~C] = None) ‑> Callable[[~T], Callable[[~C], ~C]]</span>
+<span>def <span class="ident">create_decorator</span></span>(<span>decorator_type: <a title="pedantic.mixins.with_decorated_methods.DecoratorType" href="#pedantic.mixins.with_decorated_methods.DecoratorType">DecoratorType</a>, transformation: Callable[[~C, <a title="pedantic.mixins.with_decorated_methods.DecoratorType" href="#pedantic.mixins.with_decorated_methods.DecoratorType">DecoratorType</a>, ~T], ~C] = None) ‑> Callable[[~T], Callable[[~C], ~C]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates a new decorator that is parametrized with one argument of an arbitrary type.
@@ -143,7 +143,7 @@ You can also pass an arbitrary [transformation] to add custom behavior to the de
 </summary>
 <pre><code class="python">def create_decorator(
     decorator_type: DecoratorType,
-    transformation: Callable[[C], C] = None,
+    transformation: Callable[[C, DecoratorType, T], C] = None,
 ) -&gt; Callable[[T], Callable[[C], C]]:
     &#34;&#34;&#34;
     Creates a new decorator that is parametrized with one argument of an arbitrary type.
@@ -157,7 +157,7 @@ You can also pass an arbitrary [transformation] to add custom behavior to the de
             if transformation is None:
                 return f
 
-            return transformation(f)
+            return transformation(f, decorator_type, value)
 
         return fun  # we do not need functools.wraps, because we return the original function here
 

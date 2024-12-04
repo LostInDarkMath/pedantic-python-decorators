@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.1.8
+- add more parameters to `transformation` in `create_decorator` to make it more flexible
+
 ## Pedantic 2.1.7
 - add `transformation` parameter to `create_decorator` to make adding custom behavior easier
 
