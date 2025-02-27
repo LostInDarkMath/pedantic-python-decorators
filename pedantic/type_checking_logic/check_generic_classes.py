@@ -28,7 +28,7 @@ def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> Dict[Typ
         >>> e = B[int]()
         Traceback (most recent call last):
         ...
-        TypeError: Too few ...; actual 1, expected 2
+        TypeError: Too few ...; actual 1, expect... 2
         >>> f = B[int, float]()
         >>> check_instance_of_generic_class_and_get_type_vars(f)
         {~T: <class 'int'>, ~S: <class 'float'>}
