@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.1.9
+- added Python 3.13 to CI
+
 ## Pedantic 2.1.8
 - add more parameters to `transformation` in `create_decorator` to make it more flexible
 
