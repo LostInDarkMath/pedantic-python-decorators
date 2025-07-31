@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 2.1.10
+- added type check support for `functools.partial`
+- update dependencies
+
 ## Pedantic 2.1.9
 - added Python 3.13 to CI
 
