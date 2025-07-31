@@ -5,7 +5,7 @@ import typing
 import unittest
 from dataclasses import dataclass
 from datetime import datetime, date
-from functools import wraps
+from functools import wraps, partial
 from io import BytesIO, StringIO
 from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
     AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO, Iterable, Container, \
@@ -2445,3 +2445,19 @@ class TestDecoratorRequireKwargsAndTypeCheck(unittest.TestCase):
             return x
 
         assert foo(x=Foo) == Foo
+
+    def test_partial_function(self):
+        @pedantic
+        def f(a: int, b: int) -> int:
+            return a + b
+
+        g = pedantic(partial(f, a=1))
+
+        assert f(a=2, b=3) == 5
+        assert g(b=3) == 4
+
+        with self.assertRaises(PedanticTypeCheckException):
+            f(a='2', b=3)
+
+        with self.assertRaises(PedanticTypeCheckException):
+            g(b='2')

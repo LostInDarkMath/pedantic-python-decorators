@@ -1,6 +1,5 @@
 import inspect
 import re
-import types
 from typing import Any, Callable, Dict, Optional
 
 try:
@@ -23,13 +22,19 @@ class DecoratedFunction:
     def __init__(self, func: Callable[..., Any]) -> None:
         self._func = func
 
-        if not isinstance(func, (types.FunctionType, types.MethodType)):
+        if not callable(func):
             raise PedanticTypeCheckException(f'{self.full_name} should be a method or function.')
 
         self._full_arg_spec = inspect.getfullargspec(func)
         self._signature = inspect.signature(func)
-        self._err = f'In function {func.__qualname__}:\n'
-        self._source: str = inspect.getsource(object=func)
+        self._err = f'In function {self.full_name}:\n'
+
+        try:
+            source = inspect.getsource(object=func)
+        except TypeError:
+            source = None
+
+        self._source: str | None = source
 
         if IS_DOCSTRING_PARSER_INSTALLED:
             self._docstring = parse(func.__doc__)
@@ -71,24 +76,39 @@ class DecoratedFunction:
 
     @property
     def name(self) -> str:
-        return self._func.__name__
+        if hasattr(self._func, '__name__'):
+            return self._func.__name__
+
+        return self._func.func.__name__
 
     @property
     def full_name(self) -> str:
-        return self._func.__qualname__
+        if hasattr(self._func, '__qualname__'):
+            return self._func.__qualname__
+
+        return self._func.func.__qualname__
 
     @property
     def is_static_method(self) -> bool:
         """ I honestly have no idea how to do this better :( """
 
+        if self.source is None:
+            return False
+
         return '@staticmethod' in self.source
 
     @property
     def wants_args(self) -> bool:
+        if self.source is None:
+            return False
+
         return '*args' in self.source
 
     @property
     def is_property_setter(self) -> bool:
+        if self.source is None:
+            return False
+
         return f'@{self.name}.setter' in self.source
 
     @property
@@ -114,10 +134,16 @@ class DecoratedFunction:
 
     @property
     def num_of_decorators(self) -> int:
+        if self.source is None:
+            return 0
+
         return len(re.findall('@', self.source.split('def')[0]))
 
     @property
     def is_pedantic(self) -> bool:
+        if self.source is None:
+            return False
+
         return '@pedantic' in self.source or '@require_kwargs' in self.source
 
     @property
