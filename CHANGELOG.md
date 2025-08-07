@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.2.0
+- migrated from `setup.py` to `pyproject.toml`
+
 ## Pedantic 2.1.11
 - improve `GenericMixin` such that it also find bound type variables in parent classes
 

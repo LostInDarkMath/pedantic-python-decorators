@@ -21,7 +21,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -U coveralls
-        pip install -r requirements.txt
+        pip install -e .[dev]
     - name: Run tests
       run: |
         coverage run --branch pedantic/tests/tests_main.py
@@ -33,7 +33,7 @@ jobs:
  deploy:
    needs: test
    runs-on: ubuntu-latest
-   if: github.ref == 'refs/heads/master'   # only on master
+   if: github.ref == 'refs/heads/master'
    environment:
      name: pypi-deployment
    steps:
@@ -41,13 +41,15 @@ jobs:
    - name: Set up Python
      uses: actions/setup-python@v5
      with:
-       python-version: 3.12 # Specify the Python version you want to use for deployment
+       python-version: 3.12
+   - name: Install Build Tools
+     run: |
+       pip install -U build twine
    - name: Set Twine Environment Variables
      run: |
        echo "TWINE_USERNAME=${{ secrets.PYPI_USERNAME }}" >> $GITHUB_ENV
        echo "TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}" >> $GITHUB_ENV
    - name: Build and Upload to PyPI
      run: |
-        pip install -U setuptools twine wheel
-        python setup.py bdist_wheel
-        twine upload dist/*.whl  # Uploads the wheel file to PyPI
+       python -m build
+       twine upload dist/*
