@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 2.2.1
+- fixed `setuptools` deprecation warnings
+- delete unused scripts
+
 ## Pedantic 2.2.0
 - migrated from `setup.py` to `pyproject.toml`
 
