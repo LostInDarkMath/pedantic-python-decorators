@@ -103,3 +103,19 @@ class TestGenericMixin(unittest.TestCase):
 
         foo = MyClass(value=4)
         assert foo.get_type() == {T: int}
+
+    def test_resolved_type_var_inheritance(self):
+        class Foo(Generic[T]): ...
+
+        class Bar(Foo[int], Generic[U], GenericMixin): ...
+
+        bar = Bar[str]()
+        assert bar.type_vars == {T: int, U: str}
+
+    def test_resolved_type_var_inheritance_2(self):
+        class Foo(Generic[T], GenericMixin): ...
+
+        class Bar(Foo[int], Generic[U]): ...
+
+        bar = Bar[str]()
+        assert bar.type_vars == {T: int, U: str}
