@@ -965,7 +965,6 @@ for class_path, _check_func in {
     'typing.Sequence': _instancecheck_iterable,
     'typing.Iterable': _instancecheck_iterable,
     'typing.MutableSequence': _instancecheck_iterable,
-    'typing.ByteString': _instancecheck_iterable,
     'typing.Deque': _instancecheck_iterable,
     'typing.List': _instancecheck_iterable,
     'typing.Set': _instancecheck_iterable,
