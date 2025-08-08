@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.2.2
+- fix `GenericMixin`
+
 ## Pedantic 2.2.1
 - fixed `setuptools` deprecation warnings
 - delete unused scripts
@@ -7,7 +10,7 @@
 - migrated from `setup.py` to `pyproject.toml`
 
 ## Pedantic 2.1.11
-- improve `GenericMixin` such that it also find bound type variables in parent classes
+- improve `GenericMixin` such that it also finds bound type variables in parent classes
 
 ## Pedantic 2.1.10
 - added type check support for `functools.partial`

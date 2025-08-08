@@ -68,44 +68,64 @@ class GenericMixin:
 
         mapping: dict[TypeVar, type] = {}
 
-        non_generic_error = AssertionError(
-            f'{self.class_name} is not a generic class. To make it generic, declare it like: '
-            f'class {self.class_name}(Generic[T], GenericMixin):...')
-
         if not hasattr(self, '__orig_bases__'):
-            raise non_generic_error
+            raise AssertionError(
+                f'{self.class_name} is not a generic class. To make it generic, declare it like: '
+                f'class {self.class_name}(Generic[T], GenericMixin):...'
+            )
 
-        def collect(base, substitutions: dict[TypeVar, type]) -> None:
-            origin = get_origin(base)
+        def collect(base, substitutions: dict[TypeVar, type]):
+            """Recursively collect type var mappings from a generic base."""
+            origin = get_origin(base) or base
             args = get_args(base)
 
-            if origin is None:
-                return
-
             params = getattr(origin, '__parameters__', ())
-            resolved = {}
+            # copy substitutions so each recursion has its own view
+            resolved = substitutions.copy()
+
             for param, arg in zip(params, args):
-                resolved_arg = substitutions.get(arg, arg) if isinstance(arg, TypeVar) else arg
-                mapping[param] = resolved_arg
-                resolved[param] = resolved_arg
+                if isinstance(arg, TypeVar):
+                    arg = substitutions.get(arg, arg)
+                mapping[param] = arg
+                resolved[param] = arg
 
+            # Recurse into base classes, applying current substitutions
             for super_base in getattr(origin, '__orig_bases__', []):
-                collect(super_base, resolved)
+                super_origin = get_origin(super_base) or super_base
+                super_args = get_args(super_base)
 
-        # Prefer __orig_class__ if available
+                if super_args:
+                    # Substitute any TypeVars in the super_base's args using resolved
+                    substituted_args = tuple(
+                        resolved.get(a, a) if isinstance(a, TypeVar) else a
+                        for a in super_args
+                    )
+                    # Build a new parametrized base so get_args() inside collect sees substituted_args
+                    try:
+                        substituted_base = super_origin[substituted_args]  # type: ignore[index]
+                    except TypeError:
+                        # Some origins won't accept subscription; fall back to passing the origin and trusting resolved
+                        substituted_base = super_base
+                    collect(base=substituted_base, substitutions=resolved)
+                else:
+                    collect(base=super_base, substitutions=resolved)
+
+        # Start from __orig_class__ if present, else walk the declared MRO bases
         cls = getattr(self, '__orig_class__', None)
         if cls is not None:
             collect(base=cls, substitutions={})
         else:
-            for base in getattr(self.__class__, '__orig_bases__', []):
-                collect(base=base, substitutions={})
+            # Walk the full MRO to catch indirect generic ancestors
+            for c in self.__class__.__mro__:
+                for base in getattr(c, '__orig_bases__', []):
+                    collect(base=base, substitutions=mapping)
 
-        # Extra safety: ensure all declared typevars are resolved
+        # Ensure no unresolved TypeVars remain
         all_params = set()
-        for cls in self.__class__.__mro__:
-            all_params.update(getattr(cls, '__parameters__', ()))
+        for c in self.__class__.__mro__:
+            all_params.update(getattr(c, '__parameters__', ()))
 
-        unresolved = {param for param in all_params if param not in mapping or isinstance(mapping[param], TypeVar)}
+        unresolved = {p for p in all_params if p not in mapping or isinstance(mapping[p], TypeVar)}
         if unresolved:
             raise AssertionError(
                 f'You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n'
@@ -115,7 +135,6 @@ class GenericMixin:
             )
 
         return mapping
-
     @property
     def class_name(self) -> str:
         """ Get the name of the class of this instance. """

@@ -3,6 +3,9 @@ from typing import TypeVar, Generic, List, Type
 
 from pedantic import GenericMixin
 
+A = TypeVar('A')
+E = TypeVar('E')
+S = TypeVar('S')
 T = TypeVar('T')
 U = TypeVar('U')
 
@@ -119,3 +122,44 @@ class TestGenericMixin(unittest.TestCase):
 
         bar = Bar[str]()
         assert bar.type_vars == {T: int, U: str}
+
+    def test_very_complex_inheritance(self):
+        class Foo(Generic[E], GenericMixin): ...
+        class Bar(Foo[int], Generic[S]): ...
+        class Baz(Foo[int]): ...
+        class Deep(Baz): ...
+        class Deeper(Baz, Generic[T]): ...
+
+        foo = Foo[str]()
+        actual = foo.type_vars
+        assert actual == {E: str}
+
+        bar = Bar[str]()
+        actual = bar.type_vars
+        assert actual == {E: int, S: str}
+
+        baz = Baz()
+        actual = baz.type_vars
+        assert actual == {E: int}
+
+        deep = Deep()
+        actual = deep.type_vars
+        assert actual == {E: int}
+
+        deeper = Deeper[bool]()
+        actual = deeper.type_vars
+        assert actual == {E: int, T: bool}
+
+        with self.assertRaises(expected_exception=AssertionError) as err:
+            Foo().type_vars
+
+        assert 'You need to instantiate this class with type parameters! Example: Foo[int]()' in err.exception.args[0]
+
+    def test_substitution_lookup_hits(self):
+        class Base(Generic[A], GenericMixin): ...
+        class Mid(Base[A], Generic[A]): ...
+        class Final(Mid[int]): ...
+
+        obj = Final()
+        actual = obj.type_vars
+        assert actual == {A: int}
