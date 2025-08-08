@@ -1,5 +1,6 @@
 # Changelog
 ## Pedantic 2.2.3
+- added `3.14.0-rc.1` to CI test matrix
 - fix `WithDecoratedMethods`
 
 ## Pedantic 2.2.2
