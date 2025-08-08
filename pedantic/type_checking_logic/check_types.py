@@ -3,7 +3,7 @@ import inspect
 import types
 import typing
 from io import BytesIO, StringIO, BufferedWriter, TextIOWrapper
-from typing import Any, Dict, Iterable, ItemsView, Callable, Union, Optional, Tuple, Mapping, TypeVar, NewType, \
+from typing import Any, Dict, Iterable, ItemsView, Callable, Optional, Tuple, Mapping, TypeVar, NewType, \
     _ProtocolMeta
 import collections
 
