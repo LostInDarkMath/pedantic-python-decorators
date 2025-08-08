@@ -11,13 +11,14 @@ class DecoratorType(StrEnum):
 
     The values of this enum are used as property names and the properties are added to the decorated functions.
     So I would recommend naming them with a leading underscore to keep them private and also write it lowercase.
+
     Example:
         >>> class Decorators(DecoratorType):
         ...     FOO = '_foo'
     """
 
 
-E = TypeVar('E', bound=DecoratorType)
+DecoratorTypeVar = TypeVar('DecoratorTypeVar', bound=DecoratorType)
 T = TypeVar('T')
 C = TypeVar('C', bound=Callable)
 
@@ -45,7 +46,7 @@ def create_decorator(
     return decorator
 
 
-class WithDecoratedMethods(ABC, Generic[E], GenericMixin):
+class WithDecoratedMethods(ABC, Generic[DecoratorTypeVar], GenericMixin):
     """
     A mixin that is used to figure out which method is decorated with custom parameterized decorators.
     Example:
@@ -79,12 +80,12 @@ class WithDecoratedMethods(ABC, Generic[E], GenericMixin):
         }
     """
 
-    def get_decorated_functions(self) -> dict[E, dict[C, T]]:
-        decorator_types = self.type_var
+    def get_decorated_functions(self) -> dict[DecoratorTypeVar, dict[C, T]]:
+        decorator_types = self.type_vars[DecoratorTypeVar]
         decorated_functions = {t: dict() for t in decorator_types}  # type: ignore
 
         for attribute_name in dir(self):
-            if attribute_name.startswith('__'):
+            if attribute_name.startswith('__') or attribute_name in ['type_var', 'type_vars']:
                 continue
 
             attribute = getattr(self, attribute_name)

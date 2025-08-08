@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.2.3
+- fix `WithDecoratedMethods`
+
 ## Pedantic 2.2.2
 - fix `GenericMixin`
 

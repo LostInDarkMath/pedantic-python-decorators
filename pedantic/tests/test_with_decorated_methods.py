@@ -1,8 +1,10 @@
 import unittest
 from functools import wraps
+from typing import TypeVar, Generic
 
 from pedantic import DecoratorType, create_decorator, WithDecoratedMethods
 
+T = TypeVar('T')
 
 class Decorators(DecoratorType):
     FOO = '_foo'
@@ -96,3 +98,12 @@ class TestWithDecoratedMethods(unittest.TestCase):
         assert instance.get_decorated_functions() == expected
 
         assert instance.m1() == 4422  # check that transformation was applied
+
+    def test_with_decorated_methods_can_have_generic_child_class(self):
+        class MyClass(Generic[T], WithDecoratedMethods[Decorators]):
+            @foo(42)
+            def m1(self) -> None: ...
+
+        instance = MyClass[int]()
+        actual = instance.get_decorated_functions()
+        assert actual == {Decorators.FOO: {instance.m1: 42}, Decorators.BAR: {}}
