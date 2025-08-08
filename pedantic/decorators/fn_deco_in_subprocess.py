@@ -4,8 +4,11 @@ from functools import wraps
 from typing import Callable, TypeVar, Any, Awaitable, Optional, Type, Union
 
 try:
+    import multiprocess as mp
     from multiprocess import Process, Pipe
     from multiprocess.connection import Connection
+
+    mp.set_start_method(method="spawn", force=True)
 except ImportError:
     Process: Optional[Type] = None
     Pipe: Optional[Type] = None
