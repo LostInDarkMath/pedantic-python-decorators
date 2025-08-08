@@ -3,6 +3,7 @@ import time
 import unittest
 from typing import NoReturn
 
+import dill
 from multiprocess import Pipe
 
 from pedantic import in_subprocess
@@ -150,3 +151,20 @@ class TestInSubprocess(unittest.IsolatedAsyncioTestCase):
         foo = Foo()
         assert await foo.pos_args() == 9
         assert await foo.kw_args() == 9
+
+    async def test_unpicklable_arg(self):
+        class NonPickableObject:
+            def __getstate__(self):
+                raise TypeError("This object cannot be pickled")
+
+        obj = NonPickableObject()
+
+        with self.assertRaises(expected_exception=TypeError):
+            dill.dumps(obj)
+
+        @in_subprocess
+        def f(x: NonPickableObject):
+            return x
+
+        with self.assertRaises(expected_exception=TypeError):
+            await f(obj)
