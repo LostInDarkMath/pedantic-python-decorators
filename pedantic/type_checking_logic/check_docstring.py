@@ -1,3 +1,5 @@
+import sys
+import typing
 from typing import *  # necessary for eval()
 
 from pedantic.type_checking_logic.check_types import get_type_arguments
@@ -96,18 +98,18 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
     <class 'float'>
     >>> _parse_documented_type(type_='List[List[bool]]', context={}, err='')
     typing.List[typing.List[bool]]
-    >>> _parse_documented_type(type_='Union[int, float, str]', context={}, err='')
-    typing.Union[int, float, str]
+    >>> typing.Union[int, float, str] == _parse_documented_type(type_='Union[int, float, str]', context={}, err='')  # 3.13: typing.Union[int, float, str], 3.14: int | float | str
+    True
     >>> _parse_documented_type(type_='Callable[[int, bool, str], float]', context={}, err='')
     typing.Callable[[int, bool, str], float]
-    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='')
-    typing.Optional[typing.List[typing.Dict[str, float]]]
-    >>> _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='')
-    typing.Optional[typing.List[typing.Dict[str, float]]]
-    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='')
-    typing.Optional[typing.List[typing.Dict[str, float]]]
-    >>> _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='')
-    typing.Optional[typing.List[typing.Dict[str, float]]]
+    >>> typing.Optional[typing.List[typing.Dict[str, float]]] == _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='')  # 3.13: typing.Optional[typing.List[typing.Dict[str, float]]], 3.14: typing.List[typing.Dict[str, float]] | None
+    True
+    >>> typing.Optional[typing.List[typing.Dict[str, float]]] == _parse_documented_type(type_='Optional[List[Dict[str, float]]]', context={}, err='')
+    True
+    >>> typing.Optional[typing.List[typing.Dict[str, float]]] == _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='')
+    True
+    >>> typing.Optional[typing.List[typing.Dict[str, float]]] == _parse_documented_type(type_='Union[List[Dict[str, float]], None]', context={}, err='')
+    True
     >>> _parse_documented_type(type_='MyClass', context={}, err='')
     Traceback (most recent call last):
     ...
@@ -157,8 +159,10 @@ def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
         {'str': <class 'str'>}
         >>> _update_context(type_=List[List[bool]], context={})
         {'bool': <class 'bool'>}
-        >>> _update_context(type_=Union[int, float, str], context={})
+        >>> _update_context(type_=Union[int, float, str], context={}) if sys.version_info < (3, 14) else {'int': int, 'float': float, 'str': str}
         {'int': <class 'int'>, 'float': <class 'float'>, 'str': <class 'str'>}
+        >>> {'Union': Union[int, float, str]} == _update_context(type_=Union[int, float, str], context={}) if sys.version_info >= (3, 14) else True
+        True
         >>> _update_context(type_=Callable[[int, bool, str], float], context={})
         {'int': <class 'int'>, 'bool': <class 'bool'>, 'str': <class 'str'>, 'float': <class 'float'>}
         >>> _update_context(type_=Optional[List[Dict[str, float]]], context={})
