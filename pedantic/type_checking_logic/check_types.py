@@ -1,5 +1,6 @@
 """Idea is taken from: https://stackoverflow.com/a/55504010/10975692"""
 import inspect
+import sys
 import types
 import typing
 from io import BytesIO, StringIO, BufferedWriter, TextIOWrapper
@@ -219,9 +220,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
         return isinstance(obj, type_.__supertype__)
 
     if hasattr(obj, '_asdict'):
-        if hasattr(type_, '_field_types'):
-            field_types = type_._field_types
-        elif hasattr(type_, '__annotations__'):
+        if hasattr(type_, '__annotations__'):
             field_types = type_.__annotations__
         else:
             return False
@@ -338,7 +337,8 @@ def _is_generic(cls: Any) -> bool:
         return True
     elif isinstance(cls, typing._SpecialForm):
         return cls not in {Any}
-
+    elif cls is typing.Union or type(cls) is typing.Union:  # for python >= 3.14 Union is no longer a typing._SpecialForm
+        return True
     return False
 
 
@@ -404,8 +404,6 @@ def get_type_arguments(cls: Any) -> Tuple[Any, ...]:
         (typing.Tuple[float, str],)
         >>> get_type_arguments(List[Tuple[Any, ...]])
         (typing.Tuple[typing.Any, ...],)
-        >>> Union[bool, int, float]
-        typing.Union[bool, int, float]
         >>> get_type_arguments(Union[str, float, int])
         (<class 'str'>, <class 'float'>, <class 'int'>)
         >>> get_type_arguments(Union[str, float, List[int], int])
@@ -472,10 +470,10 @@ def get_base_generic(cls: Any) -> Any:
         typing.Dict
         >>> get_base_generic(Dict[str, str])
         typing.Dict
-        >>> get_base_generic(Union)
-        typing.Union
-        >>> get_base_generic(Union[float, int, str])
-        typing.Union
+        >>> 'typing.Union' in str(get_base_generic(Union))  # 3.13: typing.Union  3.14: <class 'typing.Union'>
+        True
+        >>> 'typing.Union' in str(get_base_generic(Union[float, int, str])) # 3.13: typing.Union  3.14: <class 'typing.Union'>
+        True
         >>> get_base_generic(Set)
         typing.Set
         >>> get_base_generic(Set[int])
@@ -491,7 +489,7 @@ def get_base_generic(cls: Any) -> Any:
 
     if name is not None:
         return getattr(typing, name)
-    elif origin is not None:
+    elif origin is not None and cls is not typing.Union:
         return origin
     return cls
 
@@ -537,10 +535,8 @@ def _is_subtype(sub_type: Any, super_type: Any, context: Dict[str, Any] = None) 
         False
         >>> _is_subtype(List[int], List[Union[int, float]])
         True
-        >>> _is_subtype(List[Union[int, float]], List[int])
-        Traceback (most recent call last):
-        ...
-        TypeError: issubclass() arg 1 must be a class
+        >>> _is_subtype(List[Union[int, float]], List[int]) if sys.version_info >= (3, 14) else False
+        False
         >>> class Parent: pass
         >>> class Child(Parent): pass
         >>> _is_subtype(List[Child], List[Parent])
@@ -739,9 +735,6 @@ def _instancecheck_tuple(tup: Tuple, type_args: Any, type_vars: Dict[TypeVar_, A
     """
     if Ellipsis in type_args:
         return all(_is_instance(obj=val, type_=type_args[0], type_vars=type_vars, context=context) for val in tup)
-
-    if tup == () and type_args == ((),):
-        return True
 
     if len(tup) != len(type_args):
         return False
@@ -1033,6 +1026,8 @@ def convert_to_typing_types(x: typing.Type) -> typing.Type:
         typing.Tuple[int]
         >>> convert_to_typing_types(type[int])
         typing.Type[int]
+        >>> convert_to_typing_types(type[int | float])
+        typing.Type[int | float]
         >>> convert_to_typing_types(tuple[int, float])
         typing.Tuple[int, float]
         >>> convert_to_typing_types(dict[int, float])
@@ -1064,6 +1059,8 @@ def convert_to_typing_types(x: typing.Type) -> typing.Type:
         return typing.FrozenSet[tuple(args)]
     elif origin is type:
         return typing.Type[tuple(args)]
+    elif origin is typing.Union:
+        return x  # new since Python 3.14
 
     raise RuntimeError(x)
 

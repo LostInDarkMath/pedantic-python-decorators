@@ -1,5 +1,4 @@
 import os.path
-import sys
 import types
 import typing
 import unittest

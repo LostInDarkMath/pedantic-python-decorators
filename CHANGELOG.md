@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 2.3.0
+- added support for Python 3.14
+- updated dependencies
+
 ## Pedantic 2.2.3
 - remove support for deprecated `typing.ByteString`
 - fix `WithDecoratedMethods`
