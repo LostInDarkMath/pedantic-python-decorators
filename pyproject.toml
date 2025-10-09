@@ -32,7 +32,7 @@ classifiers = [
 dev = [
   "docstring-parser==0.17",
   "Flask[async]==3.1.2",
-  "multiprocess @ git+https://github.com/uqfoundation/multiprocess.git@02ea4bd36cac5013d70847815c92e1a736ef4a05",
+  "multiprocess==0.70.18",
   "Werkzeug==3.1.3",
 ]
 
