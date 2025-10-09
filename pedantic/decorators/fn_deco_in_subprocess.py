@@ -4,11 +4,8 @@ from functools import wraps
 from typing import Callable, TypeVar, Any, Awaitable, Optional, Type, Union
 
 try:
-    import multiprocess as mp
     from multiprocess import Process, Pipe
     from multiprocess.connection import Connection
-
-    mp.set_start_method(method="spawn", force=True)
 except ImportError:
     Process: Optional[Type] = None
     Pipe: Optional[Type] = None
@@ -106,11 +103,18 @@ async def calculate_in_subprocess(func: Callable[..., Union[T, Awaitable[T]]], *
     return result
 
 
-def _inner(tx: Connection, fun: Callable[..., Union[T, Awaitable[T]]], *a, **kw_args) -> None:
+def _inner(tx: Connection, fun: Callable[..., Union[T, Awaitable[T]]], *a, new_thread: bool = False, **kw_args) -> None:
     """ This runs in another process. """
 
     event_loop = None
     if inspect.iscoroutinefunction(fun):
+        if not new_thread: # see https://stackoverflow.com/a/79785720/10975692
+            import threading
+            t = threading.Thread(target=_inner, args=(tx, fun, *a), kwargs=(kw_args | {"new_thread": True}))
+            t.start()
+            t.join()
+            return
+
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
 
