@@ -1,6 +1,6 @@
 import unittest
 from functools import wraps
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, NoReturn
 
 from pedantic import DecoratorType, create_decorator, WithDecoratedMethods
 
@@ -16,6 +16,22 @@ bar = create_decorator(decorator_type=Decorators.BAR)
 
 
 class TestWithDecoratedMethods(unittest.TestCase):
+    def test_no_decorated_methods(self):
+        class MyClass(WithDecoratedMethods[Decorators]):
+            pass
+
+        instance = MyClass()
+        assert instance.get_decorated_functions() == {Decorators.FOO: {}, Decorators.BAR: {}}
+
+    def test_class_with_bad_property(self):
+        class MyClass(WithDecoratedMethods[Decorators]):
+            @property
+            def bad(self) -> NoReturn:
+                raise RuntimeError('bad man')
+
+        instance = MyClass()
+        assert instance.get_decorated_functions() == {Decorators.FOO: {}, Decorators.BAR: {}}
+
     def test_with_decorated_methods_sync(self):
         class MyClass(WithDecoratedMethods[Decorators]):
             @foo(42)
