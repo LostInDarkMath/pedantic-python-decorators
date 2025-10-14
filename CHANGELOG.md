@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 2.3.1
+- improve robustness of `WithDecoratedMethods`
+
 ## Pedantic 2.3.0
 - added support for Python 3.14
 - updated dependencies

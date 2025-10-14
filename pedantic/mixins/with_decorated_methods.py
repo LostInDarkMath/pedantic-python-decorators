@@ -88,7 +88,10 @@ class WithDecoratedMethods(ABC, Generic[DecoratorTypeVar], GenericMixin):
             if attribute_name.startswith('__') or attribute_name in ['type_var', 'type_vars']:
                 continue
 
-            attribute = getattr(self, attribute_name)
+            try:
+                attribute = getattr(self, attribute_name)
+            except BaseException:
+                continue  # ignore bad attributes
 
             for decorator_type in decorator_types:  # type: ignore
                 if hasattr(attribute, decorator_type):
