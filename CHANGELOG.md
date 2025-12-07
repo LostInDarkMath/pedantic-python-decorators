@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 2.3.2
+- removed workaround for Python version `3.14.0` in `@in_subprocess` decorator
+  - see https://github.com/python/cpython/issues/139894
+
 ## Pedantic 2.3.1
 - improve robustness of `WithDecoratedMethods`
 
