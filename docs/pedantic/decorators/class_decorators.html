@@ -78,7 +78,7 @@ el.replaceWith(d);
         for attr in cls.__dict__:
             attr_value = getattr(cls, attr)
 
-            if isinstance(attr_value, (types.FunctionType, types.MethodType)):
+            if isinstance(attr_value, (types.FunctionType, types.MethodType)) and attr != &#39;__annotate_func__&#39;:
                 setattr(cls, attr, decorator(attr_value))
             elif isinstance(attr_value, property):
                 prop = attr_value

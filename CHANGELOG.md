@@ -1,4 +1,10 @@
 # Changelog
+## Pedantic 2.3.3
+- [fixed validation error message in MinLength validator](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/111)
+- removed unused scripts
+- updated dependencies
+- updated documentation
+
 ## Pedantic 2.3.2
 - removed workaround for Python version `3.14.0` in `@in_subprocess` decorator
   - see https://github.com/python/cpython/issues/139894
