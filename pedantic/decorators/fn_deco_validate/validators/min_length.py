@@ -15,6 +15,6 @@ class MinLength(Validator):
             self.raise_exception(msg=f'{value} has no length.', value=value)
 
         if len(value) < self._length:
-            self.raise_exception(msg=f'{value} is too long with length {len(value)}.', value=value)
+            self.raise_exception(msg=f'{value} is too short with length {len(value)}.', value=value)
 
         return value

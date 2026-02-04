@@ -65,7 +65,7 @@ el.replaceWith(d);
             self.raise_exception(msg=f&#39;{value} has no length.&#39;, value=value)
 
         if len(value) &lt; self._length:
-            self.raise_exception(msg=f&#39;{value} is too long with length {len(value)}.&#39;, value=value)
+            self.raise_exception(msg=f&#39;{value} is too short with length {len(value)}.&#39;, value=value)
 
         return value</code></pre>
 </details>

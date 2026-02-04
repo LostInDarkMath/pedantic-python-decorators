@@ -16,11 +16,17 @@ class TestValidatorMaxLength(TestCase):
         self.assertEqual('hi!', foo('hi!'))
         self.assertEqual([1, 2, 3], foo([1, 2, 3]))
 
-        with self.assertRaises(expected_exception=ParameterException):
+        with self.assertRaises(expected_exception=ParameterException) as ex:
             foo('hi!!')
 
-        with self.assertRaises(expected_exception=ParameterException):
+        assert ex.exception.message == 'hi!! is too long with length 4.'
+
+        with self.assertRaises(expected_exception=ParameterException) as ex:
             foo([1, 2, 3, 4])
 
-        with self.assertRaises(expected_exception=ParameterException):
+        assert ex.exception.message == '[1, 2, 3, 4] is too long with length 4.'
+
+        with self.assertRaises(expected_exception=ParameterException) as ex:
             foo(42)
+
+        assert ex.exception.message == '42 has no length.'
