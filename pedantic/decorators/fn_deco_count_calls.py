@@ -30,8 +30,3 @@ def count_calls(func: F) -> F:
 
     wrapper.num_calls = 0
     return wrapper
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

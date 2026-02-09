@@ -31,8 +31,3 @@ def require_kwargs(func: F) -> F:
         call.assert_uses_kwargs()
         return func(*args, **kwargs)
     return wrapper
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

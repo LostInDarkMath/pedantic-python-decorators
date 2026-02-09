@@ -140,8 +140,3 @@ class GenericMixin:
         """ Get the name of the class of this instance. """
 
         return type(self).__name__
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

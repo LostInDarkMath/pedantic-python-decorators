@@ -77,8 +77,3 @@ def pedantic(func: Optional[F] = None, require_docstring: bool = False) -> F:
 def pedantic_require_docstring(func: Optional[F] = None) -> F:
     """Shortcut for @pedantic(require_docstring=True) """
     return pedantic(func=func, require_docstring=True)
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
