@@ -4,7 +4,7 @@ from dataclasses import is_dataclass
 from typing import Callable, Optional, Dict, Type
 
 from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, F, C, TYPE_VAR_SELF
-from pedantic.decorators import timer, trace
+from pedantic.decorators import trace
 from pedantic.decorators.fn_deco_pedantic import pedantic, pedantic_require_docstring
 from pedantic.env_var_logic import is_enabled
 from pedantic.exceptions import PedanticTypeCheckException
@@ -66,11 +66,6 @@ def pedantic_class_require_docstring(cls: C) -> C:
 def trace_class(cls: C) -> C:
     """ Shortcut for @for_all_methods(trace) """
     return for_all_methods(decorator=trace)(cls=cls)
-
-
-def timer_class(cls: C) -> C:
-    """ Shortcut for @for_all_methods(timer) """
-    return for_all_methods(decorator=timer)(cls=cls)
 
 
 def _get_wrapped(prop: Optional[F], decorator: F) -> Optional[F]:
