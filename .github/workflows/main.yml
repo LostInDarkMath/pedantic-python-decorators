@@ -27,7 +27,7 @@ jobs:
       run: |
         pytest --doctest-modules --cov=pedantic --cov-branch --cov-report= --cov-report=term
     - name: Coveralls
-      uses: coverallsapp/github-action@v2.2.3
+      uses: coverallsapp/github-action@v2.3.6
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         file: .coverage
