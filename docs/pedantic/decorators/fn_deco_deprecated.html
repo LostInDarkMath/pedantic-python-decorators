@@ -45,37 +45,53 @@ el.replaceWith(d);
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pedantic.decorators.fn_deco_deprecated.deprecated"><code class="name flex">
-<span>def <span class="ident">deprecated</span></span>(<span>func: Callable[..., ~ReturnType]) ‑> Callable[..., ~ReturnType]</span>
+<span>def <span class="ident">deprecated</span></span>(<span>func: Callable[..., ~ReturnType] | None = None, message: str = '') ‑> Callable[..., ~ReturnType] | Callable[[Callable[..., ~ReturnType]], Callable[..., ~ReturnType]]</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def deprecated(func: F) -&gt; F:
+<pre><code class="python">def deprecated(func: F | None = None, message: str = &#39;&#39;) -&gt; F | Callable[[F], F]:
     &#34;&#34;&#34;
         Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.
+        You can specify an optional reason or message to display with the warning.
 
         Example:
-
         &gt;&gt;&gt; @deprecated
         ... def my_function(a, b, c):
         ...     pass
-        &gt;&gt;&gt; my_function(5, 4, 3)
+        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP
+        &gt;&gt;&gt; @deprecated(message=&#39;Will be removed soon. Please use my_function_new_instead.&#39;)
+        ... def my_function(a, b, c):
+        ...     pass
+        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP
     &#34;&#34;&#34;
 
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
-        _raise_warning(msg=f&#39;Call to deprecated function {func.__qualname__}.&#39;, category=DeprecationWarning)
-        return func(*args, **kwargs)
-    return wrapper</code></pre>
+    def decorator(fun: F) -&gt; F:
+        @wraps(fun)
+        def wrapper(*args: Any, **kwargs: Any) -&gt; ReturnType:
+            msg = f&#39;Call to deprecated function {fun.__qualname__}.&#39;
+
+            if message:
+                msg += f&#39;\nReason: {message}&#39;
+
+            warnings.warn(message=msg, category=DeprecationWarning, stacklevel=2)
+            return fun(*args, **kwargs)
+        return wrapper
+    return decorator if func is None else decorator(func)</code></pre>
 </details>
-<div class="desc"><p>Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.</p>
+<div class="desc"><p>Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.
+You can specify an optional reason or message to display with the warning.</p>
 <p>Example:</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; @deprecated
 ... def my_function(a, b, c):
 ...     pass
-&gt;&gt;&gt; my_function(5, 4, 3)
+&gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP
+&gt;&gt;&gt; @deprecated(message='Will be removed soon. Please use my_function_new_instead.')
+... def my_function(a, b, c):
+...     pass
+&gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP
 </code></pre></div>
 </dd>
 </dl>

@@ -1063,8 +1063,3 @@ def convert_to_typing_types(x: typing.Type) -> typing.Type:
         return x  # new since Python 3.14
 
     raise RuntimeError(x)
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

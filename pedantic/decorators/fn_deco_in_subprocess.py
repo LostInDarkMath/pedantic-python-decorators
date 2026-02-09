@@ -120,9 +120,3 @@ def _inner(tx: Connection, fun: Callable[..., Union[T, Awaitable[T]]], *a, **kw_
         tx.send(SubprocessError(ex=ex))
     else:
         tx.send(res)
-
-
-if __name__ == '__main__':
-    import doctest
-
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

@@ -29,8 +29,3 @@ def overrides(base_class: Type) -> F:
                 f'Base class "{base_class.__name__}" does not have such a method "{name}".')
         return func
     return decorator
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

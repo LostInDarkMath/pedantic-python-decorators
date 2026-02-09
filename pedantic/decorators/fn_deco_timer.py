@@ -42,8 +42,3 @@ def timer(func: F) -> F:
         return async_wrapper
     else:
         return wrapper
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

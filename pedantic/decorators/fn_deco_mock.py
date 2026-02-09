@@ -36,8 +36,3 @@ def mock(return_value: ReturnType) -> F:
         else:
             return wrapper
     return decorator
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

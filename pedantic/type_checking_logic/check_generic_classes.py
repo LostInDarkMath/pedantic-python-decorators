@@ -136,8 +136,3 @@ def _remove_comments_and_spaces_from_src_line(line: str) -> str:
         'm=MyClass[Parent](a=Child1())'
     """
     return line.split('#')[0].replace(' ', '')
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)

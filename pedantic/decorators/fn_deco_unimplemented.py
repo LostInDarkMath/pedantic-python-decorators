@@ -24,8 +24,3 @@ def unimplemented(func: F) -> F:
     def wrapper(*args: Any, **kwargs: Any) -> ReturnType:
         raise NotImplementedException(f'Function "{func.__qualname__}" is not implemented yet!')
     return wrapper
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
