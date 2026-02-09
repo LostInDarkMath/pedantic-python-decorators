@@ -8,11 +8,12 @@ class Min(Validator):
     def __init__(self, value: Union[int, float], include_boundary: bool = True) -> None:
         """
             >>> Min(7, True).validate(7)
-            True
-            >>> Min(7, False).validate(7)
-            False
+            7
+            >>> Min(7, False).validate(7)  # doctest: +IGNORE_EXCEPTION_DETAIL
+            Traceback (most recent call last):
+            ValidatorException: ...
             >>> Min(7, False).validate(7.001)
-            True
+            7.001
         """
         self._value = value
         self._include_boundary = include_boundary

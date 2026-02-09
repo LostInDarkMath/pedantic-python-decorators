@@ -117,10 +117,6 @@ So I would recommend naming them with a leading underscore to keep them private 
 <li>enum.ReprEnum</li>
 <li>enum.Enum</li>
 </ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="pedantic.tests.test_with_decorated_methods.Decorators" href="../tests/test_with_decorated_methods.html#pedantic.tests.test_with_decorated_methods.Decorators">Decorators</a></li>
-</ul>
 </dd>
 <dt id="pedantic.mixins.with_decorated_methods.WithDecoratedMethods"><code class="flex name class">
 <span>class <span class="ident">WithDecoratedMethods</span></span>
@@ -152,7 +148,7 @@ So I would recommend naming them with a leading underscore to keep them private 
         ...    def m3(self) -&gt; None:
         ...        print(&#39;bar&#39;)
         &gt;&gt;&gt; instance = MyClass()
-        &gt;&gt;&gt; instance.get_decorated_functions()
+        &gt;&gt;&gt; instance.get_decorated_functions()  # doctest: +SKIP
         {
             &lt;Decorators.FOO: &#39;_foo&#39;&gt;: {
                 &lt;bound method MyClass.m1 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 42,
@@ -203,7 +199,7 @@ So I would recommend naming them with a leading underscore to keep them private 
 ...    def m3(self) -&gt; None:
 ...        print('bar')
 &gt;&gt;&gt; instance = MyClass()
-&gt;&gt;&gt; instance.get_decorated_functions()
+&gt;&gt;&gt; instance.get_decorated_functions()  # doctest: +SKIP
 {
     &lt;Decorators.FOO: '_foo'&gt;: {
         &lt;bound method MyClass.m1 of &lt;__main__.MyClass object at 0x7fea7a6e2610&gt;&gt;: 42,

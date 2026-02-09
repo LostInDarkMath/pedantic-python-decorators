@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 2.4.0
+- migrate from unittest to pytest
+- exclude tests from package
+
 ## Pedantic 2.3.3
 - [fixed validation error message in MinLength validator](https://github.com/LostInDarkMath/pedantic-python-decorators/issues/111)
 - removed unused scripts

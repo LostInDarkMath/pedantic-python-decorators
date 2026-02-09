@@ -73,7 +73,7 @@ el.replaceWith(d);
         &gt;&gt;&gt; @retry(attempts=3, exceptions=(ValueError, TypeError))
         ... def foo():
         ...     raise ValueError(&#39;Some error&#39;)
-        &gt;&gt;&gt; foo()
+        &gt;&gt;&gt; foo()  # doctest: +SKIP
     &#34;&#34;&#34;
 
     def decorator(func: C) -&gt; C:
@@ -102,7 +102,7 @@ logger: The logger used for logging.</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; @retry(attempts=3, exceptions=(ValueError, TypeError))
 ... def foo():
 ...     raise ValueError('Some error')
-&gt;&gt;&gt; foo()
+&gt;&gt;&gt; foo()  # doctest: +SKIP
 </code></pre></div>
 </dd>
 <dt id="pedantic.decorators.fn_deco_retry.retry_func"><code class="name flex">

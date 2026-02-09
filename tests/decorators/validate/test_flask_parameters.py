@@ -1,0 +1,628 @@
+import json
+from dataclasses import dataclass
+from typing import List, Dict, Any
+
+import pytest
+from flask import Flask, Response, jsonify
+
+from pedantic import Email, overrides
+from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments, \
+    ParameterException, ExceptionDictKey, InvalidHeader
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
+from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
+    FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter, Deserializable, GenericFlaskDeserializer
+from pedantic.decorators.fn_deco_validate.validators import NotEmpty, Min
+
+JSON = 'application/json'
+OK = 200
+INVALID = 422
+TOO_MANY_ARGS = 400
+
+
+def test_validator_flask_json():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(
+        FlaskJsonParameter(name='key', validators=[NotEmpty()]),
+    )
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    @app.route('/required')
+    @validate(
+        FlaskJsonParameter(name='required', required=True),
+        FlaskJsonParameter(name='not_required', required=False),
+        FlaskJsonParameter(name='not_required_with_default', required=False, default=42),
+    )
+    def required_params(required, not_required, not_required_with_default) -> Response:
+        return jsonify({
+            'required': required,
+            'not_required': not_required,
+            'not_required_with_default': not_required_with_default,
+        })
+
+    @app.route('/types')
+    @validate(
+        FlaskJsonParameter(name='bool_param', value_type=bool),
+        FlaskJsonParameter(name='int_param', value_type=int),
+        FlaskJsonParameter(name='float_param', value_type=float),
+        FlaskJsonParameter(name='str_param', value_type=str),
+        FlaskJsonParameter(name='list_param', value_type=list),
+        FlaskJsonParameter(name='dict_param', value_type=dict),
+    )
+    def different_types(
+            bool_param,
+            int_param,
+            float_param,
+            str_param,
+            list_param,
+            dict_param,
+    ) -> Response:
+        return jsonify({
+            'bool_param': bool_param,
+            'int_param': int_param,
+            'float_param': float_param,
+            'str_param': str_param,
+            'list_param': list_param,
+            'dict_param': dict_param,
+        })
+
+    @app.route('/args')
+    @validate(
+        FlaskJsonParameter(name='a', validators=[NotEmpty()]),
+        FlaskJsonParameter(name='b', validators=[NotEmpty()]),
+        return_as=ReturnAs.ARGS,
+    )
+    def names_do_not_need_to_match(my_key: str, another: str) -> Response:
+        return jsonify({
+            'my_key': my_key,
+            'another': another,
+        })
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -> Response:
+        print(str(exception))
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    @app.errorhandler(TooManyArguments)
+    def handle_validation_error(exception: TooManyArguments) -> Response:
+        print(str(exception))
+        response = jsonify(str(exception))
+        response.status_code = TOO_MANY_ARGS
+        return response
+
+    with app.test_client() as client:
+        res = client.get('/', data=json.dumps({'key': '  hello world  '}), content_type=JSON)
+        assert res.status_code == OK
+        assert res.json == 'hello world'
+
+        res = client.get('/', data=json.dumps({'key': '  '}), content_type=JSON)
+        assert res.status_code == INVALID
+        expected = {
+            ExceptionDictKey.VALIDATOR: 'NotEmpty',
+            ExceptionDictKey.VALUE: '  ',
+            ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+            ExceptionDictKey.PARAMETER: 'key',
+        }
+        assert res.json == expected
+
+        data = {
+            'key': '  hello world  ',
+            'required': '1',
+        }
+        res = client.get('/', data=json.dumps(data), content_type=JSON)
+        assert res.status_code == TOO_MANY_ARGS
+        assert res.json == "Got unexpected arguments: ['required']"
+
+
+def test_validator_flask_form_data():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskFormParameter(name='key', validators=[NotEmpty()]))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -> Response:
+        print(str(exception))
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get('/', data={'key': '  hello world  '})
+        assert res.status_code == OK
+        assert res.json == 'hello world'
+
+        res = client.get('/', data={'key': '  '})
+        assert res.status_code == INVALID
+        expected = {
+            ExceptionDictKey.VALIDATOR: 'NotEmpty',
+            ExceptionDictKey.VALUE: '  ',
+            ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+            ExceptionDictKey.PARAMETER: 'key',
+        }
+        assert res.json == expected
+
+
+def test_validator_flask_header():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskHeaderParameter(name='key', validators=[NotEmpty()]))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    @app.errorhandler(InvalidHeader)
+    def handle_validation_error(exception: InvalidHeader) -> Response:
+        print(str(exception))
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get('/', headers={'key': '  hello world  '}, data={})
+        assert res.status_code == OK
+        assert res.json == 'hello world'
+
+        res = client.get('/', headers={'key': '  '}, data={})
+        assert res.status_code == INVALID
+        expected = {
+            ExceptionDictKey.VALUE: '  ',
+            ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+            ExceptionDictKey.PARAMETER: 'key',
+            ExceptionDictKey.VALIDATOR: 'NotEmpty',
+        }
+        assert res.json == expected
+
+
+def test_validator_flask_header_optional_parameter():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskHeaderParameter(name='key', validators=[NotEmpty()], required=False))
+    def hello_world(key: str = None) -> Response:
+        return jsonify(key)
+
+    with app.test_client() as client:
+        res = client.get('/', headers={'key': '  hello world  '}, data={})
+        assert res.status_code == OK
+        assert res.json == 'hello world'
+
+        res = client.get('/', headers={}, data={})
+        assert res.status_code == OK
+        assert res.json is None
+
+
+def test_validator_flask_get():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskGetParameter(name='key', value_type=str, validators=[NotEmpty()]))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -> Response:
+        print(str(exception))
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get('/?key=hello_world', data={})
+        assert res.status_code == OK
+        assert res.json == 'hello_world'
+
+        res = client.get('/?key=hello world', data={})
+        assert res.status_code == OK
+        assert res.json == 'hello world'
+
+        res = client.get('/?key= ', data={})
+        assert res.status_code == INVALID
+        expected = {
+            ExceptionDictKey.VALIDATOR: 'NotEmpty',
+            ExceptionDictKey.VALUE: ' ',
+            ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+            ExceptionDictKey.PARAMETER: 'key',
+        }
+        assert res.json == expected
+
+
+def test_validator_flask_get_multiple_values_for_same_key():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskGetParameter(name='key', value_type=list, validators=[NotEmpty()]))
+    def hello_world(key: List[str]) -> Response:
+        return jsonify(key)
+
+    with app.test_client() as client:
+        res = client.get('/?key=hello&key=world', data={})
+        assert res.status_code == OK
+        assert res.json == ['hello', 'world']
+
+
+def test_validator_flask_path():
+    app = Flask(__name__)
+
+    @app.route('/<string:key>')
+    @validate(FlaskPathParameter(name='key', validators=[NotEmpty()]))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -> Response:
+        print(str(exception))
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get('/hello_world', data={})
+        assert res.status_code == OK
+        assert res.json == 'hello_world'
+
+        res = client.get('/hello world', data={})
+        assert res.status_code == OK
+        assert res.json == 'hello world'
+
+        res = client.get('/   ', data={})
+        assert res.status_code == INVALID
+        expected = {
+            ExceptionDictKey.VALIDATOR: 'NotEmpty',
+            ExceptionDictKey.VALUE: '   ',
+            ExceptionDictKey.MESSAGE: 'Got empty String which is invalid.',
+            ExceptionDictKey.PARAMETER: 'key',
+        }
+        assert res.json == expected
+
+
+def test_invalid_value_type():
+    app = Flask(__name__)
+
+    with pytest.raises(expected_exception=AssertionError):
+        @app.route('/')
+        @validate(FlaskFormParameter(name='key', value_type=tuple))
+        def hello_world(key: str) -> Response:
+            return jsonify(key)
+
+
+def test_wrong_name():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskFormParameter(name='k', value_type=str))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    @app.errorhandler(ValidateException)
+    def handle_validation_error(exception: ValidateException) -> Response:
+        print(str(exception))
+        response = jsonify(str(exception))
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get(data={'key': 'k'})
+        assert res.status_code == INVALID
+        assert 'Value for parameter k is required.' in res.json
+
+
+def test_default_value():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskFormParameter(name='key', value_type=str, default='42'))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    with app.test_client() as client:
+        res = client.get(data={})
+        assert res.status_code == OK
+        assert res.json == '42'
+
+
+def test_not_required_allows_none_kwargs_without_none():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskFormParameter(name='key', value_type=str, required=False),
+              return_as=ReturnAs.KWARGS_WITHOUT_NONE)
+    def hello_world(key: str = 'it works') -> Response:
+        return jsonify(key)
+
+    with app.test_client() as client:
+        res = client.get(data={})
+        assert res.status_code == OK
+        assert res.json == 'it works'
+
+
+def test_not_required_allows_none_kwargs_with_none():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskFormParameter(name='key', value_type=str, required=False, default=None),
+              return_as=ReturnAs.KWARGS_WITH_NONE)
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    with app.test_client() as client:
+        res = client.get(data={'key': None})
+        assert res.status_code == OK
+        assert res.json is None
+
+
+def test_not_required_with_default():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskFormParameter(name='key', value_type=str, required=False, default='42'))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    with app.test_client() as client:
+        res = client.get(data={})
+        assert res.status_code == OK
+        assert res.json == '42'
+
+
+def test_validator_flask_path_type_conversion():
+    app = Flask(__name__)
+
+    @app.route('/<string:key>')
+    @validate(FlaskPathParameter(name='key', value_type=int, validators=[Min(42)]))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -> Response:
+        print(str(exception))
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get('/42', data={})
+        assert res.status_code == OK
+        assert res.json == 42
+
+        res = client.get('/42f', data={})
+        assert res.status_code == INVALID
+        expected = {
+            ExceptionDictKey.VALIDATOR: None,
+            ExceptionDictKey.VALUE: '42f',
+            ExceptionDictKey.MESSAGE: "Value 42f cannot be converted to <class 'int'>.",
+            ExceptionDictKey.PARAMETER: 'key',
+        }
+        assert res.json == expected
+
+
+def test_validator_flask_json_parameter_does_not_get_json():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskJsonParameter(name='key'))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -> Response:
+        print(str(exception))
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get('/', data={})
+        assert res.status_code == INVALID
+        expected = {
+            ExceptionDictKey.VALIDATOR: None,
+            ExceptionDictKey.VALUE: 'None',
+            ExceptionDictKey.MESSAGE: 'Value for parameter key is required.',
+            ExceptionDictKey.PARAMETER: 'key',
+        }
+        assert res.json == expected
+
+
+def test_validator_flask_json_parameter_does_not_get_json_but_default():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskJsonParameter(name='key', default='42'))
+    def hello_world(key: str) -> Response:
+        return jsonify(key)
+
+    with app.test_client() as client:
+        res = client.get('/', data={})
+        assert res.status_code == OK
+        assert res.json == '42'
+
+
+def test_too_many_arguments():
+    app = Flask(__name__)
+
+    @app.route('/')
+    @validate(FlaskJsonParameter(name='k', value_type=str))
+    def hello_world(**kwargs) -> Response:
+        return jsonify(str(kwargs))
+
+    @app.errorhandler(TooManyArguments)
+    def handle_validation_error(exception: TooManyArguments) -> Response:
+        print(str(exception))
+        response = jsonify(str(exception))
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get(data=json.dumps({'k': 'k', 'a': 1}), content_type=JSON)
+        assert res.status_code == INVALID
+        assert res.json == "Got unexpected arguments: ['a']"
+
+
+def test_exception_for_required_parameter():
+    app = Flask(__name__)
+    key = 'PASSWORD'
+
+    @app.route('/')
+    @validate(FlaskJsonParameter(name=key, value_type=str))
+    def hello_world(**kwargs) -> Response:
+        return jsonify(str(kwargs))
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -> Response:
+        reason = 'required' if 'required' in exception.message else 'invalid'
+        response = jsonify({exception.parameter_name: [{'KEY': reason}]})
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get(data=json.dumps({}), content_type=JSON)
+        assert res.status_code == INVALID
+        assert res.json == {key: [{'KEY': 'required'}]}
+
+
+def test_async_endpoints():
+    app = Flask(__name__)
+
+    @app.route('/<int:k>')
+    @validate(FlaskPathParameter(name='k', value_type=int, validators=[Min(42)]))
+    async def hello_world(k) -> Response:
+        return jsonify(str(k))
+
+    @app.route('/foo/<int:k>')
+    @validate(FlaskPathParameter(name='k', value_type=int, validators=[Min(42)]), return_as=ReturnAs.ARGS)
+    async def return_args(k) -> Response:
+        return jsonify(str(k))
+
+    @app.route('/bar/<int:k>')
+    @validate(FlaskPathParameter(name='k', value_type=int, validators=[Min(42)]),
+              return_as=ReturnAs.KWARGS_WITH_NONE)
+    async def return_kwargs_with_none(k) -> Response:
+        return jsonify(str(k))
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -> Response:
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        res = client.get(path=f'/45')
+        assert res.status_code == OK
+
+        res = client.get(path=f'/foo/45')
+        assert res.status_code == OK
+
+        res = client.get(path=f'/bar/45')
+        assert res.status_code == OK
+
+        res = client.get(path=f'/41')
+        assert res.status_code == INVALID
+        expected = {
+            ExceptionDictKey.MESSAGE: 'smaller then allowed: 41 is not >= 42',
+            ExceptionDictKey.PARAMETER: 'k',
+            ExceptionDictKey.VALIDATOR: 'Min',
+            ExceptionDictKey.VALUE: '41',
+        }
+        assert res.json == expected
+
+
+def test_json_parameter_with_default_value():
+    app = Flask(__name__)
+
+    @app.route('/testing/message/<string:email>', methods=['POST'])
+    @validate(
+        FlaskPathParameter(name='email', value_type=str, validators=[Email()]),
+        FlaskJsonParameter(name='content', value_type=str, default='this is a fake message', required=False),
+    )
+    def testing_send_system_message(email: str, content: str) -> Response:
+        return jsonify({'email': email, 'content': content})
+
+    with app.test_client() as client:
+        res = client.post(path=f'/testing/message/adam@eva.de')
+        assert res.status_code == OK
+        expected = {
+            'email': 'adam@eva.de',
+            'content': 'this is a fake message',
+        }
+        assert res.json == expected
+
+        res = client.post(path=f'/testing/message/adam@eva.de', json={'content': 'hello world'})
+        assert res.status_code == OK
+        expected = {
+            'email': 'adam@eva.de',
+            'content': 'hello world',
+        }
+        assert res.json == expected
+
+
+def test_generic_deserializer():
+    @dataclass(frozen=True)
+    class User(Deserializable):
+        firstname: str
+        lastname: str
+        age: int
+
+        @staticmethod
+        @overrides(Deserializable)
+        def from_json(data: Dict[str, Any]) -> 'User':
+            return User(
+                firstname=data['firstname'],
+                lastname=data['lastname'],
+                age=Min(value=18).validate_param(value=int(data['age']), parameter_name='age'),
+            )
+
+    app = Flask(__name__)
+
+    @app.route('/foo', methods=['POST'])
+    @validate(
+        GenericFlaskDeserializer(name='user', cls=User, catch_exception=True),
+    )
+    def the_generic_approach(user: User) -> Response:
+        return jsonify({'name': user.firstname})
+
+    @app.route('/bar', methods=['POST'])
+    @validate(
+        GenericFlaskDeserializer(name='user', cls=User, catch_exception=False),
+    )
+    def do_not_catch(user: User) -> Response:
+        return jsonify({'name': user.firstname})
+
+    @app.errorhandler(ParameterException)
+    def handle_validation_error(exception: ParameterException) -> Response:
+        response = jsonify(exception.to_dict)
+        response.status_code = INVALID
+        return response
+
+    with app.test_client() as client:
+        data = {
+            'firstname': 'Albert',
+            'lastname': 'Einstein',
+            'age': '56',
+        }
+        res = client.post(path=f'/foo', json=data)
+        assert res.status_code == 200
+        assert res.json == {'name': 'Albert'}
+
+        data.pop('age')
+        res = client.post(path=f'/foo', json=data)
+        assert res.status_code == 422
+
+        res = client.post(path=f'/bar', json=data)
+        assert res.status_code == 500
+
+        data['age'] = '16'
+        res = client.post(path=f'/foo', json=data)
+        assert res.status_code == 422
+        expected = {
+            ExceptionDictKey.MESSAGE: 'smaller then allowed: 16 is not >= 18',
+            ExceptionDictKey.PARAMETER: 'age',
+            ExceptionDictKey.VALIDATOR: 'Min',
+            ExceptionDictKey.VALUE: '16',
+        }
+        assert res.json == expected
