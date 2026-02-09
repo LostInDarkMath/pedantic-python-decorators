@@ -1,36 +1,9 @@
 import asyncio
-import warnings
 
 import pytest
 
-from pedantic import timer, count_calls, trace, trace_if_returns, does_same_as_function, deprecated, \
-    unimplemented, mock, require_kwargs
-from pedantic.exceptions import NotImplementedException, PedanticCallWithArgsException
-
-
-def test_unimplemented():
-    @unimplemented
-    def dirt(i: int) -> str:
-        return str(i)
-
-    with pytest.raises(expected_exception=NotImplementedException):
-        dirt(42)
-
-
-def test_timer():
-    @timer
-    def operation(i: int) -> str:
-        return str(i)
-
-    operation(42)
-
-
-def test_count_calls():
-    @count_calls
-    def operation(i: int) -> str:
-        return str(i)
-
-    operation(42)
+from pedantic import trace, trace_if_returns, require_kwargs
+from pedantic.exceptions import PedanticCallWithArgsException
 
 
 def test_trace():
@@ -48,42 +21,6 @@ def test_trace_if_returns():
     traced_method = trace_if_returns(100)(some_method)
     assert some_method(42, 99) == traced_method(42, 99)
     assert some_method(42, 58) == traced_method(42, 58)
-
-
-def test_does_same_as_function():
-    def some_method(x, y, z):
-        return x * (y + z)
-
-    @does_same_as_function(some_method)
-    def other_method(x, y, z):
-        return x * y + x * z
-
-    other_method(1, 2, 3)
-    other_method(4, 5, 6)
-
-
-def test_does_same_as_function_wrong():
-    def some_method(x, y, z):
-        return x * (y + z)
-
-    @does_same_as_function(some_method)
-    def other_method(x, y, z):
-        return x * y + z
-
-    other_method(0, 2, 0)
-    with pytest.raises(expected_exception=AssertionError):
-        other_method(4, 5, 6)
-
-
-@pytest.mark.asyncio
-async def test_count_calls_async():
-    @count_calls
-    async def operation(i: int) -> str:
-        await asyncio.sleep(0)
-        return str(i)
-
-    res = await operation(42)
-    assert res == '42'
 
 
 @pytest.mark.asyncio
@@ -105,71 +42,6 @@ async def test_trace_if_returns_async():
     traced_method = trace_if_returns(100)(some_method)
     assert await some_method(42, 99) == await traced_method(42, 99)
     assert await some_method(42, 58), await traced_method(42, 58)
-
-
-@pytest.mark.asyncio
-async def test_timer_async():
-    @timer
-    async def operation(i: int) -> str:
-        await asyncio.sleep(0.05)
-        return str(i)
-
-    await operation(42)
-
-
-@pytest.mark.asyncio
-async def test_does_same_as_function_async():
-    async def some_method(x, y, z):
-        await asyncio.sleep(0)
-        return x * (y + z)
-
-    @does_same_as_function(some_method)
-    async def other_method(x, y, z):
-        await asyncio.sleep(0)
-        return x * y + x * z
-
-    await other_method(1, 2, 3)
-    await other_method(4, 5, 6)
-
-
-@pytest.mark.asyncio
-async def test_does_same_as_function_async_and_sync():
-    def some_method(x, y, z):
-        return x * (y + z)
-
-    @does_same_as_function(some_method)
-    async def other_method(x, y, z):
-        await asyncio.sleep(0)
-        return x * y + x * z
-
-    await other_method(1, 2, 3)
-    await other_method(4, 5, 6)
-
-
-@pytest.mark.asyncio
-async def test_does_same_as_function_wrong():
-    async def some_method(x, y, z):
-        await asyncio.sleep(0)
-        return x * (y + z)
-
-    @does_same_as_function(some_method)
-    async def other_method(x, y, z):
-        await asyncio.sleep(0)
-        return x * y + z
-
-    await other_method(0, 2, 0)
-
-    with pytest.raises(expected_exception=AssertionError):
-        await other_method(4, 5, 6)
-
-
-@pytest.mark.asyncio
-async def test_mock_async():
-    @mock(return_value=42)
-    async def my_function(a, b, c): return a + b + c
-
-    assert await my_function(1, 2, 3) == 42
-    assert await my_function(100, 200, 300) == 42
 
 
 @pytest.mark.asyncio

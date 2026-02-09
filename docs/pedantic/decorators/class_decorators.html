@@ -128,20 +128,6 @@ el.replaceWith(d);
 </details>
 <div class="desc"><p>Shortcut for @for_all_methods(pedantic_require_docstring)</p></div>
 </dd>
-<dt id="pedantic.decorators.class_decorators.timer_class"><code class="name flex">
-<span>def <span class="ident">timer_class</span></span>(<span>cls: ~C) ‑> ~C</span>
-</code></dt>
-<dd>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def timer_class(cls: C) -&gt; C:
-    &#34;&#34;&#34; Shortcut for @for_all_methods(timer) &#34;&#34;&#34;
-    return for_all_methods(decorator=timer)(cls=cls)</code></pre>
-</details>
-<div class="desc"><p>Shortcut for @for_all_methods(timer)</p></div>
-</dd>
 <dt id="pedantic.decorators.class_decorators.trace_class"><code class="name flex">
 <span>def <span class="ident">trace_class</span></span>(<span>cls: ~C) ‑> ~C</span>
 </code></dt>
@@ -176,7 +162,6 @@ el.replaceWith(d);
 <li><code><a title="pedantic.decorators.class_decorators.for_all_methods" href="#pedantic.decorators.class_decorators.for_all_methods">for_all_methods</a></code></li>
 <li><code><a title="pedantic.decorators.class_decorators.pedantic_class" href="#pedantic.decorators.class_decorators.pedantic_class">pedantic_class</a></code></li>
 <li><code><a title="pedantic.decorators.class_decorators.pedantic_class_require_docstring" href="#pedantic.decorators.class_decorators.pedantic_class_require_docstring">pedantic_class_require_docstring</a></code></li>
-<li><code><a title="pedantic.decorators.class_decorators.timer_class" href="#pedantic.decorators.class_decorators.timer_class">timer_class</a></code></li>
 <li><code><a title="pedantic.decorators.class_decorators.trace_class" href="#pedantic.decorators.class_decorators.trace_class">trace_class</a></code></li>
 </ul>
 </li>

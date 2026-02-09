@@ -1,4 +1,13 @@
 # Changelog
+## Pedantic 3.0.0
+- removed decorator `@count_calls`
+- removed decorator `@does_same_as_function`
+- removed decorator `@mock`
+- removed decorator `@rename_kwargs`
+- removed decorator `@timer`
+- removed decorator `@timer_class`
+- removed decorator `@uminplemented`
+
 ## Pedantic 2.4.0
 - migrate from unittest to pytest
 - exclude tests from package deployment
