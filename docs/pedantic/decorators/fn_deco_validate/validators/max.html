@@ -59,11 +59,12 @@ el.replaceWith(d);
     def __init__(self, value: Union[int, float], include_boundary: bool = True) -&gt; None:
         &#34;&#34;&#34;
             &gt;&gt;&gt; Max(7, True).validate(7)
-            True
-            &gt;&gt;&gt; Max(7, False).validate(7)
-            False
+            7
+            &gt;&gt;&gt; Max(7, False).validate(7)  # doctest: +IGNORE_EXCEPTION_DETAIL
+            Traceback (most recent call last):
+            ValidatorException: ...
             &gt;&gt;&gt; Max(7, False).validate(6.999)
-            True
+            6.999
         &#34;&#34;&#34;
         self._value = value
         self._include_boundary = include_boundary
@@ -80,11 +81,12 @@ el.replaceWith(d);
 <div class="desc"><p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; Max(7, True).validate(7)
-True
-&gt;&gt;&gt; Max(7, False).validate(7)
-False
+7
+&gt;&gt;&gt; Max(7, False).validate(7)  # doctest: +IGNORE_EXCEPTION_DETAIL
+Traceback (most recent call last):
+ValidatorException: ...
 &gt;&gt;&gt; Max(7, False).validate(6.999)
-True
+6.999
 </code></pre></div>
 <h3>Ancestors</h3>
 <ul class="hlist">

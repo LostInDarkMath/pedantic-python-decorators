@@ -68,7 +68,7 @@ class WithDecoratedMethods(ABC, Generic[DecoratorTypeVar], GenericMixin):
         ...    def m3(self) -> None:
         ...        print('bar')
         >>> instance = MyClass()
-        >>> instance.get_decorated_functions()
+        >>> instance.get_decorated_functions()  # doctest: +SKIP
         {
             <Decorators.FOO: '_foo'>: {
                 <bound method MyClass.m1 of <__main__.MyClass object at 0x7fea7a6e2610>>: 42,

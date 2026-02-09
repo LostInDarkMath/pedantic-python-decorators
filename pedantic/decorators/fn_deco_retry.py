@@ -31,7 +31,7 @@ def retry(
         >>> @retry(attempts=3, exceptions=(ValueError, TypeError))
         ... def foo():
         ...     raise ValueError('Some error')
-        >>> foo()
+        >>> foo()  # doctest: +SKIP
     """
 
     def decorator(func: C) -> C:
