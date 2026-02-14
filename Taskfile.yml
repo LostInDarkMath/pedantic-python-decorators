@@ -10,6 +10,12 @@ tasks:
       - poetry lock
       - poetry install --extras dev
     silent: true
+  dependencies-with-pip:
+    desc: Installs all dependencies using pip only
+    cmds:
+      - pip install --upgrade pip
+      - pip install .[dev]
+    silent: true
   tests:
     desc: Runs the tests
     cmds:

@@ -18,9 +18,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         check-latest: true
+    - name: Install task to make use of Taskfile.yml
+      run: |
+        sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+        task --version
     - name: Install dependencies
       run: |
-        task dependencies
+        task dependencies-with-pip
         pip install -U coveralls
     - name: Run tests with pytest
       run: |
