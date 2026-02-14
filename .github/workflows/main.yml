@@ -1,59 +1,88 @@
 name: Python Tests
 
 on:
- push:
+  push:
     branches:
       - '*'
 
 jobs:
- test:
+  changelog-check:
+    # Do not run this on master itself
+    if: github.ref != 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # we need history to diff properly
+
+      - &install-task  # define a YAML anchor to re-use this task in other jobs
+        name: Install task to make use of Taskfile.yml
+        run: |
+          sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+          task --version
+
+      - name: Verify CHANGELOG.md was updated
+        run: |
+          task check-changelog
+
+  test:
+    needs: changelog-check   # ensures this runs first
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.11, 3.12, 3.13, 3.14]
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        check-latest: true
-    - name: Install task to make use of Taskfile.yml
-      run: |
-        sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-        task --version
-    - name: Install dependencies
-      run: |
-        task dependencies-with-pip
-        pip install -U coveralls
-    - name: Run tests with pytest
-      run: |
-        task tests-with-cov
-    - name: Coveralls
-      uses: coverallsapp/github-action@v2.3.6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        file: .coverage
- deploy:
-   needs: test
-   runs-on: ubuntu-latest
-   if: github.ref == 'refs/heads/master'
-   environment:
-     name: pypi-deployment
-   steps:
-   - uses: actions/checkout@v4
-   - name: Set up Python
-     uses: actions/setup-python@v5
-     with:
-       python-version: 3.12
-   - name: Install Build Tools
-     run: |
-       pip install -U build twine
-   - name: Set Twine Environment Variables
-     run: |
-       echo "TWINE_USERNAME=${{ secrets.PYPI_USERNAME }}" >> $GITHUB_ENV
-       echo "TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}" >> $GITHUB_ENV
-   - name: Build and Upload to PyPI
-     run: |
-       python -m build
-       twine upload dist/*
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          check-latest: true
+
+      - *install-task  # see above
+
+      - name: Install dependencies
+        run: |
+          task dependencies-with-pip
+          pip install -U coveralls
+
+      - name: Run tests with pytest
+        run: |
+          task tests-with-cov
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: .coverage
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    environment:
+      name: pypi-deployment
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install Build Tools
+        run: |
+          pip install -U build twine
+
+      - name: Set Twine Environment Variables
+        run: |
+          echo "TWINE_USERNAME=${{ secrets.PYPI_USERNAME }}" >> $GITHUB_ENV
+          echo "TWINE_PASSWORD=${{ secrets.PYPI_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Build and Upload to PyPI
+        run: |
+          python -m build
+          twine upload dist/*

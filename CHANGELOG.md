@@ -10,6 +10,7 @@
 - added `Taskfile.yml` and use it in CI
 - removed `create_pdoc.sh`
 - moved `examples` out of the package
+- CI: added a check that `CHANGELOG.md` is modified on feature branches
 
 ## Pedantic 2.4.0
 - migrate from unittest to pytest
