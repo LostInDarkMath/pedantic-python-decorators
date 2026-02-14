@@ -1,24 +1,6 @@
-# pedantic-python-decorators [![Build Status](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators.svg?branch=master)](https://travis-ci.com/LostInDarkMath/pedantic-python-decorators)  [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic) [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pedantic.svg)](https://anaconda.org/conda-forge/pedantic) [![Last Commit](https://badgen.net/github/last-commit/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Stars](https://badgen.net/github/stars/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Open Issues](https://badgen.net/github/open-issues/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/issues) [![Open PRs](https://badgen.net/github/open-prs/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/pulls)
+# pedantic-python-decorators [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic) [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pedantic.svg)](https://anaconda.org/conda-forge/pedantic) [![Last Commit](https://badgen.net/github/last-commit/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Stars](https://badgen.net/github/stars/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Open Issues](https://badgen.net/github/open-issues/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/issues) [![Open PRs](https://badgen.net/github/open-prs/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/pulls)
 
 This packages includes many decorators that will make you write cleaner Python code. 
-
-## Getting Started
-This package requires Python 3.11 or later.
-There are multiple options for installing this package.
-
-### Option 1: Installing with pip from [Pypi](https://pypi.org/)
-Run `pip install pedantic`.
-
-### Option 2: Installing with conda from [conda-forge](conda-forge.org)
-Run `conda install -c conda-forge pedantic`
-
-### Option 3: Installing with pip and git
-1. Install [Git](https://git-scm.com/downloads) if you don't have it already.
-2. Run `pip install git+https://github.com/LostInDarkMath/pedantic-python-decorators.git@master`
-
-### Option 4: Offline installation using wheel
-1. Download the [latest release here](https://github.com/LostInDarkMath/PythonHelpers/releases/latest) by clicking on `pedantic-python-decorators-x.y.z-py-none-any.whl`.
-2. Execute `pip install pedantic-python-decorators-x.y.z-py3-none-any.whl`.
 
 ## The [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic) decorator - Type checking at runtime
 The `@pedantic` decorator does the following things:
@@ -50,98 +32,6 @@ get_sum_of(values=[0, 1.2, 3, 5.4])  # this raises the following runtime error:
 
 ## The [@validate]() decorator
 As the name suggests, with `@validate` you are able to validate the values that are passed to the decorated function.
-That is done in a highly customizable way. 
-But the highest benefit of this decorator is that it makes it extremely easy to write decoupled easy testable, maintainable and scalable code.
-The following example shows the decoupled implementation of a configurable algorithm with the help of `@validate`:
-```python
-import os
-from dataclasses import dataclass
-
-from pedantic import validate, ExternalParameter, overrides, Validator, Parameter, Min, ReturnAs
-
-
-@dataclass(frozen=True)
-class Configuration:
-    iterations: int
-    max_error: float
-
-
-class ConfigurationValidator(Validator):
-    @overrides(Validator)
-    def validate(self, value: Configuration) -> Configuration:
-        if value.iterations < 1 or value.max_error < 0:
-            self.raise_exception(msg=f'Invalid configuration: {value}', value=value)
-
-        return value
-
-
-class ConfigFromEnvVar(ExternalParameter):
-    """ Reads the configuration from environment variables. """
-
-    @overrides(ExternalParameter)
-    def has_value(self) -> bool:
-        return 'iterations' in os.environ and 'max_error' in os.environ
-
-    @overrides(ExternalParameter)
-    def load_value(self) -> Configuration:
-        return Configuration(
-            iterations=int(os.environ['iterations']),
-            max_error=float(os.environ['max_error']),
-        )
-
-
-class ConfigFromFile(ExternalParameter):
-    """ Reads the configuration from a config file. """
-
-    @overrides(ExternalParameter)
-    def has_value(self) -> bool:
-        return os.path.isfile('config.csv')
-
-    @overrides(ExternalParameter)
-    def load_value(self) -> Configuration:
-        with open(file='config.csv', mode='r') as file:
-            content = file.readlines()
-            return Configuration(
-                iterations=int(content[0].strip('\n')),
-                max_error=float(content[1]),
-            )
-
-
-# choose your configuration source here:
-@validate(ConfigFromEnvVar(name='config', validators=[ConfigurationValidator()]), strict=False, return_as=ReturnAs.KWARGS_WITH_NONE)
-# @validate(ConfigFromFile(name='config', validators=[ConfigurationValidator()]), strict=False)
-
-# with strict_mode = True (which is the default)
-# you need to pass a Parameter for each parameter of the decorated function
-# @validate(
-#     Parameter(name='value', validators=[Min(5, include_boundary=False)]),
-#     ConfigFromFile(name='config', validators=[ConfigurationValidator()]),
-# )
-def my_algorithm(value: float, config: Configuration) -> float:
-    """
-        This method calculates something that depends on the given value with considering the configuration.
-        Note how well this small piece of code is designed:
-            - Fhe function my_algorithm() need a Configuration but has no knowledge where this come from.
-            - Furthermore, it doesn't care about parameter validation.
-            - The ConfigurationValidator doesn't know anything about the creation of the data.
-            - The @validate decorator is the only you need to change, if you want a different configuration source.
-    """
-    print(value)
-    print(config)
-    return value
-
-
-if __name__ == '__main__':
-    # we can call the function with a config like there is no decorator.
-    # This makes testing extremely easy: no config files, no environment variables or stuff like that
-    print(my_algorithm(value=2, config=Configuration(iterations=3, max_error=4.4)))
-
-    os.environ['iterations'] = '12'
-    os.environ['max_error'] = '3.1415'
-
-    # but we also can omit the config and load it implicitly by our custom Parameters
-    print(my_algorithm(value=42.0))
-```
 
 ## List of all decorators in this package
 - [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_deprecated.html)
@@ -196,6 +86,4 @@ enable_pedantic()
 This package is **not** compatible with compiled source code (e.g. with [Nuitka](https://github.com/Nuitka/Nuitka)).
 That's because it uses the `inspect` module from the standard library which will raise errors like `OSError: could not get source code` in case of compiled source code.
 
-
 Don't forget to check out the [documentation](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic).
-Happy coding!

@@ -36,6 +36,7 @@ dev = [
   "pytest-cov==7.0.0",
   "Flask[async]==3.1.2",
   "multiprocess==0.70.19",
+  "ruff==0.15.1",
   "Werkzeug==3.1.5",
 ]
 
@@ -45,3 +46,34 @@ where = ["."]
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
 python_files = ["*.py"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "ANN401", #  Dynamically typed expressions (typing.Any) are disallowed in
+  "D100", # Missing docstring in public module
+  "D104",  # Missing docstring in public package
+  "D105",  #  Missing docstring in magic method
+  "D202", # No blank lines allowed after function docstring (found 1)
+  "D203", # incorrect-blank-line-before-class
+  "D212", # multi-line-summary-first-line
+  "D400", # First line should end with a period
+  "D401",  # First line of docstring should be in imperative mood: "Converts a given type to the typing module equivalent type."
+  "D413",  # Missing blank line after last section ("Raises")
+  "D415", # First line should end with a period, question mark, or exclamation point
+  "EM101", # Exception must not use a string literal, assign to variable first
+  "EM102", # Exception must not use an f-string literal, assign to variable first
+  "S112",  # `try`-`except`-`continue` detected, consider logging the exception
+  "SIM108", # Use ternary operator `processed_arg = substitutions.get(arg, arg) if isinstance(arg, TypeVar) else arg` instead of `if`-`else`-block
+  "TRY003",  # Avoid specifying long messages outside the exception class
+]
