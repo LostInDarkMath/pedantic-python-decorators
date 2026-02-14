@@ -1,0 +1,134 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+tasks:
+  dependencies:
+    desc: Updates the poetry.lock file and installs all dependencies
+    cmds:
+      - pip install --upgrade pip
+      - poetry lock
+      - poetry install --extras dev
+    silent: true
+
+  dependencies-with-pip:
+    desc: Installs all dependencies using pip only
+    cmds:
+      - pip install --upgrade pip
+      - pip install .[dev]
+    silent: true
+
+  tests:
+    desc: Runs the tests
+    cmds:
+      - pytest --doctest-modules
+
+  tests-with-cov:
+    desc: Runs the tests with coverage
+    cmds:
+      - pytest --doctest-modules --cov=pedantic --cov-branch --cov-report= --cov-report=term
+    silent: true
+
+  lint:
+    desc: Runs the linter (ruff)
+    silent: true
+    cmds:
+      - ruff check pedantic
+
+  lint-fix:
+    desc: Runs the linter and fixes all fixable errors automatically
+    silent: true
+    cmds:
+      - ruff check pedantic --fix
+
+  validate:
+    desc: Runs all checks and updates the docu. It is recommended to do this before making a commit.
+    cmds:
+      - task: check-changelog
+      - task: check-version
+      - task: tests
+      - task: lint
+      - task: generate-docs
+
+  docs:
+    desc: Creates the HTML documentation and opens is Chrome
+    cmds:
+      - task: generate-docs
+      - google-chrome ./docs/index.html
+    silent: true
+
+  generate-docs:
+    desc: Creates the HTML documentation
+    cmds:
+      - rm -rf ./docs
+      - pip install pdoc
+      - pdoc -o docs pedantic
+    silent: true
+
+  check-changelog:
+    desc: Fails if CHANGELOG.md was not modified compared to master
+    silent: true
+    cmds:
+      - |
+        set -e
+
+        echo "Checking that CHANGELOG.md was updated..."
+
+        # Ensure we have master available (works both locally and in CI)
+        if git show-ref --verify --quiet refs/remotes/origin/master; then
+          BASE=origin/master
+        elif git show-ref --verify --quiet refs/heads/master; then
+          BASE=master
+        else
+          echo "❌ Could not find master branch to diff against."
+          exit 1
+        fi
+
+        # Fetch latest master if we're in a repo with a remote
+        git fetch origin master >/dev/null 2>&1 || true
+
+        if git diff --name-only "$BASE"...HEAD | grep -qx "CHANGELOG.md"; then
+          echo "✅ CHANGELOG.md was updated."
+        else
+          echo "❌ CHANGELOG.md was NOT updated."
+          echo ""
+          echo "Please add an entry describing your change."
+          exit 1
+        fi
+
+  check-version:
+    desc: Fails if the version in pyproject.toml was not bumped compared to master
+    silent: true
+    cmds:
+      - |
+        set -e
+
+        echo "Checking that project version was updated..."
+
+        # Determine comparison base (works locally and in CI)
+        if git show-ref --verify --quiet refs/remotes/origin/master; then
+          BASE=origin/master
+        elif git show-ref --verify --quiet refs/heads/master; then
+          BASE=master
+        else
+          echo "❌ Could not find master branch to diff against."
+          exit 1
+        fi
+
+        # Try to fetch latest master (no-op if no remote available)
+        git fetch origin master >/dev/null 2>&1 || true
+
+        # Extract versions
+        CURRENT_VERSION=$(grep -E '^version\s*=' pyproject.toml | head -1 | sed -E 's/.*"(.*)".*/\1/')
+        BASE_VERSION=$(git show "$BASE:pyproject.toml" | grep -E '^version\s*=' | head -1 | sed -E 's/.*"(.*)".*/\1/')
+
+        echo "Base version:    $BASE_VERSION"
+        echo "Current version: $CURRENT_VERSION"
+
+        if [ "$CURRENT_VERSION" = "$BASE_VERSION" ]; then
+          echo "❌ Version was not updated."
+          echo "Please bump the version in pyproject.toml."
+          exit 1
+        fi
+
+        echo "✅ Version was updated."

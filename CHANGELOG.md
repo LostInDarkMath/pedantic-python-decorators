@@ -1,4 +1,20 @@
 # Changelog
+## Pedantic 3.0.0
+- removed decorator `@count_calls`
+- removed decorator `@does_same_as_function`
+- removed decorator `@mock`
+- removed decorator `@rename_kwargs`
+- removed decorator `@timer`
+- removed decorator `@timer_class`
+- removed decorator `@uminplemented`
+- added `Taskfile.yml` and use it in CI
+- removed `create_pdoc.sh`
+- moved `examples` out of the package
+- CI: added a check that `CHANGELOG.md` is modified on feature branches
+- CI: added a check that the poetry package version was updated
+- added `ruff` linter and apply lint rules to code
+- updated `README.md`
+
 ## Pedantic 2.4.0
 - migrate from unittest to pytest
 - exclude tests from package deployment
