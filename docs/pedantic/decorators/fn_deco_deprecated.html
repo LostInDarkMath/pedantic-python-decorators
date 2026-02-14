@@ -71,29 +71,31 @@
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">        Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">        You can specify an optional reason or message to display with the warning.</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">        Example:</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">        &gt;&gt;&gt; @deprecated</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">        ... def my_function(a, b, c):</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">        ...     pass</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">        &gt;&gt;&gt; @deprecated(message=&#39;Will be removed soon. Please use my_function_new_instead.&#39;)</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">        ... def my_function(a, b, c):</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">        ...     pass</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">fun</span><span class="p">:</span> <span class="n">F</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">F</span><span class="p">:</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        <span class="nd">@wraps</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReturnType</span><span class="p">:</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Call to deprecated function </span><span class="si">{</span><span class="n">fun</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s1">.&#39;</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>            <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Reason: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>            <span class="k">return</span> <span class="n">fun</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>        <span class="k">return</span> <span class="n">wrapper</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="k">return</span> <span class="n">decorator</span> <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">        If you use Python 3.13 or newer, consider using warnings.deprecated instead from the standard library.</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">        Example:</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">        &gt;&gt;&gt; @deprecated</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">        ... def my_function(a, b, c):</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">        ...     pass</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">        &gt;&gt;&gt; @deprecated(message=&#39;Will be removed soon. Please use my_function_new_instead.&#39;)</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">        ... def my_function(a, b, c):</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">        ...     pass</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">fun</span><span class="p">:</span> <span class="n">F</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">F</span><span class="p">:</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>        <span class="nd">@wraps</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReturnType</span><span class="p">:</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Call to deprecated function </span><span class="si">{</span><span class="n">fun</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s1">.&#39;</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>            <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Reason: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>            <span class="k">return</span> <span class="n">fun</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="k">return</span> <span class="n">wrapper</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">return</span> <span class="n">decorator</span> <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -114,34 +116,38 @@
 </span><span id="deprecated-16"><a href="#deprecated-16"><span class="linenos">16</span></a><span class="sd">        Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.</span>
 </span><span id="deprecated-17"><a href="#deprecated-17"><span class="linenos">17</span></a><span class="sd">        You can specify an optional reason or message to display with the warning.</span>
 </span><span id="deprecated-18"><a href="#deprecated-18"><span class="linenos">18</span></a>
-</span><span id="deprecated-19"><a href="#deprecated-19"><span class="linenos">19</span></a><span class="sd">        Example:</span>
-</span><span id="deprecated-20"><a href="#deprecated-20"><span class="linenos">20</span></a><span class="sd">        &gt;&gt;&gt; @deprecated</span>
-</span><span id="deprecated-21"><a href="#deprecated-21"><span class="linenos">21</span></a><span class="sd">        ... def my_function(a, b, c):</span>
-</span><span id="deprecated-22"><a href="#deprecated-22"><span class="linenos">22</span></a><span class="sd">        ...     pass</span>
-</span><span id="deprecated-23"><a href="#deprecated-23"><span class="linenos">23</span></a><span class="sd">        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP</span>
-</span><span id="deprecated-24"><a href="#deprecated-24"><span class="linenos">24</span></a><span class="sd">        &gt;&gt;&gt; @deprecated(message=&#39;Will be removed soon. Please use my_function_new_instead.&#39;)</span>
-</span><span id="deprecated-25"><a href="#deprecated-25"><span class="linenos">25</span></a><span class="sd">        ... def my_function(a, b, c):</span>
-</span><span id="deprecated-26"><a href="#deprecated-26"><span class="linenos">26</span></a><span class="sd">        ...     pass</span>
-</span><span id="deprecated-27"><a href="#deprecated-27"><span class="linenos">27</span></a><span class="sd">        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP</span>
-</span><span id="deprecated-28"><a href="#deprecated-28"><span class="linenos">28</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="deprecated-29"><a href="#deprecated-29"><span class="linenos">29</span></a>
-</span><span id="deprecated-30"><a href="#deprecated-30"><span class="linenos">30</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">fun</span><span class="p">:</span> <span class="n">F</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">F</span><span class="p">:</span>
-</span><span id="deprecated-31"><a href="#deprecated-31"><span class="linenos">31</span></a>        <span class="nd">@wraps</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
-</span><span id="deprecated-32"><a href="#deprecated-32"><span class="linenos">32</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReturnType</span><span class="p">:</span>
-</span><span id="deprecated-33"><a href="#deprecated-33"><span class="linenos">33</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Call to deprecated function </span><span class="si">{</span><span class="n">fun</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s1">.&#39;</span>
-</span><span id="deprecated-34"><a href="#deprecated-34"><span class="linenos">34</span></a>
-</span><span id="deprecated-35"><a href="#deprecated-35"><span class="linenos">35</span></a>            <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
-</span><span id="deprecated-36"><a href="#deprecated-36"><span class="linenos">36</span></a>                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Reason: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span>
-</span><span id="deprecated-37"><a href="#deprecated-37"><span class="linenos">37</span></a>
-</span><span id="deprecated-38"><a href="#deprecated-38"><span class="linenos">38</span></a>            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="deprecated-39"><a href="#deprecated-39"><span class="linenos">39</span></a>            <span class="k">return</span> <span class="n">fun</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="deprecated-40"><a href="#deprecated-40"><span class="linenos">40</span></a>        <span class="k">return</span> <span class="n">wrapper</span>
-</span><span id="deprecated-41"><a href="#deprecated-41"><span class="linenos">41</span></a>    <span class="k">return</span> <span class="n">decorator</span> <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+</span><span id="deprecated-19"><a href="#deprecated-19"><span class="linenos">19</span></a><span class="sd">        If you use Python 3.13 or newer, consider using warnings.deprecated instead from the standard library.</span>
+</span><span id="deprecated-20"><a href="#deprecated-20"><span class="linenos">20</span></a>
+</span><span id="deprecated-21"><a href="#deprecated-21"><span class="linenos">21</span></a><span class="sd">        Example:</span>
+</span><span id="deprecated-22"><a href="#deprecated-22"><span class="linenos">22</span></a><span class="sd">        &gt;&gt;&gt; @deprecated</span>
+</span><span id="deprecated-23"><a href="#deprecated-23"><span class="linenos">23</span></a><span class="sd">        ... def my_function(a, b, c):</span>
+</span><span id="deprecated-24"><a href="#deprecated-24"><span class="linenos">24</span></a><span class="sd">        ...     pass</span>
+</span><span id="deprecated-25"><a href="#deprecated-25"><span class="linenos">25</span></a><span class="sd">        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP</span>
+</span><span id="deprecated-26"><a href="#deprecated-26"><span class="linenos">26</span></a><span class="sd">        &gt;&gt;&gt; @deprecated(message=&#39;Will be removed soon. Please use my_function_new_instead.&#39;)</span>
+</span><span id="deprecated-27"><a href="#deprecated-27"><span class="linenos">27</span></a><span class="sd">        ... def my_function(a, b, c):</span>
+</span><span id="deprecated-28"><a href="#deprecated-28"><span class="linenos">28</span></a><span class="sd">        ...     pass</span>
+</span><span id="deprecated-29"><a href="#deprecated-29"><span class="linenos">29</span></a><span class="sd">        &gt;&gt;&gt; my_function(5, 4, 3)  # doctest: +SKIP</span>
+</span><span id="deprecated-30"><a href="#deprecated-30"><span class="linenos">30</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="deprecated-31"><a href="#deprecated-31"><span class="linenos">31</span></a>
+</span><span id="deprecated-32"><a href="#deprecated-32"><span class="linenos">32</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">fun</span><span class="p">:</span> <span class="n">F</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">F</span><span class="p">:</span>
+</span><span id="deprecated-33"><a href="#deprecated-33"><span class="linenos">33</span></a>        <span class="nd">@wraps</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span>
+</span><span id="deprecated-34"><a href="#deprecated-34"><span class="linenos">34</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReturnType</span><span class="p">:</span>
+</span><span id="deprecated-35"><a href="#deprecated-35"><span class="linenos">35</span></a>            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Call to deprecated function </span><span class="si">{</span><span class="n">fun</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s1">.&#39;</span>
+</span><span id="deprecated-36"><a href="#deprecated-36"><span class="linenos">36</span></a>
+</span><span id="deprecated-37"><a href="#deprecated-37"><span class="linenos">37</span></a>            <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
+</span><span id="deprecated-38"><a href="#deprecated-38"><span class="linenos">38</span></a>                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Reason: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s1">&#39;</span>
+</span><span id="deprecated-39"><a href="#deprecated-39"><span class="linenos">39</span></a>
+</span><span id="deprecated-40"><a href="#deprecated-40"><span class="linenos">40</span></a>            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="deprecated-41"><a href="#deprecated-41"><span class="linenos">41</span></a>            <span class="k">return</span> <span class="n">fun</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="deprecated-42"><a href="#deprecated-42"><span class="linenos">42</span></a>        <span class="k">return</span> <span class="n">wrapper</span>
+</span><span id="deprecated-43"><a href="#deprecated-43"><span class="linenos">43</span></a>    <span class="k">return</span> <span class="n">decorator</span> <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.
 You can specify an optional reason or message to display with the warning.</p>
+
+<p>If you use Python 3.13 or newer, consider using warnings.deprecated instead from the standard library.</p>
 
 <p>Example:</p>
 
