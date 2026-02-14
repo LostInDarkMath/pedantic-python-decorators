@@ -15,6 +15,8 @@ def deprecated(func: F | None = None, message: str = '') -> F | Callable[[F], F]
         Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.
         You can specify an optional reason or message to display with the warning.
 
+        If you use Python 3.13 or newer, consider using warnings.deprecated instead from the standard library.
+
         Example:
         >>> @deprecated
         ... def my_function(a, b, c):

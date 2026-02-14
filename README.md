@@ -144,26 +144,19 @@ if __name__ == '__main__':
 ```
 
 ## List of all decorators in this package
-- [@count_calls](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_count_calls.html)
 - [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_deprecated.html)
-- [@does_same_as_function](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_does_same_as_function.html)
 - [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/cls_deco_frozen_dataclass.html#pedantic.decorators.cls_deco_frozen_dataclass.frozen_dataclass)
 - [@frozen_type_safe_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/cls_deco_frozen_dataclass.html#pedantic.decorators.cls_deco_frozen_dataclass.frozen_type_safe_dataclass)
 - [@for_all_methods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.for_all_methods)
 - [@in_subprocess](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_in_subprocess.html)
-- [@mock](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_mock.html)
 - [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_overrides.html)
 - [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_pedantic.html#pedantic.decorators.fn_deco_pedantic.pedantic)
 - [@pedantic_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.pedantic_class)
-- [@rename_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_rename_kwargs.html)
 - [@require_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_require_kwargs.html)
 - [@retry](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_retry.html)
-- [@timer](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_timer.html)
-- [@timer_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.timer_class)
 - [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_trace.html)
 - [@trace_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.trace_class)
 - [@trace_if_returns](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_trace_if_returns.html)
-- [@unimplemented](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_unimplemented.html)
 - [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate/fn_deco_validate.html)
 
 ## List of all mixins in this package
@@ -183,12 +176,7 @@ There are no hard dependencies. But if you want to use some advanced features yo
   - `GenericFlaskDeserializer`
 
 ## Contributing
-Feel free to contribute by submitting a pull request :)
-
-## Acknowledgments
-* [Rathaustreppe](https://github.com/rathaustreppe)
-* [Aran-Fey](https://stackoverflow.com/questions/55503673/how-do-i-check-if-a-value-matches-a-type-in-python/55504010#55504010)
-* [user395760](https://stackoverflow.com/questions/55503673/how-do-i-check-if-a-value-matches-a-type-in-python/55504010#55504010)
+This project is based on [poetry](https://python-poetry.org/) and [taskfile](https://taskfile.dev).
 
 ## Risks and side effects
 The usage of decorators may affect the performance of your application. 

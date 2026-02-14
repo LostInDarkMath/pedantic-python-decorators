@@ -20,12 +20,11 @@ jobs:
         check-latest: true
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
+        task dependencies
         pip install -U coveralls
-        pip install -e .[dev]
     - name: Run tests with pytest
       run: |
-        pytest --doctest-modules --cov=pedantic --cov-branch --cov-report= --cov-report=term
+        task tests-with-cov
     - name: Coveralls
       uses: coverallsapp/github-action@v2.3.6
       with:
