@@ -29,12 +29,25 @@ tasks:
       - pytest --doctest-modules --cov=pedantic --cov-branch --cov-report= --cov-report=term
     silent: true
 
+  lint:
+    desc: Runs the linter (ruff)
+    silent: true
+    cmds:
+      - ruff check pedantic
+
+  lint-fix:
+    desc: Runs the linter and fixes all fixable errors automatically
+    silent: true
+    cmds:
+      - ruff check pedantic --fix
+
   validate:
     desc: Runs all checks and updates the docu. It is recommended to do this before making a commit.
     cmds:
       - task: check-changelog
       - task: check-version
       - task: tests
+      - task: lint
       - task: generate-docs
 
   docs:

@@ -1,9 +1,10 @@
 import inspect
 import re
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 try:
-    from docstring_parser import parse, Docstring
+    from docstring_parser import Docstring, parse
     IS_DOCSTRING_PARSER_INSTALLED = True
 except ImportError:
     IS_DOCSTRING_PARSER_INSTALLED = False
@@ -14,12 +15,14 @@ from pedantic.exceptions import PedanticTypeCheckException
 
 FUNCTIONS_THAT_REQUIRE_KWARGS = [
     '__new__', '__init__', '__str__', '__del__', '__int__', '__float__', '__complex__', '__oct__', '__hex__',
-    '__index__', '__trunc__', '__repr__', '__unicode__', '__hash__', '__nonzero__', '__dir__', '__sizeof__'
+    '__index__', '__trunc__', '__repr__', '__unicode__', '__hash__', '__nonzero__', '__dir__', '__sizeof__',
 ]
 
 
 class DecoratedFunction:
-    def __init__(self, func: Callable[..., Any]) -> None:
+    """Wraps a function."""
+
+    def __init__(self, func: Callable[..., Any]) -> None:  # noqa: D107
         self._func = func
 
         if not callable(func):
@@ -42,47 +45,48 @@ class DecoratedFunction:
             self._docstring = None
 
     @property
-    def func(self) -> Callable[..., Any]:
+    def func(self) -> Callable[..., Any]:  # noqa: D102
         return self._func
 
     @property
-    def annotations(self) -> Dict[str, Any]:
+    def annotations(self) -> dict[str, Any]:  # noqa: D102
         return self._full_arg_spec.annotations
 
     @property
-    def docstring(self) -> Optional[Docstring]:
+    def docstring(self) -> Docstring | None:
         """
-            Returns the docstring if the docstring-parser package is installed else None.
-            See also https://pypi.org/project/docstring-parser/
+        Returns the docstring if the docstring-parser package is installed else None.
+
+        See also https://pypi.org/project/docstring-parser/
         """
 
         return self._docstring
 
     @property
-    def raw_doc(self) -> Optional[str]:
+    def raw_doc(self) -> str | None:  # noqa: D102
         return self._func.__doc__
 
     @property
-    def signature(self) -> inspect.Signature:
+    def signature(self) -> inspect.Signature:  # noqa: D102
         return self._signature
 
     @property
-    def err(self) -> str:
+    def err(self) -> str:  # noqa: D102
         return self._err
 
     @property
-    def source(self) -> str:
+    def source(self) -> str: # noqa: D102
         return self._source
 
     @property
-    def name(self) -> str:
+    def name(self) -> str:  # noqa: D102
         if hasattr(self._func, '__name__'):
             return self._func.__name__
 
         return self._func.func.__name__
 
     @property
-    def full_name(self) -> str:
+    def full_name(self) -> str:  # noqa: D102
         if hasattr(self._func, '__qualname__'):
             return self._func.__qualname__
 
@@ -90,7 +94,7 @@ class DecoratedFunction:
 
     @property
     def is_static_method(self) -> bool:
-        """ I honestly have no idea how to do this better :( """
+        """I honestly have no idea how to do this better :("""
 
         if self.source is None:
             return False
@@ -98,58 +102,59 @@ class DecoratedFunction:
         return '@staticmethod' in self.source
 
     @property
-    def wants_args(self) -> bool:
+    def wants_args(self) -> bool:  # noqa: D102
         if self.source is None:
             return False
 
         return '*args' in self.source
 
     @property
-    def is_property_setter(self) -> bool:
+    def is_property_setter(self) -> bool:  # noqa: D102
         if self.source is None:
             return False
 
         return f'@{self.name}.setter' in self.source
 
     @property
-    def should_have_kwargs(self) -> bool:
+    def should_have_kwargs(self) -> bool:  # noqa: D102
         if self.is_property_setter or self.wants_args:
             return False
-        elif not self.name.startswith('__') or not self.name.endswith('__'):
+        if not self.name.startswith('__') or not self.name.endswith('__'):
             return True
         return self.name in FUNCTIONS_THAT_REQUIRE_KWARGS
 
     @property
-    def is_instance_method(self) -> bool:
+    def is_instance_method(self) -> bool:  # noqa: D102
         return self._full_arg_spec.args != [] and self._full_arg_spec.args[0] == 'self'
 
     @property
     def is_class_method(self) -> bool:
         """
-            Returns true if the function is decoratorated with the @classmethod decorator.
-            See also: https://stackoverflow.com/questions/19227724/check-if-a-function-uses-classmethod
+        Returns true if the function is decorated with the @classmethod decorator.
+
+        See also: https://stackoverflow.com/questions/19227724/check-if-a-function-uses-classmethod
         """
 
         return inspect.ismethod(self._func)
 
     @property
-    def num_of_decorators(self) -> int:
+    def num_of_decorators(self) -> int:  # noqa: D102
         if self.source is None:
             return 0
 
         return len(re.findall('@', self.source.split('def')[0]))
 
     @property
-    def is_pedantic(self) -> bool:
+    def is_pedantic(self) -> bool:  # noqa: D102
         if self.source is None:
             return False
 
         return '@pedantic' in self.source or '@require_kwargs' in self.source
 
     @property
-    def is_coroutine(self) -> bool:
+    def is_coroutine(self) -> bool:  # noqa: D102
         return inspect.iscoroutinefunction(self._func)
 
     @property
-    def is_generator(self) -> bool:
+    def is_generator(self) -> bool:  # noqa: D102
         return inspect.isgeneratorfunction(self._func)

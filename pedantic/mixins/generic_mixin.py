@@ -1,9 +1,54 @@
-from typing import Type, TypeVar, Dict, get_origin, get_args
+from typing import TypeVar, get_args, get_origin
 
 
 class GenericMixin:
     """
-        A mixin that provides easy access to given type variables.
+    A mixin that provides easy access to given type variables.
+
+    Example:
+        >>> from typing import Generic, TypeVar
+        >>> T = TypeVar('T')
+        >>> U = TypeVar('U')
+        >>> class Foo(Generic[T, U], GenericMixin):
+        ...     values: list[T]
+        ...     value: U
+        >>> f = Foo[str, int]()
+        >>> f.type_vars
+        {~T: <class 'str'>, ~U: <class 'int'>}
+    """
+
+    @property
+    def type_var(self) -> type:
+        """
+        Get the type variable for this class.
+
+        Use this for convenience if your class has only one type parameter.
+
+        DO NOT call this inside __init__()!
+
+        Example:
+            >>> from typing import Generic, TypeVar
+            >>> T = TypeVar('T')
+            >>> class Foo(Generic[T], GenericMixin):
+            ...     value: T
+            >>> f = Foo[float]()
+            >>> f.type_var
+            <class 'float'>
+        """
+
+        types = self._get_resolved_typevars()
+
+        if len(types) > 1:
+            raise ValueError('You have multiple type parameters. Please use "type_vars" instead of "type_var".')
+
+        return next(iter(types.values()))
+
+    @property
+    def type_vars(self) -> dict[TypeVar, type]:
+        """
+        Returns the mapping of type variables to types.
+
+        DO NOT call this inside __init__()!
 
         Example:
             >>> from typing import Generic, TypeVar
@@ -15,53 +60,14 @@ class GenericMixin:
             >>> f = Foo[str, int]()
             >>> f.type_vars
             {~T: <class 'str'>, ~U: <class 'int'>}
-    """
-
-    @property
-    def type_var(self) -> Type:
-        """
-            Get the type variable for this class.
-            Use this for convenience if your class has only one type parameter.
-
-            DO NOT call this inside __init__()!
-
-            Example:
-                >>> from typing import Generic, TypeVar
-                >>> T = TypeVar('T')
-                >>> class Foo(Generic[T], GenericMixin):
-                ...     value: T
-                >>> f = Foo[float]()
-                >>> f.type_var
-                <class 'float'>
-        """
-
-        types = self._get_resolved_typevars()
-        assert len(types) == 1, f'You have multiple type parameters. Please use "type_vars" instead of "type_var".'
-        return list(types.values())[0]  # type: ignore
-
-    @property
-    def type_vars(self) -> Dict[TypeVar, Type]:
-        """
-            Returns the mapping of type variables to types.
-
-            DO NOT call this inside __init__()!
-
-            Example:
-                >>> from typing import Generic, TypeVar
-                >>> T = TypeVar('T')
-                >>> U = TypeVar('U')
-                >>> class Foo(Generic[T, U], GenericMixin):
-                ...     values: list[T]
-                ...     value: U
-                >>> f = Foo[str, int]()
-                >>> f.type_vars
-                {~T: <class 'str'>, ~U: <class 'int'>}
         """
 
         return self._get_resolved_typevars()
 
-    def _get_resolved_typevars(self) -> Dict[TypeVar, Type]:
+    def _get_resolved_typevars(self) -> dict[TypeVar, type]:  # noqa: C901
         """
+        Returns the resolved type vars.
+
         Do not call this inside the __init__() method, because at that point the relevant information are not present.
         See also https://github.com/python/cpython/issues/90899'
         """
@@ -71,10 +77,10 @@ class GenericMixin:
         if not hasattr(self, '__orig_bases__'):
             raise AssertionError(
                 f'{self.class_name} is not a generic class. To make it generic, declare it like: '
-                f'class {self.class_name}(Generic[T], GenericMixin):...'
+                f'class {self.class_name}(Generic[T], GenericMixin):...',
             )
 
-        def collect(base, substitutions: dict[TypeVar, type]):
+        def collect(base: type, substitutions: dict[TypeVar, type]) -> None:
             """Recursively collect type var mappings from a generic base."""
             origin = get_origin(base) or base
             args = get_args(base)
@@ -83,11 +89,14 @@ class GenericMixin:
             # copy substitutions so each recursion has its own view
             resolved = substitutions.copy()
 
-            for param, arg in zip(params, args):
+            for param, arg in zip(params, args, strict=False):
                 if isinstance(arg, TypeVar):
-                    arg = substitutions.get(arg, arg)
-                mapping[param] = arg
-                resolved[param] = arg
+                    processed_arg = substitutions.get(arg, arg)
+                else:
+                    processed_arg = arg
+
+                mapping[param] = processed_arg
+                resolved[param] = processed_arg
 
             # Recurse into base classes, applying current substitutions
             for super_base in getattr(origin, '__orig_bases__', []):
@@ -131,12 +140,13 @@ class GenericMixin:
                 f'You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n'
                 f'Also make sure that you do not call this in the __init__() method of your class!\n'
                 f'Unresolved type variables: {unresolved}\n'
-                f'See also https://github.com/python/cpython/issues/90899'
+                f'See also https://github.com/python/cpython/issues/90899',
             )
 
         return mapping
+
     @property
     def class_name(self) -> str:
-        """ Get the name of the class of this instance. """
+        """Get the name of the class of this instance."""
 
         return type(self).__name__

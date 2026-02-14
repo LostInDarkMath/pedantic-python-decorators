@@ -1,6 +1,7 @@
 from abc import ABC
+from collections.abc import Callable
 from enum import StrEnum
-from typing import TypeVar, Callable, Generic
+from typing import Generic, TypeVar
 
 from pedantic.mixins.generic_mixin import GenericMixin
 
@@ -25,10 +26,11 @@ C = TypeVar('C', bound=Callable)
 
 def create_decorator(
     decorator_type: DecoratorType,
-    transformation: Callable[[C, DecoratorType, T], C] = None,
+    transformation: Callable[[C, DecoratorType, T], C] | None = None,
 ) -> Callable[[T], Callable[[C], C]]:
     """
     Creates a new decorator that is parametrized with one argument of an arbitrary type.
+
     You can also pass an arbitrary [transformation] to add custom behavior to the decorator.
     """
 
@@ -46,9 +48,10 @@ def create_decorator(
     return decorator
 
 
-class WithDecoratedMethods(ABC, Generic[DecoratorTypeVar], GenericMixin):
+class WithDecoratedMethods(ABC, GenericMixin, Generic[DecoratorTypeVar]):
     """
     A mixin that is used to figure out which method is decorated with custom parameterized decorators.
+
     Example:
         >>> class Decorators(DecoratorType):
         ...     FOO = '_foo'
@@ -81,8 +84,10 @@ class WithDecoratedMethods(ABC, Generic[DecoratorTypeVar], GenericMixin):
     """
 
     def get_decorated_functions(self) -> dict[DecoratorTypeVar, dict[C, T]]:
-        decorator_types = self.type_vars[DecoratorTypeVar]
-        decorated_functions = {t: dict() for t in decorator_types}  # type: ignore
+        """Returns a mapping of all functions that are decorated by the given decorator type."""
+
+        decorator_types: DecoratorTypeVar = self.type_vars[DecoratorTypeVar]  # type: ignore[assignment]
+        decorated_functions = {t: {} for t in decorator_types}
 
         for attribute_name in dir(self):
             if attribute_name.startswith('__') or attribute_name in ['type_var', 'type_vars']:
@@ -90,10 +95,10 @@ class WithDecoratedMethods(ABC, Generic[DecoratorTypeVar], GenericMixin):
 
             try:
                 attribute = getattr(self, attribute_name)
-            except BaseException:
+            except BaseException:  # noqa: BLE001
                 continue  # ignore bad attributes
 
-            for decorator_type in decorator_types:  # type: ignore
+            for decorator_type in decorator_types:
                 if hasattr(attribute, decorator_type):
                     decorated_functions[decorator_type][attribute] = getattr(attribute, decorator_type)
 

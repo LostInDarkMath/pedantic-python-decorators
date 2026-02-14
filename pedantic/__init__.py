@@ -8,8 +8,6 @@ from pedantic.mixins import GenericMixin, create_decorator, DecoratorType, WithD
 
 from pedantic.type_checking_logic import assert_value_matches_type, resolve_forward_ref
 
-from pedantic.exceptions import NotImplementedException
-
 from pedantic.env_var_logic import disable_pedantic, enable_pedantic, is_enabled
 
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs

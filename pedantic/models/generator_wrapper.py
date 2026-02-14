@@ -1,11 +1,14 @@
-from typing import Generator, Any, Dict, Iterable, Iterator, TypeVar
+from collections.abc import Generator, Iterable, Iterator
+from typing import Any, TypeVar
 
-from pedantic.type_checking_logic.check_types import assert_value_matches_type, get_type_arguments, get_base_generic
 from pedantic.exceptions import PedanticTypeCheckException
+from pedantic.type_checking_logic.check_types import assert_value_matches_type, get_base_generic, get_type_arguments
 
 
 class GeneratorWrapper:
-    def __init__(self, wrapped: Generator, expected_type: Any, err_msg: str, type_vars: Dict[TypeVar, Any]) -> None:
+    """A wrapper around a generators that handles type checking."""
+
+    def __init__(self, wrapped: Generator, expected_type: Any, err_msg: str, type_vars: dict[TypeVar, Any]) -> None:  # noqa: D107
         self._generator = wrapped
         self._err = err_msg
         self._yield_type = None
@@ -25,13 +28,17 @@ class GeneratorWrapper:
     def __getattr__(self, name: str) -> Any:
         return getattr(self._generator, name)
 
-    def throw(self, *args) -> Any:
+    def throw(self, *args: Any) -> Any:
+        """Raise an exception in the generator."""
         return self._generator.throw(*args)
 
     def close(self) -> None:
+        """Close the generator."""
         self._generator.close()
 
-    def send(self, obj) -> Any:
+    def send(self, obj: Any) -> Any:
+        """Send a value into the generator and check types."""
+
         if self._initialized:
             assert_value_matches_type(value=obj, type_=self._send_type, type_vars=self._type_vars, err=self._err)
         else:
@@ -44,7 +51,7 @@ class GeneratorWrapper:
                                       type_=self._return_type,
                                       type_vars=self._type_vars,
                                       err=self._err)
-            raise ex
+            raise
 
         assert_value_matches_type(value=returned_value,
                                   type_=self._yield_type,
@@ -64,7 +71,7 @@ class GeneratorWrapper:
 
         if len(result) == 1:
             self._yield_type = result[0]
-        elif len(result) == 3:
+        elif len(result) == 3:  # noqa: PLR2004
             self._yield_type = result[0]
             self._send_type = result[1]
             self._return_type = result[2]
