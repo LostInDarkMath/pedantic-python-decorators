@@ -11,6 +11,7 @@
 - removed `create_pdoc.sh`
 - moved `examples` out of the package
 - CI: added a check that `CHANGELOG.md` is modified on feature branches
+- CI: added a check that the poetry package version was updated 
 
 ## Pedantic 2.4.0
 - migrate from unittest to pytest

@@ -177,6 +177,7 @@ There are no hard dependencies. But if you want to use some advanced features yo
 
 ## Contributing
 This project is based on [poetry](https://python-poetry.org/) and [taskfile](https://taskfile.dev).
+**Tip:** Run `task validate` before making commits.
 
 ## Risks and side effects
 The usage of decorators may affect the performance of your application. 

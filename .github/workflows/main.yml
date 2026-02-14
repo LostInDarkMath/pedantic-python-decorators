@@ -6,8 +6,8 @@ on:
       - '*'
 
 jobs:
-  changelog-check:
-    # Do not run this on master itself
+  feature-branch-checks:
+    # these checks do not run this on master itself
     if: github.ref != 'refs/heads/master'
     runs-on: ubuntu-latest
 
@@ -26,8 +26,12 @@ jobs:
         run: |
           task check-changelog
 
+      - name: Verify that the package version was updated. This is needed because master is automatically deployed to pypi.org
+        run: |
+          task check-version
+
   test:
-    needs: changelog-check   # ensures this runs first
+    needs: feature-branch-checks
     runs-on: ubuntu-latest
     strategy:
       matrix:
