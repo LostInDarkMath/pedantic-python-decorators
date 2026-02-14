@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+tasks:
+  dependencies:
+    desc: Updates the poetry.lock file and installs all dependencies
+    cmds:
+      - pip install --upgrade pip
+      - poetry lock
+      - poetry install --extras dev
+    silent: true
+  tests:
+    desc: Runs the tests
+    cmds:
+      - pytest --doctest-modules
+  tests-with-cov:
+    desc: Runs the tests with coverage
+    cmds:
+      - pytest --doctest-modules --cov=pedantic --cov-branch --cov-report= --cov-report=term
+  docs:
+    desc: Creates the HTML documentation
+    cmds:
+      - rm -rf ./docs
+      - pip install pdoc
+      - pdoc -o docs pedantic
+      - google-chrome ./docs/index.html
