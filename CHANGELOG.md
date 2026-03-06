@@ -4,9 +4,11 @@
 - removed decorator `@does_same_as_function`
 - removed decorator `@mock`
 - removed decorator `@rename_kwargs`
+- removed decorator `@require_kwargs`
 - removed decorator `@timer`
 - removed decorator `@timer_class`
 - removed decorator `@uminplemented`
+- removed decorator `@trace_if_returns`
 - added `Taskfile.yml` and use it in CI
 - removed `create_pdoc.sh`
 - moved `examples` out of the package

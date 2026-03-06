@@ -5,10 +5,8 @@ from .fn_deco_deprecated import deprecated
 from .fn_deco_in_subprocess import calculate_in_subprocess, in_subprocess
 from .fn_deco_overrides import overrides
 from .fn_deco_pedantic import pedantic, pedantic_require_docstring
-from .fn_deco_require_kwargs import require_kwargs
 from .fn_deco_retry import retry, retry_func
 from .fn_deco_trace import trace
-from .fn_deco_trace_if_returns import trace_if_returns
 
 __all__ = [
     'calculate_in_subprocess',
@@ -23,12 +21,10 @@ __all__ = [
     'pedantic_class',
     'pedantic_class_require_docstring',
     'pedantic_require_docstring',
-    'require_kwargs',
     'retry',
     'retry_func',
     'safe_async_contextmanager',
     'safe_contextmanager',
     'trace',
     'trace_class',
-    'trace_if_returns',
 ]
