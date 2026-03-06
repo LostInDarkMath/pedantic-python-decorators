@@ -1,25 +1,27 @@
 import inspect
+import logging
 from functools import wraps
 from typing import Any
 
-from pedantic.constants import ReturnType, F
+from pedantic.constants import F, ReturnType
 
+logger = logging.getLogger(__name__)
+# ruff: noqa: G004
 
 def trace_if_returns(return_value: ReturnType) -> F:
     """
-       Prints the passed arguments if and only if the decorated function returned the given return_value.
-       This is useful if you want to figure out which input arguments leads to a special return value.
+    Prints the passed arguments if and only if the decorated function returned the given return_value.
+    This is useful if you want to figure out which input arguments leads to a special return value.
 
-       Example:
-
-       >>> @trace_if_returns(42)
-       ... def my_function(a, b, c):
-       ...     return a + b + c
-       >>> my_function(1, 2, 3)
-       6
-       >>> my_function(10, 8, 24)
-       Function my_function returned value 42 for args: (10, 8, 24) and kwargs: {}
-       42
+    Example:
+    >>> @trace_if_returns(42)
+    ... def my_function(a, b, c):
+    ...     return a + b + c
+    >>> my_function(1, 2, 3)
+    6
+    >>> my_function(10, 8, 24)
+    Function my_function returned value 42 for args: (10, 8, 24) and kwargs: {}
+    42
     """
 
     def decorator(func: F) -> F:
@@ -28,7 +30,7 @@ def trace_if_returns(return_value: ReturnType) -> F:
             result = func(*args, **kwargs)
 
             if result == return_value:
-                print(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
+                logger.info(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
 
             return result
 
@@ -37,12 +39,11 @@ def trace_if_returns(return_value: ReturnType) -> F:
             result = await func(*args, **kwargs)
 
             if result == return_value:
-                print(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
+                logger.info(f'Function {func.__name__} returned value {result} for args: {args} and kwargs: {kwargs}')
 
             return result
 
         if inspect.iscoroutinefunction(func):
             return async_wrapper
-        else:
-            return wrapper
+        return wrapper
     return decorator

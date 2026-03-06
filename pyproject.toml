@@ -66,6 +66,8 @@ ignore = [
   "D105",  #  Missing docstring in magic method
   "D202", # No blank lines allowed after function docstring (found 1)
   "D203", # incorrect-blank-line-before-class
+  "D404", # D404 First word of the docstring should not be "This" => free docstrings
+  "D205", # 1 blank line required between summary line and description => free docstrings
   "D212", # multi-line-summary-first-line
   "D400", # First line should end with a period
   "D401",  # First line of docstring should be in imperative mood: "Converts a given type to the typing module equivalent type."
@@ -73,6 +75,8 @@ ignore = [
   "D415", # First line should end with a period, question mark, or exclamation point
   "EM101", # Exception must not use a string literal, assign to variable first
   "EM102", # Exception must not use an f-string literal, assign to variable first
+  "FBT001", # Boolean-typed positional argument in function definition => bool params aren't that bad
+  "FBT002", # Boolean default positional argument in function definition => bool params aren't that bad
   "S112",  # `try`-`except`-`continue` detected, consider logging the exception
   "SIM108", # Use ternary operator `processed_arg = substitutions.get(arg, arg) if isinstance(arg, TypeVar) else arg` instead of `if`-`else`-block
   "TRY003",  # Avoid specifying long messages outside the exception class

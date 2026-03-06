@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional, Any
 
 import pytest
@@ -394,8 +394,8 @@ def test_none_is_removed_for_not_required_parameter():
 
 
 def test_default_value_is_not_validated_internal_parameter():
-    t = datetime(year=2021, month=11, day=24)
-    unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
+    t = datetime(year=2021, month=11, day=24, tzinfo=UTC)
+    unix_timestamp = (t - datetime(year=1970, month=1, day=1, tzinfo=UTC)).total_seconds()
 
     @validate(Parameter(name='a', required=False, default=t, validators=[DateTimeUnixTimestamp()]))
     def bar(a: datetime) -> datetime:
