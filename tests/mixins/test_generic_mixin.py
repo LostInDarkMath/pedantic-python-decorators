@@ -16,13 +16,12 @@ def test_single_type_var():
         value: T
 
     foo = Foo[str]()
-    assert foo.type_var == str
     assert foo.type_vars == {T: str}
 
     invalid = Foo()
 
     with pytest.raises(expected_exception=AssertionError) as err:
-        invalid.type_var
+        invalid.type_vars
 
     assert f'You need to instantiate this class with type parameters! Example: Foo[int]()' in err.value.args[0]
 
@@ -34,17 +33,12 @@ def test_multiple_type_vars():
 
     foo = Foo[str, int]()
 
-    with pytest.raises(expected_exception=ValueError) as err:
-       foo.type_var
-
-    assert 'You have multiple type parameters. Please use "type_vars" instead of "type_var".' in err.value.args[0]
-
     assert foo.type_vars == {T: str, U: int}
 
     invalid = Foo()
 
     with pytest.raises(expected_exception=AssertionError) as err:
-        invalid.type_var
+        invalid.type_vars
 
     assert 'You need to instantiate this class with type parameters! Example: Foo[int]()' in err.value.args[0]
 
@@ -56,15 +50,15 @@ def test_non_generic_class():
     invalid = Foo()
 
     with pytest.raises(expected_exception=AssertionError) as err:
-        invalid.type_var
+        invalid.type_vars
 
     assert err.value.args[0] == 'Foo is not a generic class. To make it generic, declare it like: class Foo(Generic[T], GenericMixin):...'
 
 
-def test_call_type_var_in_constructor():
+def test_call_type_vars_in_constructor():
     class Foo(Generic[T], GenericMixin):
         def __init__(self) -> None:
-            self.x = self.type_var()
+            self.x = self.type_vars
 
     with pytest.raises(expected_exception=AssertionError) as err:
         Foo[str]()
