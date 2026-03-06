@@ -9,6 +9,7 @@
 - removed decorator `@timer_class`
 - removed decorator `@uminplemented`
 - removed decorator `@trace_if_returns`
+- removed `GenericMixin.type_var`. Use `GenericMixin.type_vars` instead.
 - added `Taskfile.yml` and use it in CI
 - removed `create_pdoc.sh`
 - moved `examples` out of the package

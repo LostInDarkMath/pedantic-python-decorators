@@ -18,32 +18,6 @@ class GenericMixin:
     """
 
     @property
-    def type_var(self) -> type:
-        """
-        Get the type variable for this class.
-
-        Use this for convenience if your class has only one type parameter.
-
-        DO NOT call this inside __init__()!
-
-        Example:
-            >>> from typing import Generic, TypeVar
-            >>> T = TypeVar('T')
-            >>> class Foo(Generic[T], GenericMixin):
-            ...     value: T
-            >>> f = Foo[float]()
-            >>> f.type_var
-            <class 'float'>
-        """
-
-        types = self._get_resolved_typevars()
-
-        if len(types) > 1:
-            raise ValueError('You have multiple type parameters. Please use "type_vars" instead of "type_var".')
-
-        return next(iter(types.values()))
-
-    @property
     def type_vars(self) -> dict[TypeVar, type]:
         """
         Returns the mapping of type variables to types.
