@@ -149,7 +149,7 @@ class DecoratedFunction:
         if self.source is None:
             return False
 
-        return '@pedantic' in self.source or '@require_kwargs' in self.source
+        return '@pedantic' in self.source
 
     @property
     def is_coroutine(self) -> bool:  # noqa: D102
