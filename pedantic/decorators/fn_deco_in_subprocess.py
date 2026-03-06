@@ -1,44 +1,45 @@
 import asyncio
 import inspect
+from collections.abc import Awaitable, Callable
 from functools import wraps
-from typing import Callable, TypeVar, Any, Awaitable, Optional, Type, Union
+from typing import Any, TypeVar
 
 try:
-    from multiprocess import Process, Pipe
+    from multiprocess import Pipe, Process
     from multiprocess.connection import Connection
 except ImportError:
-    Process: Optional[Type] = None
-    Pipe: Optional[Type] = None
-    Connection: Optional[Type] = None
+    Process: type | None = None
+    Pipe: type | None = None
+    Connection: type | None = None
 
 T = TypeVar('T')
 
 
 class SubprocessError:
-    """ Is returned by the subprocess if an error occurs in the subprocess. """
+    """Is returned by the subprocess if an error occurs in the subprocess."""
 
-    def __init__(self, ex: Exception) -> None:
+    def __init__(self, ex: Exception) -> None:  # noqa: D107
         self.exception = ex
 
 
-def in_subprocess(func: Callable[..., Union[T, Awaitable[T]]]) -> Callable[..., Awaitable[T]]:
+def in_subprocess(func: Callable[..., T | Awaitable[T]]) -> Callable[..., Awaitable[T]]:
     """
-        Executes the decorated function in a subprocess and returns the return value of it.
-        Note that the decorated function will be replaced with an async function which returns
-        a coroutine that needs to be awaited.
-        This purpose of this is doing long-taking calculations without blocking the main thread
-        of your application synchronously. That ensures that other asyncio.Tasks can work without any problem
-        at the same time.
+    Executes the decorated function in a subprocess and returns the return value of it.
+    Note that the decorated function will be replaced with an async function which returns
+    a coroutine that needs to be awaited.
+    This purpose of this is doing long-taking calculations without blocking the main thread
+    of your application synchronously. That ensures that other asyncio.Tasks can work without any problem
+    at the same time.
 
-        Example:
-            >>> import time
-            >>> import asyncio
-            >>> @in_subprocess
-            ... def f(value: int) -> int:
-            ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
-            ...     return 2 * value
-            >>> asyncio.run(f(value=42))
-            84
+    Example:
+        >>> import time
+        >>> import asyncio
+        >>> @in_subprocess
+        ... def f(value: int) -> int:
+        ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
+        ...     return 2 * value
+        >>> asyncio.run(f(value=42))
+        84
     """
 
     @wraps(func)
@@ -48,31 +49,31 @@ def in_subprocess(func: Callable[..., Union[T, Awaitable[T]]]) -> Callable[..., 
     return wrapper
 
 
-async def calculate_in_subprocess(func: Callable[..., Union[T, Awaitable[T]]], *args: Any, **kwargs: Any) -> T:
+async def calculate_in_subprocess(func: Callable[..., T | Awaitable[T]], *args: Any, **kwargs: Any) -> T:
     """
-        Calculates the result of a synchronous function in subprocess without blocking the current thread.
+    Calculates the result of a synchronous function in subprocess without blocking the current thread.
 
-        Arguments:
-            func: The function that will be called in a subprocess.
-            args: Positional arguments that will be passed to the function.
-            kwargs: Keyword arguments that will be passed to the function.
+    Arguments:
+        func: The function that will be called in a subprocess.
+        args: Positional arguments that will be passed to the function.
+        kwargs: Keyword arguments that will be passed to the function.
 
-        Returns:
-             The calculated result of the function "func".
+    Returns:
+         The calculated result of the function "func".
 
-        Raises:
-            Any Exception that is raised inside [func].
+    Raises:
+        Any Exception that is raised inside [func].
 
-        Further reading: https://medium.com/devopss-hole/python-multiprocessing-pickle-issue-e2d35ccf96a9
+    Further reading: https://medium.com/devopss-hole/python-multiprocessing-pickle-issue-e2d35ccf96a9
 
-        Example:
-            >>> import time
-            >>> import asyncio
-            >>> def f(value: int) -> int:
-            ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
-            ...     return 2 * value
-            >>> asyncio.run(calculate_in_subprocess(func=f, value=42))
-            84
+    Example:
+        >>> import time
+        >>> import asyncio
+        >>> def f(value: int) -> int:
+        ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
+        ...     return 2 * value
+        >>> asyncio.run(calculate_in_subprocess(func=f, value=42))
+        84
     """
 
     if Pipe is None:
@@ -103,8 +104,8 @@ async def calculate_in_subprocess(func: Callable[..., Union[T, Awaitable[T]]], *
     return result
 
 
-def _inner(tx: Connection, fun: Callable[..., Union[T, Awaitable[T]]], *a, **kw_args) -> None:
-    """ This runs in another process. """
+def _inner(tx: Connection, fun: Callable[..., T | Awaitable[T]], *a: Any, **kw_args: Any) -> None:
+    """This runs in another process."""
 
     event_loop = None
     if inspect.iscoroutinefunction(fun):
@@ -116,7 +117,7 @@ def _inner(tx: Connection, fun: Callable[..., Union[T, Awaitable[T]]], *a, **kw_
             res = event_loop.run_until_complete(fun(*a, **kw_args))
         else:
             res = fun(*a, **kw_args)
-    except Exception as ex:
+    except Exception as ex: # noqa: BLE001
         tx.send(SubprocessError(ex=ex))
     else:
         tx.send(res)

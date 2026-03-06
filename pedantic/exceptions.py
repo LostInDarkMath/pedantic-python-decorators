@@ -1,27 +1,22 @@
-
-class NotImplementedException(Exception):
-    pass
-
-
-class PedanticException(Exception):
-    pass
+class PedanticException(Exception):  # noqa: N818
+    """The base exception class for all Pedantic exceptions."""
 
 
 class PedanticTypeCheckException(PedanticException):
-    pass
+    """Raised if a type hint is incorrect."""
 
 
 class PedanticDocstringException(PedanticException):
-    pass
+    """Raised if the docstring is invalid e.g., wrong types"""
 
 
 class PedanticOverrideException(PedanticException):
-    pass
+    """Raised when a child class overrides a method that the parent class does not have."""
 
 
 class PedanticCallWithArgsException(PedanticException):
-    pass
+    """Raised if a function is called with kwargs but is called with args."""
 
 
 class PedanticTypeVarMismatchException(PedanticException):
-    pass
+    """Raised if a TypeVar type conflict happens."""
