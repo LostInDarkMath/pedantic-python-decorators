@@ -1,9 +1,10 @@
 import logging
 import time
+from collections.abc import Callable
 from datetime import timedelta
 from functools import wraps
 from logging import Logger
-from typing import Callable, TypeVar, Any, ParamSpec
+from typing import Any, ParamSpec, TypeVar
 
 C = TypeVar('C', bound=Callable)
 P = ParamSpec('P')
@@ -15,13 +16,13 @@ def retry(
     attempts: int,
     exceptions: type[Exception] | tuple[type[Exception], ...] = Exception,
     sleep_time: timedelta = timedelta(seconds=0),
-    logger: Logger = None,
+    logger: Logger | None = None,
 ) -> Callable[[C], C]:
     """
     Retries the wrapped function/method `attempts` times if the exceptions listed
     in [exceptions] are thrown.
 
-    Parameters:
+    Args:
         attempts: The number of times to repeat the wrapped function/method
         exceptions: Lists of exceptions that trigger a retry attempt.
         sleep_time: The time to wait between the retry attempts.
@@ -36,7 +37,7 @@ def retry(
 
     def decorator(func: C) -> C:
         @wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
             return retry_func(
                 func,
                 *args,
@@ -56,9 +57,37 @@ def retry_func(
     attempts: int,
     exceptions: type[Exception] | tuple[type[Exception], ...] = Exception,
     sleep_time: timedelta = timedelta(seconds=0),
-    logger: Logger = None,
+    logger: Logger | None = None,
     **kwargs: P.kwargs,
 ) -> R:
+    """
+    Execute a function with retry logic.
+
+    The function ``func`` is executed and retried up to ``attempts`` times if one of the
+    specified exceptions is raised. Between retries, the function waits for the
+    duration defined by ``sleep_time``. A warning is logged for each failed attempt
+    except for the final one.
+
+    Args:
+        func: The callable to execute.
+        *args: Positional arguments forwarded to ``func``.
+        attempts: Total number of attempts before the exception is allowed to
+            propagate.
+        exceptions: Exception type or tuple of exception types that should trigger
+            a retry. Defaults to ``Exception``.
+        sleep_time: Time to wait between retry attempts. Defaults to zero seconds.
+        logger: Logger used to emit warnings when a retry occurs. If ``None``,
+            the root logger is used.
+        **kwargs: Keyword arguments forwarded to ``func``.
+
+    Returns:
+        The return value of ``func``.
+
+    Raises:
+        Exception: Re-raises the last encountered exception if all retry attempts
+            fail.
+    """
+
     attempt = 1
 
     if logger is None:
@@ -68,7 +97,7 @@ def retry_func(
         try:
             return func(*args, **kwargs)
         except exceptions:
-            logger.warning(f'Exception thrown when attempting to run {func.__name__}, '
+            logger.warning(f'Exception thrown when attempting to run {func.__name__}, '  # noqa: G004
                            f'attempt {attempt} of {attempts}')
             attempt += 1
             time.sleep(sleep_time.total_seconds())

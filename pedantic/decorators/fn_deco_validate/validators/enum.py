@@ -5,14 +5,14 @@ from pedantic import overrides
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
-class IsEnum(Validator):
-    def __init__(self, enum: EnumMeta, convert: bool = True, to_upper_case: bool = True) -> None:
+class IsEnum(Validator): # noqa: D101
+    def __init__(self, enum: EnumMeta, convert: bool = True, to_upper_case: bool = True) -> None: # noqa: D107
         self._enum = enum
         self._convert = convert
         self._to_upper_case = to_upper_case
 
     @overrides(Validator)
-    def validate(self, value: Any) -> Any:
+    def validate(self, value: Any) -> Any: # noqa: D102
         try:
             if isinstance(value, str) and self._to_upper_case:
                 value = value.upper()

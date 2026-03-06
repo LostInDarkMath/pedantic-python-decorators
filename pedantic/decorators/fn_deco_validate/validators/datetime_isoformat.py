@@ -4,9 +4,9 @@ from pedantic import overrides
 from pedantic.decorators.fn_deco_validate.validators import Validator
 
 
-class DatetimeIsoFormat(Validator):
+class DatetimeIsoFormat(Validator): # noqa: D101
     @overrides(Validator)
-    def validate(self, value: str) -> datetime:
+    def validate(self, value: str) -> datetime: # noqa: D102
         try:
             value = datetime.fromisoformat(value)
         except (TypeError, ValueError, AttributeError):

@@ -1,23 +1,21 @@
-from typing import Type
 
 from pedantic.constants import F
 from pedantic.exceptions import PedanticOverrideException
 
 
-def overrides(base_class: Type) -> F:
+def overrides(base_class: type) -> F:
     """
-        This is used for marking methods that overrides methods of the base class which makes the code more readable.
-        This decorator raises an Exception if the decorated method is not a method in the parent class.
+    This is used for marking methods that overrides methods of the base class which makes the code more readable.
+    This decorator raises an Exception if the decorated method is not a method in the parent class.
 
-        Example:
-
-        >>> class Parent:
-        ...     def my_instance_method(self):
-        ...         pass
-        >>> class Child(Parent):
-        ...     @overrides(Parent)
-        ...     def my_instance_method(self):
-        ...         print('hello world')
+    Example:
+    >>> class Parent:
+    ...     def my_instance_method(self):
+    ...         pass
+    >>> class Child(Parent):
+    ...     @overrides(Parent)
+    ...     def my_instance_method(self):
+    ...         print('hello world')
     """
 
     def decorator(func: F) -> F:

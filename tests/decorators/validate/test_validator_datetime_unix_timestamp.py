@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 import pytest
 
@@ -13,8 +13,8 @@ def test_validator_datetime_unix_timestamp():
     def foo(x):
         return x
 
-    now = datetime.now()
-    unix_timestamp = (now - datetime(year=1970, month=1, day=1)).total_seconds()
+    now = datetime.now(tz=UTC)
+    unix_timestamp = (now - datetime(year=1970, month=1, day=1, tzinfo=UTC)).total_seconds()
     assert foo(unix_timestamp) == now
     assert foo(str(unix_timestamp)) == now
 

@@ -1,12 +1,12 @@
 import inspect
-from typing import Any, Generic, Dict
+from typing import Any, Generic
 
+from pedantic.constants import ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED, TypeVar
 from pedantic.exceptions import PedanticTypeVarMismatchException
 from pedantic.type_checking_logic.check_types import get_type_arguments
-from pedantic.constants import TypeVar, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED
 
 
-def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> Dict[TypeVar, Any]:
+def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> dict[TypeVar, Any]:
     """
     >>> from typing import TypeVar, Generic, List
     >>> T = TypeVar('T')
@@ -37,7 +37,7 @@ def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> Dict[Typ
     >>> check_instance_of_generic_class_and_get_type_vars(g)
     {}
     """
-    type_vars = dict()
+    type_vars = {}
     _assert_constructor_called_with_generics(instance=instance)
 
     # The information I need is set after the object construction in the __orig_class__ attribute.
@@ -55,8 +55,10 @@ def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> Dict[Typ
 
 
 def _assert_constructor_called_with_generics(instance: Any) -> None:
-    """This is very hacky. Therefore, it is kind of non-aggressive and raises only an error if is sure.
+    """
+    This is very hacky. Therefore, it is kind of non-aggressive and raises only an error if is sure.
 
+    Examples:
     >>> from typing import TypeVar, Generic, List
     >>> T = TypeVar('T')
     >>> class A(Generic[T]): pass
@@ -129,9 +131,10 @@ def is_instance_of_generic_class(instance: Any) -> bool:
 
 def _remove_comments_and_spaces_from_src_line(line: str) -> str:
     """
+    Example:
     >>> _remove_comments_and_spaces_from_src_line('a = 42  # this is a comment')
     'a=42'
     >>> _remove_comments_and_spaces_from_src_line('m = MyClass[Parent](a=Child1())')
     'm=MyClass[Parent](a=Child1())'
     """
-    return line.split('#')[0].replace(' ', '')
+    return line.split('#',  maxsplit=1)[0].replace(' ', '')

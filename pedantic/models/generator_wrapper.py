@@ -1,5 +1,4 @@
-from collections.abc import Generator, Iterable, Iterator
-from typing import Any, TypeVar
+from typing import Any, Generator, Iterable, Iterator, TypeVar  # noqa: UP035
 
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_types import assert_value_matches_type, get_base_generic, get_type_arguments
@@ -11,9 +10,9 @@ class GeneratorWrapper:
     def __init__(self, wrapped: Generator, expected_type: Any, err_msg: str, type_vars: dict[TypeVar, Any]) -> None:  # noqa: D107
         self._generator = wrapped
         self._err = err_msg
-        self._yield_type = None
-        self._send_type = None
-        self._return_type = None
+        self.yield_type = None
+        self.send_type = None
+        self.return_type = None
         self._type_vars = type_vars
         self._initialized = False
 
@@ -40,7 +39,7 @@ class GeneratorWrapper:
         """Send a value into the generator and check types."""
 
         if self._initialized:
-            assert_value_matches_type(value=obj, type_=self._send_type, type_vars=self._type_vars, err=self._err)
+            assert_value_matches_type(value=obj, type_=self.send_type, type_vars=self._type_vars, err=self._err)
         else:
             self._initialized = True
 
@@ -48,13 +47,13 @@ class GeneratorWrapper:
             returned_value = self._generator.send(obj)
         except StopIteration as ex:
             assert_value_matches_type(value=ex.value,
-                                      type_=self._return_type,
+                                      type_=self.return_type,
                                       type_vars=self._type_vars,
                                       err=self._err)
             raise
 
         assert_value_matches_type(value=returned_value,
-                                  type_=self._yield_type,
+                                  type_=self.yield_type,
                                   type_vars=self._type_vars,
                                   err=self._err)
         return returned_value
@@ -70,11 +69,11 @@ class GeneratorWrapper:
         result = get_type_arguments(expected_return_type)
 
         if len(result) == 1:
-            self._yield_type = result[0]
+            self.yield_type = result[0]
         elif len(result) == 3:  # noqa: PLR2004
-            self._yield_type = result[0]
-            self._send_type = result[1]
-            self._return_type = result[2]
+            self.yield_type = result[0]
+            self.send_type = result[1]
+            self.return_type = result[2]
         else:
             raise PedanticTypeCheckException(f'{self._err}Generator should have a type argument. Got: {result}')
         return result[0]

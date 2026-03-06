@@ -34,7 +34,7 @@ def test_multiple_type_vars():
 
     foo = Foo[str, int]()
 
-    with pytest.raises(expected_exception=AssertionError) as err:
+    with pytest.raises(expected_exception=ValueError) as err:
        foo.type_var
 
     assert 'You have multiple type parameters. Please use "type_vars" instead of "type_var".' in err.value.args[0]

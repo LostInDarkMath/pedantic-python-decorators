@@ -1,27 +1,28 @@
 import enum
 import types
+from collections.abc import Callable
 from dataclasses import is_dataclass
-from typing import Callable, Optional, Dict, Type
 
-from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, F, C, TYPE_VAR_SELF
-from pedantic.decorators import trace
+from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, TYPE_VAR_SELF, C, F
+from pedantic.decorators.fn_deco_trace import trace
 from pedantic.decorators.fn_deco_pedantic import pedantic, pedantic_require_docstring
 from pedantic.env_var_logic import is_enabled
 from pedantic.exceptions import PedanticTypeCheckException
-from pedantic.type_checking_logic.check_generic_classes import check_instance_of_generic_class_and_get_type_vars, \
-    is_instance_of_generic_class
+from pedantic.type_checking_logic.check_generic_classes import (
+    check_instance_of_generic_class_and_get_type_vars,
+    is_instance_of_generic_class,
+)
 
 
-def for_all_methods(decorator: F) -> Callable[[Type[C]], Type[C]]:
+def for_all_methods(decorator: F) -> Callable[[type[C]], type[C]]:
     """
-        Applies a decorator to all methods of a class.
+    Applies a decorator to all methods of a class.
 
-        Example:
-
-        >>> @for_all_methods(pedantic)
-        ... class MyClass(object):
-        ...     def m1(self): pass
-        ...     def m2(self, x): pass
+    Example:
+    >>> @for_all_methods(pedantic)
+    ... class MyClass(object):
+    ...     def m1(self): pass
+    ...     def m2(self, x): pass
     """
     def decorate(cls: C) -> C:
         if not is_enabled():
@@ -54,30 +55,30 @@ def for_all_methods(decorator: F) -> Callable[[Type[C]], Type[C]]:
 
 
 def pedantic_class(cls: C) -> C:
-    """ Shortcut for @for_all_methods(pedantic) """
+    """Shortcut for @for_all_methods(pedantic)"""
     return for_all_methods(decorator=pedantic)(cls=cls)
 
 
 def pedantic_class_require_docstring(cls: C) -> C:
-    """ Shortcut for @for_all_methods(pedantic_require_docstring) """
+    """Shortcut for @for_all_methods(pedantic_require_docstring)"""
     return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
 
 
 def trace_class(cls: C) -> C:
-    """ Shortcut for @for_all_methods(trace) """
+    """Shortcut for @for_all_methods(trace)"""
     return for_all_methods(decorator=trace)(cls=cls)
 
 
-def _get_wrapped(prop: Optional[F], decorator: F) -> Optional[F]:
+def _get_wrapped(prop: F | None, decorator: F) -> F | None:
     return decorator(prop) if prop is not None else None
 
 
 def _add_type_var_attr_and_method_to_class(cls: C) -> None:
-    def type_vars(self) -> Dict:
+    def type_vars(self: C) -> dict:
         t_vars = {TYPE_VAR_SELF: cls}
 
         if is_instance_of_generic_class(instance=self):
-            type_vars_fifo = getattr(self, TYPE_VAR_ATTR_NAME, dict())
+            type_vars_fifo = getattr(self, TYPE_VAR_ATTR_NAME, {})
             type_vars_generics = check_instance_of_generic_class_and_get_type_vars(instance=self)
             setattr(self, TYPE_VAR_ATTR_NAME, {**type_vars_fifo, **type_vars_generics, **t_vars})
         else:
