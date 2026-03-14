@@ -3,6 +3,13 @@ from .abstract_parameter import Parameter
 from .deserializable import Deserializable
 from .environment_variable_parameter import EnvironmentVariableParameter
 
+__all__ = [
+    'Deserializable',
+    'EnvironmentVariableParameter',
+    'ExternalParameter',
+    'Parameter',
+]
+
 try:
     from .flask_parameters import (
         FlaskFormParameter,
@@ -14,10 +21,7 @@ try:
         GenericFlaskDeserializer,
     )
 
-    __all__ = [
-        'Deserializable',
-        'EnvironmentVariableParameter',
-        'ExternalParameter',
+    __all__ += [
         'FlaskFormParameter',
         'FlaskGetParameter',
         'FlaskHeaderParameter',
@@ -25,8 +29,6 @@ try:
         'FlaskParameter',
         'FlaskPathParameter',
         'GenericFlaskDeserializer',
-        'Parameter',
     ]
 except ImportError:
-    pass
-
+    pass  # no Flask installed

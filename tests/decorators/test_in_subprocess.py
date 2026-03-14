@@ -6,7 +6,7 @@ import pytest
 from multiprocess import Pipe
 
 from pedantic import in_subprocess
-from pedantic.decorators.fn_deco_in_subprocess import _inner, SubprocessError
+from pedantic.decorators.fn_deco_in_subprocess import SubprocessError, _inner
 
 
 @pytest.mark.asyncio
@@ -22,13 +22,13 @@ async def test_in_subprocess_simple():
 async def test_in_subprocess_custom_object():
     class Foo:
         def __init__(self, v) -> None:
-            self._value = v
+            self.value = v
 
     @in_subprocess
     def f() -> Foo:
         return Foo(v=42)
 
-    assert (await f())._value == 42
+    assert (await f()).value == 42
 
 
 @pytest.mark.asyncio
@@ -82,7 +82,7 @@ async def test_in_subprocess_exception():
 @pytest.mark.asyncio
 async def test_not_in_subprocess_blocks():
     async def f() -> int:
-        time.sleep(0.1)
+        time.sleep(0.1)  # noqa: ASYNC251
         return 42
 
     async def t() -> None:
@@ -109,7 +109,7 @@ async def test_in_subprocess_with_arguments():
 
 
 def test_inner_function_sync():
-    """ Needed for line coverage"""
+    """Needed for line coverage"""
 
     rx, tx = Pipe(duplex=False)
     _inner(tx, lambda x: 1 / x, x=42)
@@ -121,7 +121,7 @@ def test_inner_function_sync():
 
 
 def test_inner_function_async():
-    """ Needed for line coverage"""
+    """Needed for line coverage"""
 
     async def foo(x):
         return 1/x

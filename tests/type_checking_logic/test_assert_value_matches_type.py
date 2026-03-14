@@ -1,7 +1,9 @@
+# ruff: noqa: UP006, UP007, UP035
+
 from abc import ABC
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Callable, Awaitable, Coroutine, Any, Union, Optional, Generic, TypeVar, Tuple
+from datetime import UTC, datetime
+from typing import Any, Awaitable, Callable, Coroutine, Generic, Optional, Tuple, TypeVar, Union
 
 import pytest
 
@@ -34,8 +36,8 @@ def test_callable():
         )
 
 def test_callable_return_type_none():
-    def _cb(foo: Foo) -> None:
-        return print(foo)
+    def _cb(_: Foo) -> None:
+        return
 
     assert_value_matches_type(
         value=_cb,
@@ -100,8 +102,7 @@ def test_callable_coroutine():
 
 
 def test_callable_awaitable_with_none_return_type():
-    async def _cb(foo: Foo) -> None:
-        print(foo)
+    async def _cb(foo: Foo) -> None: pass
 
     assert_value_matches_type(
         value=_cb,
@@ -168,10 +169,10 @@ def test_callable_with_new_union_type_hint():
 def test_forward_ref_inheritance():
     T = TypeVar('T')
 
-    class State(Generic[T], ABC):
+    class State(ABC, Generic[T]):
         pass
 
-    class StateMachine(Generic[T], ABC):
+    class StateMachine(ABC, Generic[T]):
         pass
 
     class MachineState(State['MachineStateMachine']):
@@ -193,7 +194,7 @@ def test_forward_ref_inheritance():
 
 
 def test_tuple_with_ellipsis():
-    """ Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/75 """
+    """Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/75"""
 
     assert_value_matches_type(
         value=(1, 2.0, 'hello'),
@@ -205,10 +206,10 @@ def test_tuple_with_ellipsis():
 
 
 def test_union_of_callable():
-    """ Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74 """
+    """Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/74"""
 
     assert_value_matches_type(
-        value=datetime.now(),
+        value=datetime.now(tz=UTC),
         type_=Union[datetime, Callable[[], datetime]],
         err='',
         type_vars={},

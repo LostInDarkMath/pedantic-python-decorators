@@ -3,7 +3,7 @@ import pytest
 from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
 from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate
 from pedantic.decorators.fn_deco_validate.parameters import Parameter
-from pedantic.decorators.fn_deco_validate.validators import ForEach, Min, Max
+from pedantic.decorators.fn_deco_validate.validators import ForEach, Max, Min
 
 
 def test_validator_for_each_single_child():

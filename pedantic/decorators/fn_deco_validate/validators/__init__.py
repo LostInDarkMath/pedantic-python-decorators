@@ -20,7 +20,6 @@ __all__ = [
     'Email',
     'ForEach',
     'IsEnum',
-    'IsEnum',
     'IsUuid',
     'MatchPattern',
     'Max',

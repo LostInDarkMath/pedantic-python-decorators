@@ -1,4 +1,6 @@
-from typing import Generic, TypeVar, Any, List, Optional, Union
+# ruff: noqa: UP007, UP045
+
+from typing import Any, Generic, Optional, TypeVar, Union
 
 import pytest
 
@@ -40,7 +42,7 @@ def test_stack():
     @pedantic_class
     class Stack(Generic[T]):
         def __init__(self) -> None:
-            self.items: List[T] = []
+            self.items: list[T] = []
 
         def push(self, item: T) -> None:
             self.items.append(item)
@@ -54,8 +56,7 @@ def test_stack():
         def top(self) -> Optional[T]:
             if len(self.items) > 0:
                 return self.items[len(self.items) - 1]
-            else:
-                return None
+            return None
 
     my_stack = Stack[str]()
     get_type_vars = getattr(my_stack, TYPE_VAR_METHOD_NAME)
@@ -175,11 +176,11 @@ def test_merge_dicts():
         a.set_a(val='hi')
 
 
-def test_recursion_depth_exceeded():
+def test_recursion_depth_exceeded():  # noqa: C901
     @pedantic_class
     class Stack(Generic[T]):
         def __init__(self) -> None:
-            self.items: List[T] = []
+            self.items: list[T] = []
 
         def len(self) -> int:
             return len(self.items)
@@ -190,8 +191,7 @@ def test_recursion_depth_exceeded():
         def pop(self) -> T:
             if len(self.items) > 0:
                 return self.items.pop()
-            else:
-                raise ValueError()
+            raise ValueError
 
         def empty(self) -> bool:
             return not self.items
@@ -199,23 +199,20 @@ def test_recursion_depth_exceeded():
         def top(self) -> Optional[T]:
             if len(self.items) > 0:
                 return self.items[len(self.items) - 1]
-            else:
-                return None
+            return None
 
         def __len__(self) -> int:
             return len(self.items)
 
     def create_stack():
         stack = Stack[int]()
-        return stack
+        return stack  # noqa: RET504, the unnecessary assignment here is important, lol
 
     with pytest.raises(expected_exception=PedanticTypeVarMismatchException):
-        stack: Stack[int] = Stack()
-        stack.empty()
+        _: Stack[int] = Stack()
 
     with pytest.raises(expected_exception=PedanticTypeVarMismatchException):
-        stack = Stack()
-        stack.empty()
+        Stack()
 
     stack = create_stack()
     assert stack.empty()
@@ -225,7 +222,7 @@ def test_generic_union():
     @pedantic_class
     class Stack(Generic[T]):
         def __init__(self) -> None:
-            self.items: List[T] = []
+            self.items: list[T] = []
 
         def len(self) -> int:
             return len(self.items)
@@ -236,8 +233,7 @@ def test_generic_union():
         def pop(self) -> T:
             if len(self.items) > 0:
                 return self.items.pop()
-            else:
-                raise ValueError()
+            raise ValueError
 
         def empty(self) -> bool:
             return not self.items
@@ -245,8 +241,7 @@ def test_generic_union():
         def top(self) -> Optional[T]:
             if len(self.items) > 0:
                 return self.items[len(self.items) - 1]
-            else:
-                return None
+            return None
 
         def __len__(self) -> int:
             return len(self.items)
@@ -264,7 +259,7 @@ def test_inheritance():
     @pedantic_class
     class Stack(Generic[T]):
         def __init__(self) -> None:
-            self.items: List[T] = []
+            self.items: list[T] = []
 
         def len(self) -> int:
             return len(self.items)
@@ -275,8 +270,7 @@ def test_inheritance():
         def pop(self) -> T:
             if len(self.items) > 0:
                 return self.items.pop()
-            else:
-                raise ValueError()
+            raise ValueError
 
         def empty(self) -> bool:
             return not self.items
@@ -284,8 +278,7 @@ def test_inheritance():
         def top(self) -> Optional[T]:
             if len(self.items) > 0:
                 return self.items[len(self.items) - 1]
-            else:
-                return None
+            return None
 
         def __len__(self) -> int:
             return len(self.items)

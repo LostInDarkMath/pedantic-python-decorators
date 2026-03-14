@@ -1,9 +1,9 @@
-from typing import Generator, Iterator, Iterable, List
+from typing import Generator, Iterable, Iterator  # noqa: UP035
 
 import pytest
 
-from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic.exceptions import PedanticTypeCheckException
 
 
 def test_iterator():
@@ -48,7 +48,7 @@ def test_iterator_no_type_args():
 
 def test_iterator_completely_wrong_type_hint():
     @pedantic
-    def gen_func() -> List[int]:
+    def gen_func() -> list[int]:
         num = 0
 
         while num < 100:

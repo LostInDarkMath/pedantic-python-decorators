@@ -4,9 +4,8 @@ from collections.abc import Callable
 from dataclasses import is_dataclass
 
 from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, TYPE_VAR_SELF, C, F
-from pedantic.decorators.fn_deco_trace import trace
 from pedantic.decorators.fn_deco_pedantic import pedantic, pedantic_require_docstring
-from pedantic.env_var_logic import is_enabled
+from pedantic.decorators.fn_deco_trace import trace
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_generic_classes import (
     check_instance_of_generic_class_and_get_type_vars,
@@ -25,9 +24,6 @@ def for_all_methods(decorator: F) -> Callable[[type[C]], type[C]]:
     ...     def m2(self, x): pass
     """
     def decorate(cls: C) -> C:
-        if not is_enabled():
-            return cls
-
         if issubclass(cls, enum.Enum):
             raise PedanticTypeCheckException(f'Enum "{cls}" cannot be decorated with "@pedantic_class". '
                                              f'Enums are not supported yet.')

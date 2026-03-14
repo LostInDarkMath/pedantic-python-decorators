@@ -2,6 +2,7 @@ import pytest
 
 from pedantic.decorators.fn_deco_retry import retry_func
 
+
 def test_retry_positive_no_args():
     count = 0
 
@@ -32,7 +33,7 @@ def test_retry_positive_no_args_fails_every_time():
         count += 1
         raise ValueError('foo')
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='foo'):
         retry_func(func=foo, attempts=5)
 
     assert count == 5
@@ -46,7 +47,7 @@ def test_retry_positive_no_args_fails_different_exception_type():
         count += 1
         raise ValueError('foo')
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='foo'):
         retry_func(func=foo, attempts=5, exceptions=AssertionError)
 
     assert count == 1

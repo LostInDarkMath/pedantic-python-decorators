@@ -42,7 +42,7 @@ async def test_safe_context_manager_with_exception():
     assert before is False
     assert after is False
 
-    with pytest.raises(expected_exception=ValueError):
+    with pytest.raises(expected_exception=ValueError, match='oh no'):  # noqa: PT012
         async with foo() as f:
             assert before is True
             assert after is False

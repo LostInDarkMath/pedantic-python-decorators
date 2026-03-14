@@ -1,16 +1,15 @@
+# ruff: noqa: D411, D414, D417, D213, UP006, UP035, UP045
+
 from typing import List, Optional
 
 import pytest
 
-from pedantic import is_enabled
-from pedantic.exceptions import PedanticTypeCheckException, PedanticDocstringException
-from pedantic.decorators.fn_deco_pedantic import pedantic_require_docstring, pedantic
-from pedantic.decorators.class_decorators import pedantic_class_require_docstring, pedantic_class
+from pedantic.decorators.class_decorators import pedantic_class, pedantic_class_require_docstring
+from pedantic.decorators.fn_deco_pedantic import pedantic, pedantic_require_docstring
+from pedantic.exceptions import PedanticDocstringException, PedanticTypeCheckException
 
 
 def test_no_docstring():
-    assert is_enabled()
-
     with pytest.raises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc(n: int, m: int, i: int) -> int:
@@ -171,7 +170,6 @@ def test_keep_it_simple():
     @pedantic_require_docstring
     def calc() -> None:
         """Gets and prints the spreadsheet's header columns"""
-        pass
 
     calc()
 
@@ -181,7 +179,6 @@ def test_docstring_misses_argument():
         @pedantic_require_docstring
         def calc(name: str) -> None:
             """Gets and prints the spreadsheet's header columns"""
-            print('hi ' + name)
 
 
 def test_keep_it_simple_2_corrected():
@@ -192,7 +189,6 @@ def test_keep_it_simple_2_corrected():
         Args:
             name (str): the name
         """
-        print('hi ' + name)
 
     calc(name='maria')
 
@@ -264,7 +260,6 @@ def test_return_nothing_but_document_return_value():
             Returns:
                 list: a list of strings representing the header columns
             """
-            print([file_loc, str(print_cols)])
 
 
 def test_return_nothing_but_document_return_value_2():
@@ -281,7 +276,6 @@ def test_return_nothing_but_document_return_value_2():
             Returns:
                 list: a list of strings representing the header columns
             """
-            print([file_loc, str(print_cols)])
 
 
 def test_return_value_1_corrected():
@@ -295,7 +289,6 @@ def test_return_value_1_corrected():
                 (default is False)
         """
 
-        a = [file_loc, str(print_cols)]
     calc(file_loc='Hi', print_cols=False)
 
 
@@ -369,7 +362,7 @@ def test_wrong_format_1():
 
 
 def test_undocumented_arg_3():
-    with pytest.raises(expected_exception=PedanticDocstringException):
+    with pytest.raises(expected_exception=PedanticDocstringException, match=r'There are 2 argument\(s\) documented, but 3 are actually taken'):
         @pedantic
         def calc(a: int, b: float, c: str) -> str:
             """Returns some cool string
@@ -382,8 +375,6 @@ def test_undocumented_arg_3():
                 str: something
             """
             return str(a) + str(b) + c
-
-        calc(a=42, b=3.14, c='hi')
 
 
 def test_pedantic_1_corrected():
@@ -408,12 +399,11 @@ def test_documented_none_as_return_type():
     with pytest.raises(expected_exception=PedanticDocstringException):
         @pedantic_require_docstring
         def calc() -> None:
-            """some cool stuff
+            """Some cool stuff
 
             Returns:
                 None: the evil void
             """
-            pass
 
 
 def test_exception_in_docstring_parser():

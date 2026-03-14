@@ -1,3 +1,5 @@
+# ruff: noqa: E721, UP006, UP007, UP035, UP045
+
 from typing import List, Optional, Union
 
 import pytest

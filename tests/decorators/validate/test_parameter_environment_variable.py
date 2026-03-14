@@ -8,53 +8,53 @@ from pedantic.decorators.fn_deco_validate.parameters import EnvironmentVariableP
 
 
 def test_parameter_environment_variable_str():
-    @validate(EnvironmentVariableParameter(name='foo', value_type=str))
+    @validate(EnvironmentVariableParameter(name='FOO', value_type=str))
     def bar(foo):
         return foo
 
-    os.environ['foo'] = '42'
+    os.environ['FOO'] = '42'
     assert bar() == '42'
 
 
 def test_parameter_environment_variable_int():
-    @validate(EnvironmentVariableParameter(name='foo', value_type=int))
+    @validate(EnvironmentVariableParameter(name='FOO', value_type=int))
     def bar(foo):
         return foo
 
-    os.environ['foo'] = '42'
+    os.environ['FOO'] = '42'
     assert bar() == 42
 
 
 def test_parameter_environment_variable_float():
-    @validate(EnvironmentVariableParameter(name='foo', value_type=float))
+    @validate(EnvironmentVariableParameter(name='FOO', value_type=float))
     def bar(foo):
         return foo
 
-    os.environ['foo'] = '42.7'
+    os.environ['FOO'] = '42.7'
     assert bar() == 42.7
 
 
 def test_parameter_environment_variable_bool():
-    @validate(EnvironmentVariableParameter(name='foo', value_type=bool))
+    @validate(EnvironmentVariableParameter(name='FOO', value_type=bool))
     def bar(foo):
         return foo
 
     for value in ['true', 'True', 'TRUE']:
-        os.environ['foo'] = value
+        os.environ['FOO'] = value
         assert bar() is True
 
     for value in ['false', 'False', 'FALSE']:
-        os.environ['foo'] = value
+        os.environ['FOO'] = value
         assert bar() is False
 
     for value in ['invalid', 'frue', 'talse']:
-        os.environ['foo'] = value
+        os.environ['FOO'] = value
 
         with pytest.raises(expected_exception=ParameterException):
             bar()
 
 def test_parameter_environment_variable_not_set():
-    @validate(EnvironmentVariableParameter(name='foo'))
+    @validate(EnvironmentVariableParameter(name='FOO'))
     def bar(foo):
         return foo
 
@@ -64,24 +64,24 @@ def test_parameter_environment_variable_not_set():
 
 def test_invalid_value_type():
     with pytest.raises(expected_exception=AssertionError):
-        @validate(EnvironmentVariableParameter(name='foo', value_type=dict))
+        @validate(EnvironmentVariableParameter(name='FOO', value_type=dict))
         def bar(foo):
             return foo
 
 
 def test_parameter_environment_variable_different_name():
-    @validate(EnvironmentVariableParameter(name='foo', env_var_name='fuu', value_type=str))
+    @validate(EnvironmentVariableParameter(name='FOO', env_var_name='fuu', value_type=str))
     def bar(foo):
         return foo
 
-    os.environ['fuu'] = '42'
+    os.environ['FUU'] = '42'
     assert bar() == '42'
 
 
 def test_two_parameters():
-    @validate(EnvironmentVariableParameter(name='a'), strict=False)
+    @validate(EnvironmentVariableParameter(name='A'), strict=False)
     def foo(a: float, b: int) -> str:
         return f'{a} and {b}'
 
-    os.environ['a'] = '42'
+    os.environ['A'] = '42'
     assert foo(b=42) == '42 and 42'

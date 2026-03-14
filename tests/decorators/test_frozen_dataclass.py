@@ -1,6 +1,7 @@
+# ruff: noqa: UP035
 from abc import ABC
-from dataclasses import dataclass, FrozenInstanceError
-from typing import List, Dict, Set, Tuple, Awaitable, Callable, Generic, TypeVar, Optional
+from dataclasses import FrozenInstanceError, dataclass
+from typing import Awaitable, Callable, Generic, Optional, TypeVar
 
 import pytest
 
@@ -17,14 +18,14 @@ class Foo:
 
 @frozen_type_safe_dataclass
 class B:
-    v: Set[int]
+    v: set[int]
 
 
 @frozen_type_safe_dataclass
 class A:
-    foo: List[int]
-    bar: Dict[str, str]
-    values: Tuple[B, B]
+    foo: list[int]
+    bar: dict[str, str]
+    values: tuple[B, B]
 
 
 def test_equals_and_hash():
@@ -78,8 +79,8 @@ def test_validate_types():
     with pytest.raises(expected_exception=PedanticTypeCheckException) as err:
         bar.validate_types()
 
-    expected = 'In dataclass "Foo" in field "a": Type hint is incorrect: Argument 6.6 of type <class \'float\'> ' \
-               'does not match expected type <class \'int\'>.'
+    expected = ("In dataclass \"Foo\" in field \"a\": Type hint is incorrect: Argument 6.6 of type <class 'float'> "
+               "does not match expected type <class 'int'>.")
     assert err.value.args[0] == expected
 
 
@@ -134,8 +135,8 @@ def test_frozen_typesafe_dataclass_with_post_init():
     with pytest.raises(expected_exception=PedanticTypeCheckException) as err:
         A(foo=42.7)
 
-    assert err.value.args[0] == ('In dataclass "A" in field "foo": Type hint is incorrect: Argument 42.7 of type'
-                         ' <class \'float\'> does not match expected type <class \'int\'>.')
+    assert err.value.args[0] == ("In dataclass \"A\" in field \"foo\": Type hint is incorrect: Argument 42.7 of type"
+                                 " <class 'float'> does not match expected type <class 'int'>.")
 
     # we check that the __post_init__ method is executed
     assert b == 33
@@ -149,8 +150,8 @@ def test_frozen_typesafe_dataclass_without_post_init():
     with pytest.raises(expected_exception=PedanticTypeCheckException) as err:
         A(foo=42.7)
 
-    assert err.value.args[0] == ('In dataclass "A" in field "foo": Type hint is incorrect: Argument 42.7 of type '
-                         '<class \'float\'> does not match expected type <class \'int\'>.')
+    assert err.value.args[0] == ("In dataclass \"A\" in field \"foo\": Type hint is incorrect: Argument 42.7 of type "
+                                 "<class 'float'> does not match expected type <class 'int'>.")
 
 
 def test_frozen_dataclass_with_empty_braces():
@@ -241,7 +242,6 @@ def test_frozen_dataclass_inheritance_override_post_init():
         def __post_init__(self):
             nonlocal i
             i += 1
-            print('hello a')
 
     @frozen_type_safe_dataclass
     class B(A):
@@ -250,7 +250,6 @@ def test_frozen_dataclass_inheritance_override_post_init():
         def __post_init__(self):
             nonlocal i
             i *= 10
-            print('hello b')
 
     A(bar=3)
     assert i == 2
@@ -275,7 +274,6 @@ def test_frozen_dataclass_inheritance_not_override_post_init():
         def __post_init__(self):
             nonlocal i
             i += 1
-            print('hello a')
 
     @frozen_type_safe_dataclass
     class B(A):
@@ -313,10 +311,10 @@ def test_type_safe_frozen_dataclass_with_awaitable():
 def test_type_safe_frozen_dataclass_with_forward_ref():
     T = TypeVar('T')
 
-    class State(Generic[T], ABC):
+    class State(ABC, Generic[T]):
         pass
 
-    class StateMachine(Generic[T], ABC):
+    class StateMachine(ABC, Generic[T]):
         pass
 
     @frozen_type_safe_dataclass
@@ -344,11 +342,11 @@ def test_type_safe_frozen_dataclass_with_forward_ref():
 
 
 def test_forward_ref_to_itself():
-    """ Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72 """
+    """Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72"""
 
     @frozen_type_safe_dataclass
     class Comment:
-        replies: List['Comment']
+        replies: list['Comment']
 
     comment = Comment(replies=[Comment(replies=[])])
     comment.copy_with(replies=[Comment(replies=[])])
@@ -356,12 +354,12 @@ def test_forward_ref_to_itself():
 
 
 def test_forward_ref_to_itself_while_class_not_in_scope():
-    """ Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72 """
+    """Regression test for https://github.com/LostInDarkMath/pedantic-python-decorators/issues/72"""
 
     def _scope():
         @frozen_type_safe_dataclass
         class Comment:
-            replies: List['Comment']
+            replies: list['Comment']
 
         def _make(replies=None):
             return Comment(replies=replies or [])
