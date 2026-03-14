@@ -8,15 +8,18 @@ def test_require_docstring():
     @pedantic_class_require_docstring
     class MyClass:
         def __init__(self, s: str) -> None:
-            """Constructor
+            """
+            Constructor
 
             Args:
                 s (str): name
             """
+
             self.s = s
 
         def double(self, b: int) -> str:
-            """some method
+            """
+            Some method
 
             Args:
                 b (int): magic number
@@ -25,15 +28,18 @@ def test_require_docstring():
                 str: cool stuff
 
             """
+
             return self.s + str(b)
 
         @staticmethod
         def generator() -> 'MyClass':
-            """Static
+            """
+            Static
 
             Returns:
                 MyClass: instance
             """
+
             return MyClass(s='generated')
 
     m = MyClass.generator()
@@ -45,20 +51,24 @@ def test_typo_docstring():
         @pedantic_class_require_docstring
         class MyClass:
             def __init__(self, s: str) -> None:
-                """Constructor
+                """
+                Constructor
 
                 Args:
                     s (str): name
                 """
+
                 self.s = s
 
             @staticmethod
             def generator() -> 'MyClass':
-                """Static
+                """
+                Static
 
                 Returns:
                     MyClas: instance
                 """
+
                 return MyClass(s='generated')
 
 
@@ -67,21 +77,24 @@ def test_wrong_docstring():
         @pedantic_class_require_docstring
         class MyClass:
             def __init__(self, s: str) -> None:
-                """Constructor
+                """
+                Constructor
 
                 Args:
                     s (str): name
                 """
+
                 self.s = s
 
             def double(self, b: int) -> str:
-                """some method
+                """
+                Some method
 
                 Args:
                     b (float): magic number
 
                 Returns:
                     str: cool stuff
-
                 """
+
                 return self.s + str(b)

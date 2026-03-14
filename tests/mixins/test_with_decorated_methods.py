@@ -1,7 +1,7 @@
 from functools import wraps
-from typing import TypeVar, Generic, NoReturn
+from typing import Generic, NoReturn, TypeVar
 
-from pedantic import DecoratorType, create_decorator, WithDecoratedMethods
+from pedantic import DecoratorType, WithDecoratedMethods, create_decorator
 
 T = TypeVar('T')
 
@@ -35,16 +35,13 @@ def test_class_with_bad_property():
 def test_with_decorated_methods_sync():
     class MyClass(WithDecoratedMethods[Decorators]):
         @foo(42)
-        def m1(self) -> None:
-            print('bar')
+        def m1(self) -> None: pass
 
         @foo(value=43)
-        def m2(self) -> None:
-            print('bar')
+        def m2(self) -> None: pass
 
         @bar(value=44)
-        def m3(self) -> None:
-            print('bar')
+        def m3(self) -> None: pass
 
     instance = MyClass()
     expected = {
@@ -54,7 +51,7 @@ def test_with_decorated_methods_sync():
         },
         Decorators.BAR: {
             instance.m3: 44,
-        }
+        },
     }
     assert instance.get_decorated_functions() == expected
 
@@ -62,16 +59,13 @@ def test_with_decorated_methods_sync():
 def test_with_decorated_methods_async():
     class MyClass(WithDecoratedMethods[Decorators]):
         @foo(42)
-        async def m1(self) -> None:
-            print('bar')
+        async def m1(self) -> None: pass
 
         @foo(value=43)
-        async def m2(self) -> None:
-            print('bar')
+        async def m2(self) -> None: pass
 
         @bar(value=44)
-        async def m3(self) -> None:
-            print('bar')
+        async def m3(self) -> None: pass
 
     instance = MyClass()
     expected = {
@@ -81,7 +75,7 @@ def test_with_decorated_methods_async():
         },
         Decorators.BAR: {
             instance.m3: 44,
-        }
+        },
     }
     assert instance.get_decorated_functions() == expected
 
@@ -118,7 +112,7 @@ def test_with_custom_transformation():
 
 
 def test_with_decorated_methods_can_have_generic_child_class():
-    class MyClass(Generic[T], WithDecoratedMethods[Decorators]):
+    class MyClass(WithDecoratedMethods[Decorators], Generic[T]):
         @foo(42)
         def m1(self) -> None: ...
 

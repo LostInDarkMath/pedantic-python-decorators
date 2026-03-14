@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import Iterator  # noqa: UP035
 
 import pytest
 
@@ -22,12 +22,12 @@ def test_generator_wrapper():
         type_vars={},
     )
 
-    print(sum([x for x in g]))
+    assert sum(x for x in g) == 4950
 
-    with pytest.raises(expected_exception=Exception):
-        g.throw(Exception('error'))
+    with pytest.raises(expected_exception=ValueError, match='error'):
+        g.throw(ValueError('error'))
 
     with pytest.raises(expected_exception=AttributeError):
-        g.invalid
+        g.invalid  # noqa: B018
 
     g.close()

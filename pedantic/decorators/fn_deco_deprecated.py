@@ -1,8 +1,10 @@
 import warnings
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, overload
+from typing import Any, overload
 
 from pedantic.constants import F, ReturnType
+
 
 @overload
 def deprecated(func: F) -> F: ...
@@ -12,18 +14,20 @@ def deprecated(*, message: str = '') -> Callable[[F], F]: ...
 
 def deprecated(func: F | None = None, message: str = '') -> F | Callable[[F], F]:
     """
-        Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.
-        You can specify an optional reason or message to display with the warning.
+    Use this decorator to mark a function as deprecated. It will raise a warning when the function is called.
+    You can specify an optional reason or message to display with the warning.
 
-        Example:
-        >>> @deprecated
-        ... def my_function(a, b, c):
-        ...     pass
-        >>> my_function(5, 4, 3)  # doctest: +SKIP
-        >>> @deprecated(message='Will be removed soon. Please use my_function_new_instead.')
-        ... def my_function(a, b, c):
-        ...     pass
-        >>> my_function(5, 4, 3)  # doctest: +SKIP
+    If you use Python 3.13 or newer, consider using warnings.deprecated instead from the standard library.
+
+    Example:
+    >>> @deprecated
+    ... def my_function(a, b, c):
+    ...     pass
+    >>> my_function(5, 4, 3)  # doctest: +SKIP
+    >>> @deprecated(message='Will be removed soon. Please use my_function_new_instead.')
+    ... def my_function(a, b, c):
+    ...     pass
+    >>> my_function(5, 4, 3)  # doctest: +SKIP
     """
 
     def decorator(fun: F) -> F:

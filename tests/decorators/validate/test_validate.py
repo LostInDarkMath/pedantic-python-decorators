@@ -1,21 +1,20 @@
 import os
-from datetime import datetime
-from typing import Optional, Any
+from datetime import UTC, datetime
+from typing import Any
 
 import pytest
 
 from pedantic import DateTimeUnixTimestamp
-from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, ParameterException, \
-ValidatorException
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
-from pedantic.decorators.fn_deco_validate.parameters import Parameter, EnvironmentVariableParameter
-from pedantic.decorators.fn_deco_validate.validators import MaxLength, Min, Max, Email, Validator
+from pedantic.decorators.fn_deco_validate.exceptions import ParameterException, ValidateException, ValidatorException
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import ReturnAs, validate
+from pedantic.decorators.fn_deco_validate.parameters import EnvironmentVariableParameter, Parameter
+from pedantic.decorators.fn_deco_validate.validators import Email, Max, MaxLength, Min, Validator
 
 
 def test_single_validator():
     validator = MaxLength(3)
     converted_value = validator.validate(value='hed')
-    assert 'hed' == converted_value
+    assert converted_value == 'hed'
 
     with pytest.raises(expected_exception=ValidatorException) as ex:
         validator.validate(value='hello world')
@@ -27,7 +26,7 @@ def test_single_validator():
 def test_single_parameter():
     parameter = Parameter(name='x', validators=[MaxLength(3)])
     converted_value = parameter.validate(value='hed')
-    assert 'hed' == converted_value
+    assert converted_value == 'hed'
 
     with pytest.raises(expected_exception=ParameterException):
         parameter.validate(value='hello world')
@@ -96,7 +95,7 @@ def test_validate_instance_method():
 
 
 def test_validate_static_method():
-    """ The @staticmethod decorator have to be ABOVE the @validate decorator. """
+    """The @staticmethod decorator have to be ABOVE the @validate decorator."""
 
     class MyClass:
         @staticmethod
@@ -135,7 +134,7 @@ def test_empty_parameter_kwargs_with_none():
         Parameter(name='a', required=False),
         Parameter(name='b', required=True),
         Parameter(name='c', required=False),
-        return_as=ReturnAs.KWARGS_WITH_NONE
+        return_as=ReturnAs.KWARGS_WITH_NONE,
     )
     def some_calculation(a, b, c):
         return str(a) + str(b) + str(c)
@@ -149,9 +148,9 @@ def test_empty_parameter_kwargs_without_none():
         Parameter(name='a', required=False),
         Parameter(name='b', required=True),
         Parameter(name='c', required=False),
-        return_as=ReturnAs.KWARGS_WITHOUT_NONE
+        return_as=ReturnAs.KWARGS_WITHOUT_NONE,
     )
-    def some_calculation(a: Optional[int] = 1, b: Optional[int] = 2, c:  Optional[int] = 3):
+    def some_calculation(a: int | None = 1, b: int | None = 2, c:  int | None = 3):
         return str(a) + str(b) + str(c)
 
     assert some_calculation(43, 0, -50) == '430-50'
@@ -193,11 +192,11 @@ def test_external_parameter_accepts_value_when_given():
 
 
 def test_external_parameter_ignores_value_when_given():
-    @validate(EnvironmentVariableParameter(name='foo'), ignore_input=True)
+    @validate(EnvironmentVariableParameter(name='FOO'), ignore_input=True)
     def bar(foo):
         return foo
 
-    os.environ['foo'] = '1'
+    os.environ['FOO'] = '1'
 
     assert bar('42') == '1'
     assert bar(foo='42') == '1'
@@ -205,7 +204,7 @@ def test_external_parameter_ignores_value_when_given():
 
 def test_external_parameter_mixed_with_normal_parameter():
     @validate(
-        EnvironmentVariableParameter(name='foo'),
+        EnvironmentVariableParameter(name='FOO'),
         Parameter(name='footer'),
         return_as=ReturnAs.KWARGS_WITHOUT_NONE,
     )
@@ -214,7 +213,7 @@ def test_external_parameter_mixed_with_normal_parameter():
 
     assert bar('42', 3) == ('42', 3)
 
-    os.environ['foo'] = '42'
+    os.environ['FOO'] = '42'
     assert bar(footer=3) == ('42', 3)
 
 
@@ -348,7 +347,7 @@ def test_return_multiple_args():
 
 def test_none_is_not_validated_if_not_required_kwargs_with_none():
     @validate(Parameter(name='a', validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITH_NONE)
-    def bar(a: Optional[str]):
+    def bar(a: str | None):
         return a
 
     assert bar(a=None) is None
@@ -360,7 +359,7 @@ def test_none_is_not_validated_if_not_required_kwargs_with_none():
 
 def test_none_is_not_validated_if_not_required_kwargs_without_none():
     @validate(Parameter(name='a', validators=[Email()], required=False), return_as=ReturnAs.KWARGS_WITHOUT_NONE)
-    def bar(a: Optional[str] = None):
+    def bar(a: str | None = None):
         return a
 
     assert bar(a=None) is None
@@ -394,8 +393,8 @@ def test_none_is_removed_for_not_required_parameter():
 
 
 def test_default_value_is_not_validated_internal_parameter():
-    t = datetime(year=2021, month=11, day=24)
-    unix_timestamp = (t - datetime(year=1970, month=1, day=1)).total_seconds()
+    t = datetime(year=2021, month=11, day=24, tzinfo=UTC)
+    unix_timestamp = (t - datetime(year=1970, month=1, day=1, tzinfo=UTC)).total_seconds()
 
     @validate(Parameter(name='a', required=False, default=t, validators=[DateTimeUnixTimestamp()]))
     def bar(a: datetime) -> datetime:
@@ -415,12 +414,12 @@ def test_no_default_value():
 
 
 def test_default_value_is_not_validated_external_parameter():
-    t = datetime(year=2021, month=11, day=24)
+    t = datetime(year=2021, month=11, day=24, tzinfo=UTC)
 
-    if 'a' in os.environ:
-        del os.environ['a']
+    if 'A' in os.environ:
+        del os.environ['A']
 
-    @validate(EnvironmentVariableParameter(name='a', default=t, validators=[DateTimeUnixTimestamp()], required=False))
+    @validate(EnvironmentVariableParameter(name='A', default=t, validators=[DateTimeUnixTimestamp()], required=False))
     def bar(a: datetime) -> datetime:
         return a
 

@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 
 import pytest
 
-from pedantic.decorators.class_decorators import pedantic_class, for_all_methods
-from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
-from pedantic.decorators.fn_deco_validate.validators import Min
-from pedantic.exceptions import PedanticException, PedanticTypeCheckException, PedanticCallWithArgsException
-from pedantic.decorators.fn_deco_pedantic import pedantic
 from pedantic import overrides
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, Parameter, ReturnAs
+from pedantic.decorators.class_decorators import for_all_methods, pedantic_class
+from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import Parameter, ReturnAs, validate
+from pedantic.decorators.fn_deco_validate.validators import Min
+from pedantic.exceptions import PedanticCallWithArgsException, PedanticException, PedanticTypeCheckException
 
 
 def test_pedantic_overrides():
@@ -150,7 +150,7 @@ def test_pedantic_class_static_method_2():
     @for_all_methods(staticmethod)
     @pedantic_class
     class MyClass:
-        def some_calculation(x: int) -> int:
+        def some_calculation(x: int) -> int:  # noqa: N805
             return x
 
     m = MyClass()
