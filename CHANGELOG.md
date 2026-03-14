@@ -9,10 +9,11 @@
 - removed decorator `@timer_class`
 - removed decorator `@uminplemented`
 - removed decorator `@trace_if_returns`
+- removed `enable_pedantic, disable_pedantic, is_enabled`
 - removed `GenericMixin.type_var`. Use `GenericMixin.type_vars` instead.
 - added `Taskfile.yml` and use it in CI
 - removed `create_pdoc.sh`
-- moved `examples` out of the package
+- removed `examples`
 - CI: added a check that `CHANGELOG.md` is modified on feature branches
 - CI: added a check that the poetry package version was updated
 - added `ruff` linter and apply lint rules to code

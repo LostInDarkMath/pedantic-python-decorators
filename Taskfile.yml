@@ -33,7 +33,7 @@ tasks:
     desc: Runs the linter (ruff)
     silent: true
     cmds:
-      - ruff check pedantic
+      - ruff check pedantic tests
 
   lint-fix:
     desc: Runs the linter and fixes all fixable errors automatically

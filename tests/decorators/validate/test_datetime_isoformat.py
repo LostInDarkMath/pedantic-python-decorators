@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -13,7 +13,7 @@ def test_validator_datetime_iso_format():
     def foo(x):
         return x
 
-    now = datetime.now()
+    now = datetime.now(tz=UTC)
     assert abs(now - foo(now.isoformat()) )< timedelta(milliseconds=1)
 
     with pytest.raises(expected_exception=ParameterException):

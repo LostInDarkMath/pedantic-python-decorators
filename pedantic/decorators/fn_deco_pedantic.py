@@ -2,7 +2,6 @@ from functools import wraps
 from typing import Any
 
 from pedantic.constants import F, ReturnType
-from pedantic.env_var_logic import is_enabled
 from pedantic.get_context import get_context
 from pedantic.models.decorated_function import DecoratedFunction
 from pedantic.models.function_call import FunctionCall
@@ -46,9 +45,6 @@ def pedantic(func: F | None = None, require_docstring: bool = False) -> F:
     """
 
     def decorator(f: F) -> F:
-        if not is_enabled():
-            return f
-
         decorated_func = DecoratedFunction(func=f)
 
         if decorated_func.docstring is not None and (require_docstring or len(decorated_func.docstring.params)) > 0:

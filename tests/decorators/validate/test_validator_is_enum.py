@@ -71,7 +71,7 @@ def test_validator_is_enum_to_upper_case():
 
 def test_validator_is_enum_to_upper_case_disabled():
     @validate(Parameter(name='x', validators=[IsEnum(MyEnum, convert=False, to_upper_case=False)]))
-    def foo(x): print(x)
+    def foo(x): print(x)  # noqa: T201
 
     for value in ['red', 'blue', 'Red', 'bLUe']:
         with pytest.raises(expected_exception=ParameterException):

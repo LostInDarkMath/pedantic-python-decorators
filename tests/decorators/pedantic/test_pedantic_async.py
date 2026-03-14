@@ -3,8 +3,8 @@ import asyncio
 import pytest
 
 from pedantic.decorators.class_decorators import pedantic_class
-from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic.exceptions import PedanticTypeCheckException
 
 
 @pytest.mark.asyncio
