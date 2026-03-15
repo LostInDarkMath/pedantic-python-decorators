@@ -1901,7 +1901,7 @@ def test_binary_io_real_file():
     @pedantic
     def foo(a: BinaryIO) -> None: pass
 
-    with Path(file=TEST_FILE).open(mode='wb') as f:
+    with Path(TEST_FILE).open(mode='wb') as f:
         foo(a=f)
 
     Path(TEST_FILE).unlink(missing_ok=True)
@@ -1911,7 +1911,7 @@ def test_text_io_real_file():
     @pedantic
     def foo(a: TextIO) -> None: pass
 
-    with Path(file=TEST_FILE).open(mode='w') as f:
+    with Path(TEST_FILE).open(mode='w') as f:
         foo(a=f)
 
     Path(TEST_FILE).unlink()
@@ -2424,7 +2424,7 @@ def test_inherited_class_method():
     class Child(Parent):
         pass
 
-    assert Child.foo(x='bar') == 'Parent'
+    assert Child.foo(x='bar') == 'Parentbar'
 
     with pytest.raises(PedanticTypeCheckException):
         Child.foo(x=1)

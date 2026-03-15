@@ -204,7 +204,7 @@ def test_external_parameter_ignores_value_when_given():
 
 def test_external_parameter_mixed_with_normal_parameter():
     @validate(
-        EnvironmentVariableParameter(name='FOO'),
+        EnvironmentVariableParameter(name='foo'),
         Parameter(name='footer'),
         return_as=ReturnAs.KWARGS_WITHOUT_NONE,
     )
@@ -213,7 +213,7 @@ def test_external_parameter_mixed_with_normal_parameter():
 
     assert bar('42', 3) == ('42', 3)
 
-    os.environ['FOO'] = '42'
+    os.environ['foo'] = '42'  # noqa: SIM112
     assert bar(footer=3) == ('42', 3)
 
 

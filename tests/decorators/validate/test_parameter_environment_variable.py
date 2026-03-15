@@ -70,7 +70,7 @@ def test_invalid_value_type():
 
 
 def test_parameter_environment_variable_different_name():
-    @validate(EnvironmentVariableParameter(name='FOO', env_var_name='fuu', value_type=str))
+    @validate(EnvironmentVariableParameter(name='foo', env_var_name='FUU', value_type=str))
     def bar(foo):
         return foo
 

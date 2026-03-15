@@ -18,8 +18,6 @@ def trace(func: F) -> F:
     ... def my_function(a, b, c):
     ...     return a + b + c
     >>> my_function(4, 5, 6)
-    Trace: ... calling my_function()  with (4, 5, 6), {}
-    Trace: ... my_function() returned 15
     15
     """
 
