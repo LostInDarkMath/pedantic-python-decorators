@@ -1,23 +1,59 @@
-import os.path
+# ruff: noqa: PYI041, UP006, UP007, UP014, UP035, UP045
+
 import types
-import typing
 from dataclasses import dataclass
-from datetime import datetime, date
-from functools import wraps, partial
-from io import BytesIO, StringIO
-from typing import List, Tuple, Callable, Any, Optional, Union, Dict, Set, FrozenSet, NewType, TypeVar, Sequence, \
-    AbstractSet, Iterator, NamedTuple, Collection, Type, Generator, Generic, BinaryIO, TextIO, Iterable, Container, \
-    NoReturn, ClassVar, Literal
+from datetime import UTC, date, datetime
 from enum import Enum, IntEnum
+from functools import partial, wraps
+from io import BytesIO, StringIO
+from pathlib import Path
+from typing import (
+    AbstractSet,
+    Any,
+    BinaryIO,
+    Callable,
+    ClassVar,
+    Collection,
+    Container,
+    Dict,
+    FrozenSet,
+    Generator,
+    Generic,
+    Iterable,
+    Iterator,
+    List,
+    Literal,
+    LiteralString,
+    NamedTuple,
+    Never,
+    NewType,
+    NoReturn,
+    Optional,
+    Protocol,
+    Self,
+    Sequence,
+    Set,
+    TextIO,
+    Tuple,
+    Type,
+    TypeVar,
+    TypeVarTuple,
+    Union,
+)
 
 import pytest
 
 from pedantic import pedantic_class
-from pedantic.exceptions import PedanticTypeCheckException, PedanticException, PedanticCallWithArgsException, \
-    PedanticTypeVarMismatchException
 from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic.exceptions import (
+    PedanticCallWithArgsException,
+    PedanticException,
+    PedanticTypeCheckException,
+    PedanticTypeVarMismatchException,
+)
 
-TEST_FILE = 'test.txt'
+Ts = TypeVarTuple('Ts')
+TEST_FILE = 'test_file.txt'
 
 
 class Parent:
@@ -314,8 +350,7 @@ def test_wrong_type_hint_3():
 
 def test_wrong_type_hint_corrected():
     @pedantic
-    def calc(n: int, m: int, i: int) -> None:
-        print(n + m + i)
+    def calc(n: int, m: int, i: int) -> None: pass
 
     calc(n=42, m=40, i=38)
 
@@ -323,8 +358,7 @@ def test_wrong_type_hint_corrected():
 def test_wrong_type_hint_4():
     """Problem here: None != int"""
     @pedantic
-    def calc(n: int, m: int, i: int) -> int:
-        print(n + m + i)
+    def calc(n: int, m: int, i: int) -> int: pass
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         calc(n=42, m=40, i=38)
@@ -649,7 +683,7 @@ def test_ellipsis_in_callable_2():
 
     @pedantic
     def call(x: float, y: int) -> int:
-        return 42
+        return int(x) + y
 
     calc(i=call)
 
@@ -661,8 +695,8 @@ def test_ellipsis_in_callable_3():
         return i(x=3.14)
 
     @pedantic
-    def call(x: float, y: int) -> int:
-        return 42
+    def call(x: float, _: int) -> int:
+        return int(x)
 
     with pytest.raises(expected_exception=PedanticException):
         calc(i=call)
@@ -735,7 +769,7 @@ def test_optional_args_5():
 
 
 def test_optional_args_6():
-    """"Problem here: str != int"""
+    """Problem here: str != int"""
     @pedantic
     def calc(d: int = 42) -> int:
         return int(d)
@@ -754,8 +788,7 @@ def test_enum_1():
 
     class MyClass:
         @pedantic
-        def operation(self, a: MyEnum.GAMMA) -> None:
-            print(a)
+        def operation(self, a: MyEnum.GAMMA) -> None: pass
 
     m = MyClass()
     with pytest.raises(expected_exception=PedanticTypeCheckException):
@@ -769,8 +802,7 @@ def test_enum_1_corrected():
         GAMMA = 'sequenceFlow'
 
     @pedantic
-    def operation(a: MyEnum) -> None:
-        print(a)
+    def operation(a: MyEnum) -> None: pass
 
     operation(a=MyEnum.GAMMA)
 
@@ -925,7 +957,7 @@ def test_type_list_corrected():
 def test_any():
     @pedantic
     def calc(ls: List[Any]) -> Dict[int, Any]:
-        return {i: ls[i] for i in range(0, len(ls))}
+        return {i: ls[i] for i in range(len(ls))}
 
     calc(ls=[1, 2, 3])
     calc(ls=[1.11, 2.0, 3.0])
@@ -934,7 +966,7 @@ def test_any():
 
 
 def test_aliases():
-    Vector = List[float]
+    Vector = List[float]  # noqa: N806
 
     @pedantic
     def scale(scalar: float, vector: Vector) -> Vector:
@@ -955,7 +987,7 @@ def test_new_type():
 
     # the following would be desirable but impossible to check at runtime:
     # with pytest.raises(expected_exception=AssertionError):
-    #     get_user_name(user_id=-1)
+    #     get_user_name(user_id=-1)  # noqa: ERA001
 
 
 def test_list_of_new_type():
@@ -1048,9 +1080,7 @@ def test_args_kwargs():
 
 def test_args_kwargs_no_type_hint():
     @pedantic
-    def method_no_type_hint(*args, **kwargs) -> None:
-        print(args)
-        print(kwargs)
+    def method_no_type_hint(*args, **kwargs) -> None: pass
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         method_no_type_hint(a=3, b=3.0)
@@ -1061,9 +1091,7 @@ def test_args_kwargs_no_type_hint():
 def test_args_kwargs_wrong_type_hint():
     """See: https://www.python.org/dev/peps/pep-0484/#arbitrary-argument-lists-and-default-argument-values"""
     @pedantic
-    def wrapper_method(*args: str, **kwargs: str) -> None:
-        print(args)
-        print(kwargs)
+    def wrapper_method(*args: str, **kwargs: str) -> None: pass
 
     wrapper_method()
     wrapper_method('hi', 'you', ':)')
@@ -1079,7 +1107,7 @@ def test_args_kwargs_wrong_type_hint():
 def test_additional_kwargs():
     @pedantic
     def some_method(a: int, b: float = 0.0, **kwargs: int) -> float:
-        return sum([a, b])
+        return sum([a, b, *list(kwargs.values())])
 
     some_method(a=5)
     some_method(a=5, b=0.1)
@@ -1095,9 +1123,7 @@ def test_additional_kwargs():
 
 def test_args_kwargs_different_types():
     @pedantic
-    def foo(*args: str, **kwds: int) -> None:
-        print(args)
-        print(kwds)
+    def foo(*args: str, **kwds: int) -> None: pass
 
     foo('a', 'b', 'c')
     foo(x=1, y=2)
@@ -1105,20 +1131,23 @@ def test_args_kwargs_different_types():
 
 
 def test_pedantic_on_class():
+    @pedantic
+    class MyClass:
+        pass
+
     with pytest.raises(expected_exception=PedanticTypeCheckException):
-        @pedantic
-        class MyClass:
-            pass
         MyClass()
 
 
 def test_is_subtype_tuple():
+    @pedantic
+    def foo() -> Callable[[Tuple[float, str]], Tuple[int]]:
+        def bar(a: Tuple[float]) -> Tuple[int]:
+            return (len(a[1]) + int(a[0]),)
+
+        return bar
+
     with pytest.raises(expected_exception=PedanticTypeCheckException):
-        @pedantic
-        def foo() -> Callable[[Tuple[float, str]], Tuple[int]]:
-            def bar(a: Tuple[float]) -> Tuple[int]:
-                return len(a[1]) + int(a[0]),
-            return bar
         foo()
 
 
@@ -1126,8 +1155,9 @@ def test_is_subtype_tuple_corrected():
     @pedantic
     def foo() -> Callable[[Tuple[float, str]], Tuple[int]]:
         def bar(a: Tuple[float, str]) -> Tuple[int]:
-            return len(a[1]) + int(a[0]),
+            return (len(a[1]) + int(a[0]),)
         return bar
+
     foo()
 
 
@@ -1146,10 +1176,7 @@ def test_alternative_list_type_hint():
     @pedantic
     def _is_digit_in_int(digit: [int], num: int) -> bool:
         num_str = str(num)
-        for i in num_str:
-            if int(i) == digit:
-                return True
-        return False
+        return any(int(i) == digit for i in num_str)
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         _is_digit_in_int(digit=4, num=42)
@@ -1177,23 +1204,15 @@ def test_callable_with_union_return():
 def test_pedantic():
     @pedantic
     def foo(a: int, b: str) -> str:
-        return 'abc'
+        return str(a) + b
 
-    assert foo(a=4, b='abc') == 'abc'
-
-
-def test_pedantic_always():
-    @pedantic
-    def foo(a: int, b: str) -> str:
-        return 'abc'
-
-    assert foo(a=4, b='abc') == 'abc'
+    assert foo(a=4, b='abc') == '4abc'
 
 
 def test_pedantic_arguments_fail():
     @pedantic
     def foo(a: int, b: str) -> str:
-        return 'abc'
+        return str(a) + b
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         foo(a=4, b=5)
@@ -1202,7 +1221,7 @@ def test_pedantic_arguments_fail():
 def test_pedantic_return_type_fail():
     @pedantic
     def foo(a: int, b: str) -> str:
-        return 6
+        return a + len(b)
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         foo(a=4, b='abc')
@@ -1224,6 +1243,9 @@ def test_marco():
 
         def __eq__(self, other: 'A') -> bool:  # other: A and all subclasses
             return self.val == other.val
+
+        def __hash__(self) -> int:
+            return hash(self.val)
 
     @pedantic_class
     class B(A):
@@ -1249,8 +1271,8 @@ def test_date_datetime():
     def foo(a: datetime, b: date) -> None:
         pass
 
-    foo(a=datetime(1995, 2, 5), b=date(1987, 8, 7))
-    foo(a=datetime(1995, 2, 5), b=datetime(1987, 8, 7))
+    foo(a=datetime(1995, 2, 5, tzinfo=UTC), b=date(1987, 8, 7))
+    foo(a=datetime(1995, 2, 5, tzinfo=UTC), b=datetime(1987, 8, 7, tzinfo=UTC))
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         foo(a=date(1995, 2, 5), b=date(1987, 8, 7))
@@ -1490,8 +1512,7 @@ def test_set_bad_element():
 
 def test_tuple_bad_type():
     @pedantic
-    def foo(a: Tuple[int]) -> None:
-        pass
+    def foo(a: Tuple[int]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=5)
@@ -1499,8 +1520,7 @@ def test_tuple_bad_type():
 
 def test_tuple_too_many_elements():
     @pedantic
-    def foo(a: Tuple[int, str]) -> None:
-        pass
+    def foo(a: Tuple[int, str]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=(1, 'aa', 2))
@@ -1508,8 +1528,7 @@ def test_tuple_too_many_elements():
 
 def test_tuple_too_few_elements():
     @pedantic
-    def foo(a: Tuple[int, str]) -> None:
-        pass
+    def foo(a: Tuple[int, str]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=(1,))
@@ -1517,8 +1536,7 @@ def test_tuple_too_few_elements():
 
 def test_tuple_bad_element():
     @pedantic
-    def foo(a: Tuple[int, str]) -> None:
-        pass
+    def foo(a: Tuple[int, str]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=(1, 2))
@@ -1526,8 +1544,7 @@ def test_tuple_bad_element():
 
 def test_tuple_ellipsis_bad_element():
     @pedantic
-    def foo(a: Tuple[int, ...]) -> None:
-        pass
+    def foo(a: Tuple[int, ...]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=(1, 2, 'blah'))
@@ -1537,8 +1554,7 @@ def test_namedtuple():
     Employee = NamedTuple('Employee', [('name', str), ('id', int)])
 
     @pedantic
-    def foo(bar: Employee) -> None:
-        print(bar)
+    def foo(bar: Employee) -> None: pass
 
     foo(bar=Employee('bob', 1))
 
@@ -1548,8 +1564,7 @@ def test_namedtuple_key_mismatch():
     Employee2 = NamedTuple('Employee', [('firstname', str), ('id', int)])
 
     @pedantic
-    def foo(bar: Employee1) -> None:
-        print(bar)
+    def foo(bar: Employee1) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(bar=Employee2('bob', 1))
@@ -1559,8 +1574,7 @@ def test_namedtuple_type_mismatch():
     Employee = NamedTuple('Employee', [('name', str), ('id', int)])
 
     @pedantic
-    def foo(bar: Employee) -> None:
-        print(bar)
+    def foo(bar: Employee) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(bar=('bob', 1))
@@ -1570,8 +1584,7 @@ def test_namedtuple_huge_type_mismatch():
     Employee = NamedTuple('Employee', [('name', str), ('id', int)])
 
     @pedantic
-    def foo(bar: int) -> None:
-        print(bar)
+    def foo(bar: int) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(bar=foo(bar=Employee('bob', 1)))
@@ -1581,8 +1594,7 @@ def test_namedtuple_wrong_field_type():
     Employee = NamedTuple('Employee', [('name', str), ('id', int)])
 
     @pedantic
-    def foo(bar: Employee) -> None:
-        pass
+    def foo(bar: Employee) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(bar=Employee(2, 1))
@@ -1590,8 +1602,7 @@ def test_namedtuple_wrong_field_type():
 
 def test_union():
     @pedantic
-    def foo(a: Union[str, int]) -> None:
-        pass
+    def foo(a: Union[str, int]) -> None: pass
 
     for value in [6, 'xa']:
         foo(a=value)
@@ -1599,8 +1610,7 @@ def test_union():
 
 def test_union_new_syntax():
     @pedantic
-    def foo(a: str | int) -> None:
-        pass
+    def foo(a: str | int) -> None: pass
 
     for value in [6, 'xa']:
         foo(a=value)
@@ -1611,8 +1621,7 @@ def test_union_new_syntax():
 
 def test_union_typing_type():
     @pedantic
-    def foo(a: Union[str, Collection]) -> None:
-        pass
+    def foo(a: Union[str, Collection]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=1)
@@ -1620,8 +1629,7 @@ def test_union_typing_type():
 
 def test_union_fail():
     @pedantic
-    def foo(a: Union[str, int]) -> None:
-        pass
+    def foo(a: Union[str, int]) -> None: pass
 
     for value in [5.6, b'xa']:
         with pytest.raises(PedanticTypeCheckException):
@@ -1632,12 +1640,11 @@ def test_type_var_constraints():
     T = TypeVar('T', int, str)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T, b: T) -> None: pass
 
     for values in [
         {'a': 6, 'b': 7},
-        {'a': 'aa', 'b': "bb"},
+        {'a': 'aa', 'b': 'bb'},
     ]:
         foo(**values)
 
@@ -1646,8 +1653,7 @@ def test_type_var_constraints_fail_typing_type():
     T = TypeVar('T', int, Collection)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T, b: T) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a='aa', b='bb')
@@ -1657,8 +1663,7 @@ def test_typevar_constraints_fail():
     T = TypeVar('T', int, str)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T, b: T) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=2.5, b='aa')
@@ -1668,8 +1673,7 @@ def test_typevar_bound():
     T = TypeVar('T', bound=Parent)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T, b: T) -> None: pass
 
     foo(a=Child(), b=Child())
 
@@ -1678,8 +1682,7 @@ def test_type_var_bound_fail():
     T = TypeVar('T', bound=Child)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T, b: T) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=Parent(), b=Parent())
@@ -1689,50 +1692,45 @@ def test_type_var_invariant_fail():
     T = TypeVar('T', int, str)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T, b: T) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=2, b=3.6)
 
 
 def test_type_var_covariant():
-    T = TypeVar('T', covariant=True)
+    T_co = TypeVar('T_co', covariant=True)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T_co, b: T_co) -> None: pass
 
     foo(a=Parent(), b=Child())
 
 
 def test_type_var_covariant_fail():
-    T = TypeVar('T', covariant=True)
+    T_co = TypeVar('T_co', covariant=True)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T_co, b: T_co) -> None: pass
 
     with pytest.raises(PedanticTypeVarMismatchException):
         foo(a=Child(), b=Parent())
 
 
 def test_type_var_contravariant():
-    T = TypeVar('T', contravariant=True)
+    T_contra = TypeVar('T_contra', contravariant=True)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T_contra, b: T_contra) -> None: pass
 
     foo(a=Child(), b=Parent())
 
 
 def test_type_var_contravariant_fail():
-    T = TypeVar('T', contravariant=True)
+    T_contra = TypeVar('T_contra', contravariant=True)
 
     @pedantic
-    def foo(a: T, b: T) -> None:
-        pass
+    def foo(a: T_contra, b: T_contra) -> None: pass
 
     with pytest.raises(PedanticTypeVarMismatchException):
         foo(a=Parent(), b=Child())
@@ -1740,8 +1738,7 @@ def test_type_var_contravariant_fail():
 
 def test_class_bad_subclass():
     @pedantic
-    def foo(a: Type[Child]) -> None:
-        pass
+    def foo(a: Type[Child]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=Parent)
@@ -1749,8 +1746,7 @@ def test_class_bad_subclass():
 
 def test_class_any():
     @pedantic
-    def foo(a: Type[Any]) -> None:
-        pass
+    def foo(a: Type[Any]) -> None: pass
 
     foo(a=str)
 
@@ -1764,8 +1760,7 @@ def test_wrapped_function():
 
     @pedantic
     @decorator
-    def foo(a: 'Child') -> None:
-        pass
+    def foo(a: 'Child') -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=Parent())
@@ -1773,21 +1768,16 @@ def test_wrapped_function():
 
 def test_mismatching_default_type():
     @pedantic
-    def foo(a: str = 1) -> None:
-        pass
+    def foo(a: str = 1) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo()
 
 
 def test_implicit_default_none():
-    """
-    Test that if the default value is ``None``, a ``None`` argument can be passed.
-
-    """
+    """Test that if the default value is ``None``, a ``None`` argument can be passed."""
     @pedantic
-    def foo(a: Optional[str] = None) -> None:
-        pass
+    def foo(a: Optional[str] = None) -> None: pass
 
     foo()
 
@@ -1816,16 +1806,14 @@ def test_wrapped_generator_no_return_type_annotation():
 
 def test_varargs():
     @pedantic
-    def foo(*args: int) -> None:
-        pass
+    def foo(*args: int) -> None: pass
 
     foo(1, 2)
 
 
 def test_varargs_fail():
     @pedantic
-    def foo(*args: int) -> None:
-        pass
+    def foo(*args: int) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(1, 'a')
@@ -1833,16 +1821,14 @@ def test_varargs_fail():
 
 def test_kwargs():
     @pedantic
-    def foo(**kwargs: int) -> None:
-        pass
+    def foo(**kwargs: int) -> None: pass
 
     foo(a=1, b=2)
 
 
 def test_kwargs_fail():
     @pedantic
-    def foo(**kwargs: int) -> None:
-        pass
+    def foo(**kwargs: int) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=1, b='a')
@@ -1855,29 +1841,27 @@ def test_generic():
         pass
 
     @pedantic
-    def foo(a: FooGeneric[str]) -> None:
-        print(a)
+    def foo(a: FooGeneric[str]) -> None: pass
 
     foo(a=FooGeneric[str]())
 
 
 def test_newtype():
-    myint = NewType("myint", int)
+    myint = NewType('myint', int)
 
     @pedantic
     def foo(a: myint) -> int:
-        return 42
+        return a
 
-    assert foo(a=1) == 42
+    assert foo(a=1) == 1
 
     with pytest.raises(PedanticTypeCheckException):
-        foo(a="a")
+        foo(a='a')
 
 
 def test_collection():
     @pedantic
-    def foo(a: Collection) -> None:
-        pass
+    def foo(a: Collection) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=True)
@@ -1885,24 +1869,21 @@ def test_collection():
 
 def test_binary_io():
     @pedantic
-    def foo(a: BinaryIO) -> None:
-        print(a)
+    def foo(a: BinaryIO) -> None: pass
 
     foo(a=BytesIO())
 
 
 def test_text_io():
     @pedantic
-    def foo(a: TextIO) -> None:
-        print(a)
+    def foo(a: TextIO) -> None: pass
 
     foo(a=StringIO())
 
 
 def test_binary_io_fail():
     @pedantic
-    def foo(a: TextIO) -> None:
-        print(a)
+    def foo(a: TextIO) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=BytesIO())
@@ -1910,8 +1891,7 @@ def test_binary_io_fail():
 
 def test_text_io_fail():
     @pedantic
-    def foo(a: BinaryIO) -> None:
-        print(a)
+    def foo(a: BinaryIO) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=StringIO())
@@ -1919,24 +1899,22 @@ def test_text_io_fail():
 
 def test_binary_io_real_file():
     @pedantic
-    def foo(a: BinaryIO) -> None:
-        print(a)
+    def foo(a: BinaryIO) -> None: pass
 
-    with open(file=TEST_FILE, mode='wb') as f:
+    with Path(TEST_FILE).open(mode='wb') as f:
         foo(a=f)
 
-    os.remove(TEST_FILE)
+    Path(TEST_FILE).unlink(missing_ok=True)
 
 
 def test_text_io_real_file():
     @pedantic
-    def foo(a: TextIO) -> None:
-        print(a)
+    def foo(a: TextIO) -> None: pass
 
-    with open(file=TEST_FILE, mode='w') as f:
+    with Path(TEST_FILE).open(mode='w') as f:
         foo(a=f)
 
-    os.remove(TEST_FILE)
+    Path(TEST_FILE).unlink()
 
 
 def test_pedantic_return_type_var_fail():
@@ -1944,7 +1922,7 @@ def test_pedantic_return_type_var_fail():
 
     @pedantic
     def foo(a: T, b: T) -> T:
-        return 'a'
+        return str(a) + str(b)
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=4, b=2)
@@ -1952,12 +1930,10 @@ def test_pedantic_return_type_var_fail():
 
 def test_callable():
     @pedantic
-    def foo_1(a: Callable[..., int]) -> None:
-        print(a)
+    def foo_1(a: Callable[..., int]) -> None: pass
 
     @pedantic
-    def foo_2(a: Callable) -> None:
-        print(a)
+    def foo_2(a: Callable) -> None: pass
 
     def some_callable() -> int:
         return 4
@@ -1970,20 +1946,16 @@ def test_callable():
 
 def test_list():
     @pedantic
-    def foo_1(a: List[int]) -> None:
-        print(a)
+    def foo_1(a: List[int]) -> None: pass
 
     @pedantic
-    def foo_2(a: List) -> None:
-        print(a)
+    def foo_2(a: List) -> None: pass
 
     @pedantic
-    def foo_3(a: list) -> None:
-        print(a)
+    def foo_3(a: list) -> None: pass
 
     @pedantic
-    def foo_4(a: list[int]) -> None:
-        print(a)
+    def foo_4(a: list[int]) -> None: pass
 
     foo_1(a=[1, 2])
 
@@ -1998,20 +1970,16 @@ def test_list():
 
 def test_dict():
     @pedantic
-    def foo_1(a: Dict[str, int]) -> None:
-        print(a)
+    def foo_1(a: Dict[str, int]) -> None: pass
 
     @pedantic
-    def foo_2(a: Dict) -> None:
-        print(a)
+    def foo_2(a: Dict) -> None: pass
 
     @pedantic
-    def foo_3(a: dict) -> None:
-        print(a)
+    def foo_3(a: dict) -> None: pass
 
     @pedantic
-    def foo_4(a: dict[str, int]) -> None:
-        print(a)
+    def foo_4(a: dict[str, int]) -> None: pass
 
     foo_1(a={'x': 2})
 
@@ -2026,8 +1994,7 @@ def test_dict():
 
 def test_sequence():
     @pedantic
-    def foo(a: Sequence[str]) -> None:
-        print(a)
+    def foo(a: Sequence[str]) -> None: pass
 
     for value in [('a', 'b'), ['a', 'b'], 'abc']:
         foo(a=value)
@@ -2035,8 +2002,7 @@ def test_sequence():
 
 def test_sequence_no_type_args():
     @pedantic
-    def foo(a: Sequence) -> None:
-        print(a)
+    def foo(a: Sequence) -> None: pass
 
     for value in [('a', 'b'), ['a', 'b'], 'abc']:
         with pytest.raises(PedanticTypeCheckException):
@@ -2045,8 +2011,7 @@ def test_sequence_no_type_args():
 
 def test_iterable():
     @pedantic
-    def foo(a: Iterable[str]) -> None:
-        print(a)
+    def foo(a: Iterable[str]) -> None: pass
 
     for value in [('a', 'b'), ['a', 'b'], 'abc']:
         foo(a=value)
@@ -2054,8 +2019,7 @@ def test_iterable():
 
 def test_iterable_no_type_args():
     @pedantic
-    def foo(a: Iterable) -> None:
-        print(a)
+    def foo(a: Iterable) -> None: pass
 
     for value in [('a', 'b'), ['a', 'b'], 'abc']:
         with pytest.raises(PedanticTypeCheckException):
@@ -2064,8 +2028,7 @@ def test_iterable_no_type_args():
 
 def test_container():
     @pedantic
-    def foo(a: Container[str]) -> None:
-        print(a)
+    def foo(a: Container[str]) -> None: pass
 
     for value in [('a', 'b'), ['a', 'b'], 'abc']:
         foo(a=value)
@@ -2073,8 +2036,7 @@ def test_container():
 
 def test_container_no_type_args():
     @pedantic
-    def foo(a: Container) -> None:
-        print(a)
+    def foo(a: Container) -> None: pass
 
     for value in [('a', 'b'), ['a', 'b'], 'abc']:
         with pytest.raises(PedanticTypeCheckException):
@@ -2083,12 +2045,10 @@ def test_container_no_type_args():
 
 def test_set():
     @pedantic
-    def foo_1(a: AbstractSet[int]) -> None:
-        print(a)
+    def foo_1(a: AbstractSet[int]) -> None: pass
 
     @pedantic
-    def foo_2(a: Set[int]) -> None:
-        print(a)
+    def foo_2(a: Set[int]) -> None: pass
 
     for value in [set(), {6}]:
         foo_1(a=value)
@@ -2097,16 +2057,13 @@ def test_set():
 
 def test_set_no_type_args():
     @pedantic
-    def foo_1(a: AbstractSet) -> None:
-        print(a)
+    def foo_1(a: AbstractSet) -> None: pass
 
     @pedantic
-    def foo_2(a: Set) -> None:
-        print(a)
+    def foo_2(a: Set) -> None: pass
 
     @pedantic
-    def foo_3(a: set) -> None:
-        print(a)
+    def foo_3(a: set) -> None: pass
 
     for value in [set(), {6}]:
         with pytest.raises(PedanticTypeCheckException):
@@ -2121,12 +2078,10 @@ def test_set_no_type_args():
 
 def test_tuple():
     @pedantic
-    def foo_1(a: Tuple[int, int]) -> None:
-        print(a)
+    def foo_1(a: Tuple[int, int]) -> None: pass
 
     @pedantic
-    def foo_2(a: Tuple[int, ...]) -> None:
-        print(a)
+    def foo_2(a: Tuple[int, ...]) -> None: pass
 
     foo_1(a=(1, 2))
     foo_2(a=(1, 2))
@@ -2134,12 +2089,10 @@ def test_tuple():
 
 def test_tuple_no_type_args():
     @pedantic
-    def foo_1(a: Tuple) -> None:
-        print(a)
+    def foo_1(a: Tuple) -> None: pass
 
     @pedantic
-    def foo_2(a: tuple) -> None:
-        print(a)
+    def foo_2(a: tuple) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo_1(a=(1, 2))
@@ -2150,8 +2103,7 @@ def test_tuple_no_type_args():
 
 def test_empty_tuple():
     @pedantic
-    def foo(a: Tuple[()]) -> None:
-        print(a)
+    def foo(a: Tuple[()]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=())
@@ -2159,16 +2111,13 @@ def test_empty_tuple():
 
 def test_class():
     @pedantic
-    def foo_1(a: Type[Parent]) -> None:
-        print(a)
+    def foo_1(a: Type[Parent]) -> None: pass
 
     @pedantic
-    def foo_2(a: Type[TypeVar('UnboundType')]) -> None:
-        print(a)
+    def foo_2(a: Type[TypeVar('UnboundType')]) -> None: pass
 
     @pedantic
-    def foo_3(a: Type[TypeVar('BoundType', bound=Parent)]) -> None:
-        print(a)
+    def foo_3(a: Type[TypeVar('BoundType', bound=Parent)]) -> None: pass
 
     foo_1(a=Child)
     foo_2(a=Child)
@@ -2177,12 +2126,10 @@ def test_class():
 
 def test_class_no_type_vars():
     @pedantic
-    def foo_1(a: Type) -> None:
-        print(a)
+    def foo_1(a: Type) -> None: pass
 
     @pedantic
-    def foo_2(a: type) -> None:
-        print(a)
+    def foo_2(a: type) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo_1(a=Child)
@@ -2193,8 +2140,7 @@ def test_class_no_type_vars():
 
 def test_class_not_a_class():
     @pedantic
-    def foo(a: Type[Parent]) -> None:
-        print(a)
+    def foo(a: Type[Parent]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=1)
@@ -2202,8 +2148,7 @@ def test_class_not_a_class():
 
 def test_complex():
     @pedantic
-    def foo(a: complex) -> None:
-        print(a)
+    def foo(a: complex) -> None: pass
 
     foo(a=complex(1, 5))
 
@@ -2213,8 +2158,7 @@ def test_complex():
 
 def test_float():
     @pedantic
-    def foo(a: float) -> None:
-        print(a)
+    def foo(a: float) -> None: pass
 
     foo(a=1.5)
 
@@ -2286,7 +2230,7 @@ def test_generator():
 
     gen = genfunc()
 
-    with pytest.raises(StopIteration):
+    with pytest.raises(StopIteration):  # noqa: PT012
         value = next(gen)
         while True:
             value = gen.send(str(value))
@@ -2315,7 +2259,7 @@ def test_iterator():
 
     gen = genfunc()
 
-    with pytest.raises(PedanticTypeCheckException):
+    with pytest.raises(PedanticTypeCheckException):  # noqa: PT012
         value = next(gen)
         while True:
             value = gen.send(str(value))
@@ -2344,8 +2288,9 @@ def test_iterable_advanced():
 
     gen = genfunc()
 
-    with pytest.raises(PedanticTypeCheckException):
-        value = next(gen)
+    value = next(gen)
+
+    with pytest.raises(PedanticTypeCheckException): # noqa: PT012
         while True:
             value = gen.send(str(value))
             assert isinstance(value, int)
@@ -2473,13 +2418,13 @@ def test_inherited_class_method():
     class Parent:
         @classmethod
         def foo(cls, x: str) -> str:
-            return cls.__name__
+            return cls.__name__ + x
 
     @pedantic_class
     class Child(Parent):
         pass
 
-    assert Child.foo(x='bar') == 'Parent'
+    assert Child.foo(x='bar') == 'Parentbar'
 
     with pytest.raises(PedanticTypeCheckException):
         Child.foo(x=1)
@@ -2516,8 +2461,7 @@ def test_noreturn():
 
 def test_literal():
     @pedantic
-    def foo(a: Literal[1, True, 'x', b'y', 404]) -> None:
-        print(a)
+    def foo(a: Literal[1, True, 'x', b'y', 404]) -> None: pass
 
     foo(a=404)
     foo(a=True)
@@ -2529,8 +2473,7 @@ def test_literal():
 
 def test_literal_union():
     @pedantic
-    def foo(a: Union[str, Literal[1, 6, 8]]) -> None:
-        print(a)
+    def foo(a: Union[str, Literal[1, 6, 8]]) -> None: pass
 
     foo(a=6)
 
@@ -2540,8 +2483,7 @@ def test_literal_union():
 
 def test_literal_illegal_value():
     @pedantic
-    def foo(a: Literal[1, 1.1]) -> None:
-        print(a)
+    def foo(a: Literal[1, 1.1]) -> None: pass
 
     with pytest.raises(PedanticTypeCheckException):
         foo(a=4)
@@ -2554,7 +2496,7 @@ def test_enum():
             A = 'a'
 
 
-def test_enum_aggregate():
+def test_enum_aggregate():  # noqa: C901
     T = TypeVar('T', bound=IntEnum)
 
     @pedantic_class
@@ -2565,7 +2507,7 @@ def test_enum_aggregate():
             assert len(self.enum) < 10
 
             if value == '':
-                raise ValueError(f'Parameter "value" cannot be empty!')
+                raise ValueError('Parameter "value" cannot be empty!')
 
             if isinstance(value, list):
                 self._value = ''.join([str(x.value) for x in value])
@@ -2583,6 +2525,9 @@ def test_enum_aggregate():
                 return self._value == other
 
             return self._value == other._value
+
+        def __hash__(self):
+            return hash(self._value)
 
         def __str__(self) -> str:
             return self._value
@@ -2631,7 +2576,7 @@ def test_primitive_list_dict_tuple():
 
 
 def test_dataclass_protocol():
-    class IsDataclass(typing.Protocol):
+    class IsDataclass(Protocol):
         __dataclass_fields__: ClassVar[Dict]
 
     @dataclass
@@ -2646,7 +2591,7 @@ def test_dataclass_protocol():
 
 
 def test_dataclass_protocol_in_type():
-    class IsDataclass(typing.Protocol):
+    class IsDataclass(Protocol):
         __dataclass_fields__: ClassVar[Dict]
 
     @dataclass
@@ -2661,7 +2606,7 @@ def test_dataclass_protocol_in_type():
 
 
 def test_dataclass_protocol_in_type_with_union():
-    class IsDataclass(typing.Protocol):
+    class IsDataclass(Protocol):
         __dataclass_fields__: ClassVar[Dict]
 
     @dataclass
@@ -2693,8 +2638,6 @@ def test_partial_function():
 
 
 def test_typing_never():
-    from typing import Never
-
     @pedantic
     def never_call_me(arg: Never) -> None:
         pass
@@ -2713,13 +2656,11 @@ def test_typing_never():
     with pytest.raises(PedanticTypeCheckException):
         foo()
 
-    with pytest.raises(expected_exception=PedanticTypeCheckException) as exc:
+    with pytest.raises(expected_exception=PedanticTypeCheckException):
         never_call_me(arg='42')
 
 
 def test_literal_string():
-    from typing import LiteralString
-
     @pedantic
     def foo(s: LiteralString) -> None:
         pass
@@ -2732,8 +2673,6 @@ def test_literal_string():
 
 
 def test_self_type():
-    from typing import Self
-
     class Bar:
         pass
 
@@ -2785,8 +2724,6 @@ def test_self_type():
 
 
 def test_using_self_type_annotation_outside_class():
-    from typing import Self
-
     @pedantic
     def f() -> Self:
         return 'hi'
@@ -2796,24 +2733,20 @@ def test_using_self_type_annotation_outside_class():
 
 
 def test_type_var_tuple():
-    from typing import TypeVarTuple, Generic
-
-    Ts = TypeVarTuple('Ts')
-
     @pedantic_class
     class Array(Generic[*Ts]):
         def __init__(self, *args: *Ts) -> None:
-            self._values = args
+            self.values = args
 
     @pedantic
     def add_dimension(a: Array[*Ts], value: int) -> Array[int, *Ts]:
-        return Array[int, *Ts](value, *a._values)
+        return Array[int, *Ts](value, *a.values)
 
     array = Array[int, float](42, 3.4)
-    array_2 = Array[bool, int, float, str](True, 4, 3.4, 'hi')
+    Array[bool, int, float, str](True, 4, 3.4, 'hi')
     extended_array = add_dimension(a=array, value=42)
-    assert extended_array._values == (42, 42, 3.4)
+    assert extended_array.values == (42, 42, 3.4)
 
     # this is too complicated at the moment
     # with pytest.raises(expected_exception=PedanticTypeCheckException):
-    #     Array[int, float](4.2, 3.4)
+    #     Array[int, float](4.2, 3.4)  # noqa: ERA001

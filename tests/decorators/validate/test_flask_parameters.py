@@ -1,17 +1,29 @@
 import json
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import Any
 
 import pytest
 from flask import Flask, Response, jsonify
 
 from pedantic import Email, overrides
-from pedantic.decorators.fn_deco_validate.exceptions import ValidateException, TooManyArguments, \
-    ParameterException, ExceptionDictKey, InvalidHeader
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import validate, ReturnAs
-from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import FlaskJsonParameter, FlaskFormParameter, \
-    FlaskHeaderParameter, FlaskGetParameter, FlaskPathParameter, Deserializable, GenericFlaskDeserializer
-from pedantic.decorators.fn_deco_validate.validators import NotEmpty, Min
+from pedantic.decorators.fn_deco_validate.exceptions import (
+    ExceptionDictKey,
+    InvalidHeader,
+    ParameterException,
+    TooManyArguments,
+    ValidateException,
+)
+from pedantic.decorators.fn_deco_validate.fn_deco_validate import ReturnAs, validate
+from pedantic.decorators.fn_deco_validate.parameters.flask_parameters import (
+    Deserializable,
+    FlaskFormParameter,
+    FlaskGetParameter,
+    FlaskHeaderParameter,
+    FlaskJsonParameter,
+    FlaskPathParameter,
+    GenericFlaskDeserializer,
+)
+from pedantic.decorators.fn_deco_validate.validators import Min, NotEmpty
 
 JSON = 'application/json'
 OK = 200
@@ -51,13 +63,13 @@ def test_validator_flask_json():
         FlaskJsonParameter(name='list_param', value_type=list),
         FlaskJsonParameter(name='dict_param', value_type=dict),
     )
-    def different_types(
-            bool_param,
-            int_param,
-            float_param,
-            str_param,
-            list_param,
-            dict_param,
+    def different_types(  # noqa: PLR0913
+        bool_param,
+        int_param,
+        float_param,
+        str_param,
+        list_param,
+        dict_param,
     ) -> Response:
         return jsonify({
             'bool_param': bool_param,
@@ -81,15 +93,13 @@ def test_validator_flask_json():
         })
 
     @app.errorhandler(ParameterException)
-    def handle_validation_error(exception: ParameterException) -> Response:
-        print(str(exception))
+    def handle_parameter_exception(exception: ParameterException) -> Response:
         response = jsonify(exception.to_dict)
         response.status_code = INVALID
         return response
 
     @app.errorhandler(TooManyArguments)
-    def handle_validation_error(exception: TooManyArguments) -> Response:
-        print(str(exception))
+    def handle_too_many_arguments(exception: TooManyArguments) -> Response:
         response = jsonify(str(exception))
         response.status_code = TOO_MANY_ARGS
         return response
@@ -128,7 +138,6 @@ def test_validator_flask_form_data():
 
     @app.errorhandler(ParameterException)
     def handle_validation_error(exception: ParameterException) -> Response:
-        print(str(exception))
         response = jsonify(exception.to_dict)
         response.status_code = INVALID
         return response
@@ -159,7 +168,6 @@ def test_validator_flask_header():
 
     @app.errorhandler(InvalidHeader)
     def handle_validation_error(exception: InvalidHeader) -> Response:
-        print(str(exception))
         response = jsonify(exception.to_dict)
         response.status_code = INVALID
         return response
@@ -185,7 +193,7 @@ def test_validator_flask_header_optional_parameter():
 
     @app.route('/')
     @validate(FlaskHeaderParameter(name='key', validators=[NotEmpty()], required=False))
-    def hello_world(key: str = None) -> Response:
+    def hello_world(key: str | None = None) -> Response:
         return jsonify(key)
 
     with app.test_client() as client:
@@ -208,7 +216,6 @@ def test_validator_flask_get():
 
     @app.errorhandler(ParameterException)
     def handle_validation_error(exception: ParameterException) -> Response:
-        print(str(exception))
         response = jsonify(exception.to_dict)
         response.status_code = INVALID
         return response
@@ -238,7 +245,7 @@ def test_validator_flask_get_multiple_values_for_same_key():
 
     @app.route('/')
     @validate(FlaskGetParameter(name='key', value_type=list, validators=[NotEmpty()]))
-    def hello_world(key: List[str]) -> Response:
+    def hello_world(key: list[str]) -> Response:
         return jsonify(key)
 
     with app.test_client() as client:
@@ -257,7 +264,6 @@ def test_validator_flask_path():
 
     @app.errorhandler(ParameterException)
     def handle_validation_error(exception: ParameterException) -> Response:
-        print(str(exception))
         response = jsonify(exception.to_dict)
         response.status_code = INVALID
         return response
@@ -302,7 +308,6 @@ def test_wrong_name():
 
     @app.errorhandler(ValidateException)
     def handle_validation_error(exception: ValidateException) -> Response:
-        print(str(exception))
         response = jsonify(str(exception))
         response.status_code = INVALID
         return response
@@ -381,7 +386,6 @@ def test_validator_flask_path_type_conversion():
 
     @app.errorhandler(ParameterException)
     def handle_validation_error(exception: ParameterException) -> Response:
-        print(str(exception))
         response = jsonify(exception.to_dict)
         response.status_code = INVALID
         return response
@@ -412,7 +416,6 @@ def test_validator_flask_json_parameter_does_not_get_json():
 
     @app.errorhandler(ParameterException)
     def handle_validation_error(exception: ParameterException) -> Response:
-        print(str(exception))
         response = jsonify(exception.to_dict)
         response.status_code = INVALID
         return response
@@ -453,7 +456,6 @@ def test_too_many_arguments():
 
     @app.errorhandler(TooManyArguments)
     def handle_validation_error(exception: TooManyArguments) -> Response:
-        print(str(exception))
         response = jsonify(str(exception))
         response.status_code = INVALID
         return response
@@ -512,16 +514,16 @@ def test_async_endpoints():
         return response
 
     with app.test_client() as client:
-        res = client.get(path=f'/45')
+        res = client.get(path='/45')
         assert res.status_code == OK
 
-        res = client.get(path=f'/foo/45')
+        res = client.get(path='/foo/45')
         assert res.status_code == OK
 
-        res = client.get(path=f'/bar/45')
+        res = client.get(path='/bar/45')
         assert res.status_code == OK
 
-        res = client.get(path=f'/41')
+        res = client.get(path='/41')
         assert res.status_code == INVALID
         expected = {
             ExceptionDictKey.MESSAGE: 'smaller then allowed: 41 is not >= 42',
@@ -544,7 +546,7 @@ def test_json_parameter_with_default_value():
         return jsonify({'email': email, 'content': content})
 
     with app.test_client() as client:
-        res = client.post(path=f'/testing/message/adam@eva.de')
+        res = client.post(path='/testing/message/adam@eva.de')
         assert res.status_code == OK
         expected = {
             'email': 'adam@eva.de',
@@ -552,7 +554,7 @@ def test_json_parameter_with_default_value():
         }
         assert res.json == expected
 
-        res = client.post(path=f'/testing/message/adam@eva.de', json={'content': 'hello world'})
+        res = client.post(path='/testing/message/adam@eva.de', json={'content': 'hello world'})
         assert res.status_code == OK
         expected = {
             'email': 'adam@eva.de',
@@ -570,7 +572,7 @@ def test_generic_deserializer():
 
         @staticmethod
         @overrides(Deserializable)
-        def from_json(data: Dict[str, Any]) -> 'User':
+        def from_json(data: dict[str, Any]) -> 'User':
             return User(
                 firstname=data['firstname'],
                 lastname=data['lastname'],
@@ -605,19 +607,19 @@ def test_generic_deserializer():
             'lastname': 'Einstein',
             'age': '56',
         }
-        res = client.post(path=f'/foo', json=data)
+        res = client.post(path='/foo', json=data)
         assert res.status_code == 200
         assert res.json == {'name': 'Albert'}
 
         data.pop('age')
-        res = client.post(path=f'/foo', json=data)
+        res = client.post(path='/foo', json=data)
         assert res.status_code == 422
 
-        res = client.post(path=f'/bar', json=data)
+        res = client.post(path='/bar', json=data)
         assert res.status_code == 500
 
         data['age'] = '16'
-        res = client.post(path=f'/foo', json=data)
+        res = client.post(path='/foo', json=data)
         assert res.status_code == 422
         expected = {
             ExceptionDictKey.MESSAGE: 'smaller then allowed: 16 is not >= 18',

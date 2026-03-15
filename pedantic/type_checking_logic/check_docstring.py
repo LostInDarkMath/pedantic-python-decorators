@@ -1,14 +1,14 @@
-import sys
-import typing
-from typing import *  # necessary for eval()
+from typing import *  # noqa: F403 necessary for eval()
 
-from pedantic.type_checking_logic.check_types import get_type_arguments
 from pedantic.exceptions import PedanticDocstringException
 from pedantic.models.decorated_function import DecoratedFunction
+from pedantic.type_checking_logic.check_types import get_type_arguments
 
+# ruff: noqa: E501, F405
 
 def _check_docstring(decorated_func: DecoratedFunction) -> None:
     doc = decorated_func.docstring
+    assert doc is not None, doc  # noqa: S101
     err = decorated_func.err
     context = {}
 
@@ -19,7 +19,7 @@ def _check_docstring(decorated_func: DecoratedFunction) -> None:
         _update_context(context=context, type_=expected_type)
 
         if annotation == 'return' and decorated_func.annotations[annotation] is not None:
-            if len(doc.returns.args) != 2:
+            if len(doc.returns.args) != 2:  # noqa: PLR2004
                 raise PedanticDocstringException(f'{err} Parsing Error. Only Google style docstrings are supported.')
 
             actual_return_type = _parse_documented_type(type_=doc.returns.args[1], context=context, err=err)
@@ -28,7 +28,7 @@ def _check_docstring(decorated_func: DecoratedFunction) -> None:
                 raise PedanticDocstringException(
                     f'{err} Documented type is incorrect: Annotation: {expected_type} Documented: {actual_return_type}')
         elif annotation != 'return':
-            docstring_param = list(filter(lambda p, a=annotation: p.arg_name == a, doc.params))[0]
+            docstring_param = next(filter(lambda p, a=annotation: p.arg_name == a, doc.params))
             actual_param_type = _parse_documented_type(type_=docstring_param.type_name, context=context, err=err)
 
             if expected_type != actual_param_type:
@@ -39,35 +39,36 @@ def _check_docstring(decorated_func: DecoratedFunction) -> None:
 
 def _assert_docstring_is_complete(func: DecoratedFunction) -> None:
     """
-        >>> def f1(): pass
-        >>> _assert_docstring_is_complete(DecoratedFunction(f1))
-        Traceback (most recent call last):
-        ...
-        pedantic.exceptions.PedanticDocstringException: In function f1:
-         The function should have a docstring!
-        >>> def f2():
-        ...     ''' This is a docstring. '''
-        ...     pass
-        >>> _assert_docstring_is_complete(DecoratedFunction(f2))
-        >>> def f3() -> None:
-        ...     ''' This is a docstring. '''
-        ...     pass
-        >>> _assert_docstring_is_complete(DecoratedFunction(f3))
-        >>> def f4() -> int:
-        ...     ''' This is a docstring. '''
-        ...     return 42
-        >>> _assert_docstring_is_complete(DecoratedFunction(f4))
-        Traceback (most recent call last):
-        ...
-        pedantic.exceptions.PedanticDocstringException: In function f4:
-         The return type <class 'int'> is not documented.
-        >>> def f5() -> int:
-        ...     ''' This is a docstring.
-        ...     Returns:
-        ...         int: a magic number
-        ...     '''
-        ...     return 42
-        >>> _assert_docstring_is_complete(DecoratedFunction(f5))
+    Examples:
+    >>> def f1(): pass
+    >>> _assert_docstring_is_complete(DecoratedFunction(f1))
+    Traceback (most recent call last):
+    ...
+    pedantic.exceptions.PedanticDocstringException: In function f1:
+     The function should have a docstring!
+    >>> def f2():
+    ...     ''' This is a docstring. '''
+    ...     pass
+    >>> _assert_docstring_is_complete(DecoratedFunction(f2))
+    >>> def f3() -> None:
+    ...     ''' This is a docstring. '''
+    ...     pass
+    >>> _assert_docstring_is_complete(DecoratedFunction(f3))
+    >>> def f4() -> int:
+    ...     ''' This is a docstring. '''
+    ...     return 42
+    >>> _assert_docstring_is_complete(DecoratedFunction(f4))
+    Traceback (most recent call last):
+    ...
+    pedantic.exceptions.PedanticDocstringException: In function f4:
+     The return type <class 'int'> is not documented.
+    >>> def f5() -> int:
+    ...     ''' This is a docstring.
+    ...     Returns:
+    ...         int: a magic number
+    ...     '''
+    ...     return 42
+    >>> _assert_docstring_is_complete(DecoratedFunction(f5))
     """
     if func.raw_doc is None or func.raw_doc == '':
         raise PedanticDocstringException(f'{func.err} The function should have a docstring!')
@@ -89,9 +90,9 @@ def _assert_docstring_is_complete(func: DecoratedFunction) -> None:
             f'is documented but the function does not return anything.')
 
 
-def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any:
+def _parse_documented_type(type_: str, context: dict[str, Any], err: str) -> Any:
     """
-    >>> import sys
+    >>> import sys, typing
     >>> _parse_documented_type(type_='List[str]', context={}, err='')
     typing.List[str]
     >>> _parse_documented_type(type_='float', context={}, err='')
@@ -134,44 +135,46 @@ def _parse_documented_type(type_: str, context: Dict[str, Any], err: str) -> Any
             f'"{type_.replace("typing.", "")}" in the docstring')
 
     try:
-        return eval(type_, globals(), context)
-    except NameError:
-        possible_meant_types = [t for t in context.keys() if isinstance(t, str)]
+        return eval(type_, globals(), context)  # noqa: S307
+    except NameError as ex:
+        possible_meant_types = [t for t in context if isinstance(t, str)]
         if len(possible_meant_types) > 1:
             msg = f' Maybe you meant one of the following: {possible_meant_types}'
         elif len(possible_meant_types) == 1:
             msg = f' Maybe you meant "{possible_meant_types[0]}"'
         else:
             msg = ''
-        raise PedanticDocstringException(f'{err}Documented type "{type_}" was not found.{msg}')
+        raise PedanticDocstringException(f'{err}Documented type "{type_}" was not found.{msg}') from ex
 
 
-def _update_context(context: Dict[str, Any], type_: Any) -> Dict[str, Any]:
+def _update_context(context: dict[str, Any], type_: Any) -> dict[str, Any]:
     """
-        >>> from typing import List, Union, Optional, Callable
-        >>> _update_context(type_=None, context={})
-        {}
-        >>> _update_context(type_=None, context={'a': 1, 'b': 2})
-        {'a': 1, 'b': 2}
-        >>> _update_context(type_=float, context={})
-        {'float': <class 'float'>}
-        >>> _update_context(type_=List[str], context={})
-        {'str': <class 'str'>}
-        >>> _update_context(type_=List[List[bool]], context={})
-        {'bool': <class 'bool'>}
-        >>> _update_context(type_=Union[int, float, str], context={}) if sys.version_info < (3, 14) else {'int': int, 'float': float, 'str': str}
-        {'int': <class 'int'>, 'float': <class 'float'>, 'str': <class 'str'>}
-        >>> {'Union': Union[int, float, str]} == _update_context(type_=Union[int, float, str], context={}) if sys.version_info >= (3, 14) else True
-        True
-        >>> _update_context(type_=Callable[[int, bool, str], float], context={})
-        {'int': <class 'int'>, 'bool': <class 'bool'>, 'str': <class 'str'>, 'float': <class 'float'>}
-        >>> _update_context(type_=Optional[List[Dict[str, float]]], context={})
-        {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
-        >>> _update_context(type_=Union[List[Dict[str, float]], None], context={})
-        {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
-        >>> _update_context(type_='MyClass', context={})
-        {'MyClass': 'MyClass'}
-        >>>
+    Examples:
+    >>> import sys
+    >>> from typing import List, Union, Optional, Callable
+    >>> _update_context(type_=None, context={})
+    {}
+    >>> _update_context(type_=None, context={'a': 1, 'b': 2})
+    {'a': 1, 'b': 2}
+    >>> _update_context(type_=float, context={})
+    {'float': <class 'float'>}
+    >>> _update_context(type_=List[str], context={})
+    {'str': <class 'str'>}
+    >>> _update_context(type_=List[List[bool]], context={})
+    {'bool': <class 'bool'>}
+    >>> _update_context(type_=Union[int, float, str], context={}) if sys.version_info < (3, 14) else {'int': int, 'float': float, 'str': str}  # noqa: E501
+    {'int': <class 'int'>, 'float': <class 'float'>, 'str': <class 'str'>}
+    >>> {'Union': Union[int, float, str]} == _update_context(type_=Union[int, float, str], context={}) if sys.version_info >= (3, 14) else True
+    True
+    >>> _update_context(type_=Callable[[int, bool, str], float], context={})
+    {'int': <class 'int'>, 'bool': <class 'bool'>, 'str': <class 'str'>, 'float': <class 'float'>}
+    >>> _update_context(type_=Optional[List[Dict[str, float]]], context={})
+    {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
+    >>> _update_context(type_=Union[List[Dict[str, float]], None], context={})
+    {'str': <class 'str'>, 'float': <class 'float'>, 'NoneType': <class 'NoneType'>}
+    >>> _update_context(type_='MyClass', context={})
+    {'MyClass': 'MyClass'}
+    >>>
     """
 
     if isinstance(type_, str):

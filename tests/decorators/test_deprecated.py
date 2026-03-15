@@ -7,16 +7,16 @@ def test_deprecated_no_args():
     @deprecated
     def old_method(i: int) -> str: return str(i)
 
-    with pytest.warns(DeprecationWarning, match="deprecated"):
+    with pytest.warns(DeprecationWarning, match='deprecated'):
         old_method(42)
 
 
 def test_deprecated_with_args():
-    @deprecated(message="my deprecation message")
+    @deprecated(message='my deprecation message')
     def old_method(i: int) -> str:
         return str(i)
 
-    with pytest.warns(DeprecationWarning, match="my deprecation message"):
+    with pytest.warns(DeprecationWarning, match='my deprecation message'):
         old_method(42)
 
 
@@ -26,5 +26,5 @@ async def test_deprecated_async():
     async def old_method(i: int) -> str:
         return str(i)
 
-    with pytest.warns(DeprecationWarning, match="deprecated"):
+    with pytest.warns(DeprecationWarning, match='deprecated'):
         await old_method(42)

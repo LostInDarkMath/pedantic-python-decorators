@@ -36,7 +36,7 @@ def test_retry_positive_no_args_fails_every_time():
         count += 1
         raise ValueError('foo')
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='foo'):
         foo()
 
     assert count == 5
@@ -51,7 +51,7 @@ def test_retry_positive_no_args_fails_different_exception_type():
         count += 1
         raise ValueError('foo')
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='foo'):
         foo()
 
     assert count == 1

@@ -1,43 +1,43 @@
 import inspect
-from typing import Any, Generic, Dict
+from typing import Any, Generic
 
+from pedantic.constants import ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED, TypeVar
 from pedantic.exceptions import PedanticTypeVarMismatchException
 from pedantic.type_checking_logic.check_types import get_type_arguments
-from pedantic.constants import TypeVar, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED
 
 
-def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> Dict[TypeVar, Any]:
+def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> dict[TypeVar, Any]:
     """
-        >>> from typing import TypeVar, Generic, List
-        >>> T = TypeVar('T')
-        >>> class A(Generic[T]): pass
-        >>> a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
-        >>> check_instance_of_generic_class_and_get_type_vars(a)
-        {}
-        >>> b = A[int]()
-        >>> check_instance_of_generic_class_and_get_type_vars(b)
-        {~T: <class 'int'>}
-        >>> c = A[List[int]]()
-        >>> check_instance_of_generic_class_and_get_type_vars(c)
-        {~T: typing.List[int]}
-        >>> S = TypeVar('S')
-        >>> class B(Generic[T, S]): pass
-        >>> d = B()
-        >>> check_instance_of_generic_class_and_get_type_vars(d)
-        {}
-        >>> e = B[int]()
-        Traceback (most recent call last):
-        ...
-        TypeError: Too few ...; actual 1, expect... 2
-        >>> f = B[int, float]()
-        >>> check_instance_of_generic_class_and_get_type_vars(f)
-        {~T: <class 'int'>, ~S: <class 'float'>}
-        >>> class C(B): pass
-        >>> g = C()
-        >>> check_instance_of_generic_class_and_get_type_vars(g)
-        {}
+    >>> from typing import TypeVar, Generic, List
+    >>> T = TypeVar('T')
+    >>> class A(Generic[T]): pass
+    >>> a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
+    >>> check_instance_of_generic_class_and_get_type_vars(a)
+    {}
+    >>> b = A[int]()
+    >>> check_instance_of_generic_class_and_get_type_vars(b)
+    {~T: <class 'int'>}
+    >>> c = A[List[int]]()
+    >>> check_instance_of_generic_class_and_get_type_vars(c)
+    {~T: typing.List[int]}
+    >>> S = TypeVar('S')
+    >>> class B(Generic[T, S]): pass
+    >>> d = B()
+    >>> check_instance_of_generic_class_and_get_type_vars(d)
+    {}
+    >>> e = B[int]()
+    Traceback (most recent call last):
+    ...
+    TypeError: Too few ...; actual 1, expect... 2
+    >>> f = B[int, float]()
+    >>> check_instance_of_generic_class_and_get_type_vars(f)
+    {~T: <class 'int'>, ~S: <class 'float'>}
+    >>> class C(B): pass
+    >>> g = C()
+    >>> check_instance_of_generic_class_and_get_type_vars(g)
+    {}
     """
-    type_vars = dict()
+    type_vars = {}
     _assert_constructor_called_with_generics(instance=instance)
 
     # The information I need is set after the object construction in the __orig_class__ attribute.
@@ -56,26 +56,27 @@ def check_instance_of_generic_class_and_get_type_vars(instance: Any) -> Dict[Typ
 
 def _assert_constructor_called_with_generics(instance: Any) -> None:
     """
-        This is very hacky. Therefore, it is kind of non-aggressive and raises only an error if is sure.
+    This is very hacky. Therefore, it is kind of non-aggressive and raises only an error if is sure.
 
-        >>> from typing import TypeVar, Generic, List
-        >>> T = TypeVar('T')
-        >>> class A(Generic[T]): pass
-        >>> a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
-        >>> _assert_constructor_called_with_generics(a)
-        >>> b = A[int]()
-        >>> _assert_constructor_called_with_generics(b)
-        >>> c = A[List[int]]()
-        >>> _assert_constructor_called_with_generics(c)
-        >>> S = TypeVar('S')
-        >>> class B(Generic[T, S]): pass
-        >>> d = B()
-        >>> _assert_constructor_called_with_generics(d)
-        >>> f = B[int, float]()
-        >>> _assert_constructor_called_with_generics(f)
-        >>> class C(B): pass
-        >>> g = C()
-        >>> _assert_constructor_called_with_generics(g)
+    Examples:
+    >>> from typing import TypeVar, Generic, List
+    >>> T = TypeVar('T')
+    >>> class A(Generic[T]): pass
+    >>> a = A() # would normally raise an error due to _assert_constructor_called_with_generics, but not in doctest
+    >>> _assert_constructor_called_with_generics(a)
+    >>> b = A[int]()
+    >>> _assert_constructor_called_with_generics(b)
+    >>> c = A[List[int]]()
+    >>> _assert_constructor_called_with_generics(c)
+    >>> S = TypeVar('S')
+    >>> class B(Generic[T, S]): pass
+    >>> d = B()
+    >>> _assert_constructor_called_with_generics(d)
+    >>> f = B[int, float]()
+    >>> _assert_constructor_called_with_generics(f)
+    >>> class C(B): pass
+    >>> g = C()
+    >>> _assert_constructor_called_with_generics(g)
     """
 
     if hasattr(instance, ATTR_NAME_GENERIC_INSTANCE_ALREADY_CHECKED):
@@ -111,28 +112,29 @@ def _assert_constructor_called_with_generics(instance: Any) -> None:
 
 def is_instance_of_generic_class(instance: Any) -> bool:
     """
-        >>> class A: pass
-        >>> a = A()
-        >>> is_instance_of_generic_class(a)
-        False
-        >>> from typing import TypeVar, Generic
-        >>> T = TypeVar('T')
-        >>> class B(Generic[T]): pass
-        >>> b = B()
-        >>> is_instance_of_generic_class(b)
-        True
-        >>> b2 = B[int]()
-        >>> is_instance_of_generic_class(b2)
-        True
+    >>> class A: pass
+    >>> a = A()
+    >>> is_instance_of_generic_class(a)
+    False
+    >>> from typing import TypeVar, Generic
+    >>> T = TypeVar('T')
+    >>> class B(Generic[T]): pass
+    >>> b = B()
+    >>> is_instance_of_generic_class(b)
+    True
+    >>> b2 = B[int]()
+    >>> is_instance_of_generic_class(b2)
+    True
     """
     return Generic in instance.__class__.__bases__
 
 
 def _remove_comments_and_spaces_from_src_line(line: str) -> str:
     """
-        >>> _remove_comments_and_spaces_from_src_line('a = 42  # this is a comment')
-        'a=42'
-        >>> _remove_comments_and_spaces_from_src_line('m = MyClass[Parent](a=Child1())')
-        'm=MyClass[Parent](a=Child1())'
+    Example:
+    >>> _remove_comments_and_spaces_from_src_line('a = 42  # this is a comment')
+    'a=42'
+    >>> _remove_comments_and_spaces_from_src_line('m = MyClass[Parent](a=Child1())')
+    'm=MyClass[Parent](a=Child1())'
     """
-    return line.split('#')[0].replace(' ', '')
+    return line.split('#',  maxsplit=1)[0].replace(' ', '')

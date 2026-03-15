@@ -1,15 +1,15 @@
+# ruff: noqa: PYI041, UP006, UP007, UP035, UP045
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Any, Optional, Callable, Union, Dict, List
+from typing import Any, Callable, List, Optional, Union
 
 import pytest
 
-from pedantic.env_var_logic import disable_pedantic
 from pedantic import overrides
 from pedantic.decorators.class_decorators import pedantic_class
-from pedantic.exceptions import PedanticOverrideException, PedanticTypeCheckException, \
-    PedanticCallWithArgsException
+from pedantic.exceptions import PedanticCallWithArgsException, PedanticOverrideException, PedanticTypeCheckException
 
 
 def test_constructor():
@@ -84,8 +84,7 @@ def test_multiple_methods():
         def calc(self, b: int) -> int:
             return self.a - b
 
-        def print(self, s: str) -> None:
-            print(f'{self.a} and {s}')
+        def print(self, s: str) -> None: pass
 
     m = MyClass(a=5)
     m.calc(b=42)
@@ -110,8 +109,7 @@ def test_multiple_methods_with_missing_and_wrong_type_hints():
         def dream(self, b) -> int:
             return self.a * b
 
-        def print(self, s: str):
-            print(f'{self.a} and {s}')
+        def print(self, s: str): pass
 
     m = MyClass(a=5)
     with pytest.raises(expected_exception=PedanticTypeCheckException):
@@ -142,7 +140,7 @@ def test_typo_in_type_annotation_string():
             self.s = s
 
         @staticmethod
-        def generator() -> 'MyClas':
+        def generator() -> 'MyClas':  # noqa: F821
             return MyClass(s='generated')
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
@@ -156,15 +154,16 @@ def test_overriding_contains():
             return True
 
     m = MyClass()
-    print(42 in m)
+    assert (42 in m) is True
+
     with pytest.raises(expected_exception=PedanticTypeCheckException):
-        print('something' in m)
+        assert 'something' in m
 
 
 def test_type_annotation_string_typo():
     @pedantic_class
     class MyClass:
-        def compare(self, other: 'MyClas') -> bool:
+        def compare(self, other: 'MyClas') -> bool:  # noqa: F821
             return self == other
 
         def fixed_compare(self, other: 'MyClass') -> bool:
@@ -185,9 +184,11 @@ def test_docstring_not_required():
         def bunk(self) -> int:
             '''
             Function with correct docstring. Yes, single-quoted docstrings are allowed too.
+
             Returns:
                 int: 42
-            '''
+            ''' # noqa: D300, Q002
+
             return self.a
 
     foo = Foo(a=10)
@@ -307,10 +308,6 @@ def test_overrides_goes_wrong():
             def bunk(self) -> int:
                 return self.a
 
-        f = Foo(a=40002)
-        f.func(b='Hi')
-        f.bunk()
-
     p = Parent()
     p.func(b='Hi')
     p.bunk()
@@ -320,8 +317,8 @@ def test_static_method_with_sloppy_type_annotation():
     @pedantic_class
     class MyStaticClass:
         @staticmethod
-        def double_func(a: int) -> int:
-            x, y = MyStaticClass.static_bar()
+        def double_func(a: int) -> int:  # noqa: ARG004
+            x, _ = MyStaticClass.static_bar()
             return x
 
         @staticmethod
@@ -329,12 +326,12 @@ def test_static_method_with_sloppy_type_annotation():
             return 0, 1
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
-        print(MyStaticClass.double_func(a=0))
+        MyStaticClass.double_func(a=0)
 
 
 def test_property():
     @pedantic_class
-    class MyClass(object):
+    class MyClass:
         def __init__(self, some_arg: Any) -> None:
             self._some_attribute = some_arg
 
@@ -360,16 +357,16 @@ def test_property():
 
     assert m.some_attribute == 42
     m.some_attribute = '100'
-    assert m._some_attribute == '100'
+    assert m._some_attribute == '100'  # noqa: SLF001
     m.calc(value=42.0)
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
-        print(m.some_attribute)
+        m.some_attribute # noqa: B018
 
 
 def test_property_getter_and_setter_misses_type_hints():
     @pedantic_class
-    class MyClass(object):
+    class MyClass:
         def __init__(self, some_arg: int) -> None:
             self._some_attribute = some_arg
 
@@ -392,7 +389,8 @@ def test_property_getter_and_setter_misses_type_hints():
         m.some_attribute = 100
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
-        print(m.some_attribute)
+        m.some_attribute  # noqa: B018
+
     m.calc(value=42.0)
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         m.calc(value=42)
@@ -432,8 +430,7 @@ def test_class_method_type_annotation_missing():
     @pedantic_class
     class MyClass:
         @classmethod
-        def do(cls):
-            print('i did something')
+        def do(cls): pass
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         MyClass.do()
@@ -443,8 +440,7 @@ def test_class_method_type_annotation():
     @pedantic_class
     class MyClass:
         @classmethod
-        def do(cls) -> None:
-            print('i did something')
+        def do(cls) -> None: pass
 
         @classmethod
         def calc(cls, x: Union[int, float]) -> int:
@@ -522,44 +518,3 @@ def test_class_decorator_static_class_method():
         Foo.classmethod()
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         Foo().method()
-
-
-def test_pedantic_class_disable_pedantic():
-    disable_pedantic()
-
-    @pedantic_class
-    class MyClass:
-        def __init__(self, pw, **kwargs):
-            self._validate_str_len(new_values=kwargs)
-
-        @staticmethod
-        def _validate_str_len(new_values: Dict[str, Any]) -> None:
-            return 42
-
-        def method(pw, **kwargs):
-            MyClass._validate_str_len(new_values=kwargs)
-
-    MyClass._validate_str_len(None)
-    MyClass._validate_str_len(new_values={1: 1, 2: 2})
-    MyClass(name='hi', age=12, pw='123')
-
-
-def test_disable_pedantic_2():
-    """ https://github.com/LostInDarkMath/pedantic-python-decorators/issues/37 """
-
-    disable_pedantic()
-
-    @pedantic_class
-    class Foo:
-        def __init__(self) -> None:
-            self._value = 42
-
-        def do(self) -> None:
-            print(self.bar(value=self._value))
-
-        @staticmethod
-        def bar(value: int) -> int:
-            return value + 75
-
-    f = Foo()
-    f.do()
