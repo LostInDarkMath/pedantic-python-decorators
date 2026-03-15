@@ -30,11 +30,10 @@ jobs:
         run: |
           task check-version
 
-# TODO
-#      - name: Run code linter
-#        run: |
-#          pip install ruff
-#          task lint
+      - name: Run code linter
+        run: |
+          pip install ruff
+          task lint
 
   test:
     needs: feature-branch-checks
