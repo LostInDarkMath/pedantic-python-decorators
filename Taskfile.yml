@@ -66,6 +66,11 @@ tasks:
       - pdoc -o docs pedantic
     silent: true
 
+  check-lock:
+    desc: Check if poetry.lock is in sync with pyproject.toml
+    cmds:
+      - poetry check
+
   list-crlf:
     desc: List all Python files with CRLF line endings
     silent: true

@@ -26,6 +26,11 @@ jobs:
         run: |
           task list-crlf
 
+      - name: Check poetry.lock is up to date
+        run: |
+          pip install poetry
+          task check-lock
+
       - name: Verify CHANGELOG.md was updated
         run: |
           task check-changelog
