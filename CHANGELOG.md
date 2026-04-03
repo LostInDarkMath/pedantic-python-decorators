@@ -9,6 +9,7 @@
 - removed decorator `@timer_class`
 - removed decorator `@uminplemented`
 - removed decorator `@trace_if_returns`
+- removed validator `Composite`. Just pass multiple validators directly instead.
 - removed `enable_pedantic, disable_pedantic, is_enabled`
 - removed `GenericMixin.type_var`. Use `GenericMixin.type_vars` instead.
 - removed `GenericMixin.class_name`. Use `type(self).__name__` instead.

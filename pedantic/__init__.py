@@ -33,7 +33,6 @@ from pedantic.decorators.fn_deco_validate.parameters import (
     Parameter,
 )
 from pedantic.decorators.fn_deco_validate.validators import (
-    Composite,
     DatetimeIsoFormat,
     DateTimeUnixTimestamp,
     Email,
@@ -61,7 +60,6 @@ from pedantic.type_checking_logic import (
 )
 
 __all__ = [
-    'Composite',
     'ConversionError',
     'DateTimeUnixTimestamp',
     'DatetimeIsoFormat',
