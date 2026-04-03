@@ -1,5 +1,4 @@
 from .abstract_validator import Validator
-from .composite_validator import Composite
 from .datetime_isoformat import DatetimeIsoFormat
 from .datetime_unix_timestamp import DateTimeUnixTimestamp
 from .email import Email
@@ -14,7 +13,6 @@ from .min_length import MinLength
 from .not_empty import NotEmpty
 
 __all__ = [
-    'Composite',
     'DateTimeUnixTimestamp',
     'DatetimeIsoFormat',
     'Email',
