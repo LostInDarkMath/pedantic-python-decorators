@@ -22,6 +22,10 @@ jobs:
           sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
           task --version
 
+      - name: Check for CRLF line endings
+        run: |
+          task list-crlf
+
       - name: Verify CHANGELOG.md was updated
         run: |
           task check-changelog

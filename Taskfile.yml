@@ -44,6 +44,7 @@ tasks:
   validate:
     desc: Runs all checks and updates the docu. It is recommended to do this before making a commit.
     cmds:
+      - task: list-crlf
       - task: check-changelog
       - task: check-version
       - task: tests
@@ -64,6 +65,17 @@ tasks:
       - pip install pdoc
       - pdoc -o docs pedantic
     silent: true
+
+  list-crlf:
+    desc: List all Python files with CRLF line endings
+    silent: true
+    cmds:
+      - |
+        files=$(find . -type d -name ".*" ! -name "." -prune -o -name "*.py" -type f -exec grep -Iq . {} \; -and -exec grep -l $'\r' {} \;)
+        if [ -n "$files" ]; then
+          echo "$files"
+          exit 1
+        fi
 
   check-changelog:
     desc: Fails if CHANGELOG.md was not modified compared to master
