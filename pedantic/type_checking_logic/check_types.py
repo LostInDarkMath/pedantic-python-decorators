@@ -146,6 +146,18 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
             validator = _SPECIAL_INSTANCE_CHECKERS[name]
             return validator(obj, type_, type_vars, context)
 
+    if type_.__module__ == 'collections.abc':
+        if _is_generic(type_):
+            origin = get_base_generic(type_)
+        else:
+            origin = type_
+
+        name = _get_name(origin)
+
+        if name in _SPECIAL_INSTANCE_CHECKERS:
+            validator = _SPECIAL_INSTANCE_CHECKERS[name]
+            return validator(obj, type_, type_vars, context)
+
     if hasattr(types, 'UnionType') and isinstance(type_, types.UnionType):
         return _instancecheck_union(value=obj, type_=type_, type_vars=type_vars, context=context)
 
@@ -199,7 +211,10 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
     if hasattr(typing, 'Unpack') and getattr(type_, '__origin__', None) == typing.Unpack:
         return True  # it's too hard to check that at the moment
 
-    if _is_generic(type_):
+    if _is_generic(type_) and hasattr(type_, '__origin__'):
+        if isinstance(type_, types.GenericAlias):
+            return _is_instance(obj=obj, type_=convert_to_typing_types(type_), type_vars=type_vars, context=context)
+
         python_type = type_.__origin__
 
         if not isinstance(obj, python_type):
@@ -303,12 +318,17 @@ def _get_name(cls: Any) -> str:
 
 def _is_generic(cls: Any) -> bool:
     """
-    >>> from typing import  List, Callable, Any, Union
+    >>> from typing import  List, Callable, Any, Union, Generic, TypeVar
+    >>> from collections.abc import Callable as ColCallable
     >>> _is_generic(int)
     False
     >>> _is_generic(List)
     True
+    >>> _is_generic(list)
+    True
     >>> _is_generic(List[int])
+    True
+    >>> _is_generic(list[int])
     True
     >>> _is_generic(List[Any])
     True
@@ -324,7 +344,11 @@ def _is_generic(cls: Any) -> bool:
     True
     >>> _is_generic(Callable)
     True
+    >>> _is_generic(ColCallable)
+    True
     >>> _is_generic(Callable[[int], int])
+    True
+    >>> _is_generic(ColCallable[[int], int])
     True
     >>> _is_generic(Union)
     True
@@ -334,16 +358,29 @@ def _is_generic(cls: Any) -> bool:
     True
     >>> _is_generic(Dict[str, str])
     True
+    >>> T = TypeVar("T")
+    >>> class A(Generic[T]): pass
+    >>> class B(A[int]): pass
+    >>> _is_generic(A)
+    True
+    >>> _is_generic(B)
+    True
     """
 
-    if hasattr(typing, '_SpecialGenericAlias') and isinstance(cls, typing._SpecialGenericAlias):  # noqa: SLF001
+    origin = typing.get_origin(cls)
+
+    # Parameterized generics like List[int], Callable[[...], ...], etc.
+    if origin is not None:
         return True
-    if isinstance(cls, typing._GenericAlias):  # noqa: SLF001
+
+    # Bare generics like List, Dict, Tuple, Callable, Union
+    if isinstance(cls, typing._SpecialForm):  # noqa: SLF001 still needed for e.g. Union
+        return cls is not Any
+
+    # collections.abc.Callable and similar
+    if hasattr(cls, '__class_getitem__'):  # noqa: SIM103
         return True
-    if isinstance(cls, typing._SpecialForm):  # noqa: SLF001
-        return cls != Any
-    if cls is typing.Union or type(cls) is typing.Union:  # noqa: SIM103 # for python >= 3.14 Union is no longer a typing._SpecialForm
-        return True
+
     return False
 
 
@@ -502,6 +539,7 @@ def get_base_generic(cls: Any) -> Any:
 
 def _is_subtype(sub_type: Any, super_type: Any, context: Dict[str, Any] | None = None) -> bool:  # noqa: PLR0911
     """
+    Examples:
     >>> import sys
     >>> from typing import Any, List, Callable, Tuple, Union, Optional, Iterable
     >>> _is_subtype(float, float)
@@ -571,6 +609,8 @@ def _is_subtype(sub_type: Any, super_type: Any, context: Dict[str, Any] | None =
     True
     >>> _is_subtype(int | None, int)
     False
+    >>> _is_subtype(Optional[int], int)
+    False
     """
 
     if sub_type is None:
@@ -600,13 +640,15 @@ def _is_subtype(sub_type: Any, super_type: Any, context: Dict[str, Any] | None =
         except TypeError:
             return isinstance(python_super, _ProtocolMeta)
 
-    if not issubclass(python_sub, python_super):
-        return False
+
 
     sub_args = get_type_arguments(cls=sub_type)
     super_args = get_type_arguments(cls=super_type)
 
     if len(sub_args) != len(super_args) and Ellipsis not in sub_args + super_args:
+        return False
+
+    if not issubclass(python_sub, python_super):
         return False
 
     return all(_is_subtype(sub_type=sub_arg, super_type=super_arg, context=context)

@@ -47,11 +47,12 @@ class GenericMixin:
         """
 
         mapping: dict[TypeVar, type] = {}
+        class_name = type(self).__name__
 
         if not hasattr(self, '__orig_bases__'):
             raise AssertionError(
-                f'{self.class_name} is not a generic class. To make it generic, declare it like: '
-                f'class {self.class_name}(Generic[T], GenericMixin):...',
+                f'{class_name} is not a generic class. To make it generic, declare it like: '
+                f'class {class_name}(Generic[T], GenericMixin):...',
             )
 
         def collect(base: type, substitutions: dict[TypeVar, type]) -> None:
@@ -111,16 +112,10 @@ class GenericMixin:
         unresolved = {p for p in all_params if p not in mapping or isinstance(mapping[p], TypeVar)}
         if unresolved:
             raise AssertionError(
-                f'You need to instantiate this class with type parameters! Example: {self.class_name}[int]()\n'
+                f'You need to instantiate this class with type parameters! Example: {class_name}[int]()\n'
                 f'Also make sure that you do not call this in the __init__() method of your class!\n'
                 f'Unresolved type variables: {unresolved}\n'
                 f'See also https://github.com/python/cpython/issues/90899',
             )
 
         return mapping
-
-    @property
-    def class_name(self) -> str:
-        """Get the name of the class of this instance."""
-
-        return type(self).__name__

@@ -11,12 +11,15 @@
 - removed decorator `@trace_if_returns`
 - removed `enable_pedantic, disable_pedantic, is_enabled`
 - removed `GenericMixin.type_var`. Use `GenericMixin.type_vars` instead.
+- removed `GenericMixin.class_name`. Use `type(self).__name__` instead.
 - added `Taskfile.yml` and use it in CI
 - removed `create_pdoc.sh`
 - removed `examples`
 - CI: added a check that `CHANGELOG.md` is modified on feature branches
 - CI: added a check that the poetry package version was updated
 - added `ruff` linter and apply lint rules to code
+- added helper function `run_doctest_of_single_function`
+- added type checking support for `collections.abc: Generator, Iterable, Iterator, Callable`
 - updated `README.md`
 
 ## Pedantic 2.4.0
