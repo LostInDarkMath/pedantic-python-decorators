@@ -1,6 +1,6 @@
 # ruff: noqa: PYI041, UP006, UP007, UP014, UP035, UP045
-
 import types
+from collections.abc import Callable as CollectionCallable
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from enum import Enum, IntEnum
@@ -2750,3 +2750,14 @@ def test_type_var_tuple():
     # this is too complicated at the moment
     # with pytest.raises(expected_exception=PedanticTypeCheckException):
     #     Array[int, float](4.2, 3.4)  # noqa: ERA001
+
+
+def test_callable_imported_from_collections():
+    @pedantic
+    def foo(f: CollectionCallable[[int], int]) -> int:
+        return f(2)
+
+    assert foo(f=lambda x: x) == 2
+
+    with pytest.raises(expected_exception=PedanticTypeCheckException, match=r"Expected type <class 'int'> but 2 of type <class 'str'> was the return value which does not match."):
+        foo(f=lambda x: str(x))  # noqa: PLW0108

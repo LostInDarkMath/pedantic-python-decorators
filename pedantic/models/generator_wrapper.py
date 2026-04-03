@@ -1,3 +1,6 @@
+from collections.abc import Generator as ColGenerator
+from collections.abc import Iterable as ColIterable
+from collections.abc import Iterator as ColIterator
 from typing import Any, Generator, Iterable, Iterator, TypeVar  # noqa: UP035
 
 from pedantic.exceptions import PedanticTypeCheckException
@@ -61,7 +64,7 @@ class GeneratorWrapper:
     def _set_and_check_return_types(self, expected_return_type: Any) -> Any:
         base_generic = get_base_generic(cls=expected_return_type)
 
-        if base_generic not in [Generator, Iterable, Iterator]:
+        if base_generic not in (Generator, Iterable, Iterator, ColGenerator, ColIterator, ColIterable):
             raise PedanticTypeCheckException(
                 f'{self._err}Generator should have type annotation "typing.Generator[]", "typing.Iterator[]" or '
                 f'"typing.Iterable[]". Got "{expected_return_type}" instead.')

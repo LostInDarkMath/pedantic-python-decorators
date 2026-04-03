@@ -56,8 +56,12 @@ class Parameter:  # noqa: D101
         return result_value
 
     def raise_exception(self, msg: str, value: Any = None, validator: Validator | None = None) -> NoReturn:  # noqa: D102
-        raise self.exception_type(value=value, parameter_name=self.name, msg=msg,
-                                  validator_name=validator.name if validator else None)
+        raise self.exception_type(
+            value=value,
+            parameter_name=self.name,
+            msg=msg,
+            validator_name=validator.name if validator else None,
+        )
 
     def __str__(self) -> str:
         return self.__class__.__name__ + ' name=' + self.name

@@ -1,3 +1,6 @@
+from collections.abc import Generator as ColGenerator
+from collections.abc import Iterable as ColIterable
+from collections.abc import Iterator as ColIterator
 from typing import Generator, Iterable, Iterator  # noqa: UP035
 
 import pytest
@@ -111,3 +114,90 @@ def test_invalid_no_type_args_generator():
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         gen_func()
+
+
+def test_iterable_from_collections_green():
+    @pedantic
+    def gen_func() -> ColIterable[int]:
+        num = 0
+
+        while num < 100:
+            yield num
+            num += 1
+
+    gen = gen_func()
+    next(gen)
+
+
+def test_iterable_from_collections_red():
+    @pedantic
+    def gen_func() -> ColIterable[str]:
+        num = 0
+
+        while num < 100:
+            yield num
+            num += 1
+
+    gen = gen_func()
+
+    with pytest.raises(expected_exception=PedanticTypeCheckException, match="ype hint is incorrect: Argument 0 of type <class 'int'> does not match expected type <class 'str'>"):
+        next(gen)
+
+
+def test_iterator_from_collections_green():
+    @pedantic
+    def gen_func() -> ColIterator[int]:
+        num = 0
+
+        while num < 100:
+            yield num
+            num += 1
+
+    gen = gen_func()
+    next(gen)
+
+
+def test_iterator_from_collections_red():
+    @pedantic
+    def gen_func() -> ColIterator[str]:
+        num = 0
+
+        while num < 100:
+            yield num
+            num += 1
+
+    gen = gen_func()
+
+    with pytest.raises(expected_exception=PedanticTypeCheckException, match="ype hint is incorrect: Argument 0 of type <class 'int'> does not match expected type <class 'str'>"):
+        next(gen)
+
+
+def test_generator_from_collections_green():
+    @pedantic
+    def gen_func() -> ColGenerator[int, None, str]:
+        num = 0
+
+        while num < 100:
+            yield num
+            num += 1
+        return 'Done'
+
+    gen = gen_func()
+    next(gen)
+
+
+def test_generator_from_collections_red():
+    @pedantic
+    def gen_func() -> ColGenerator[str, None, str]:
+        num = 0
+
+        while num < 100:
+            yield num
+            num += 1
+        return 'Done'
+
+    gen = gen_func()
+
+    with pytest.raises(expected_exception=PedanticTypeCheckException,
+                       match="ype hint is incorrect: Argument 0 of type <class 'int'> does not match expected type <class 'str'>"):
+        next(gen)

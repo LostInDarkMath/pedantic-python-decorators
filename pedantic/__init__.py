@@ -48,6 +48,7 @@ from pedantic.decorators.fn_deco_validate.validators import (
     NotEmpty,
     Validator,
 )
+from pedantic.helper_fn import run_doctest_of_single_function
 from pedantic.mixins import (
     DecoratorType,
     GenericMixin,
@@ -103,6 +104,7 @@ __all__ = [
     'pedantic_require_docstring',
     'resolve_forward_ref',
     'retry',
+    'run_doctest_of_single_function',
     'trace',
     'trace_class',
     'validate',
