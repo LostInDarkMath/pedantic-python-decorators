@@ -1,4 +1,4 @@
-from .class_decorators import for_all_methods, pedantic_class, pedantic_class_require_docstring, trace_class
+from .class_decorators import for_all_methods, pedantic_class, pedantic_class_require_docstring
 from .cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from .fn_deco_context_manager import safe_async_contextmanager, safe_contextmanager
 from .fn_deco_deprecated import deprecated
@@ -26,5 +26,4 @@ __all__ = [
     'safe_async_contextmanager',
     'safe_contextmanager',
     'trace',
-    'trace_class',
 ]

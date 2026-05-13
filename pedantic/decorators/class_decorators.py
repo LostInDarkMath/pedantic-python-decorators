@@ -1,11 +1,9 @@
-import enum
 import types
 from collections.abc import Callable
 from dataclasses import is_dataclass
 
 from pedantic.constants import TYPE_VAR_ATTR_NAME, TYPE_VAR_METHOD_NAME, TYPE_VAR_SELF, C, F
 from pedantic.decorators.fn_deco_pedantic import pedantic, pedantic_require_docstring
-from pedantic.decorators.fn_deco_trace import trace
 from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.type_checking_logic.check_generic_classes import (
     check_instance_of_generic_class_and_get_type_vars,
@@ -24,10 +22,6 @@ def for_all_methods(decorator: F) -> Callable[[type[C]], type[C]]:
     ...     def m2(self, x): pass
     """
     def decorate(cls: C) -> C:
-        if issubclass(cls, enum.Enum):
-            raise PedanticTypeCheckException(f'Enum "{cls}" cannot be decorated with "@pedantic_class". '
-                                             f'Enums are not supported yet.')
-
         if is_dataclass(obj=cls):
             raise PedanticTypeCheckException(f'Dataclass "{cls}" cannot be decorated with "@pedantic_class". '
                                              f'Try to write "@dataclass" over "@pedantic_class".')
@@ -58,11 +52,6 @@ def pedantic_class(cls: C) -> C:
 def pedantic_class_require_docstring(cls: C) -> C:
     """Shortcut for @for_all_methods(pedantic_require_docstring)"""
     return for_all_methods(decorator=pedantic_require_docstring)(cls=cls)
-
-
-def trace_class(cls: C) -> C:
-    """Shortcut for @for_all_methods(trace)"""
-    return for_all_methods(decorator=trace)(cls=cls)
 
 
 def _get_wrapped(prop: F | None, decorator: F) -> F | None:
