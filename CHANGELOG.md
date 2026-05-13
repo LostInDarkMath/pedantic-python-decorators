@@ -7,6 +7,7 @@
 - removed decorator `@require_kwargs`
 - removed decorator `@timer`
 - removed decorator `@timer_class`
+- removed decorator `@trace_class`. Use `@trace` instead.
 - removed decorator `@uminplemented`
 - removed decorator `@trace_if_returns`
 - removed validator `Composite`. Just pass multiple validators directly instead.

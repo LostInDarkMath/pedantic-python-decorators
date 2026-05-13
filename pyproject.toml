@@ -20,6 +20,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent",
 ]
+dependencies = ["coverage (>=7.14.0,<8.0.0)"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/LostInDarkMath/pedantic-python-decorators/issues"
@@ -30,6 +31,7 @@ classifiers = [
 # poetry install --extras dev
 # pip install .[dev]
 dev = [
+  "coverage==7.14.0",
   "deptry==0.25.1",
   "docstring-parser==0.18.0",
   "pytest==9.0.3",
@@ -42,6 +44,7 @@ dev = [
 
 [tool.deptry.per_rule_ignores]
 DEP002 = [
+  "coverage",
   "deptry",
   "pytest",
   "pytest-asyncio",

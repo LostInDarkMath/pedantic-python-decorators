@@ -12,7 +12,6 @@ from pedantic.decorators import (
     pedantic_require_docstring,
     retry,
     trace,
-    trace_class,
 )
 from pedantic.decorators.fn_deco_validate.exceptions import (
     ConversionError,
@@ -104,7 +103,6 @@ __all__ = [
     'retry',
     'run_doctest_of_single_function',
     'trace',
-    'trace_class',
     'validate',
 ]
 

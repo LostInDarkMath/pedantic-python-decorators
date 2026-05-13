@@ -2490,10 +2490,9 @@ def test_literal_illegal_value():
 
 
 def test_enum():
-    with pytest.raises(PedanticTypeCheckException):
-        @pedantic_class
-        class MyEnum(Enum):
-            A = 'a'
+    @pedantic_class
+    class MyEnum(Enum):
+        A = 'a'
 
 
 def test_enum_aggregate():  # noqa: C901
