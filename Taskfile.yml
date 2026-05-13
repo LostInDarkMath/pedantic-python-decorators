@@ -9,14 +9,12 @@ tasks:
       - pip install --upgrade pip
       - poetry lock
       - poetry install --extras dev
-    silent: true
 
   dependencies-with-pip:
     desc: Installs all dependencies using pip only
     cmds:
       - pip install --upgrade pip
       - pip install .[dev]
-    silent: true
 
   tests:
     desc: Runs the tests
@@ -27,23 +25,26 @@ tasks:
     desc: Runs the tests with coverage
     cmds:
       - pytest --doctest-modules --cov=pedantic --cov-branch --cov-report= --cov-report=term
-    silent: true
 
   lint:
     desc: Runs the linter (ruff)
-    silent: true
     cmds:
       - ruff check pedantic tests {{.CLI_ARGS}}
 
   lint-fix:
     desc: Runs the linter and fixes all fixable errors automatically
-    silent: true
     cmds:
       - ruff check pedantic --fix
+
+  check-deps:
+    desc: Runs deptry to check for unused dependencies
+    cmds:
+      - deptry .
 
   validate:
     desc: Runs all checks and updates the docu. It is recommended to do this before making a commit.
     cmds:
+      - task: check-deps
       - task: list-crlf
       - task: check-changelog
       - task: check-version
@@ -56,7 +57,6 @@ tasks:
     cmds:
       - task: generate-docs
       - google-chrome ./docs/index.html
-    silent: true
 
   generate-docs:
     desc: Creates the HTML documentation
@@ -64,7 +64,6 @@ tasks:
       - rm -rf ./docs
       - pip install pdoc
       - pdoc -o docs pedantic
-    silent: true
 
   check-lock:
     desc: Check if poetry.lock is in sync with pyproject.toml
@@ -73,7 +72,6 @@ tasks:
 
   list-crlf:
     desc: List all Python files with CRLF line endings
-    silent: true
     cmds:
       - |
         files=$(find . -type d -name ".*" ! -name "." -prune -o -name "*.py" -type f -exec grep -Iq . {} \; -and -exec grep -l $'\r' {} \;)
@@ -84,7 +82,6 @@ tasks:
 
   check-changelog:
     desc: Fails if CHANGELOG.md was not modified compared to master
-    silent: true
     cmds:
       - |
         set -e
@@ -115,7 +112,6 @@ tasks:
 
   check-version:
     desc: Fails if the version in pyproject.toml was not bumped compared to master
-    silent: true
     cmds:
       - |
         set -e
