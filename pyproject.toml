@@ -40,14 +40,14 @@ dev = [
   "ruff==0.15.12",
 ]
 
-#[tool.deptry.per_rule_ignores]
-#DEP002 = [
-#  "deptry",
-#  "pytest",
-#  "pytest-asyncio",
-#  "pytest-cov",
-#  "ruff",
-#]
+[tool.deptry.per_rule_ignores]
+DEP002 = [
+  "deptry",
+  "pytest",
+  "pytest-asyncio",
+  "pytest-cov",
+  "ruff",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
