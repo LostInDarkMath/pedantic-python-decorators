@@ -33,7 +33,7 @@ jobs:
 
       - name: Check dependencies in pyproject.toml have no issues
         run: |
-          pip install deptry
+          task dependencies-with-pip
           task check-deps
 
       - name: Verify CHANGELOG.md was updated
