@@ -4,11 +4,21 @@ from typing import Any
 
 import pytest
 
-from pedantic import DateTimeUnixTimestamp
-from pedantic.decorators.fn_deco_validate.exceptions import ParameterException, ValidateException, ValidatorException
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import ReturnAs, validate
-from pedantic.decorators.fn_deco_validate.parameters import EnvironmentVariableParameter, Parameter
-from pedantic.decorators.fn_deco_validate.validators import Email, Max, MaxLength, Min, Validator
+from pedantic import (
+    DateTimeUnixTimestamp,
+    Email,
+    EnvironmentVariableParameter,
+    Max,
+    MaxLength,
+    Min,
+    Parameter,
+    ParameterException,
+    ReturnAs,
+    ValidateException,
+    Validator,
+    ValidatorException,
+    validate,
+)
 
 
 def test_single_validator():

@@ -1,7 +1,7 @@
 import pytest
 
-from pedantic.decorators.fn_deco_validate.convert_value import convert_value
-from pedantic.decorators.fn_deco_validate.exceptions import ConversionError
+from pedantic import ConversionError
+from pedantic.decorators.validate.convert_value import convert_value
 
 
 def test_convert_to_bool():

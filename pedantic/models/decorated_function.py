@@ -135,7 +135,9 @@ class DecoratedFunction:
         See also: https://stackoverflow.com/questions/19227724/check-if-a-function-uses-classmethod
         """
 
-        return inspect.ismethod(self._func)
+        return inspect.ismethod(self._func) or (
+                self._full_arg_spec.args != [] and self._full_arg_spec.args[0] == 'cls'
+        )
 
     @property
     def num_of_decorators(self) -> int:  # noqa: D102

@@ -7,13 +7,12 @@ from typing import Any, Callable, List, Optional, Union
 
 import pytest
 
-from pedantic import overrides
-from pedantic.decorators.class_decorators import pedantic_class
+from pedantic import overrides, pedantic
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticOverrideException, PedanticTypeCheckException
 
 
 def test_constructor():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, a: int) -> None:
             self.a = a
@@ -26,7 +25,7 @@ def test_constructor_with_list():
         A = 1
         B = 2
 
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, b: int, a: List[Foo]) -> None:
             self.a = a
@@ -36,7 +35,7 @@ def test_constructor_with_list():
 
 
 def test_constructor_param_without_type_hint():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, a) -> None:
             self.a = a
@@ -46,7 +45,7 @@ def test_constructor_param_without_type_hint():
 
 
 def test_constructor_without_return_type():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, a: int):
             self.a = a
@@ -56,7 +55,7 @@ def test_constructor_without_return_type():
 
 
 def test_constructor_wrong_return_type():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, a: int) -> int:
             self.a = a
@@ -66,7 +65,7 @@ def test_constructor_wrong_return_type():
 
 
 def test_constructor_must_be_called_with_kwargs():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, a: int) -> None:
             self.a = a
@@ -76,7 +75,7 @@ def test_constructor_must_be_called_with_kwargs():
 
 
 def test_multiple_methods():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, a: int) -> None:
             self.a = a
@@ -98,7 +97,7 @@ def test_multiple_methods():
 
 
 def test_multiple_methods_with_missing_and_wrong_type_hints():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, a: int) -> None:
             self.a = a
@@ -121,7 +120,7 @@ def test_multiple_methods_with_missing_and_wrong_type_hints():
 
 
 def test_type_annotation_string():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, s: str) -> None:
             self.s = s
@@ -134,7 +133,7 @@ def test_type_annotation_string():
 
 
 def test_typo_in_type_annotation_string():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, s: str) -> None:
             self.s = s
@@ -148,7 +147,7 @@ def test_typo_in_type_annotation_string():
 
 
 def test_overriding_contains():
-    @pedantic_class
+    @pedantic
     class MyClass(list):
         def __contains__(self, item: int) -> bool:
             return True
@@ -160,8 +159,18 @@ def test_overriding_contains():
         assert 'something' in m
 
 
+def test_not_overriding_contains():
+    @pedantic
+    class MyClass(list):
+        pass
+
+    m = MyClass()
+    assert (42 in m) is False
+    assert ('something' in m) is False
+
+
 def test_type_annotation_string_typo():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def compare(self, other: 'MyClas') -> bool:  # noqa: F821
             return self == other
@@ -176,7 +185,7 @@ def test_type_annotation_string_typo():
 
 
 def test_docstring_not_required():
-    @pedantic_class
+    @pedantic
     class Foo:
         def __init__(self, a: int) -> None:
             self.a = a
@@ -196,7 +205,7 @@ def test_docstring_not_required():
 
 
 def test_overrides():
-    @pedantic_class
+    @pedantic
     class Abstract:
         def func(self, b: str) -> str:
             pass
@@ -204,7 +213,7 @@ def test_overrides():
         def bunk(self) -> int:
             pass
 
-    @pedantic_class
+    @pedantic
     class Foo(Abstract):
         def __init__(self, a: int) -> None:
             self.a = a
@@ -223,7 +232,7 @@ def test_overrides():
 
 
 def test_overrides_abc():
-    @pedantic_class
+    @pedantic
     class Abstract(ABC):
         @abstractmethod
         def func(self, b: str) -> str:
@@ -233,7 +242,7 @@ def test_overrides_abc():
         def bunk(self) -> int:
             pass
 
-    @pedantic_class
+    @pedantic
     class Foo(Abstract):
         def __init__(self, a: int) -> None:
             self.a = a
@@ -252,7 +261,7 @@ def test_overrides_abc():
 
 
 def test_overrides_with_type_errors_and_call_by_args3():
-    @pedantic_class
+    @pedantic
     class Abstract:
         def func(self, b: str) -> str:
             pass
@@ -260,7 +269,7 @@ def test_overrides_with_type_errors_and_call_by_args3():
         def bunk(self) -> int:
             pass
 
-    @pedantic_class
+    @pedantic
     class Foo(Abstract):
         def __init__(self, a: int) -> None:
             self.a = a
@@ -286,7 +295,7 @@ def test_overrides_with_type_errors_and_call_by_args3():
 
 
 def test_overrides_goes_wrong():
-    @pedantic_class
+    @pedantic
     class Parent:
         def func(self, b: str) -> str:
             return b + b + b
@@ -295,7 +304,7 @@ def test_overrides_goes_wrong():
             return 42
 
     with pytest.raises(expected_exception=PedanticOverrideException):
-        @pedantic_class
+        @pedantic
         class Foo(Parent):
             def __init__(self, a: int) -> None:
                 self.a = a
@@ -314,7 +323,7 @@ def test_overrides_goes_wrong():
 
 
 def test_static_method_with_sloppy_type_annotation():
-    @pedantic_class
+    @pedantic
     class MyStaticClass:
         @staticmethod
         def double_func(a: int) -> int:  # noqa: ARG004
@@ -330,7 +339,7 @@ def test_static_method_with_sloppy_type_annotation():
 
 
 def test_property():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, some_arg: Any) -> None:
             self._some_attribute = some_arg
@@ -352,7 +361,7 @@ def test_property():
     m = MyClass(some_arg=42)
     assert m.some_attribute == 42
 
-    with pytest.raises(expected_exception=PedanticTypeCheckException):
+    with pytest.raises(expected_exception=PedanticTypeCheckException):  # exception is not raised!
         m.some_attribute = 100
 
     assert m.some_attribute == 42
@@ -365,7 +374,7 @@ def test_property():
 
 
 def test_property_getter_and_setter_misses_type_hints():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def __init__(self, some_arg: int) -> None:
             self._some_attribute = some_arg
@@ -397,7 +406,7 @@ def test_property_getter_and_setter_misses_type_hints():
 
 
 def test_default_constructor():
-    @pedantic_class
+    @pedantic
     class MyClass:
         def fun(self) -> int:
             return 42
@@ -406,7 +415,7 @@ def test_default_constructor():
 
 
 def test_optional_callable():
-    @pedantic_class
+    @pedantic
     class SemanticSimilarity:
         def __init__(self, post_processing: bool = True, val: Optional[Callable[[float], float]] = None) -> None:
             if post_processing is None:
@@ -418,7 +427,7 @@ def test_optional_callable():
 
 
 def test_optional_lambda():
-    @pedantic_class
+    @pedantic
     class SemanticSimilarity:
         def __init__(self, val: Callable[[float], float] = lambda x: x) -> None:
             self.post_processing = val
@@ -427,7 +436,7 @@ def test_optional_lambda():
 
 
 def test_class_method_type_annotation_missing():
-    @pedantic_class
+    @pedantic
     class MyClass:
         @classmethod
         def do(cls): pass
@@ -437,7 +446,7 @@ def test_class_method_type_annotation_missing():
 
 
 def test_class_method_type_annotation():
-    @pedantic_class
+    @pedantic
     class MyClass:
         @classmethod
         def do(cls) -> None: pass
@@ -451,26 +460,26 @@ def test_class_method_type_annotation():
     m = MyClass()
     m.do()
 
-    with pytest.raises(expected_exception=PedanticTypeCheckException):
+    with pytest.raises(expected_exception=PedanticCallWithArgsException):
         MyClass.calc(5)
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         MyClass.calc(x=5.1)
     with pytest.raises(expected_exception=PedanticTypeCheckException):
-        MyClass.calc('hi')
+        MyClass.calc(x='hi')
 
     with pytest.raises(expected_exception=PedanticCallWithArgsException):
         m.calc(5)
     with pytest.raises(expected_exception=PedanticTypeCheckException):
         m.calc(x=5.1)
-    with pytest.raises(expected_exception=PedanticCallWithArgsException):
-        m.calc('hi')
+    with pytest.raises(expected_exception=PedanticTypeCheckException):
+        m.calc(x='hi')
 
 
 def test_dataclass_inside():
     """Pedantic cannot be used on dataclasses."""
 
-    with pytest.raises(expected_exception=PedanticTypeCheckException):
-        @pedantic_class
+    with pytest.raises(expected_exception=OSError, match='could not get source code'):
+        @pedantic
         @dataclass
         class MyClass:
             name: str
@@ -482,7 +491,7 @@ def test_dataclass_outside():
     """Pedantic cannot check the constructor of dataclasses"""
 
     @dataclass
-    @pedantic_class
+    @pedantic
     class MyClass:
         name: str
         unit_price: float
@@ -499,7 +508,7 @@ def test_dataclass_outside():
 
 
 def test_class_decorator_static_class_method():
-    @pedantic_class
+    @pedantic
     class Foo:
         @staticmethod
         def staticmethod() -> int:

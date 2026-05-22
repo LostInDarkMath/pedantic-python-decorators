@@ -2,8 +2,7 @@ import asyncio
 
 import pytest
 
-from pedantic.decorators.class_decorators import pedantic_class
-from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic import pedantic
 from pedantic.exceptions import PedanticTypeCheckException
 
 
@@ -41,7 +40,7 @@ async def test_coroutine_wrong_argument_type():
 
 @pytest.mark.asyncio
 async def test_static_async():
-    @pedantic_class
+    @pedantic
     class Foo:
         @staticmethod
         async def staticmethod() -> int:

@@ -1,37 +1,34 @@
 from pedantic.decorators import (
     calculate_in_subprocess,
     deprecated,
-    for_all_methods,
     frozen_dataclass,
     frozen_type_safe_dataclass,
     in_subprocess,
     overrides,
     pedantic,
-    pedantic_class,
-    pedantic_class_require_docstring,
-    pedantic_require_docstring,
     retry,
     trace,
 )
-from pedantic.decorators.fn_deco_validate.exceptions import (
+from pedantic.decorators.validate.exceptions import (
     ConversionError,
+    ExceptionDictKey,
     InvalidHeader,
     ParameterException,
     TooManyArguments,
     ValidateException,
     ValidatorException,
 )
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import (
-    ReturnAs,
-    validate,
-)
-from pedantic.decorators.fn_deco_validate.parameters import (
+from pedantic.decorators.validate.parameters import (
     Deserializable,
     EnvironmentVariableParameter,
     ExternalParameter,
     Parameter,
 )
-from pedantic.decorators.fn_deco_validate.validators import (
+from pedantic.decorators.validate.validate import (
+    ReturnAs,
+    validate,
+)
+from pedantic.decorators.validate.validators import (
     DatetimeIsoFormat,
     DateTimeUnixTimestamp,
     Email,
@@ -66,6 +63,8 @@ __all__ = [
     'Deserializable',
     'Email',
     'EnvironmentVariableParameter',
+    'ExceptionDictKey',
+    'ExternalParameter',
     'ExternalParameter',
     'ForEach',
     'GenericMixin',
@@ -90,15 +89,11 @@ __all__ = [
     'calculate_in_subprocess',
     'create_decorator',
     'deprecated',
-    'for_all_methods',
     'frozen_dataclass',
     'frozen_type_safe_dataclass',
     'in_subprocess',
     'overrides',
     'pedantic',
-    'pedantic_class',
-    'pedantic_class_require_docstring',
-    'pedantic_require_docstring',
     'resolve_forward_ref',
     'retry',
     'run_doctest_of_single_function',
@@ -107,7 +102,7 @@ __all__ = [
 ]
 
 try:
-    from pedantic.decorators.fn_deco_validate.parameters import (
+    from pedantic.decorators.validate.parameters import (
         FlaskFormParameter,
         FlaskGetParameter,
         FlaskHeaderParameter,

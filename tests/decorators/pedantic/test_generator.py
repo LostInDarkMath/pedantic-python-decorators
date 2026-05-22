@@ -5,7 +5,7 @@ from typing import Generator, Iterable, Iterator  # noqa: UP035
 
 import pytest
 
-from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic import pedantic
 from pedantic.exceptions import PedanticTypeCheckException
 
 

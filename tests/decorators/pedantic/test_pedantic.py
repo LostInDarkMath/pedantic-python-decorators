@@ -43,8 +43,7 @@ from typing import (
 
 import pytest
 
-from pedantic import pedantic_class
-from pedantic.decorators.fn_deco_pedantic import pedantic
+from pedantic import pedantic
 from pedantic.exceptions import (
     PedanticCallWithArgsException,
     PedanticException,
@@ -1133,10 +1132,17 @@ def test_args_kwargs_different_types():
 def test_pedantic_on_class():
     @pedantic
     class MyClass:
-        pass
+        def calc(self, x: int) -> int:
+            return x * 2
+
+    foo = MyClass()
+    assert foo.calc(x=3) == 6
+
+    with pytest.raises(expected_exception=PedanticCallWithArgsException):
+        assert foo.calc(3) == 6
 
     with pytest.raises(expected_exception=PedanticTypeCheckException):
-        MyClass()
+        foo.calc(x='hi')
 
 
 def test_is_subtype_tuple():
@@ -1236,7 +1242,7 @@ def test_return_type_none():
 
 
 def test_marco():
-    @pedantic_class
+    @pedantic
     class A:
         def __init__(self, val: int) -> None:
             self.val = val
@@ -1247,12 +1253,12 @@ def test_marco():
         def __hash__(self) -> int:
             return hash(self.val)
 
-    @pedantic_class
+    @pedantic
     class B(A):
         def __init__(self, val: int) -> None:
             super().__init__(val=val)
 
-    @pedantic_class
+    @pedantic
     class C(A):
         def __init__(self, val: int) -> None:
             super().__init__(val=val)
@@ -1456,7 +1462,7 @@ def test_sequence_bad_element():
 def test_abstractset_custom_type():
     T = TypeVar('T')
 
-    @pedantic_class
+    @pedantic
     class DummySet(AbstractSet[T]):
         def __contains__(self, x: object) -> bool:
             return x == 1
@@ -2197,7 +2203,7 @@ def test_bytearray_bytes():
 
 
 def test_class_decorator():
-    @pedantic_class
+    @pedantic
     class Foo:
         @staticmethod
         def staticmethod() -> int:
@@ -2376,7 +2382,7 @@ def test_return_generator():
 
 
 def test_local_class():
-    @pedantic_class
+    @pedantic
     class LocalClass:
         class Inner:
             pass
@@ -2389,7 +2395,7 @@ def test_local_class():
 
 
 def test_local_class_async():
-    @pedantic_class
+    @pedantic
     class LocalClass:
         class Inner:
             pass
@@ -2408,23 +2414,23 @@ def test_callable_nonmember():
         def __call__(self):
             pass
 
-    @pedantic_class
+    @pedantic
     class LocalClass:
         some_callable = CallableClass()
 
 
 def test_inherited_class_method():
-    @pedantic_class
+    @pedantic
     class Parent:
         @classmethod
         def foo(cls, x: str) -> str:
             return cls.__name__ + x
 
-    @pedantic_class
+    @pedantic
     class Child(Parent):
         pass
 
-    assert Child.foo(x='bar') == 'Parentbar'
+    assert Child.foo(x='bar') == 'Childbar'
 
     with pytest.raises(PedanticTypeCheckException):
         Child.foo(x=1)
@@ -2490,7 +2496,7 @@ def test_literal_illegal_value():
 
 
 def test_enum():
-    @pedantic_class
+    @pedantic
     class MyEnum(Enum):
         A = 'a'
 
@@ -2498,7 +2504,7 @@ def test_enum():
 def test_enum_aggregate():  # noqa: C901
     T = TypeVar('T', bound=IntEnum)
 
-    @pedantic_class
+    @pedantic
     class EnumAggregate(Generic[T]):
         enum: ClassVar[Type[T]]
 
@@ -2547,7 +2553,7 @@ def test_enum_aggregate():  # noqa: C901
         FEMALE = 2
         DIVERS = 3
 
-    @pedantic_class
+    @pedantic
     class Genders(EnumAggregate[Gender]):
         enum = Gender
 
@@ -2675,7 +2681,7 @@ def test_self_type():
     class Bar:
         pass
 
-    @pedantic_class
+    @pedantic
     class Foo:
         def f(self) -> Self:
             return self
@@ -2732,7 +2738,7 @@ def test_using_self_type_annotation_outside_class():
 
 
 def test_type_var_tuple():
-    @pedantic_class
+    @pedantic
     class Array(Generic[*Ts]):
         def __init__(self, *args: *Ts) -> None:
             self.values = args

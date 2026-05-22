@@ -2,12 +2,10 @@ from abc import ABC, abstractmethod
 
 import pytest
 
-from pedantic import overrides
-from pedantic.decorators.class_decorators import for_all_methods, pedantic_class
-from pedantic.decorators.fn_deco_pedantic import pedantic
-from pedantic.decorators.fn_deco_validate.exceptions import ParameterException
-from pedantic.decorators.fn_deco_validate.fn_deco_validate import Parameter, ReturnAs, validate
-from pedantic.decorators.fn_deco_validate.validators import Min
+from pedantic import overrides, pedantic
+from pedantic.decorators.validate.exceptions import ParameterException
+from pedantic.decorators.validate.validate import Parameter, ReturnAs, validate
+from pedantic.decorators.validate.validators import Min
 from pedantic.exceptions import PedanticCallWithArgsException, PedanticException, PedanticTypeCheckException
 
 
@@ -113,7 +111,7 @@ def test_pedantic_below_validate_on_instance_method():
 
 
 def test_pedantic_class_with_validate_instance_method():
-    @pedantic_class
+    @pedantic
     class MyClass:
         @validate(
             Parameter(name='x', validators=[Min(0)]),
@@ -134,7 +132,7 @@ def test_pedantic_class_with_validate_instance_method():
 
 
 def test_pedantic_class_static_method_1():
-    @pedantic_class
+    @pedantic
     class MyClass:
         @staticmethod
         def some_calculation(x: int) -> int:
@@ -143,23 +141,6 @@ def test_pedantic_class_static_method_1():
     m = MyClass()
     m.some_calculation(x=42)
     MyClass.some_calculation(x=45)
-
-
-def test_pedantic_class_static_method_2():
-    """Never do this, but it works"""
-    @for_all_methods(staticmethod)
-    @pedantic_class
-    class MyClass:
-        def some_calculation(x: int) -> int:  # noqa: N805
-            return x
-
-    m = MyClass()
-    m.some_calculation(x=42)
-    with pytest.raises(expected_exception=PedanticTypeCheckException):
-        m.some_calculation(x=42.0)
-    MyClass.some_calculation(x=45)
-    with pytest.raises(expected_exception=PedanticTypeCheckException):
-        MyClass.some_calculation(x=45.0)
 
 
 def test_pedantic_static_method_1():
