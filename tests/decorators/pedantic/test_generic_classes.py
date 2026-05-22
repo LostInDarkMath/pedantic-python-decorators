@@ -4,15 +4,15 @@ from typing import Any, Generic, Optional, TypeVar, Union
 
 import pytest
 
+from pedantic import pedantic
 from pedantic.constants import TYPE_VAR_METHOD_NAME, TYPE_VAR_SELF
-from pedantic.decorators.class_decorators import pedantic_class
 from pedantic.exceptions import PedanticTypeVarMismatchException
 
 T = TypeVar('T')
 
 
 def test_pedantic_generic_class():
-    @pedantic_class
+    @pedantic
     class LoggedVar(Generic[T]):
         def __init__(self, value: T, name: str, logger: Any) -> None:
             self.name = name
@@ -39,7 +39,7 @@ def test_pedantic_generic_class():
 
 
 def test_stack():
-    @pedantic_class
+    @pedantic
     class Stack(Generic[T]):
         def __init__(self) -> None:
             self.items: list[T] = []
@@ -99,7 +99,7 @@ def test_stack():
 
 
 def test_generic_class_initialised_without_generics():
-    @pedantic_class
+    @pedantic
     class MyClass(Generic[T]):
         def __init__(self, a: T) -> None:
             self.a = a
@@ -115,7 +115,7 @@ def test_generic_class_initialised_without_generics():
 
 
 def test_generic_class_initialised_without_generics_2():
-    @pedantic_class
+    @pedantic
     class MyClass(Generic[T]):
         def __init__(self, a: T) -> None:
             self.a = a
@@ -139,7 +139,7 @@ def test_generic_class_inheritance():
     class Child2(Parent):
         pass
 
-    @pedantic_class
+    @pedantic
     class MyClass(Generic[T]):
         def __init__(self, a: T) -> None:
             self.a = a
@@ -160,7 +160,7 @@ def test_generic_class_inheritance():
 
 def test_merge_dicts():
     def create():
-        @pedantic_class
+        @pedantic
         class MyClass(Generic[T]):
             def __init__(self, a: T) -> None:
                 self.a = a
@@ -177,7 +177,7 @@ def test_merge_dicts():
 
 
 def test_recursion_depth_exceeded():  # noqa: C901
-    @pedantic_class
+    @pedantic
     class Stack(Generic[T]):
         def __init__(self) -> None:
             self.items: list[T] = []
@@ -219,7 +219,7 @@ def test_recursion_depth_exceeded():  # noqa: C901
 
 
 def test_generic_union():
-    @pedantic_class
+    @pedantic
     class Stack(Generic[T]):
         def __init__(self) -> None:
             self.items: list[T] = []
@@ -256,7 +256,7 @@ def test_generic_union():
 
 
 def test_inheritance():
-    @pedantic_class
+    @pedantic
     class Stack(Generic[T]):
         def __init__(self) -> None:
             self.items: list[T] = []
@@ -283,15 +283,15 @@ def test_inheritance():
         def __len__(self) -> int:
             return len(self.items)
 
-    @pedantic_class
+    @pedantic
     class Parent:
         pass
 
-    @pedantic_class
+    @pedantic
     class Child1(Parent):
         pass
 
-    @pedantic_class
+    @pedantic
     class Child2(Parent):
         pass
 

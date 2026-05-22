@@ -5,7 +5,7 @@ from typing import Awaitable, Callable, Generic, Optional, TypeVar
 
 import pytest
 
-from pedantic.decorators.cls_deco_frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
+from pedantic.decorators.frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
 from pedantic.exceptions import PedanticTypeCheckException
 
 

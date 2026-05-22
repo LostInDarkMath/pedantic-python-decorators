@@ -3,6 +3,8 @@
 - removed decorator `@count_calls`
 - removed decorator `@does_same_as_function`
 - removed decorator `@mock`
+- removed decorator `@pedantic_require_docstring`. Use `@pedantic(require_docstring=True)` instead.
+- removed decorator `@pedantic_class_require_docstring`.
 - removed decorator `@rename_kwargs`
 - removed decorator `@require_kwargs`
 - removed decorator `@timer`
@@ -10,6 +12,7 @@
 - removed decorator `@trace_class`. Use `@trace` instead.
 - removed decorator `@uminplemented`
 - removed decorator `@trace_if_returns`
+- removed decorator `@pedantic_class`. Use `@pedantic` instead
 - removed validator `Composite`. Just pass multiple validators directly instead.
 - removed `enable_pedantic, disable_pedantic, is_enabled`
 - removed `GenericMixin.type_var`. Use `GenericMixin.type_vars` instead.
@@ -22,6 +25,7 @@
 - added `ruff` linter and apply lint rules to code
 - added helper function `run_doctest_of_single_function`
 - added type checking support for `collections.abc: Generator, Iterable, Iterator, Callable`
+- improved typing warnings of `@frozen_dataclass`. Added stub type `FrozenDataclass` to make `copy_with()` known by type checkers.
 - updated `README.md`
 
 ## Pedantic 2.4.0

@@ -24,7 +24,10 @@ class FunctionCall:
         self._context = context
         self._instance = self.args[0] if self.func.is_instance_method else None
         self._type_vars = {}
-        self._params_without_self = {k: v for k, v in self.func.signature.parameters.items() if v.name != 'self'}
+        self._params_without_self = {
+            k: v for k, v in self.func.signature.parameters.items()
+            if v.name not in ('self', 'cls')
+        }
         self._already_checked_kwargs = []
         self._get_type_vars = lambda: self._type_vars
 
@@ -64,6 +67,8 @@ class FunctionCall:
             # case instance method
             return type(self._instance)
         if self.func.is_class_method:
+            if self.args:
+                return self.args[0]
             return self.func.func.__self__
         if self.func.is_static_method:
             if not self.args:
@@ -85,7 +90,12 @@ class FunctionCall:
         max_allowed = 0 if not self.func.is_pedantic else 1
         uses_multiple_decorators = self.func.num_of_decorators > max_allowed
 
-        if self.func.is_instance_method or self.func.is_static_method or uses_multiple_decorators:
+        if any((
+            self.func.is_instance_method,
+            self.func.is_class_method,
+            self.func.is_static_method,
+            uses_multiple_decorators,
+        )):
             return self.args[1:]  # self is always the first argument if present
         return self.args
 
@@ -203,13 +213,13 @@ class FunctionCall:
             raise PedanticTypeCheckException(f'{self.func.err}Parameter "{param.name}" should have a type hint.')
 
     def _get_return_value(self) -> Any:
-        if self.func.is_static_method or self.func.is_class_method:
+        if self.func.is_static_method:
             return self.func.func(**self.kwargs)
 
         return self.func.func(*self.args, **self.kwargs)
 
     async def _async_get_return_value(self) -> Any:
-        if self.func.is_static_method or self.func.is_class_method:
+        if self.func.is_static_method:
             return await self.func.func(**self.kwargs)
 
         return await self.func.func(*self.args, **self.kwargs)

@@ -6,7 +6,7 @@ import pytest
 from multiprocess import Pipe
 
 from pedantic import in_subprocess
-from pedantic.decorators.fn_deco_in_subprocess import SubprocessError, _inner
+from pedantic.decorators.in_subprocess import SubprocessError, _inner
 
 
 @pytest.mark.asyncio

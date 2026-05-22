@@ -4,27 +4,26 @@ from typing import List, Optional
 
 import pytest
 
-from pedantic.decorators.class_decorators import pedantic_class, pedantic_class_require_docstring
-from pedantic.decorators.fn_deco_pedantic import pedantic, pedantic_require_docstring
+from pedantic import pedantic
 from pedantic.exceptions import PedanticDocstringException, PedanticTypeCheckException
 
 
 def test_no_docstring():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(n: int, m: int, i: int) -> int:
             return n + m + i
 
 
 def test_one_line_doc_string_missing_arguments_and_return():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(n: int, m: int, i: int) -> int:
             """Returns the sum of the three args."""
             return n + m + i
 
 def test_one_line_doc_string_corrected():
-    @pedantic_require_docstring
+    @pedantic(require_docstring=True)
     def calc(n: int, m: int, i: int) -> int:
         """Returns the sum of the three args.
 
@@ -43,7 +42,7 @@ def test_one_line_doc_string_corrected():
 
 def test_list_vs_typing_list():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
@@ -59,7 +58,7 @@ def test_list_vs_typing_list():
 
 
 def test_google_docstring_2():
-    @pedantic_require_docstring
+    @pedantic(require_docstring=True)
     def calc(file_loc: str, print_cols: bool) -> List[str]:
         """Gets and prints the spreadsheet's header columns
 
@@ -78,7 +77,7 @@ def test_google_docstring_2():
 
 
 def test_google_docstring_3():
-    @pedantic_require_docstring
+    @pedantic(require_docstring=True)
     def calc(file_loc: str, print_cols: bool) -> List[str]:
         """Gets and prints the spreadsheet's header columns
 
@@ -98,7 +97,7 @@ def test_google_docstring_3():
 
 def test_more_parameter_documented_than_the_function_takes():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
@@ -115,7 +114,7 @@ def test_more_parameter_documented_than_the_function_takes():
 
 
 def test_google_docstring_corrected():
-    @pedantic_require_docstring
+    @pedantic(require_docstring=True)
     def calc(file_loc: str, print_cols: bool, amount: int) -> List[str]:
         """Gets and prints the spreadsheet's header columns
 
@@ -136,7 +135,7 @@ def test_google_docstring_corrected():
 
 def test_no_args_keyword_before_documented_arguments():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool) -> list:
             """Gets and prints the spreadsheet's header columns
 
@@ -152,7 +151,7 @@ def test_no_args_keyword_before_documented_arguments():
 
 def test_google_no_return_keyword():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool) -> list:
             """Gets and prints the spreadsheet's header columns
 
@@ -167,7 +166,7 @@ def test_google_no_return_keyword():
 
 
 def test_keep_it_simple():
-    @pedantic_require_docstring
+    @pedantic(require_docstring=True)
     def calc() -> None:
         """Gets and prints the spreadsheet's header columns"""
 
@@ -176,13 +175,13 @@ def test_keep_it_simple():
 
 def test_docstring_misses_argument():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(name: str) -> None:
             """Gets and prints the spreadsheet's header columns"""
 
 
 def test_keep_it_simple_2_corrected():
-    @pedantic_require_docstring
+    @pedantic(require_docstring=True)
     def calc(name: str) -> None:
         """Gets and prints the spreadsheet's header columns
 
@@ -195,7 +194,7 @@ def test_keep_it_simple_2_corrected():
 
 def test_undocumented_arg():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool, number: int) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
@@ -211,7 +210,7 @@ def test_undocumented_arg():
 
 
 def test_undocumented_arg_corrected():
-    @pedantic_require_docstring
+    @pedantic(require_docstring=True)
     def calc(file_loc: str, print_cols: bool, number: int) -> List[str]:
         """Gets and prints the spreadsheet's header columns
 
@@ -232,7 +231,7 @@ def test_undocumented_arg_corrected():
 
 def test_restructured_text_style_doctsring_cannot_be_parsed_yet():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
@@ -248,7 +247,7 @@ def test_restructured_text_style_doctsring_cannot_be_parsed_yet():
 
 def test_return_nothing_but_document_return_value():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool):
             """Gets and prints the spreadsheet's header columns
 
@@ -264,7 +263,7 @@ def test_return_nothing_but_document_return_value():
 
 def test_return_nothing_but_document_return_value_2():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool) -> None:
             """Gets and prints the spreadsheet's header columns
 
@@ -279,7 +278,7 @@ def test_return_nothing_but_document_return_value_2():
 
 
 def test_return_value_1_corrected():
-    @pedantic_require_docstring
+    @pedantic(require_docstring=True)
     def calc(file_loc: str, print_cols: bool) -> None:
         """Gets and prints the spreadsheet's header columns
 
@@ -295,7 +294,7 @@ def test_return_value_1_corrected():
 def test_return_value_is_not_documented():
     with pytest.raises(expected_exception=PedanticDocstringException):
         # the error message here is actually wrong due to the behavior of the docstring-parser package
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
@@ -309,7 +308,7 @@ def test_return_value_is_not_documented():
 
 
 def test_return_value_2_corrected():
-    @pedantic_require_docstring
+    @pedantic(require_docstring=True)
     def calc(file_loc: str, print_cols: bool) -> List[str]:
         """Gets and prints the spreadsheet's header columns
 
@@ -329,7 +328,7 @@ def test_return_value_2_corrected():
 
 def test_return_value_is_not_documented_3():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc(file_loc: str, print_cols: bool) -> List[str]:
             """Gets and prints the spreadsheet's header columns
 
@@ -346,7 +345,7 @@ def test_wrong_format_1():
         class MyText:
             text = 'hi'
 
-            @pedantic_require_docstring
+            @pedantic(require_docstring=True)
             def __contains__(self, substring: str) -> bool:
                 """
                 Checks if contains substring.
@@ -363,7 +362,7 @@ def test_wrong_format_1():
 
 def test_undocumented_arg_3():
     with pytest.raises(expected_exception=PedanticDocstringException, match=r'There are 2 argument\(s\) documented, but 3 are actually taken'):
-        @pedantic
+        @pedantic(require_docstring=True)
         def calc(a: int, b: float, c: str) -> str:
             """Returns some cool string
 
@@ -378,7 +377,7 @@ def test_undocumented_arg_3():
 
 
 def test_pedantic_1_corrected():
-    @pedantic
+    @pedantic(require_docstring=True)
     def calc(a: int, b: float, c: str) -> str:
         """Returns some cool string
 
@@ -397,7 +396,7 @@ def test_pedantic_1_corrected():
 
 def test_documented_none_as_return_type():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
+        @pedantic(require_docstring=True)
         def calc() -> None:
             """Some cool stuff
 
@@ -407,7 +406,7 @@ def test_documented_none_as_return_type():
 
 
 def test_exception_in_docstring_parser():
-    @pedantic_class
+    @pedantic
     class Foo:
         def func(self, b: str) -> str:
             """
@@ -428,7 +427,7 @@ def test_user_class():
     class BPMNElement:
         attr = 'BPMNElement'
 
-    @pedantic_class_require_docstring
+    @pedantic(require_docstring=True)
     class MyClass:
         def make_element(self, element_type: BPMNEnum,
                          src_tgt_elements: Optional[List[BPMNElement]] = None) -> List[BPMNElement]:
@@ -459,7 +458,7 @@ def test_user_class_with_typing():
         attr = 'BPMNElement'
 
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_class_require_docstring
+        @pedantic(require_docstring=True)
         class MyClass:
 
             def make_element(self, element_type: BPMNEnum,
@@ -481,10 +480,5 @@ def test_user_class_with_typing():
 def test_pedantic_args():
     with pytest.raises(expected_exception=PedanticDocstringException):
         @pedantic(require_docstring=True)
-        def no_docstrings() -> None:
-            pass
-
-    with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_require_docstring
         def no_docstrings() -> None:
             pass

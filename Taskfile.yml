@@ -34,7 +34,7 @@ tasks:
   lint-fix:
     desc: Runs the linter and fixes all fixable errors automatically
     cmds:
-      - ruff check pedantic --fix
+      - ruff check pedantic tests --fix
 
   check-deps:
     desc: Runs deptry to check for unused dependencies

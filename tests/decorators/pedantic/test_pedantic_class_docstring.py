@@ -1,11 +1,11 @@
 import pytest
 
-from pedantic import pedantic_class_require_docstring
+from pedantic import pedantic
 from pedantic.exceptions import PedanticDocstringException
 
 
 def test_require_docstring():
-    @pedantic_class_require_docstring
+    @pedantic(require_docstring=True)
     class MyClass:
         def __init__(self, s: str) -> None:
             """
@@ -48,7 +48,7 @@ def test_require_docstring():
 
 def test_typo_docstring():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_class_require_docstring
+        @pedantic(require_docstring=True)
         class MyClass:
             def __init__(self, s: str) -> None:
                 """
@@ -74,8 +74,8 @@ def test_typo_docstring():
 
 def test_wrong_docstring():
     with pytest.raises(expected_exception=PedanticDocstringException):
-        @pedantic_class_require_docstring
-        class MyClass:
+        @pedantic(require_docstring=True)
+        class Foo:
             def __init__(self, s: str) -> None:
                 """
                 Constructor

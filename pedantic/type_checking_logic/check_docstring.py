@@ -6,7 +6,14 @@ from pedantic.type_checking_logic.check_types import get_type_arguments
 
 # ruff: noqa: E501, F405
 
-def _check_docstring(decorated_func: DecoratedFunction) -> None:
+def check_docstring(decorated_func: DecoratedFunction) -> None:
+    """
+    Check that the docstring of a function is correct.
+
+    Raises:
+        PedanticDocstringException: if the docstring of a function is incorrect.
+    """
+
     doc = decorated_func.docstring
     assert doc is not None, doc  # noqa: S101
     err = decorated_func.err

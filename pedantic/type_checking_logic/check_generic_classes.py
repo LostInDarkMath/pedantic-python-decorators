@@ -85,7 +85,7 @@ def _assert_constructor_called_with_generics(instance: Any) -> None:
     name = instance.__class__.__name__
     q_name = instance.__class__.__qualname__
     call_stack_frames = inspect.stack()
-    frame_of_wrapper = list(filter(lambda f: f.function == 'wrapper', call_stack_frames))
+    frame_of_wrapper = list(filter(lambda f: f.function in ('sync_wrapper', 'async_wrapper'), call_stack_frames))
     if not frame_of_wrapper:
         return
 
