@@ -1,87 +1,222 @@
-# pedantic-python-decorators [![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic) [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pedantic.svg)](https://anaconda.org/conda-forge/pedantic) [![Last Commit](https://badgen.net/github/last-commit/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Stars](https://badgen.net/github/stars/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Open Issues](https://badgen.net/github/open-issues/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/issues) [![Open PRs](https://badgen.net/github/open-prs/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/pulls)
+# Pedantic 
+[![Coverage Status](https://coveralls.io/repos/github/LostInDarkMath/pedantic-python-decorators/badge.svg?branch=master)](https://coveralls.io/github/LostInDarkMath/pedantic-python-decorators?branch=master) [![PyPI version](https://badge.fury.io/py/pedantic.svg)](https://badge.fury.io/py/pedantic) [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pedantic.svg)](https://anaconda.org/conda-forge/pedantic) [![Last Commit](https://badgen.net/github/last-commit/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Stars](https://badgen.net/github/stars/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators) [![Open Issues](https://badgen.net/github/open-issues/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/issues) [![Open PRs](https://badgen.net/github/open-prs/LostInDarkMath/pedantic-python-decorators?color=green)](https://GitHub.com/LostInDarkMath/pedantic-python-decorators/pulls)
 
-This packages includes many decorators that will make you write cleaner Python code. 
+A collection of useful decorators in mixins for Python development. 
 
-## The [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/method_decorators.html#pedantic.method_decorators.pedantic) decorator - Type checking at runtime
-The `@pedantic` decorator does the following things:
-- The decorated function can only be called by using keyword arguments. Positional arguments are not accepted.
-- The decorated function must have [type annotations](https://docs.python.org/3/library/typing.html).
-- Each time the decorated function is called, pedantic checks that the passed arguments and the return value of the function matches the given type annotations. 
-As a consequence, the arguments are also checked for `None`, because `None` is only a valid argument, if it is annotated via `typing.Optional`.
+## [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/generic_mixin.html)
+Do you need a way to figure out to which type a type variable is bound?
+With `GenericMixin` you can do exactly this:
+```python
+from pedantic import GenericMixin
 
-In a nutshell:
-`@pedantic` raises an `PedanticException` if one of the following happened:
-- The decorated function is called with positional arguments.
-- The function has no type annotation for their return type or one or more parameters do not have type annotations.
-- A type annotation is incorrect.
-- A type annotation misses type arguments, e.g. `typing.List` instead of `typing.List[int]`.
+class Foo[T, U](GenericMixin):
+    values: list[T]
+    value: U
 
-### Minimal example
+f = Foo[str, int]()
+print(f.type_vars)  # {T: <class 'str'>, U: <class 'int'>}
+```
+
+## [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/frozen_dataclass.html)
+With `@frozen_dataclass` you can create immutable data classes with provides a `copy_with()` instance method.
+So you can write
+```python
+from pedantic import frozen_dataclass
+
+@frozen_dataclass
+class Foo:
+    a: int
+    b: str
+
+foo = Foo(a=6, b='hi')
+bar = foo.copy_with(a=42)
+```
+instead of 
+```python
+from dataclasses import dataclass, replace
+@dataclass(frozen=True)
+class Foo:
+    a: int
+    b: str
+
+foo = Foo(a=6, b='hi')
+bar = replace(foo, a=42)
+```
+You also can enfore run-time type checks for you dataclasses with `@frozen_dataclass(type_safe=True)`.
+
+## [@in_subprocess](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/in_subprocess.html)
+If you have an asynchronous service, that should perform some long-running calculation without blocking the event loop to keep the service responsive, you can use `@in_subprocess` to run the calculation in a separate process.
+```python
+import time
+from pedantic import in_subprocess
+
+@in_subprocess
+def f() -> int:
+    time.sleep(10)  # a long-taking synchronous operation, e.g., a calculation
+    return 42
+
+await f() == 42  # calculation is done in a separate process => event loop is not blocked
+```
+
+## [WithDecoratedMethods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/with_decorated_methods.html)
+You want to register instance methods of a class as callbacks with a decorator? Easy!
+```python
+from pedantic import DecoratorType, create_decorator, WithDecoratedMethods
+
+class Decorators(DecoratorType):
+    ON_SUBJECT = 'on_subject'
+
+on_subject = create_decorator(decorator_type=Decorators.ON_SUBJECT)
+
+class MyClass(WithDecoratedMethods[Decorators]):
+    message_broker_client = None
+    
+    @on_subject("msg_received")
+    def on_new_message(self, msg) -> None:
+        print(msg)
+
+    def subscribe(self) -> None:
+        to_subscribe = self.get_decorated_functions()[Decorators.ON_SUBJECT]
+        
+        for callback, subject in to_subscribe.items():
+            self.message_broker_client.subscribe(subject=subject, on_new_message=callback)        
+```
+
+## [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/pedantic_decorator.html)
+The `@pedantic` decorator enforces type annotations and check that passed arguments and returned values match those type annotations.
+
 ```python
 from pedantic import pedantic
 
-
 @pedantic
-def get_sum_of(values: list[int | float]) -> int:
-    return sum(values)
+class MyClass:
+    def print(self, s: str) -> None: pass
 
-get_sum_of(values=[0, 1.2, 3, 5.4])  # this raises the following runtime error: 
-# Type hint of return value is incorrect: Expected type <class 'int'> but 10.0 of type <class 'float'> was the return value which does not match.
+m = MyClass()
+m.calc(b=42)
+m.print(s='Hi')
+m.calc(s=45.0)  # raises PedanticTypeCheckException
 ```
 
+Since this is type checking at runtime, it might be slow. So it is recommended to use it only in development mode.
+This is also **not** compatible with compiled source code (e.g., with [Nuitka](https://github.com/Nuitka/Nuitka)).
 
-## The [@validate]() decorator
-As the name suggests, with `@validate` you are able to validate the values that are passed to the decorated function.
+## [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/validate/validate.html)
+This is an alternative to the [flask-request-validator](https://github.com/d-ganchar/flask_request_validator) that allows you to make parsing arguments from requests and validate them easy.
+```python
+from flask import Flask, Response, jsonify
 
-## List of all decorators in this package
-- [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_deprecated.html)
-- [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/cls_deco_frozen_dataclass.html#pedantic.decorators.cls_deco_frozen_dataclass.frozen_dataclass)
-- [@frozen_type_safe_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/cls_deco_frozen_dataclass.html#pedantic.decorators.cls_deco_frozen_dataclass.frozen_type_safe_dataclass)
-- [@for_all_methods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.for_all_methods)
-- [@in_subprocess](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_in_subprocess.html)
-- [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_overrides.html)
-- [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_pedantic.html#pedantic.decorators.fn_deco_pedantic.pedantic)
-- [@pedantic_class](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/class_decorators.html#pedantic.decorators.class_decorators.pedantic_class)
-- [@require_kwargs](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_require_kwargs.html)
-- [@retry](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_retry.html)
-- [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_trace.html)
-- [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/fn_deco_validate/fn_deco_validate.html)
+from pedantic import (
+    FlaskJsonParameter,
+    NotEmpty,
+    ParameterException,
+    ReturnAs,
+    TooManyArguments,
+    validate,
+)
 
-## List of all mixins in this package
+app = Flask(__name__)
+
+@app.route('/')
+@validate(
+    FlaskJsonParameter(name='key', validators=[NotEmpty()]),
+)
+def hello_world(key: str) -> Response:
+    return jsonify(key)
+
+
+@app.route('/required')
+@validate(
+    FlaskJsonParameter(name='required', required=True),
+    FlaskJsonParameter(name='not_required', required=False),
+    FlaskJsonParameter(name='not_required_with_default', required=False, default=42),
+)
+def required_params(required, not_required, not_required_with_default) -> Response:
+    return jsonify({
+        'required': required,
+        'not_required': not_required,
+        'not_required_with_default': not_required_with_default,
+    })
+
+
+@app.route('/types')
+@validate(
+    FlaskJsonParameter(name='bool_param', value_type=bool),
+    FlaskJsonParameter(name='int_param', value_type=int),
+    FlaskJsonParameter(name='float_param', value_type=float),
+    FlaskJsonParameter(name='str_param', value_type=str),
+    FlaskJsonParameter(name='list_param', value_type=list),
+    FlaskJsonParameter(name='dict_param', value_type=dict),
+)
+def different_types(  # noqa: PLR0913
+        bool_param,
+        int_param,
+        float_param,
+        str_param,
+        list_param,
+        dict_param,
+) -> Response:
+    return jsonify({
+        'bool_param': bool_param,
+        'int_param': int_param,
+        'float_param': float_param,
+        'str_param': str_param,
+        'list_param': list_param,
+        'dict_param': dict_param,
+    })
+
+
+@app.route('/args')
+@validate(
+    FlaskJsonParameter(name='a', validators=[NotEmpty()]),
+    FlaskJsonParameter(name='b', validators=[NotEmpty()]),
+    return_as=ReturnAs.ARGS,
+)
+def names_do_not_need_to_match(my_key: str, another: str) -> Response:
+    return jsonify({
+        'my_key': my_key,
+        'another': another,
+    })
+
+
+@app.errorhandler(ParameterException)
+def handle_parameter_exception(exception: ParameterException) -> Response:
+    response = jsonify(exception.to_dict)
+    response.status_code = 422
+    return response
+
+
+@app.errorhandler(TooManyArguments)
+def handle_too_many_arguments(exception: TooManyArguments) -> Response:
+    response = jsonify(str(exception))
+    response.status_code = 400
+    return response
+
+```
+And it is not only for `flask`! The implementation is fully generic.
+
+## Content of the package
+### Decorators
+- [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/deprecated.html)
+- [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/frozen_dataclass.html#pedantic.decorators.frozen_dataclass.frozen_dataclass)
+- [@frozen_type_safe_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/frozen_dataclass.html#pedantic.decorators.frozen_dataclass.frozen_type_safe_dataclass)
+- [@in_subprocess](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/in_subprocess.html)
+- [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/overrides.html)
+- [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/pedantic_decorator.html)
+- [@retry](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/retry.html)
+- [@safe_async_contextmanager](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/safe_context_manager.html#pedantic.decorators.safe_context_manager.safe_async_contextmanager)
+- [@safe_contextmanager](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/safe_context_manager.html#pedantic.decorators.safe_context_manager.safe_contextmanager)
+- [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/trace.html)
+- [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/validate/validate.html)
+
+### Mixins
 - [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/generic_mixin.html)
 - [WithDecoratedMethods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/with_decorated_methods.html)
 
-## Dependencies
-There are no hard dependencies. But if you want to use some advanced features you need to install the following packages:
-- [multiprocess](https://github.com/uqfoundation/multiprocess) if you want to use the `@in_subprocess` decorator
-- [flask](https://pypi.org/project/Flask/) if you want to you the request validators which are designed for `Flask` (see unit tests for examples): 
-  - `FlaskParameter` (abstract class)
-  - `FlaskJsonParameter`
-  - `FlaskFormParameter`
-  - `FlaskPathParameter`
-  - `FlaskGetParameter`
-  - `FlaskHeaderParameter`
-  - `GenericFlaskDeserializer`
+### Helper Functions
+- [decorate_class()]()
+- [run_doctest_of_single_function()]()
 
 ## Contributing
 This project is based on [poetry](https://python-poetry.org/) and [taskfile](https://taskfile.dev).
 **Tip:** Run `task validate` before making commits.
-
-## Risks and side effects
-The usage of decorators may affect the performance of your application. 
-For this reason, I would highly recommend you to disable the decorators if your code runs in a productive environment.
-You can disable `pedantic` by set an environment variable:
-```
-export ENABLE_PEDANTIC=0
-```
-You can also disable or enable the environment variables in your project by calling a method:
-```python
-from pedantic import enable_pedantic, disable_pedantic
-enable_pedantic()
-```
-
-## Issues with compiled Python code
-This package is **not** compatible with compiled source code (e.g. with [Nuitka](https://github.com/Nuitka/Nuitka)).
-That's because it uses the `inspect` module from the standard library which will raise errors like `OSError: could not get source code` in case of compiled source code.
-
-Don't forget to check out the [documentation](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic).
