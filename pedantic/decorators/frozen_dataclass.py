@@ -33,7 +33,7 @@ class FrozenDataclass:
 
     def validate_types(self, *, _context: dict[str, type] | None = None) -> None:
         """
-        Checks that all instance variable have the correct type.
+        Checks that all instance variables have the correct type.
         Raises a [PedanticTypeCheckException] if at least one type is incorrect.
         """
 
@@ -74,11 +74,12 @@ def frozen_dataclass(  # noqa: C901
     Makes the decorated class immutable and a dataclass by adding the [@dataclass(frozen=True)]
     decorator. Also adds useful copy_with() and validate_types() instance methods to this class (see below).
 
-    If [type_safe] is True, a type check is performed for each field after the __post_init__ method was called
-    which itself s directly called after the __init__ constructor.
-    Note this have a negative impact on the performance. It's recommend to use this for debugging and testing only.
+    If [type_safe] is True, a type check is performed for each field after the __post_init__ method was called,
+    which itself is directly called after the __init__ constructor.
+    Note that this might have a negative impact on performance.
+    It's recommended to use this for debugging and testing only.
 
-    In a nutshell, the followings methods will be added to the decorated class automatically:
+    In a nutshell, the following methods will be added to the decorated class automatically:
     - __init__() gives you a simple constructor like "Foo(a=6, b='hi', c=True)"
     - __eq__() lets you compare objects easily with "a == b"
     - __hash__() is also needed for instance comparison
@@ -170,7 +171,7 @@ def frozen_dataclass(  # noqa: C901
 
         def validate_types(self: T, *, _context: dict[str, type] | None = None) -> None:
             """
-            Checks that all instance variable have the correct type.
+            Checks that all instance variables have the correct type.
             Raises a [PedanticTypeCheckException] if at least one type is incorrect.
             """
 
