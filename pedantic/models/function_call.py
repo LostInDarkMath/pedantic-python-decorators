@@ -67,17 +67,13 @@ class FunctionCall:
             # case instance method
             return type(self._instance)
         if self.func.is_class_method:
-            if self.args:
-                return self.args[0]
-            return self.func.func.__self__
+            assert self.args, self.args  # noqa: S101
+            return self.args[0]
         if self.func.is_static_method:
-            if not self.args:
-                # static method was called on class
-                class_name = self.func.full_name.split('.')[-2]
-                return ForwardRef(class_name)   # this ForwardRef is resolved later
-
-            # static method was called on instance
-            return type(self.args[0])
+            assert not self.args, self.args # noqa: S101
+            # static method was called on class
+            class_name = self.func.full_name.split('.')[-2]
+            return ForwardRef(class_name)   # this ForwardRef is resolved later
 
         return None
 

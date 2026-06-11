@@ -147,11 +147,7 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
             return validator(obj, type_, type_vars, context)
 
     if type_.__module__ == 'collections.abc':
-        if _is_generic(type_):
-            origin = get_base_generic(type_)
-        else:
-            origin = type_
-
+        origin = get_base_generic(type_)
         name = _get_name(origin)
 
         if name in _SPECIAL_INSTANCE_CHECKERS:
@@ -252,9 +248,6 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
 
     if type_ in {list, set, dict, frozenset, tuple, type}:
         raise PedanticTypeCheckException('Missing type arguments')
-
-    if isinstance(type_, types.GenericAlias):
-        return _is_instance(obj=obj, type_=convert_to_typing_types(type_), type_vars=type_vars, context=context)
 
     try:
         return isinstance(obj, type_)
