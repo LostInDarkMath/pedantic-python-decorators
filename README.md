@@ -3,7 +3,7 @@
 
 A collection of useful decorators in mixins for Python development. 
 
-## [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/generic_mixin.html)
+## [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#GenericMixin)
 Do you need a way to figure out to which type a type variable is bound?
 With `GenericMixin` you can do exactly this:
 ```python
@@ -17,7 +17,7 @@ f = Foo[str, int]()
 print(f.type_vars)  # {T: <class 'str'>, U: <class 'int'>}
 ```
 
-## [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/frozen_dataclass.html)
+## [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#frozen_dataclass)
 With `@frozen_dataclass` you can create immutable data classes with provides a `copy_with()` instance method.
 So you can write
 ```python
@@ -42,9 +42,9 @@ class Foo:
 foo = Foo(a=6, b='hi')
 bar = replace(foo, a=42)
 ```
-You also can enfore run-time type checks for you dataclasses with `@frozen_dataclass(type_safe=True)`.
+You also can enforce run-time type checks for you dataclasses with `@frozen_dataclass(type_safe=True)`.
 
-## [@in_subprocess](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/in_subprocess.html)
+## [@in_subprocess](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#in_subprocess)
 If you have an asynchronous service, that should perform some long-running calculation without blocking the event loop to keep the service responsive, you can use `@in_subprocess` to run the calculation in a separate process.
 ```python
 import time
@@ -58,7 +58,7 @@ def f() -> int:
 await f() == 42  # calculation is done in a separate process => event loop is not blocked
 ```
 
-## [WithDecoratedMethods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/with_decorated_methods.html)
+## [WithDecoratedMethods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#WithDecoratedMethods)
 You want to register instance methods of a class as callbacks with a decorator? Easy!
 ```python
 from pedantic import DecoratorType, create_decorator, WithDecoratedMethods
@@ -82,7 +82,7 @@ class MyClass(WithDecoratedMethods[Decorators]):
             self.message_broker_client.subscribe(subject=subject, on_new_message=callback)        
 ```
 
-## [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/pedantic_decorator.html)
+## [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#pedantic)
 The `@pedantic` decorator enforces type annotations and check that passed arguments and returned values match those type annotations.
 
 ```python
@@ -101,7 +101,7 @@ m.calc(s=45.0)  # raises PedanticTypeCheckException
 Since this is type checking at runtime, it might be slow. So it is recommended to use it only in development mode.
 This is also **not** compatible with compiled source code (e.g., with [Nuitka](https://github.com/Nuitka/Nuitka)).
 
-## [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/validate/validate.html)
+## [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#validate)
 This is an alternative to the [flask-request-validator](https://github.com/d-ganchar/flask_request_validator) that allows you to make parsing arguments from requests and validate them easy.
 ```python
 from flask import Flask, Response, jsonify
@@ -197,25 +197,25 @@ And it is not only for `flask`! The implementation is fully generic.
 
 ## Content of the package
 ### Decorators
-- [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/deprecated.html)
-- [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/frozen_dataclass.html#pedantic.decorators.frozen_dataclass.frozen_dataclass)
-- [@frozen_type_safe_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/frozen_dataclass.html#pedantic.decorators.frozen_dataclass.frozen_type_safe_dataclass)
-- [@in_subprocess](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/in_subprocess.html)
-- [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/overrides.html)
-- [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/pedantic_decorator.html)
-- [@retry](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/retry.html)
-- [@safe_async_contextmanager](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/safe_context_manager.html#pedantic.decorators.safe_context_manager.safe_async_contextmanager)
-- [@safe_contextmanager](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/safe_context_manager.html#pedantic.decorators.safe_context_manager.safe_contextmanager)
-- [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/trace.html)
-- [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/decorators/validate/validate.html)
+- [@deprecated](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#deprecated)
+- [@frozen_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#frozen_dataclass)
+- [@frozen_type_safe_dataclass](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#frozen_type_safe_dataclass)
+- [@in_subprocess](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#in_subprocess)
+- [@overrides](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#overrides)
+- [@pedantic](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#pedantic)
+- [@retry](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#retry)
+- [@safe_async_contextmanager](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#safe_async_contextmanager)
+- [@safe_contextmanager](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#safe_contextmanager)
+- [@trace](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#trace)
+- [@validate](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#validate)
 
 ### Mixins
-- [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/generic_mixin.html)
-- [WithDecoratedMethods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic/mixins/with_decorated_methods.html)
+- [GenericMixin](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#GenericMixin)
+- [WithDecoratedMethods](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#WithDecoratedMethods)
 
 ### Helper Functions
-- [decorate_class()]()
-- [run_doctest_of_single_function()]()
+- [decorate_class()](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#decorate_class)
+- [run_doctest_of_single_function()](https://lostindarkmath.github.io/pedantic-python-decorators/pedantic.html#run_doctest_of_single_function)
 
 ## Contributing
 This project is based on [poetry](https://python-poetry.org/) and [taskfile](https://taskfile.dev).
