@@ -39,7 +39,7 @@ dev = [
   "pytest-cov==7.1.0",
   "Flask[async]==3.1.3",
   "multiprocess==0.70.19",
-  "ruff==0.15.16",
+  "ruff==0.15.17",
 ]
 
 [tool.deptry.per_rule_ignores]
