@@ -91,7 +91,10 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: |
+      always() &&
+      github.ref == 'refs/heads/master' &&
+      needs.test.result == 'success'
     environment:
       name: pypi-deployment
     steps:
