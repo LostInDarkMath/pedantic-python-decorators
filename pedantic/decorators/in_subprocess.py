@@ -33,14 +33,14 @@ def in_subprocess(func: Callable[P, T | Awaitable[T]]) -> Callable[P, Awaitable[
     at the same time.
 
     Example:
-        >>> import time
-        >>> import asyncio
-        >>> @in_subprocess
-        ... def f(value: int) -> int:
-        ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
-        ...     return 2 * value
-        >>> asyncio.run(f(value=42))
-        84
+    >>> import time
+    >>> import asyncio
+    >>> @in_subprocess
+    ... def f(value: int) -> int:
+    ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
+    ...     return 2 * value
+    >>> asyncio.run(f(value=42))
+    84
     """
 
     @wraps(func)
@@ -68,13 +68,13 @@ async def calculate_in_subprocess(func: Callable[P, T | Awaitable[T]], *args: P.
     Further reading: https://medium.com/devopss-hole/python-multiprocessing-pickle-issue-e2d35ccf96a9
 
     Example:
-        >>> import time
-        >>> import asyncio
-        >>> def f(value: int) -> int:
-        ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
-        ...     return 2 * value
-        >>> asyncio.run(calculate_in_subprocess(func=f, value=42))
-        84
+    >>> import time
+    >>> import asyncio
+    >>> def f(value: int) -> int:
+    ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
+    ...     return 2 * value
+    >>> asyncio.run(calculate_in_subprocess(func=f, value=42))
+    84
     """
 
     if Pipe is None:

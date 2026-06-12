@@ -1,5 +1,6 @@
 from pedantic.decorators import (
     calculate_in_subprocess,
+    decorate_class,
     deprecated,
     frozen_dataclass,
     frozen_type_safe_dataclass,
@@ -7,6 +8,8 @@ from pedantic.decorators import (
     overrides,
     pedantic,
     retry,
+    safe_async_contextmanager,
+    safe_contextmanager,
     trace,
 )
 from pedantic.decorators.validate.exceptions import (
@@ -88,6 +91,7 @@ __all__ = [
     'assert_value_matches_type',
     'calculate_in_subprocess',
     'create_decorator',
+    'decorate_class',
     'deprecated',
     'frozen_dataclass',
     'frozen_type_safe_dataclass',
@@ -97,6 +101,8 @@ __all__ = [
     'resolve_forward_ref',
     'retry',
     'run_doctest_of_single_function',
+    'safe_async_contextmanager',
+    'safe_contextmanager',
     'trace',
     'validate',
 ]

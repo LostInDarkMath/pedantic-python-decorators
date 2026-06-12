@@ -1,5 +1,6 @@
 from .deprecated import deprecated
 from .frozen_dataclass import frozen_dataclass, frozen_type_safe_dataclass
+from .helpers import decorate_class
 from .in_subprocess import calculate_in_subprocess, in_subprocess
 from .overrides import overrides
 from .pedantic_decorator import pedantic
@@ -9,6 +10,7 @@ from .trace import trace
 
 __all__ = [
     'calculate_in_subprocess',
+    'decorate_class',
     'deprecated',
     'deprecated',
     'frozen_dataclass',

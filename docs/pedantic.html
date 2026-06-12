@@ -390,6 +390,9 @@
                     <a class="function" href="#create_decorator">create_decorator</a>
             </li>
             <li>
+                    <a class="function" href="#decorate_class">decorate_class</a>
+            </li>
+            <li>
                     <a class="function" href="#deprecated">deprecated</a>
             </li>
             <li>
@@ -415,6 +418,12 @@
             </li>
             <li>
                     <a class="function" href="#run_doctest_of_single_function">run_doctest_of_single_function</a>
+            </li>
+            <li>
+                    <a class="function" href="#safe_async_contextmanager">safe_async_contextmanager</a>
+            </li>
+            <li>
+                    <a class="function" href="#safe_contextmanager">safe_contextmanager</a>
             </li>
             <li>
                     <a class="function" href="#trace">trace</a>
@@ -523,129 +532,135 @@ pedantic    </h1>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>    <span class="n">calculate_in_subprocess</span><span class="p">,</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a>    <span class="n">deprecated</span><span class="p">,</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>    <span class="n">frozen_dataclass</span><span class="p">,</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>    <span class="n">frozen_type_safe_dataclass</span><span class="p">,</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>    <span class="n">in_subprocess</span><span class="p">,</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a>    <span class="n">overrides</span><span class="p">,</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>    <span class="n">pedantic</span><span class="p">,</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>    <span class="n">retry</span><span class="p">,</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a>    <span class="n">trace</span><span class="p">,</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="p">)</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>    <span class="n">ConversionError</span><span class="p">,</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>    <span class="n">ExceptionDictKey</span><span class="p">,</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>    <span class="n">InvalidHeader</span><span class="p">,</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>    <span class="n">ParameterException</span><span class="p">,</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>    <span class="n">TooManyArguments</span><span class="p">,</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>    <span class="n">ValidateException</span><span class="p">,</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>    <span class="n">ValidatorException</span><span class="p">,</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="p">)</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>    <span class="n">Deserializable</span><span class="p">,</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>    <span class="n">EnvironmentVariableParameter</span><span class="p">,</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>    <span class="n">ExternalParameter</span><span class="p">,</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="n">Parameter</span><span class="p">,</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="p">)</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.validate</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>    <span class="n">ReturnAs</span><span class="p">,</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>    <span class="n">validate</span><span class="p">,</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a><span class="p">)</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.validators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>    <span class="n">DatetimeIsoFormat</span><span class="p">,</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>    <span class="n">DateTimeUnixTimestamp</span><span class="p">,</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>    <span class="n">Email</span><span class="p">,</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="n">ForEach</span><span class="p">,</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>    <span class="n">IsEnum</span><span class="p">,</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>    <span class="n">IsUuid</span><span class="p">,</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>    <span class="n">MatchPattern</span><span class="p">,</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>    <span class="n">Max</span><span class="p">,</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="n">MaxLength</span><span class="p">,</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>    <span class="n">Min</span><span class="p">,</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="n">MinLength</span><span class="p">,</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>    <span class="n">NotEmpty</span><span class="p">,</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">Validator</span><span class="p">,</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="p">)</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.helper_fn</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_doctest_of_single_function</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>    <span class="n">DecoratorType</span><span class="p">,</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>    <span class="n">GenericMixin</span><span class="p">,</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>    <span class="n">WithDecoratedMethods</span><span class="p">,</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="n">create_decorator</span><span class="p">,</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="p">)</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.type_checking_logic</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">assert_value_matches_type</span><span class="p">,</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="n">resolve_forward_ref</span><span class="p">,</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="p">)</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="s1">&#39;ConversionError&#39;</span><span class="p">,</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="s1">&#39;DateTimeUnixTimestamp&#39;</span><span class="p">,</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>    <span class="s1">&#39;DatetimeIsoFormat&#39;</span><span class="p">,</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="s1">&#39;DecoratorType&#39;</span><span class="p">,</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="s1">&#39;Deserializable&#39;</span><span class="p">,</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="s1">&#39;Email&#39;</span><span class="p">,</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="s1">&#39;EnvironmentVariableParameter&#39;</span><span class="p">,</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="s1">&#39;ExceptionDictKey&#39;</span><span class="p">,</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>    <span class="s1">&#39;ExternalParameter&#39;</span><span class="p">,</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>    <span class="s1">&#39;ExternalParameter&#39;</span><span class="p">,</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>    <span class="s1">&#39;ForEach&#39;</span><span class="p">,</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>    <span class="s1">&#39;GenericMixin&#39;</span><span class="p">,</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="s1">&#39;InvalidHeader&#39;</span><span class="p">,</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="s1">&#39;IsEnum&#39;</span><span class="p">,</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="s1">&#39;IsUuid&#39;</span><span class="p">,</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="s1">&#39;MatchPattern&#39;</span><span class="p">,</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="s1">&#39;Max&#39;</span><span class="p">,</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="s1">&#39;MaxLength&#39;</span><span class="p">,</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>    <span class="s1">&#39;Min&#39;</span><span class="p">,</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>    <span class="s1">&#39;MinLength&#39;</span><span class="p">,</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="s1">&#39;NotEmpty&#39;</span><span class="p">,</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="s1">&#39;ParameterException&#39;</span><span class="p">,</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>    <span class="s1">&#39;ReturnAs&#39;</span><span class="p">,</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>    <span class="s1">&#39;TooManyArguments&#39;</span><span class="p">,</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="s1">&#39;ValidateException&#39;</span><span class="p">,</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>    <span class="s1">&#39;Validator&#39;</span><span class="p">,</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="s1">&#39;ValidatorException&#39;</span><span class="p">,</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="s1">&#39;WithDecoratedMethods&#39;</span><span class="p">,</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="s1">&#39;assert_value_matches_type&#39;</span><span class="p">,</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="s1">&#39;calculate_in_subprocess&#39;</span><span class="p">,</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="s1">&#39;create_decorator&#39;</span><span class="p">,</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="s1">&#39;deprecated&#39;</span><span class="p">,</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>    <span class="s1">&#39;frozen_dataclass&#39;</span><span class="p">,</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="s1">&#39;frozen_type_safe_dataclass&#39;</span><span class="p">,</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="s1">&#39;in_subprocess&#39;</span><span class="p">,</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="s1">&#39;overrides&#39;</span><span class="p">,</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>    <span class="s1">&#39;pedantic&#39;</span><span class="p">,</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="s1">&#39;resolve_forward_ref&#39;</span><span class="p">,</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="s1">&#39;retry&#39;</span><span class="p">,</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="s1">&#39;run_doctest_of_single_function&#39;</span><span class="p">,</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="s1">&#39;trace&#39;</span><span class="p">,</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>    <span class="s1">&#39;validate&#39;</span><span class="p">,</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="p">]</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="k">try</span><span class="p">:</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>        <span class="n">FlaskFormParameter</span><span class="p">,</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>        <span class="n">FlaskGetParameter</span><span class="p">,</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>        <span class="n">FlaskHeaderParameter</span><span class="p">,</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="n">FlaskJsonParameter</span><span class="p">,</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>        <span class="n">FlaskParameter</span><span class="p">,</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="n">FlaskPathParameter</span><span class="p">,</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="n">GenericFlaskDeserializer</span><span class="p">,</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>    <span class="p">)</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>    <span class="n">__all__</span> <span class="o">+=</span><span class="p">[</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>        <span class="s1">&#39;FlaskFormParameter&#39;</span><span class="p">,</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="s1">&#39;FlaskGetParameter&#39;</span><span class="p">,</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="s1">&#39;FlaskHeaderParameter&#39;</span><span class="p">,</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="s1">&#39;FlaskJsonParameter&#39;</span><span class="p">,</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="s1">&#39;FlaskParameter&#39;</span><span class="p">,</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="s1">&#39;FlaskPathParameter&#39;</span><span class="p">,</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="s1">&#39;GenericFlaskDeserializer&#39;</span><span class="p">,</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>    <span class="p">]</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>    <span class="k">pass</span>  <span class="c1"># no Flask installed</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a>    <span class="n">decorate_class</span><span class="p">,</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>    <span class="n">deprecated</span><span class="p">,</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>    <span class="n">frozen_dataclass</span><span class="p">,</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>    <span class="n">frozen_type_safe_dataclass</span><span class="p">,</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a>    <span class="n">in_subprocess</span><span class="p">,</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>    <span class="n">overrides</span><span class="p">,</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>    <span class="n">pedantic</span><span class="p">,</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a>    <span class="n">retry</span><span class="p">,</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>    <span class="n">safe_async_contextmanager</span><span class="p">,</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>    <span class="n">safe_contextmanager</span><span class="p">,</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>    <span class="n">trace</span><span class="p">,</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="p">)</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>    <span class="n">ConversionError</span><span class="p">,</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>    <span class="n">ExceptionDictKey</span><span class="p">,</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>    <span class="n">InvalidHeader</span><span class="p">,</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>    <span class="n">ParameterException</span><span class="p">,</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>    <span class="n">TooManyArguments</span><span class="p">,</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="n">ValidateException</span><span class="p">,</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>    <span class="n">ValidatorException</span><span class="p">,</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="p">)</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="n">Deserializable</span><span class="p">,</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>    <span class="n">EnvironmentVariableParameter</span><span class="p">,</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>    <span class="n">ExternalParameter</span><span class="p">,</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>    <span class="n">Parameter</span><span class="p">,</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a><span class="p">)</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.validate</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="n">ReturnAs</span><span class="p">,</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>    <span class="n">validate</span><span class="p">,</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="p">)</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.validators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="n">DatetimeIsoFormat</span><span class="p">,</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>    <span class="n">DateTimeUnixTimestamp</span><span class="p">,</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>    <span class="n">Email</span><span class="p">,</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>    <span class="n">ForEach</span><span class="p">,</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>    <span class="n">IsEnum</span><span class="p">,</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="n">IsUuid</span><span class="p">,</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>    <span class="n">MatchPattern</span><span class="p">,</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="n">Max</span><span class="p">,</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>    <span class="n">MaxLength</span><span class="p">,</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>    <span class="n">Min</span><span class="p">,</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>    <span class="n">MinLength</span><span class="p">,</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="n">NotEmpty</span><span class="p">,</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="n">Validator</span><span class="p">,</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="p">)</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.helper_fn</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_doctest_of_single_function</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>    <span class="n">DecoratorType</span><span class="p">,</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="n">GenericMixin</span><span class="p">,</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="n">WithDecoratedMethods</span><span class="p">,</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">create_decorator</span><span class="p">,</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.type_checking_logic</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="n">assert_value_matches_type</span><span class="p">,</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>    <span class="n">resolve_forward_ref</span><span class="p">,</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="p">)</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="s1">&#39;ConversionError&#39;</span><span class="p">,</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="s1">&#39;DateTimeUnixTimestamp&#39;</span><span class="p">,</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="s1">&#39;DatetimeIsoFormat&#39;</span><span class="p">,</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="s1">&#39;DecoratorType&#39;</span><span class="p">,</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="s1">&#39;Deserializable&#39;</span><span class="p">,</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>    <span class="s1">&#39;Email&#39;</span><span class="p">,</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>    <span class="s1">&#39;EnvironmentVariableParameter&#39;</span><span class="p">,</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>    <span class="s1">&#39;ExceptionDictKey&#39;</span><span class="p">,</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>    <span class="s1">&#39;ExternalParameter&#39;</span><span class="p">,</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="s1">&#39;ExternalParameter&#39;</span><span class="p">,</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="s1">&#39;ForEach&#39;</span><span class="p">,</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="s1">&#39;GenericMixin&#39;</span><span class="p">,</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="s1">&#39;InvalidHeader&#39;</span><span class="p">,</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="s1">&#39;IsEnum&#39;</span><span class="p">,</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="s1">&#39;IsUuid&#39;</span><span class="p">,</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>    <span class="s1">&#39;MatchPattern&#39;</span><span class="p">,</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>    <span class="s1">&#39;Max&#39;</span><span class="p">,</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="s1">&#39;MaxLength&#39;</span><span class="p">,</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="s1">&#39;Min&#39;</span><span class="p">,</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="s1">&#39;MinLength&#39;</span><span class="p">,</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>    <span class="s1">&#39;NotEmpty&#39;</span><span class="p">,</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>    <span class="s1">&#39;Parameter&#39;</span><span class="p">,</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="s1">&#39;ParameterException&#39;</span><span class="p">,</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>    <span class="s1">&#39;ReturnAs&#39;</span><span class="p">,</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="s1">&#39;TooManyArguments&#39;</span><span class="p">,</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>    <span class="s1">&#39;ValidateException&#39;</span><span class="p">,</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="s1">&#39;Validator&#39;</span><span class="p">,</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="s1">&#39;ValidatorException&#39;</span><span class="p">,</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="s1">&#39;WithDecoratedMethods&#39;</span><span class="p">,</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="s1">&#39;assert_value_matches_type&#39;</span><span class="p">,</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>    <span class="s1">&#39;calculate_in_subprocess&#39;</span><span class="p">,</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="s1">&#39;create_decorator&#39;</span><span class="p">,</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="s1">&#39;decorate_class&#39;</span><span class="p">,</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="s1">&#39;deprecated&#39;</span><span class="p">,</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>    <span class="s1">&#39;frozen_dataclass&#39;</span><span class="p">,</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="s1">&#39;frozen_type_safe_dataclass&#39;</span><span class="p">,</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="s1">&#39;in_subprocess&#39;</span><span class="p">,</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="s1">&#39;overrides&#39;</span><span class="p">,</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="s1">&#39;pedantic&#39;</span><span class="p">,</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>    <span class="s1">&#39;resolve_forward_ref&#39;</span><span class="p">,</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>    <span class="s1">&#39;retry&#39;</span><span class="p">,</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>    <span class="s1">&#39;run_doctest_of_single_function&#39;</span><span class="p">,</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>    <span class="s1">&#39;safe_async_contextmanager&#39;</span><span class="p">,</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="s1">&#39;safe_contextmanager&#39;</span><span class="p">,</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>    <span class="s1">&#39;trace&#39;</span><span class="p">,</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="s1">&#39;validate&#39;</span><span class="p">,</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="p">]</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="k">try</span><span class="p">:</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">pedantic.decorators.validate.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="n">FlaskFormParameter</span><span class="p">,</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="n">FlaskGetParameter</span><span class="p">,</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="n">FlaskHeaderParameter</span><span class="p">,</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="n">FlaskJsonParameter</span><span class="p">,</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>        <span class="n">FlaskParameter</span><span class="p">,</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="n">FlaskPathParameter</span><span class="p">,</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="n">GenericFlaskDeserializer</span><span class="p">,</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>    <span class="p">)</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>    <span class="n">__all__</span> <span class="o">+=</span><span class="p">[</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="s1">&#39;FlaskFormParameter&#39;</span><span class="p">,</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="s1">&#39;FlaskGetParameter&#39;</span><span class="p">,</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="s1">&#39;FlaskHeaderParameter&#39;</span><span class="p">,</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>        <span class="s1">&#39;FlaskJsonParameter&#39;</span><span class="p">,</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>        <span class="s1">&#39;FlaskParameter&#39;</span><span class="p">,</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>        <span class="s1">&#39;FlaskPathParameter&#39;</span><span class="p">,</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>        <span class="s1">&#39;GenericFlaskDeserializer&#39;</span><span class="p">,</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>    <span class="p">]</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>    <span class="k">pass</span>  <span class="c1"># no Flask installed</span>
 </span></pre></div>
 
 
@@ -3310,13 +3325,13 @@ The difference is that a parameter_name is included in the exception, if an exce
 </span><span id="calculate_in_subprocess-69"><a href="#calculate_in_subprocess-69"><span class="linenos"> 69</span></a><span class="sd">    Further reading: https://medium.com/devopss-hole/python-multiprocessing-pickle-issue-e2d35ccf96a9</span>
 </span><span id="calculate_in_subprocess-70"><a href="#calculate_in_subprocess-70"><span class="linenos"> 70</span></a>
 </span><span id="calculate_in_subprocess-71"><a href="#calculate_in_subprocess-71"><span class="linenos"> 71</span></a><span class="sd">    Example:</span>
-</span><span id="calculate_in_subprocess-72"><a href="#calculate_in_subprocess-72"><span class="linenos"> 72</span></a><span class="sd">        &gt;&gt;&gt; import time</span>
-</span><span id="calculate_in_subprocess-73"><a href="#calculate_in_subprocess-73"><span class="linenos"> 73</span></a><span class="sd">        &gt;&gt;&gt; import asyncio</span>
-</span><span id="calculate_in_subprocess-74"><a href="#calculate_in_subprocess-74"><span class="linenos"> 74</span></a><span class="sd">        &gt;&gt;&gt; def f(value: int) -&gt; int:</span>
-</span><span id="calculate_in_subprocess-75"><a href="#calculate_in_subprocess-75"><span class="linenos"> 75</span></a><span class="sd">        ...     time.sleep(0.1)  # a long taking synchronous blocking calculation</span>
-</span><span id="calculate_in_subprocess-76"><a href="#calculate_in_subprocess-76"><span class="linenos"> 76</span></a><span class="sd">        ...     return 2 * value</span>
-</span><span id="calculate_in_subprocess-77"><a href="#calculate_in_subprocess-77"><span class="linenos"> 77</span></a><span class="sd">        &gt;&gt;&gt; asyncio.run(calculate_in_subprocess(func=f, value=42))</span>
-</span><span id="calculate_in_subprocess-78"><a href="#calculate_in_subprocess-78"><span class="linenos"> 78</span></a><span class="sd">        84</span>
+</span><span id="calculate_in_subprocess-72"><a href="#calculate_in_subprocess-72"><span class="linenos"> 72</span></a><span class="sd">    &gt;&gt;&gt; import time</span>
+</span><span id="calculate_in_subprocess-73"><a href="#calculate_in_subprocess-73"><span class="linenos"> 73</span></a><span class="sd">    &gt;&gt;&gt; import asyncio</span>
+</span><span id="calculate_in_subprocess-74"><a href="#calculate_in_subprocess-74"><span class="linenos"> 74</span></a><span class="sd">    &gt;&gt;&gt; def f(value: int) -&gt; int:</span>
+</span><span id="calculate_in_subprocess-75"><a href="#calculate_in_subprocess-75"><span class="linenos"> 75</span></a><span class="sd">    ...     time.sleep(0.1)  # a long taking synchronous blocking calculation</span>
+</span><span id="calculate_in_subprocess-76"><a href="#calculate_in_subprocess-76"><span class="linenos"> 76</span></a><span class="sd">    ...     return 2 * value</span>
+</span><span id="calculate_in_subprocess-77"><a href="#calculate_in_subprocess-77"><span class="linenos"> 77</span></a><span class="sd">    &gt;&gt;&gt; asyncio.run(calculate_in_subprocess(func=f, value=42))</span>
+</span><span id="calculate_in_subprocess-78"><a href="#calculate_in_subprocess-78"><span class="linenos"> 78</span></a><span class="sd">    84</span>
 </span><span id="calculate_in_subprocess-79"><a href="#calculate_in_subprocess-79"><span class="linenos"> 79</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="calculate_in_subprocess-80"><a href="#calculate_in_subprocess-80"><span class="linenos"> 80</span></a>
 </span><span id="calculate_in_subprocess-81"><a href="#calculate_in_subprocess-81"><span class="linenos"> 81</span></a>    <span class="k">if</span> <span class="n">Pipe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -3365,19 +3380,16 @@ The difference is that a parameter_name is included in the exception, if an exce
 
 <p>Example:</p>
 
-<blockquote>
-  <blockquote>
-    <blockquote>
-      <p>import time
-      import asyncio
-      def f(value: int) -> int:
-          ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
-          ...     return 2 * value
-      asyncio.run(calculate_in_subprocess(func=f, value=42))
-          84</p>
-    </blockquote>
-  </blockquote>
-</blockquote>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>  <span class="c1"># a long taking synchronous blocking calculation</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">calculate_in_subprocess</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">42</span><span class="p">))</span>
+<span class="go">84</span>
+</code></pre>
+</div>
 </div>
 
 
@@ -3421,6 +3433,65 @@ The difference is that a parameter_name is included in the exception, if an exce
             <div class="docstring"><p>Creates a new decorator that is parametrized with one argument of an arbitrary type.</p>
 
 <p>You can also pass an arbitrary [transformation] to add custom behavior to the decorator.</p>
+</div>
+
+
+                </section>
+                <section id="decorate_class">
+                            <input id="decorate_class-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">decorate_class</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">cls</span><span class="p">:</span> <span class="o">~</span><span class="n">T</span>,</span><span class="param">	<span class="n">decorate_callable</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]</span>,</span><span class="param">	<span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span>,</span><span class="param">	<span class="n">allowed_dunder_methods</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="o">~</span><span class="n">T</span>:</span></span>
+
+                <label class="view-source-button" for="decorate_class-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#decorate_class"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="decorate_class-17"><a href="#decorate_class-17"><span class="linenos">17</span></a><span class="k">def</span><span class="w"> </span><span class="nf">decorate_class</span><span class="p">(</span>
+</span><span id="decorate_class-18"><a href="#decorate_class-18"><span class="linenos">18</span></a>    <span class="bp">cls</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+</span><span id="decorate_class-19"><a href="#decorate_class-19"><span class="linenos">19</span></a>    <span class="n">decorate_callable</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">Callable</span><span class="p">],</span>
+</span><span id="decorate_class-20"><a href="#decorate_class-20"><span class="linenos">20</span></a>    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="decorate_class-21"><a href="#decorate_class-21"><span class="linenos">21</span></a>    <span class="n">allowed_dunder_methods</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="decorate_class-22"><a href="#decorate_class-22"><span class="linenos">22</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+</span><span id="decorate_class-23"><a href="#decorate_class-23"><span class="linenos">23</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Applies a decorator with optional arguments to each method of a class.&quot;&quot;&quot;</span>
+</span><span id="decorate_class-24"><a href="#decorate_class-24"><span class="linenos">24</span></a>
+</span><span id="decorate_class-25"><a href="#decorate_class-25"><span class="linenos">25</span></a>    <span class="k">if</span> <span class="n">allowed_dunder_methods</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="decorate_class-26"><a href="#decorate_class-26"><span class="linenos">26</span></a>        <span class="n">allowed_dunder_methods</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="decorate_class-27"><a href="#decorate_class-27"><span class="linenos">27</span></a>
+</span><span id="decorate_class-28"><a href="#decorate_class-28"><span class="linenos">28</span></a>    <span class="k">for</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">attr_value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="decorate_class-29"><a href="#decorate_class-29"><span class="linenos">29</span></a>        <span class="k">if</span> <span class="n">attr_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">attr_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">attr_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_dunder_methods</span><span class="p">:</span>
+</span><span id="decorate_class-30"><a href="#decorate_class-30"><span class="linenos">30</span></a>            <span class="k">continue</span>
+</span><span id="decorate_class-31"><a href="#decorate_class-31"><span class="linenos">31</span></a>
+</span><span id="decorate_class-32"><a href="#decorate_class-32"><span class="linenos">32</span></a>        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">attr_value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">attr_value</span><span class="p">):</span>
+</span><span id="decorate_class-33"><a href="#decorate_class-33"><span class="linenos">33</span></a>            <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">decorate_callable</span><span class="p">(</span><span class="n">attr_value</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">))</span>
+</span><span id="decorate_class-34"><a href="#decorate_class-34"><span class="linenos">34</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_value</span><span class="p">,</span> <span class="nb">staticmethod</span><span class="p">):</span>
+</span><span id="decorate_class-35"><a href="#decorate_class-35"><span class="linenos">35</span></a>            <span class="n">wrapped</span> <span class="o">=</span> <span class="n">decorate_callable</span><span class="p">(</span><span class="n">attr_value</span><span class="o">.</span><span class="vm">__func__</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</span><span id="decorate_class-36"><a href="#decorate_class-36"><span class="linenos">36</span></a>            <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">wrapped</span><span class="p">))</span>
+</span><span id="decorate_class-37"><a href="#decorate_class-37"><span class="linenos">37</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_value</span><span class="p">,</span> <span class="nb">classmethod</span><span class="p">):</span>
+</span><span id="decorate_class-38"><a href="#decorate_class-38"><span class="linenos">38</span></a>            <span class="n">wrapped</span> <span class="o">=</span> <span class="n">decorate_callable</span><span class="p">(</span><span class="n">attr_value</span><span class="o">.</span><span class="vm">__func__</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</span><span id="decorate_class-39"><a href="#decorate_class-39"><span class="linenos">39</span></a>            <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="nb">classmethod</span><span class="p">(</span><span class="n">wrapped</span><span class="p">))</span>
+</span><span id="decorate_class-40"><a href="#decorate_class-40"><span class="linenos">40</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_value</span><span class="p">,</span> <span class="nb">property</span><span class="p">):</span>
+</span><span id="decorate_class-41"><a href="#decorate_class-41"><span class="linenos">41</span></a>            <span class="n">fget</span> <span class="o">=</span> <span class="n">decorate_callable</span><span class="p">(</span><span class="n">attr_value</span><span class="o">.</span><span class="n">fget</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="k">if</span> <span class="n">attr_value</span><span class="o">.</span><span class="n">fget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="decorate_class-42"><a href="#decorate_class-42"><span class="linenos">42</span></a>            <span class="n">fset</span> <span class="o">=</span> <span class="n">decorate_callable</span><span class="p">(</span><span class="n">attr_value</span><span class="o">.</span><span class="n">fset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="k">if</span> <span class="n">attr_value</span><span class="o">.</span><span class="n">fset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="decorate_class-43"><a href="#decorate_class-43"><span class="linenos">43</span></a>            <span class="n">fdel</span> <span class="o">=</span> <span class="n">decorate_callable</span><span class="p">(</span><span class="n">attr_value</span><span class="o">.</span><span class="n">fdel</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="k">if</span> <span class="n">attr_value</span><span class="o">.</span><span class="n">fdel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="decorate_class-44"><a href="#decorate_class-44"><span class="linenos">44</span></a>
+</span><span id="decorate_class-45"><a href="#decorate_class-45"><span class="linenos">45</span></a>            <span class="nb">setattr</span><span class="p">(</span>
+</span><span id="decorate_class-46"><a href="#decorate_class-46"><span class="linenos">46</span></a>                <span class="bp">cls</span><span class="p">,</span>
+</span><span id="decorate_class-47"><a href="#decorate_class-47"><span class="linenos">47</span></a>                <span class="n">attr_name</span><span class="p">,</span>
+</span><span id="decorate_class-48"><a href="#decorate_class-48"><span class="linenos">48</span></a>                <span class="nb">property</span><span class="p">(</span>
+</span><span id="decorate_class-49"><a href="#decorate_class-49"><span class="linenos">49</span></a>                    <span class="n">fget</span><span class="o">=</span><span class="n">fget</span><span class="p">,</span>
+</span><span id="decorate_class-50"><a href="#decorate_class-50"><span class="linenos">50</span></a>                    <span class="n">fset</span><span class="o">=</span><span class="n">fset</span><span class="p">,</span>
+</span><span id="decorate_class-51"><a href="#decorate_class-51"><span class="linenos">51</span></a>                    <span class="n">fdel</span><span class="o">=</span><span class="n">fdel</span><span class="p">,</span>
+</span><span id="decorate_class-52"><a href="#decorate_class-52"><span class="linenos">52</span></a>                    <span class="n">doc</span><span class="o">=</span><span class="n">attr_value</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">,</span>
+</span><span id="decorate_class-53"><a href="#decorate_class-53"><span class="linenos">53</span></a>                <span class="p">),</span>
+</span><span id="decorate_class-54"><a href="#decorate_class-54"><span class="linenos">54</span></a>            <span class="p">)</span>
+</span><span id="decorate_class-55"><a href="#decorate_class-55"><span class="linenos">55</span></a>
+</span><span id="decorate_class-56"><a href="#decorate_class-56"><span class="linenos">56</span></a>    <span class="k">return</span> <span class="bp">cls</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Applies a decorator with optional arguments to each method of a class.</p>
 </div>
 
 
@@ -3778,14 +3849,14 @@ Example:</p>
 </span><span id="in_subprocess-34"><a href="#in_subprocess-34"><span class="linenos">34</span></a><span class="sd">    at the same time.</span>
 </span><span id="in_subprocess-35"><a href="#in_subprocess-35"><span class="linenos">35</span></a>
 </span><span id="in_subprocess-36"><a href="#in_subprocess-36"><span class="linenos">36</span></a><span class="sd">    Example:</span>
-</span><span id="in_subprocess-37"><a href="#in_subprocess-37"><span class="linenos">37</span></a><span class="sd">        &gt;&gt;&gt; import time</span>
-</span><span id="in_subprocess-38"><a href="#in_subprocess-38"><span class="linenos">38</span></a><span class="sd">        &gt;&gt;&gt; import asyncio</span>
-</span><span id="in_subprocess-39"><a href="#in_subprocess-39"><span class="linenos">39</span></a><span class="sd">        &gt;&gt;&gt; @in_subprocess</span>
-</span><span id="in_subprocess-40"><a href="#in_subprocess-40"><span class="linenos">40</span></a><span class="sd">        ... def f(value: int) -&gt; int:</span>
-</span><span id="in_subprocess-41"><a href="#in_subprocess-41"><span class="linenos">41</span></a><span class="sd">        ...     time.sleep(0.1)  # a long taking synchronous blocking calculation</span>
-</span><span id="in_subprocess-42"><a href="#in_subprocess-42"><span class="linenos">42</span></a><span class="sd">        ...     return 2 * value</span>
-</span><span id="in_subprocess-43"><a href="#in_subprocess-43"><span class="linenos">43</span></a><span class="sd">        &gt;&gt;&gt; asyncio.run(f(value=42))</span>
-</span><span id="in_subprocess-44"><a href="#in_subprocess-44"><span class="linenos">44</span></a><span class="sd">        84</span>
+</span><span id="in_subprocess-37"><a href="#in_subprocess-37"><span class="linenos">37</span></a><span class="sd">    &gt;&gt;&gt; import time</span>
+</span><span id="in_subprocess-38"><a href="#in_subprocess-38"><span class="linenos">38</span></a><span class="sd">    &gt;&gt;&gt; import asyncio</span>
+</span><span id="in_subprocess-39"><a href="#in_subprocess-39"><span class="linenos">39</span></a><span class="sd">    &gt;&gt;&gt; @in_subprocess</span>
+</span><span id="in_subprocess-40"><a href="#in_subprocess-40"><span class="linenos">40</span></a><span class="sd">    ... def f(value: int) -&gt; int:</span>
+</span><span id="in_subprocess-41"><a href="#in_subprocess-41"><span class="linenos">41</span></a><span class="sd">    ...     time.sleep(0.1)  # a long taking synchronous blocking calculation</span>
+</span><span id="in_subprocess-42"><a href="#in_subprocess-42"><span class="linenos">42</span></a><span class="sd">    ...     return 2 * value</span>
+</span><span id="in_subprocess-43"><a href="#in_subprocess-43"><span class="linenos">43</span></a><span class="sd">    &gt;&gt;&gt; asyncio.run(f(value=42))</span>
+</span><span id="in_subprocess-44"><a href="#in_subprocess-44"><span class="linenos">44</span></a><span class="sd">    84</span>
 </span><span id="in_subprocess-45"><a href="#in_subprocess-45"><span class="linenos">45</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="in_subprocess-46"><a href="#in_subprocess-46"><span class="linenos">46</span></a>
 </span><span id="in_subprocess-47"><a href="#in_subprocess-47"><span class="linenos">47</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
@@ -3805,20 +3876,17 @@ at the same time.</p>
 
 <p>Example:</p>
 
-<blockquote>
-  <blockquote>
-    <blockquote>
-      <p>import time
-      import asyncio
-      @in_subprocess
-          ... def f(value: int) -> int:
-          ...     time.sleep(0.1)  # a long taking synchronous blocking calculation
-          ...     return 2 * value
-      asyncio.run(f(value=42))
-          84</p>
-    </blockquote>
-  </blockquote>
-</blockquote>
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@in_subprocess</span>
+<span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>  <span class="c1"># a long taking synchronous blocking calculation</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">42</span><span class="p">))</span>
+<span class="go">84</span>
+</code></pre>
+</div>
 </div>
 
 
@@ -4156,6 +4224,225 @@ in [exceptions] are thrown.</p>
 
 
             <div class="docstring"><p>Useful for debugging a function with doctests.</p>
+</div>
+
+
+                </section>
+                <section id="safe_async_contextmanager">
+                            <input id="safe_async_contextmanager-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">safe_async_contextmanager</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="o">~</span><span class="n">T</span><span class="p">]]</span></span><span class="return-annotation">) -> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">AbstractAsyncContextManager</span><span class="p">[</span><span class="o">~</span><span class="n">T</span><span class="p">]]</span>:</span></span>
+
+                <label class="view-source-button" for="safe_async_contextmanager-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#safe_async_contextmanager"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="safe_async_contextmanager-68"><a href="#safe_async_contextmanager-68"><span class="linenos"> 68</span></a><span class="k">def</span><span class="w"> </span><span class="nf">safe_async_contextmanager</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">T</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AbstractAsyncContextManager</span><span class="p">[</span><span class="n">T</span><span class="p">]]:</span>
+</span><span id="safe_async_contextmanager-69"><a href="#safe_async_contextmanager-69"><span class="linenos"> 69</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="safe_async_contextmanager-70"><a href="#safe_async_contextmanager-70"><span class="linenos"> 70</span></a><span class="sd">    @safe_async_contextmanager decorator.</span>
+</span><span id="safe_async_contextmanager-71"><a href="#safe_async_contextmanager-71"><span class="linenos"> 71</span></a>
+</span><span id="safe_async_contextmanager-72"><a href="#safe_async_contextmanager-72"><span class="linenos"> 72</span></a><span class="sd">         Typical usage:</span>
+</span><span id="safe_async_contextmanager-73"><a href="#safe_async_contextmanager-73"><span class="linenos"> 73</span></a>
+</span><span id="safe_async_contextmanager-74"><a href="#safe_async_contextmanager-74"><span class="linenos"> 74</span></a><span class="sd">            @safe_async_contextmanager</span>
+</span><span id="safe_async_contextmanager-75"><a href="#safe_async_contextmanager-75"><span class="linenos"> 75</span></a><span class="sd">            async def some_async_generator(&lt;arguments&gt;):</span>
+</span><span id="safe_async_contextmanager-76"><a href="#safe_async_contextmanager-76"><span class="linenos"> 76</span></a><span class="sd">                &lt;setup&gt;</span>
+</span><span id="safe_async_contextmanager-77"><a href="#safe_async_contextmanager-77"><span class="linenos"> 77</span></a><span class="sd">                yield &lt;value&gt;</span>
+</span><span id="safe_async_contextmanager-78"><a href="#safe_async_contextmanager-78"><span class="linenos"> 78</span></a><span class="sd">                &lt;cleanup&gt;</span>
+</span><span id="safe_async_contextmanager-79"><a href="#safe_async_contextmanager-79"><span class="linenos"> 79</span></a>
+</span><span id="safe_async_contextmanager-80"><a href="#safe_async_contextmanager-80"><span class="linenos"> 80</span></a><span class="sd">        equivalent to this:</span>
+</span><span id="safe_async_contextmanager-81"><a href="#safe_async_contextmanager-81"><span class="linenos"> 81</span></a>
+</span><span id="safe_async_contextmanager-82"><a href="#safe_async_contextmanager-82"><span class="linenos"> 82</span></a><span class="sd">            @asynccontextmanager</span>
+</span><span id="safe_async_contextmanager-83"><a href="#safe_async_contextmanager-83"><span class="linenos"> 83</span></a><span class="sd">            async def some_async_generator(&lt;arguments&gt;):</span>
+</span><span id="safe_async_contextmanager-84"><a href="#safe_async_contextmanager-84"><span class="linenos"> 84</span></a><span class="sd">                &lt;setup&gt;</span>
+</span><span id="safe_async_contextmanager-85"><a href="#safe_async_contextmanager-85"><span class="linenos"> 85</span></a><span class="sd">                try:</span>
+</span><span id="safe_async_contextmanager-86"><a href="#safe_async_contextmanager-86"><span class="linenos"> 86</span></a><span class="sd">                    yield &lt;value&gt;</span>
+</span><span id="safe_async_contextmanager-87"><a href="#safe_async_contextmanager-87"><span class="linenos"> 87</span></a><span class="sd">                finally:</span>
+</span><span id="safe_async_contextmanager-88"><a href="#safe_async_contextmanager-88"><span class="linenos"> 88</span></a><span class="sd">                    &lt;cleanup&gt;</span>
+</span><span id="safe_async_contextmanager-89"><a href="#safe_async_contextmanager-89"><span class="linenos"> 89</span></a>
+</span><span id="safe_async_contextmanager-90"><a href="#safe_async_contextmanager-90"><span class="linenos"> 90</span></a><span class="sd">        This makes this:</span>
+</span><span id="safe_async_contextmanager-91"><a href="#safe_async_contextmanager-91"><span class="linenos"> 91</span></a>
+</span><span id="safe_async_contextmanager-92"><a href="#safe_async_contextmanager-92"><span class="linenos"> 92</span></a><span class="sd">            async with some_async_generator(&lt;arguments&gt;) as &lt;variable&gt;:</span>
+</span><span id="safe_async_contextmanager-93"><a href="#safe_async_contextmanager-93"><span class="linenos"> 93</span></a><span class="sd">                &lt;body&gt;</span>
+</span><span id="safe_async_contextmanager-94"><a href="#safe_async_contextmanager-94"><span class="linenos"> 94</span></a>
+</span><span id="safe_async_contextmanager-95"><a href="#safe_async_contextmanager-95"><span class="linenos"> 95</span></a><span class="sd">        equivalent to this:</span>
+</span><span id="safe_async_contextmanager-96"><a href="#safe_async_contextmanager-96"><span class="linenos"> 96</span></a>
+</span><span id="safe_async_contextmanager-97"><a href="#safe_async_contextmanager-97"><span class="linenos"> 97</span></a><span class="sd">            &lt;setup&gt;</span>
+</span><span id="safe_async_contextmanager-98"><a href="#safe_async_contextmanager-98"><span class="linenos"> 98</span></a><span class="sd">            try:</span>
+</span><span id="safe_async_contextmanager-99"><a href="#safe_async_contextmanager-99"><span class="linenos"> 99</span></a><span class="sd">                &lt;variable&gt; = &lt;value&gt;</span>
+</span><span id="safe_async_contextmanager-100"><a href="#safe_async_contextmanager-100"><span class="linenos">100</span></a><span class="sd">                &lt;body&gt;</span>
+</span><span id="safe_async_contextmanager-101"><a href="#safe_async_contextmanager-101"><span class="linenos">101</span></a><span class="sd">            finally:</span>
+</span><span id="safe_async_contextmanager-102"><a href="#safe_async_contextmanager-102"><span class="linenos">102</span></a><span class="sd">                &lt;cleanup&gt;</span>
+</span><span id="safe_async_contextmanager-103"><a href="#safe_async_contextmanager-103"><span class="linenos">103</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="safe_async_contextmanager-104"><a href="#safe_async_contextmanager-104"><span class="linenos">104</span></a>
+</span><span id="safe_async_contextmanager-105"><a href="#safe_async_contextmanager-105"><span class="linenos">105</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">isasyncgenfunction</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+</span><span id="safe_async_contextmanager-106"><a href="#safe_async_contextmanager-106"><span class="linenos">106</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">isgeneratorfunction</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+</span><span id="safe_async_contextmanager-107"><a href="#safe_async_contextmanager-107"><span class="linenos">107</span></a>            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> is not a generator.&#39;</span><span class="p">)</span>
+</span><span id="safe_async_contextmanager-108"><a href="#safe_async_contextmanager-108"><span class="linenos">108</span></a>
+</span><span id="safe_async_contextmanager-109"><a href="#safe_async_contextmanager-109"><span class="linenos">109</span></a>        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> is not an async generator. &#39;</span>
+</span><span id="safe_async_contextmanager-110"><a href="#safe_async_contextmanager-110"><span class="linenos">110</span></a>                             <span class="sa">f</span><span class="s1">&#39;So you need to use &quot;safe_contextmanager&quot; instead.&#39;</span><span class="p">)</span>
+</span><span id="safe_async_contextmanager-111"><a href="#safe_async_contextmanager-111"><span class="linenos">111</span></a>
+</span><span id="safe_async_contextmanager-112"><a href="#safe_async_contextmanager-112"><span class="linenos">112</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="safe_async_contextmanager-113"><a href="#safe_async_contextmanager-113"><span class="linenos">113</span></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+</span><span id="safe_async_contextmanager-114"><a href="#safe_async_contextmanager-114"><span class="linenos">114</span></a>        <span class="n">iterator</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="safe_async_contextmanager-115"><a href="#safe_async_contextmanager-115"><span class="linenos">115</span></a>
+</span><span id="safe_async_contextmanager-116"><a href="#safe_async_contextmanager-116"><span class="linenos">116</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="safe_async_contextmanager-117"><a href="#safe_async_contextmanager-117"><span class="linenos">117</span></a>            <span class="k">yield</span> <span class="k">await</span> <span class="n">anext</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+</span><span id="safe_async_contextmanager-118"><a href="#safe_async_contextmanager-118"><span class="linenos">118</span></a>        <span class="k">finally</span><span class="p">:</span>
+</span><span id="safe_async_contextmanager-119"><a href="#safe_async_contextmanager-119"><span class="linenos">119</span></a>            <span class="k">try</span><span class="p">:</span>  <span class="c1"># noqa: SIM105</span>
+</span><span id="safe_async_contextmanager-120"><a href="#safe_async_contextmanager-120"><span class="linenos">120</span></a>                <span class="k">await</span> <span class="n">anext</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+</span><span id="safe_async_contextmanager-121"><a href="#safe_async_contextmanager-121"><span class="linenos">121</span></a>            <span class="k">except</span> <span class="ne">StopAsyncIteration</span><span class="p">:</span>
+</span><span id="safe_async_contextmanager-122"><a href="#safe_async_contextmanager-122"><span class="linenos">122</span></a>                <span class="k">pass</span>
+</span><span id="safe_async_contextmanager-123"><a href="#safe_async_contextmanager-123"><span class="linenos">123</span></a>
+</span><span id="safe_async_contextmanager-124"><a href="#safe_async_contextmanager-124"><span class="linenos">124</span></a>    <span class="k">return</span> <span class="n">asynccontextmanager</span><span class="p">(</span><span class="n">wrapper</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>@safe_async_contextmanager decorator.</p>
+
+<pre><code> Typical usage:
+
+    @safe_async_contextmanager
+    async def some_async_generator(&lt;arguments&gt;):
+        &lt;setup&gt;
+        yield &lt;value&gt;
+        &lt;cleanup&gt;
+
+equivalent to this:
+
+    @asynccontextmanager
+    async def some_async_generator(&lt;arguments&gt;):
+        &lt;setup&gt;
+        try:
+            yield &lt;value&gt;
+        finally:
+            &lt;cleanup&gt;
+
+This makes this:
+
+    async with some_async_generator(&lt;arguments&gt;) as &lt;variable&gt;:
+        &lt;body&gt;
+
+equivalent to this:
+
+    &lt;setup&gt;
+    try:
+        &lt;variable&gt; = &lt;value&gt;
+        &lt;body&gt;
+    finally:
+        &lt;cleanup&gt;
+</code></pre>
+</div>
+
+
+                </section>
+                <section id="safe_contextmanager">
+                            <input id="safe_contextmanager-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">safe_contextmanager</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">[</span><span class="o">~</span><span class="n">T</span><span class="p">]]</span></span><span class="return-annotation">) -> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">AbstractContextManager</span><span class="p">[</span><span class="o">~</span><span class="n">T</span><span class="p">]]</span>:</span></span>
+
+                <label class="view-source-button" for="safe_contextmanager-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#safe_contextmanager"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="safe_contextmanager-11"><a href="#safe_contextmanager-11"><span class="linenos">11</span></a><span class="k">def</span><span class="w"> </span><span class="nf">safe_contextmanager</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">T</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">AbstractContextManager</span><span class="p">[</span><span class="n">T</span><span class="p">]]:</span>
+</span><span id="safe_contextmanager-12"><a href="#safe_contextmanager-12"><span class="linenos">12</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="safe_contextmanager-13"><a href="#safe_contextmanager-13"><span class="linenos">13</span></a><span class="sd">    @safe_contextmanager decorator.</span>
+</span><span id="safe_contextmanager-14"><a href="#safe_contextmanager-14"><span class="linenos">14</span></a>
+</span><span id="safe_contextmanager-15"><a href="#safe_contextmanager-15"><span class="linenos">15</span></a><span class="sd">    Typical usage:</span>
+</span><span id="safe_contextmanager-16"><a href="#safe_contextmanager-16"><span class="linenos">16</span></a>
+</span><span id="safe_contextmanager-17"><a href="#safe_contextmanager-17"><span class="linenos">17</span></a><span class="sd">        @safe_contextmanager</span>
+</span><span id="safe_contextmanager-18"><a href="#safe_contextmanager-18"><span class="linenos">18</span></a><span class="sd">        def some_generator(&lt;arguments&gt;):</span>
+</span><span id="safe_contextmanager-19"><a href="#safe_contextmanager-19"><span class="linenos">19</span></a><span class="sd">            &lt;setup&gt;</span>
+</span><span id="safe_contextmanager-20"><a href="#safe_contextmanager-20"><span class="linenos">20</span></a><span class="sd">            yield &lt;value&gt;</span>
+</span><span id="safe_contextmanager-21"><a href="#safe_contextmanager-21"><span class="linenos">21</span></a><span class="sd">            &lt;cleanup&gt;</span>
+</span><span id="safe_contextmanager-22"><a href="#safe_contextmanager-22"><span class="linenos">22</span></a>
+</span><span id="safe_contextmanager-23"><a href="#safe_contextmanager-23"><span class="linenos">23</span></a><span class="sd">    equivalent to this:</span>
+</span><span id="safe_contextmanager-24"><a href="#safe_contextmanager-24"><span class="linenos">24</span></a>
+</span><span id="safe_contextmanager-25"><a href="#safe_contextmanager-25"><span class="linenos">25</span></a><span class="sd">        @contextmanager</span>
+</span><span id="safe_contextmanager-26"><a href="#safe_contextmanager-26"><span class="linenos">26</span></a><span class="sd">        def some_generator(&lt;arguments&gt;):</span>
+</span><span id="safe_contextmanager-27"><a href="#safe_contextmanager-27"><span class="linenos">27</span></a><span class="sd">            &lt;setup&gt;</span>
+</span><span id="safe_contextmanager-28"><a href="#safe_contextmanager-28"><span class="linenos">28</span></a><span class="sd">            try:</span>
+</span><span id="safe_contextmanager-29"><a href="#safe_contextmanager-29"><span class="linenos">29</span></a><span class="sd">                yield &lt;value&gt;</span>
+</span><span id="safe_contextmanager-30"><a href="#safe_contextmanager-30"><span class="linenos">30</span></a><span class="sd">            finally:</span>
+</span><span id="safe_contextmanager-31"><a href="#safe_contextmanager-31"><span class="linenos">31</span></a><span class="sd">                &lt;cleanup&gt;</span>
+</span><span id="safe_contextmanager-32"><a href="#safe_contextmanager-32"><span class="linenos">32</span></a>
+</span><span id="safe_contextmanager-33"><a href="#safe_contextmanager-33"><span class="linenos">33</span></a><span class="sd">    This makes this:</span>
+</span><span id="safe_contextmanager-34"><a href="#safe_contextmanager-34"><span class="linenos">34</span></a>
+</span><span id="safe_contextmanager-35"><a href="#safe_contextmanager-35"><span class="linenos">35</span></a><span class="sd">        with some_generator(&lt;arguments&gt;) as &lt;variable&gt;:</span>
+</span><span id="safe_contextmanager-36"><a href="#safe_contextmanager-36"><span class="linenos">36</span></a><span class="sd">            &lt;body&gt;</span>
+</span><span id="safe_contextmanager-37"><a href="#safe_contextmanager-37"><span class="linenos">37</span></a>
+</span><span id="safe_contextmanager-38"><a href="#safe_contextmanager-38"><span class="linenos">38</span></a><span class="sd">    equivalent to this:</span>
+</span><span id="safe_contextmanager-39"><a href="#safe_contextmanager-39"><span class="linenos">39</span></a>
+</span><span id="safe_contextmanager-40"><a href="#safe_contextmanager-40"><span class="linenos">40</span></a><span class="sd">        &lt;setup&gt;</span>
+</span><span id="safe_contextmanager-41"><a href="#safe_contextmanager-41"><span class="linenos">41</span></a><span class="sd">        try:</span>
+</span><span id="safe_contextmanager-42"><a href="#safe_contextmanager-42"><span class="linenos">42</span></a><span class="sd">            &lt;variable&gt; = &lt;value&gt;</span>
+</span><span id="safe_contextmanager-43"><a href="#safe_contextmanager-43"><span class="linenos">43</span></a><span class="sd">            &lt;body&gt;</span>
+</span><span id="safe_contextmanager-44"><a href="#safe_contextmanager-44"><span class="linenos">44</span></a><span class="sd">        finally:</span>
+</span><span id="safe_contextmanager-45"><a href="#safe_contextmanager-45"><span class="linenos">45</span></a><span class="sd">            &lt;cleanup&gt;</span>
+</span><span id="safe_contextmanager-46"><a href="#safe_contextmanager-46"><span class="linenos">46</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="safe_contextmanager-47"><a href="#safe_contextmanager-47"><span class="linenos">47</span></a>
+</span><span id="safe_contextmanager-48"><a href="#safe_contextmanager-48"><span class="linenos">48</span></a>    <span class="k">if</span> <span class="n">isasyncgenfunction</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+</span><span id="safe_contextmanager-49"><a href="#safe_contextmanager-49"><span class="linenos">49</span></a>        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> is async. So you need to use &quot;safe_async_contextmanager&quot; instead.&#39;</span><span class="p">)</span>
+</span><span id="safe_contextmanager-50"><a href="#safe_contextmanager-50"><span class="linenos">50</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">isgeneratorfunction</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+</span><span id="safe_contextmanager-51"><a href="#safe_contextmanager-51"><span class="linenos">51</span></a>        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> is not a generator.&#39;</span><span class="p">)</span>
+</span><span id="safe_contextmanager-52"><a href="#safe_contextmanager-52"><span class="linenos">52</span></a>
+</span><span id="safe_contextmanager-53"><a href="#safe_contextmanager-53"><span class="linenos">53</span></a>    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="safe_contextmanager-54"><a href="#safe_contextmanager-54"><span class="linenos">54</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+</span><span id="safe_contextmanager-55"><a href="#safe_contextmanager-55"><span class="linenos">55</span></a>        <span class="n">iterator</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="safe_contextmanager-56"><a href="#safe_contextmanager-56"><span class="linenos">56</span></a>
+</span><span id="safe_contextmanager-57"><a href="#safe_contextmanager-57"><span class="linenos">57</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="safe_contextmanager-58"><a href="#safe_contextmanager-58"><span class="linenos">58</span></a>            <span class="k">yield</span> <span class="nb">next</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+</span><span id="safe_contextmanager-59"><a href="#safe_contextmanager-59"><span class="linenos">59</span></a>        <span class="k">finally</span><span class="p">:</span>
+</span><span id="safe_contextmanager-60"><a href="#safe_contextmanager-60"><span class="linenos">60</span></a>            <span class="k">try</span><span class="p">:</span>  <span class="c1"># noqa: SIM105</span>
+</span><span id="safe_contextmanager-61"><a href="#safe_contextmanager-61"><span class="linenos">61</span></a>                <span class="nb">next</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+</span><span id="safe_contextmanager-62"><a href="#safe_contextmanager-62"><span class="linenos">62</span></a>            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+</span><span id="safe_contextmanager-63"><a href="#safe_contextmanager-63"><span class="linenos">63</span></a>                <span class="k">pass</span>  <span class="c1"># this is intended</span>
+</span><span id="safe_contextmanager-64"><a href="#safe_contextmanager-64"><span class="linenos">64</span></a>
+</span><span id="safe_contextmanager-65"><a href="#safe_contextmanager-65"><span class="linenos">65</span></a>    <span class="k">return</span> <span class="n">contextmanager</span><span class="p">(</span><span class="n">wrapper</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>@safe_contextmanager decorator.</p>
+
+<p>Typical usage:</p>
+
+<pre><code>@safe_contextmanager
+def some_generator(&lt;arguments&gt;):
+    &lt;setup&gt;
+    yield &lt;value&gt;
+    &lt;cleanup&gt;
+</code></pre>
+
+<p>equivalent to this:</p>
+
+<pre><code>@contextmanager
+def some_generator(&lt;arguments&gt;):
+    &lt;setup&gt;
+    try:
+        yield &lt;value&gt;
+    finally:
+        &lt;cleanup&gt;
+</code></pre>
+
+<p>This makes this:</p>
+
+<pre><code>with some_generator(&lt;arguments&gt;) as &lt;variable&gt;:
+    &lt;body&gt;
+</code></pre>
+
+<p>equivalent to this:</p>
+
+<pre><code>&lt;setup&gt;
+try:
+    &lt;variable&gt; = &lt;value&gt;
+    &lt;body&gt;
+finally:
+    &lt;cleanup&gt;
+</code></pre>
 </div>
 
 
