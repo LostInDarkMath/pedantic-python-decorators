@@ -1,3 +1,6 @@
+import pytest
+
+from pedantic.exceptions import PedanticTypeCheckException
 from pedantic.models.decorated_function import DecoratedFunction
 
 
@@ -140,3 +143,8 @@ def test_num_decorators():
     assert DecoratedFunction(f_2).num_of_decorators == 1
     assert DecoratedFunction(f_3).num_of_decorators == 2
     assert DecoratedFunction(f_4).num_of_decorators == 3
+
+
+def test_wrap_obj_which_is_not_callable():
+    with pytest.raises(expected_exception=PedanticTypeCheckException, match='42 should be a method or function'):
+        DecoratedFunction(func=42)

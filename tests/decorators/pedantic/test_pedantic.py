@@ -39,6 +39,7 @@ from typing import (
     TypeVar,
     TypeVarTuple,
     Union,
+    runtime_checkable,
 )
 
 import pytest
@@ -2588,11 +2589,39 @@ def test_dataclass_protocol():
     class Foo:
         v: int
 
+    class NoDataClass:
+        def __init__(self, v: int) -> None:
+            self.v = v
+
     @pedantic
     def foo(x: IsDataclass) -> IsDataclass:
         return x
 
     foo(x=Foo(v=42))
+    foo(x=NoDataClass(v=42))  # raises no error since IsDataclass is not runtime checkable
+
+
+def test_dataclass_runtime_checkable_protocol():
+    @runtime_checkable
+    class IsDataclass(Protocol):
+        __dataclass_fields__: ClassVar[Dict]
+
+    @dataclass
+    class Foo:
+        v: int
+
+    class NoDataClass:
+        def __init__(self, v: int) -> None:
+            self.v = v
+
+    @pedantic
+    def foo(x: IsDataclass) -> IsDataclass:
+        return x
+
+    foo(x=Foo(v=42))
+
+    with pytest.raises(expected_exception=PedanticTypeCheckException):
+        foo(x=NoDataClass(v=42))
 
 
 def test_dataclass_protocol_in_type():

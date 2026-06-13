@@ -1,4 +1,9 @@
 # Changelog
+## Pedantic 3.0.1
+- improve line coverage
+- make task `check-changelog` work even before making a commit 
+- cleanup `.coveragerc`
+
 ## Pedantic 3.0.0
 - removed decorator `@count_calls`
 - removed decorator `@does_same_as_function`

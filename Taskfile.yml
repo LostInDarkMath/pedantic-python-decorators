@@ -101,8 +101,9 @@ tasks:
         # Fetch latest master if we're in a repo with a remote
         git fetch origin master >/dev/null 2>&1 || true
 
-        if git diff --name-only "$BASE"...HEAD | grep -qx "CHANGELOG.md"; then
-          echo "✅ CHANGELOG.md was updated."
+        if git diff --name-only "$BASE"...HEAD | grep -qx "CHANGELOG.md" ||
+           git diff --name-only HEAD | grep -qx "CHANGELOG.md"; then
+            echo "✅ CHANGELOG.md was updated."
         else
           echo "❌ CHANGELOG.md was NOT updated."
           echo ""
