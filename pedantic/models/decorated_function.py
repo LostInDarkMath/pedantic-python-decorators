@@ -26,7 +26,7 @@ class DecoratedFunction:
         self._func = func
 
         if not callable(func):
-            raise PedanticTypeCheckException(f'{self.full_name} should be a method or function.')
+            raise PedanticTypeCheckException(f'{func} should be a method or function')
 
         self._full_arg_spec = inspect.getfullargspec(func)
         self._signature = inspect.signature(func)

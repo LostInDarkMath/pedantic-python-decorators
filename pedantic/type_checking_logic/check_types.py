@@ -223,8 +223,6 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
             validator = _ORIGIN_TYPE_CHECKERS[base]
             return validator(obj, type_args, type_vars, context)
 
-        if base.__base__ != typing.Generic:
-            raise RuntimeError(f'Unknown base: {base}')
         return isinstance(obj, base)
 
     if _is_forward_ref(type_=type_):
@@ -249,13 +247,13 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
     if type_ in {list, set, dict, frozenset, tuple, type}:
         raise PedanticTypeCheckException('Missing type arguments')
 
-    try:
-        return isinstance(obj, type_)
-    except TypeError:
-        if isinstance(type_, _ProtocolMeta):
-            return True  # we do not check this
+    if isinstance(type_, _ProtocolMeta):
+        if getattr(type_, '_is_runtime_protocol', False):
+            return isinstance(obj, type_)
 
-        raise
+        return True  # since this Protocol not has the @runtime_cheable decorator
+
+    return isinstance(obj, type_)
 
 
 def _is_forward_ref(type_: Any) -> bool:
@@ -713,8 +711,7 @@ def _instancecheck_generator(
     generator: typing.Generator, type_args: Tuple, _: Dict[TypeVar_, Any], __: Dict[str, Any] | None = None,
 ) -> bool:
     from pedantic.models import GeneratorWrapper  # noqa: PLC0415 must be local due to circular imports
-    if not isinstance(generator, GeneratorWrapper):
-        raise TypeError(generator)
+    assert isinstance(generator, GeneratorWrapper)  # noqa: S101
     return (generator.yield_type == type_args[0]
             and generator.send_type == type_args[1]
             and generator.return_type == type_args[2])
