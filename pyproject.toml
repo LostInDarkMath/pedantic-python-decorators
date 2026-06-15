@@ -34,7 +34,7 @@ dev = [
   "coverage==7.14.1",
   "deptry==0.25.1",
   "docstring-parser==0.18.0",
-  "pytest==9.0.3",
+  "pytest==9.1.0",
   "pytest-asyncio==1.4.0",
   "pytest-cov==7.1.0",
   "Flask[async]==3.1.3",
