@@ -11,3 +11,8 @@ updates:
       interval: "daily"
     assignees:
       - "LostInDarkMath"
+
+    ignore:  # ignore patch releases to avoid spam
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-patch"
