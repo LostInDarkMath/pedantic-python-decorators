@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 3.0.2
+- updated dev dependencies
+
 ## Pedantic 3.0.1
 - improve line coverage
 - make task `check-changelog` work even before making a commit 
