@@ -2648,7 +2648,7 @@ def test_dataclass_protocol_in_type_with_union():
         v: int
 
     @pedantic
-    def foo(x: type[None | bool | IsDataclass]) -> IsDataclass:
+    def foo(x: type[bool | IsDataclass | None]) -> IsDataclass:
         return x
 
     assert foo(x=Foo) == Foo

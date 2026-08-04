@@ -13,7 +13,7 @@ from pedantic.type_checking_logic.resolve_forward_ref import resolve_forward_ref
 
 # ruff: noqa: UP006, UP035
 
-def assert_value_matches_type(  # noqa: PLR0913
+def assert_value_matches_type(  # noqa: PLR0913, PLR0917
     value: Any,
     type_: Any,
     err: str,

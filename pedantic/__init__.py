@@ -68,7 +68,6 @@ __all__ = [
     'EnvironmentVariableParameter',
     'ExceptionDictKey',
     'ExternalParameter',
-    'ExternalParameter',
     'ForEach',
     'GenericMixin',
     'InvalidHeader',

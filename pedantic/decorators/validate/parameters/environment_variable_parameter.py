@@ -9,7 +9,7 @@ from pedantic.decorators.validate.validators import Validator
 
 
 class EnvironmentVariableParameter(ExternalParameter):   # noqa: D101
-    def __init__(  # noqa: D107, PLR0913
+    def __init__(  # noqa: D107, PLR0913, PLR0917
         self,
         name: str,
         env_var_name: str | None = None,
