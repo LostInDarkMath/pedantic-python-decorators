@@ -12,7 +12,6 @@ __all__ = [
     'calculate_in_subprocess',
     'decorate_class',
     'deprecated',
-    'deprecated',
     'frozen_dataclass',
     'frozen_type_safe_dataclass',
     'in_subprocess',

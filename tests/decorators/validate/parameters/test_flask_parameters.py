@@ -64,7 +64,7 @@ def test_validator_flask_json():
         FlaskJsonParameter(name='list_param', value_type=list),
         FlaskJsonParameter(name='dict_param', value_type=dict),
     )
-    def different_types(  # noqa: PLR0913
+    def different_types(  # noqa: PLR0913, PLR0917
         bool_param,
         int_param,
         float_param,

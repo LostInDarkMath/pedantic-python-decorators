@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 3.0.3
+- updated dev dependencies
+- fix new ruff lint warnings
+
 ## Pedantic 3.0.2
 - updated dev dependencies
 
