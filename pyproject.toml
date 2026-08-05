@@ -20,7 +20,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent",
 ]
-dependencies = ["coverage (>=7.14.0,<8.0.0)"]
+dependencies = []
 
 [project.urls]
 "Bug Tracker" = "https://github.com/LostInDarkMath/pedantic-python-decorators/issues"
