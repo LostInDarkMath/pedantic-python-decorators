@@ -73,6 +73,10 @@ jobs:
 
       - *install-task  # see above
 
+      - name: Run tests that check it works without dev dependencies
+        run: |
+          task tests-no-deps
+
       - name: Install dependencies
         run: |
           task dependencies-with-pip

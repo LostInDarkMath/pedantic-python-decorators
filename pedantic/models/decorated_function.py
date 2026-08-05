@@ -53,7 +53,7 @@ class DecoratedFunction:
         return self._full_arg_spec.annotations
 
     @property
-    def docstring(self) -> Docstring | None:
+    def docstring(self) -> 'Docstring | None':
         """
         Returns the docstring if the docstring-parser package is installed else None.
 

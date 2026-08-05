@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 3.0.4
+- fix `TypeError: unsupported operand type(s) for |: 'NoneType' and 'NoneType'`
+
 ## Pedantic 3.0.3
 - updated dev dependencies
 - fix new ruff lint warnings

@@ -21,6 +21,12 @@ tasks:
     cmds:
       - pytest --doctest-modules
 
+  tests-no-deps:
+    desc: Runs the special tests that should work with no dev dependencies installed
+    cmds:
+      - pip install pytest
+      - pytest tests/test_without_dependencies.py
+
   tests-with-cov:
     desc: Runs the tests with coverage
     cmds:
