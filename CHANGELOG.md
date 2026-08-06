@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 3.0.5
+- remove coverage as runtime dependency
+
 ## Pedantic 3.0.4
 - fix `TypeError: unsupported operand type(s) for |: 'NoneType' and 'NoneType'`
 
