@@ -32,7 +32,7 @@ dependencies = []
 # poetry install --extras dev
 # pip install .[dev]
 dev = [
-  "coverage==7.15.3",
+  "coverage==7.16.1",
   "deptry==0.25.1",
   "docstring-parser==0.18.0",
   "pytest==9.1.1",
