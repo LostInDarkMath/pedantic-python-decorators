@@ -1,6 +1,8 @@
 import asyncio
+import importlib
 import time
 from typing import NoReturn
+from unittest.mock import MagicMock
 
 import pytest
 from multiprocess import Pipe
@@ -170,3 +172,39 @@ async def test_in_subprocess_static_method():
     foo = Foo()
     assert await foo.pos_args() == 9
     assert await foo.kw_args() == 9
+
+
+@pytest.mark.asyncio
+async def test_in_subprocess_result_already_available(monkeypatch):
+    """Cover the branch where rx.poll() returns True."""
+    module = importlib.import_module('pedantic.decorators.in_subprocess')
+
+    rx = MagicMock()
+    tx = MagicMock()
+    rx.fileno.return_value = 123
+    rx.poll.return_value = True
+    rx.recv.return_value = 42
+
+    monkeypatch.setattr(module, 'Pipe', MagicMock(return_value=(rx, tx)))
+
+    process = MagicMock()
+    monkeypatch.setattr(module, 'Process', MagicMock(return_value=process))
+
+    loop = MagicMock()
+    monkeypatch.setattr(module.asyncio, 'get_event_loop', lambda: loop)
+
+    @module.in_subprocess
+    def f() -> int:
+        return 42
+
+    assert await f() == 42
+
+    rx.poll.assert_called_once_with()
+    rx.recv.assert_called_once_with()
+    process.start.assert_called_once_with()
+    process.join.assert_called_once_with()
+    rx.close.assert_called_once_with()
+    tx.close.assert_called_once_with()
+
+    loop.add_reader.assert_called_once_with(fd=123, callback=loop.add_reader.call_args.kwargs['callback'])
+    loop.remove_reader.assert_called_once_with(fd=123)

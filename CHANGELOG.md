@@ -1,4 +1,9 @@
 # Changelog
+## Pedantic 3.0.6
+- updated dependencies
+- fix branch coverage reporting
+- improve branch coverage
+
 ## Pedantic 3.0.5
 - remove coverage as runtime dependency
 

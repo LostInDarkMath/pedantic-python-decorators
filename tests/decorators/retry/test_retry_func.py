@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 
 from pedantic.decorators.retry import retry_func
@@ -81,3 +83,14 @@ def test_retry_positive_no_args_fails_on_first_times():
 
     assert retry_func(func=foo, attempts=5) == 3
     assert count == 3
+
+
+def test_call_with_logger():
+    count = 0
+
+    def foo():
+        nonlocal count
+        count += 1
+
+    retry_func(func=foo, attempts=5, logger=logging.getLogger('test_call_with_logger'))
+    assert count == 1
