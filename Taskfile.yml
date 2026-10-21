@@ -8,6 +8,7 @@ tasks:
     cmds:
       - pip install --upgrade pip
       - poetry lock
+      - poetry update
       - poetry install --extras dev
 
   dependencies-with-pip:
@@ -32,6 +33,11 @@ tasks:
     cmds:
       - pytest --doctest-modules --cov=pedantic --cov-branch --cov-report= --cov-report=term
 
+  tests-with-cov-html-report:
+    desc: Runs the tests with coverage
+    cmds:
+      - pytest --doctest-modules --cov=pedantic --cov-branch --cov-report= --cov-report=html
+
   lint:
     desc: Runs the linter (ruff)
     cmds:
@@ -50,6 +56,7 @@ tasks:
   validate:
     desc: Runs all checks and updates the docu. It is recommended to do this before making a commit.
     cmds:
+      - poetry check
       - task: check-deps
       - task: list-crlf
       - task: check-changelog

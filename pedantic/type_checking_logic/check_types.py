@@ -150,9 +150,8 @@ def _is_instance(obj: Any, type_: Any, type_vars: Dict[TypeVar_, Any], context: 
         origin = get_base_generic(type_)
         name = _get_name(origin)
 
-        if name in _SPECIAL_INSTANCE_CHECKERS:
-            validator = _SPECIAL_INSTANCE_CHECKERS[name]
-            return validator(obj, type_, type_vars, context)
+        validator = _SPECIAL_INSTANCE_CHECKERS[name]
+        return validator(obj, type_, type_vars, context)
 
     if hasattr(types, 'UnionType') and isinstance(type_, types.UnionType):
         return _instancecheck_union(value=obj, type_=type_, type_vars=type_vars, context=context)
