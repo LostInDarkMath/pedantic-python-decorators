@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 3.1.0
+- added support for Python 3.15
+
 ## Pedantic 3.0.7
 - add Python version classifiers to project metadata
 
