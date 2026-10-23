@@ -1,4 +1,8 @@
 # Changelog
+## Pedantic 3.0.7
+- added support for Python 3.15
+- make `@in_subprocess` and `calculate_in_subprocess` more robust
+
 ## Pedantic 3.0.6
 - updated dependencies
 - fix branch coverage reporting
