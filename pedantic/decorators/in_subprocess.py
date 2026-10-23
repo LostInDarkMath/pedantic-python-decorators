@@ -50,7 +50,7 @@ def in_subprocess(func: Callable[P, T | Awaitable[T]]) -> Callable[P, Awaitable[
     return wrapper
 
 
-async def calculate_in_subprocess(func: Callable[P, T | Awaitable[T]], *args: P.args, **kwargs: P.kwargs) -> T:
+async def calculate_in_subprocess(func: Callable[P, T | Awaitable[T]], *args: P.args, **kwargs: P.kwargs) -> T:  # noqa: C901
     """
     Calculates the result of a synchronous function in subprocess without blocking the current thread.
 
@@ -64,6 +64,10 @@ async def calculate_in_subprocess(func: Callable[P, T | Awaitable[T]], *args: P.
 
     Raises:
         Any Exception that is raised inside [func].
+        ChildProcessError: If the child exits without a result or exits unsuccessfully.
+
+    Calls have no default time limit. Use asyncio.wait_for to impose one.
+    Cancellation terminates the child and closes its pipes.
 
     Further reading: https://medium.com/devopss-hole/python-multiprocessing-pickle-issue-e2d35ccf96a9
 
@@ -80,45 +84,74 @@ async def calculate_in_subprocess(func: Callable[P, T | Awaitable[T]], *args: P.
     if Pipe is None:
         raise ImportError('You need to install the multiprocess package to use this: pip install multiprocess')
 
-    rx, tx = Pipe(duplex=False)  # receiver & transmitter ; Pipe is one-way only
-    process = Process(target=_inner, args=(tx, func, *args), kwargs=kwargs)
-    process.start()
+    loop = asyncio.get_running_loop()
+    rx, tx = Pipe(duplex=False)
+    try:
+        process = Process(target=_inner, args=(tx, func, *args), kwargs=kwargs)
+        try:
+            process.start()
+            tx.close()
+            ready = asyncio.Event()
+            exited = asyncio.Event()
 
-    event = asyncio.Event()
-    loop = asyncio.get_event_loop()
-    loop.add_reader(fd=rx.fileno(), callback=event.set)
+            def on_exit() -> None:
+                ready.set()
+                exited.set()
 
-    if not rx.poll():  # do not use process.is_alive() as condition here
-        await event.wait()
-
-    loop.remove_reader(fd=rx.fileno())
-    event.clear()
-
-    result = rx.recv()
-    process.join()  # this blocks synchronously! make sure that process is terminated before you call join()
-    rx.close()
-    tx.close()
-
-    if isinstance(result, SubprocessError):
-        raise result.exception
-
-    return result
+            try:
+                loop.add_reader(rx.fileno(), ready.set)
+                loop.add_reader(process.sentinel, on_exit)
+                if not rx.poll():
+                    await ready.wait()
+                if not rx.poll():
+                    raise ChildProcessError('Subprocess exited without sending a result')
+                try:
+                    # A readable pipe may contain only part of a large message.
+                    result = await asyncio.to_thread(rx.recv)
+                except (EOFError, OSError) as ex:
+                    raise ChildProcessError('Subprocess pipe closed before a complete result was received') from ex
+                await exited.wait()
+                process.join()
+                if process.exitcode != 0:
+                    raise ChildProcessError(f'Subprocess exited with code {process.exitcode}')
+                if isinstance(result, SubprocessError):
+                    raise result.exception
+                return result
+            finally:
+                loop.remove_reader(rx.fileno())
+                loop.remove_reader(process.sentinel)
+        finally:
+            if process.pid is not None:  # noqa: SIM102
+                if process.is_alive():
+                    process.terminate()
+                    await asyncio.to_thread(process.join, timeout=1)
+                    if process.is_alive():
+                        process.kill()
+                        await asyncio.to_thread(process.join, timeout=1)
+            process.close()
+    finally:
+        rx.close()
+        tx.close()
 
 
 def _inner(tx: Connection, fun: Callable[..., T | Awaitable[T]], *a: Any, **kw_args: Any) -> None:
     """This runs in another process."""
 
     event_loop = None
-    if inspect.iscoroutinefunction(fun):
-        event_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(event_loop)
-
     try:
-        if event_loop is not None:
-            res = event_loop.run_until_complete(fun(*a, **kw_args))
-        else:
-            res = fun(*a, **kw_args)
-    except Exception as ex: # noqa: BLE001
-        tx.send(SubprocessError(ex=ex))
-    else:
-        tx.send(res)
+        try:
+            if inspect.iscoroutinefunction(fun):
+                event_loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(event_loop)
+                res = event_loop.run_until_complete(fun(*a, **kw_args))
+            else:
+                res = fun(*a, **kw_args)
+            tx.send(res)
+        except Exception as ex:  # noqa: BLE001
+            tx.send(SubprocessError(ex=ex))
+    finally:
+        try:
+            if event_loop is not None:
+                event_loop.close()
+        finally:
+            tx.close()

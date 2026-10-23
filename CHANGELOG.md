@@ -1,6 +1,7 @@
 # Changelog
 ## Pedantic 3.1.0
 - added support for Python 3.15
+- make `@in_subprocess` and `calculate_in_subprocess` more robust
 
 ## Pedantic 3.0.7
 - add Python version classifiers to project metadata
