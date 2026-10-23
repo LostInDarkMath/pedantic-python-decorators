@@ -1,4 +1,7 @@
 # Changelog
+## Pedantic 3.0.7
+- added support for Python 3.15
+
 ## Pedantic 3.0.6
 - updated dependencies
 - fix branch coverage reporting
