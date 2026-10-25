@@ -88,17 +88,33 @@ jobs:
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2.3.6
+        if: success()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           file: .coverage
+          parallel: true
+          flag-name: python-${{ matrix.python-version }}
+
+  coveralls-finish:
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Finalize Coveralls report
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
 
   deploy:
-    needs: test
+    needs: [test, coveralls-finish]
     runs-on: ubuntu-latest
     if: |
       always() &&
       github.ref == 'refs/heads/master' &&
-      needs.test.result == 'success'
+      needs.test.result == 'success' &&
+      needs.coveralls-finish.result == 'success'
     environment:
       name: pypi-deployment
     steps:
